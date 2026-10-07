@@ -3,7 +3,8 @@
 A game is a C program the calculator runs under APPS, with the screen and the keys to itself until
 it exits. This is what a game author needs, from what Babal (the first) ran into. It is written by
 arcade under abacus's ruling (#4726); the framework is soroban's (abacus-firmware firmware/apps.h).
-Parts marked **v1.2** are ruled (docs/apps-h-v1.2.md) and not yet built.
+It is written against apps.h v1.2 (abacus-firmware 0bc7be9, soroban; the rulings in
+docs/apps-h-v1.2.md).
 
 ## Where a game lives
 
@@ -19,7 +20,7 @@ The manifest (`stu32-game.txt`; its format is in gen_games.py's header): the nam
 the list's), the sources, the include folders (on the game's own files only), the flags it builds
 with, and for a port, original. Nothing exported may be a symlink.
 
-## The calls (apps.h v1.1)
+## The calls (apps.h v1.2)
 
 A game is one `app_def`:
 
@@ -28,9 +29,9 @@ A game is one `app_def`:
 | `load(ctx, save, n)` | first, before `start`; n is 0 when nothing was saved | take its saved bytes, whole or not at all |
 | `start(ctx)` | after `load` | set up its first screen |
 | `tick(ctx, ms)` | right after `start`, then as asked | advance by `ms` (time since the last tick); return the ms to the next tick, never 0 while it wants to run |
-| `key(ctx, key, down, ms)` | a key goes down or up | `key` is row * 6 + column; `ms` on the same clock as `tick`; return true to be drawn now |
+| `key(ctx, key, down, ms)` | a key goes down or up | `key` is an `APP_KEY_*` (row * 6 + column; app_keys.h); `ms` on the same clock as `tick`; return true to be drawn now |
 | `draw(ctx, frame)` | after every tick, and after a key that returned true | draw the whole 400 x 240 frame (pixel x of row y in bit x % 8 of byte x / 8, set is dark) |
-| `save(ctx, save, cap)` | on leaving, and before the idle limit stops it | write what to keep, at most `cap` bytes (64; **v1.2**: up to 4096 by `save_size`) |
+| `save(ctx, save, cap)` | on leaving, and before the idle limit stops it | write what to keep, at most `cap` bytes: the app_def's `save_size`, 0 meaning 64, at most APP_SAVE_MAX (4096) |
 | `stop(ctx)` | last | nothing to free: there is no allocation |
 
 What the framework promises: `ctx` is `ctx_size` bytes, at most APP_CTX_MAX (256 KB), zeroed for each
@@ -38,13 +39,15 @@ run, in PSRAM; the calculator's own state is never touched while a game runs and
 was; C (key 42) always ends the game and is never delivered to it; the save is kept apart from the
 calculator's (a MEMORY CLEAR leaves it); after twice the auto-off time without a key the game is
 saved and stopped; `app_beep(hz, ms)` plays a tone at once, honouring VOL and BEEP; `app_now_ms()`
-is the game's clock. **v1.2**: `app_seed()` (a random seed, settable on a host for tests),
-`app_tune(notes, n)` (a short tune, one at a time), `APP_KEY_*` names, `APP_STACK_BYTES`, and the
-framework sending only the lines that changed.
+is the game's clock; `app_seed()` is a seed from the device's hardware RNG (on a host, fixed by
+`app_seed_set` for tests; it returns the same value each call then, so mix in a game counter if each
+game should differ); `app_tune(notes, n)` plays n (hz, ms) pairs from one array, hz 0 a rest, at
+most APP_TUNE_MAX (16), a new tune replacing the last and C stopping it; and the framework sends the
+panel only the lines that changed, so a game just draws the whole frame.
 
 What a game must not do: allocate, call the calculator's core (`ab_*`), keep pointers into the frame
-after `draw`, or put anything big on the stack: its calls run on the framework's task stack, a few
-KB. Build with `-Wframe-larger-than=1024 -Werror` (Babal once shipped a 164 KB stack frame that every
+after `draw`, or put anything big on the stack: its calls may use APP_STACK_BYTES (16 KB) of the framework's
+task stack. Build with `-Wframe-larger-than=1024 -Werror` (Babal once shipped a 164 KB stack frame that every
 host test passed). Put big state in `ctx`.
 
 ## Drawing: draw.h (the framework's)
@@ -60,8 +63,8 @@ reference on the host and the chip; `make sdkcheck` runs that test here on the c
 ## Starting from the template: sdk/template
 
 `sdk/template/ball.c` is BALL, a paddle (4 and 6) keeping a ball in play: one `app_def`, all state in
-a 48-byte ctx, integer positions, a long tick clamped, held keys from key-down and key-up, a tone a
-bounce, the best saved whole or not at all, drawing only with draw.h. Copy the folder with its
+a 48-byte ctx, integer positions, a long tick clamped, held keys from key-down and key-up by
+`APP_KEY_*`, the serve's side from `app_seed()`, a tone a bounce and a tune at the miss, the best saved whole or not at all, drawing only with draw.h. Copy the folder with its
 manifest (`stu32-game.txt`), rename, and build on it.
 
 ## Testing a game: sdk/runner/apprun.c
@@ -70,10 +73,12 @@ Build the runner with the game (`cc -DAPP_DEF=my_app sdk/runner/apprun.c my_game
 firmware/font5x7.c ...`) and give it a script: `key K D MS` and `tick MS` lines. It plays the game through the
 calls in the framework's order and checks the framework's bounds (ctx size, name, a key never before
 the last tick, no tick after the game asked for none); `-hashes FILE` writes a frame hash a tick,
-`-pbm DIR -every N` writes frames, `-load`/`-save` take and keep a save, `-v` prints the tones. It
+`-pbm DIR -every N` writes frames, `-load`/`-save` take and keep a save of `save_size` bytes, `-seed N`
+fixes `app_seed()`, `-v` prints the tones and tunes. It
 agrees frame for frame with Babal's own harness (tools/apphost.c) on 8,002 frames. Build a game's own
 sources with `-Wframe-larger-than=1024 -Werror` (alone: the runner is a host tool), and run the
-runner under ASan and UBSan. `make sdkcheck` does all of this for the template.
+runner under ASan and UBSan. `make sdkcheck` does all of this for the template, and checks the
+runner's v1.2 calls with a test app (tests/v12_app.c).
 
 For a game whose rules have a reference (Babal's are babalcore), compare against it as Babal does
 (oracle/app_check.sh); for the chip, the S3 bench replays the same scripts and compares frame hashes
@@ -82,4 +87,4 @@ Determinism makes all of this possible: draw only from `ctx`, and take time only
 
 ## Still to come
 
-The v1.2 calls in the runner (seed, tunes, save_size), and a generic S3 bench template.
+A generic S3 bench template.

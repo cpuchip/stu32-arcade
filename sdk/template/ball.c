@@ -8,9 +8,6 @@
 #include "draw.h"
 
 enum { TITLE, PLAY, OVER };
-#define KEY_LEFT 31   /* 4 (APP_KEY_4 in apps.h v1.2) */
-#define KEY_RIGHT 33  /* 6 */
-#define KEY_START 18  /* ENTER */
 #define PADDLE_W 64
 #define PADDLE_Y 222
 #define BALL 8
@@ -66,18 +63,18 @@ static void serve(ball_ctx *c)
     c->paddle = (LS027_W - PADDLE_W) / 2;
     c->bx = (LS027_W / 2) * FIX;
     c->by = 60 * FIX;
-    c->vx = 40;     /* 0.16 px a ms */
+    c->vx = (app_seed() & 1) ? 40 : -40; /* 0.16 px a ms, its side from the framework's seed */
     c->vy = 50;
 }
 
 static bool ball_key(void *ctx, int key, bool down, uint32_t ms)
 {
     ball_ctx *c = ctx;
-    if (key == KEY_LEFT)
+    if (key == APP_KEY_4)
         c->left = down;
-    if (key == KEY_RIGHT)
+    if (key == APP_KEY_6)
         c->right = down;
-    if (down && key == KEY_START && (c->state == TITLE || (c->state == OVER && ms - c->over_at >= 500))) {
+    if (down && key == APP_KEY_ENTER && (c->state == TITLE || (c->state == OVER && ms - c->over_at >= 500))) {
         serve(c);
         return true;
     }
@@ -120,7 +117,8 @@ static uint32_t ball_tick(void *ctx, uint32_t ms)
         c->over_at = c->now;
         if (c->score > c->best)
             c->best = c->score;
-        app_beep(150, 200);
+        static const uint16_t fall[] = {392, 120, 0, 40, 330, 120, 0, 40, 262, 300}; /* (hz, ms); 0: a rest */
+        app_tune(fall, 5);
     }
     return 20;
 }
