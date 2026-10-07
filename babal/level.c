@@ -1,26 +1,37 @@
-/* from babalcore level.rs and level_query.rs, commit fa985cd. The VecDeque is a ring of
- * sliding_max rows owned by the caller; BB_SLIDING_LENGTH_MAX reproduces babalcore.
- * Quirks 1 and 2 of docs/stage1-rules.md are kept as they are. */
+/* from babalcore level.rs and level_query.rs, commit fa985cd. The VecDeque is logical: its
+ * length and row0 are babalcore's, and the newest `window` rows are held in the caller's
+ * storage (see babal.h). Quirks 1 and 2 of docs/stage1-rules.md are kept as they are. */
 #include "babal.h"
 #include "internal.h"
 
-void bb_level_init(bb_level *lvl, uint64_t seed, bb_skill skill, bb_row *storage, size_t sliding_max)
+void bb_level_init(bb_level *lvl, uint64_t seed, bb_skill skill, bb_row *storage, size_t window)
 {
     size_t width = bb_skill_width(skill);
     lvl->seed = seed;
     lvl->rows = storage;
-    lvl->sliding_max = sliding_max;
-    lvl->head = 0;
+    lvl->window = window;
     lvl->len = 0;
     lvl->row0 = 0;
     lvl->w = width > BB_WIDTH_MAX ? BB_WIDTH_MAX : width;
     lvl->skl = skill;
     lvl->now_msec = 0;
+    lvl->out_of_window = 0;
+    lvl->max_read_depth = 0;
 }
 
 const bb_row *bb_level_row_at(const bb_level *lvl, size_t index)
 {
-    return &lvl->rows[(lvl->head + index) % lvl->sliding_max];
+    static const bb_row VOID_ROW; /* all slabs BB_DEF_VOID (0) */
+    bb_level *mut = (bb_level *)lvl; /* the counters are diagnostics, not level state */
+    size_t abs = (size_t)lvl->row0 + index;
+    size_t depth = (size_t)bb_level_last(lvl) - 1 - abs;
+    if (depth > mut->max_read_depth)
+        mut->max_read_depth = depth;
+    if (depth >= lvl->window) {
+        mut->out_of_window++;
+        return &VOID_ROW;
+    }
+    return &lvl->rows[abs % lvl->window];
 }
 
 void bb_level_push(bb_level *lvl, const bb_row *row)
@@ -28,12 +39,11 @@ void bb_level_push(bb_level *lvl, const bb_row *row)
     if (lvl->len >= BB_ABSOLUTE_LENGTH_MAX)
         return;
     /* push_back, then pop_front while longer than the sliding length. */
-    if (lvl->len == lvl->sliding_max) {
+    if (lvl->len == BB_SLIDING_LENGTH_MAX) {
         lvl->row0 += 1;
-        lvl->head = (lvl->head + 1) % lvl->sliding_max;
         lvl->len -= 1;
     }
-    lvl->rows[(lvl->head + lvl->len) % lvl->sliding_max] = *row;
+    lvl->rows[((size_t)lvl->row0 + lvl->len) % lvl->window] = *row;
     lvl->len += 1;
 }
 

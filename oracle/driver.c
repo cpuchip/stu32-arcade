@@ -273,25 +273,63 @@ static void print_state(const bb_player *p)
     print_pc_tokens(&p->points_counter, true);
     printf(",%td,%td\n", p->boost_count, p->overdrive_count);
 }
+/* Window sizes: BB_WINDOW (level rows) and BB_LOG_WINDOW (scores log slots) from the
+ * environment; unset, they hold everything (babalcore's 10,000 rows; more log slots than any
+ * job reaches). With either set the run is in window mode: the final log and rows dumps, which
+ * show storage rather than behaviour, are left out (oracle/run.sh compares without them), and
+ * the deepest reads go to stderr. */
+#define FULL_LOG_WINDOW 32768
+static size_t level_window = BB_SLIDING_LENGTH_MAX, log_window = FULL_LOG_WINDOW;
+static bool window_mode;
+static bb_score_entry log_storage[FULL_LOG_WINDOW];
+
+static void read_windows(void)
+{
+    const char *w = getenv("BB_WINDOW"), *l = getenv("BB_LOG_WINDOW");
+    if (w && *w) {
+        level_window = strtoul(w, NULL, 10);
+        window_mode = true;
+    }
+    if (l && *l) {
+        log_window = strtoul(l, NULL, 10);
+        window_mode = true;
+    }
+    if (level_window < 1 || level_window > BB_SLIDING_LENGTH_MAX || log_window < 1 || log_window > FULL_LOG_WINDOW) {
+        fprintf(stderr, "window out of range\n");
+        exit(2);
+    }
+}
+
+static int cmp_entry(const void *a, const void *b)
+{
+    intptr_t x = ((const bb_score_entry *)a)->key, y = ((const bb_score_entry *)b)->key;
+    return (x > y) - (x < y);
+}
 static void print_log(const bb_points_counter *pc)
 {
+    static bb_score_entry sorted[FULL_LOG_WINDOW];
     char b[17];
-    int first = 1;
+    size_t n = 0;
+    for (size_t k = 0; k < pc->log_window; k++)
+        if (pc->log[k].present)
+            sorted[n++] = pc->log[k];
+    qsort(sorted, n, sizeof sorted[0], cmp_entry);
     printf("log ");
-    for (size_t k = 0; k < pc->scores_cap; k++)
-        if (pc->scores_log[k].present) {
-            printf("%s%zu:%s", first ? "" : " ", k, b64(pc->scores_log[k].points, b));
-            first = 0;
-        }
+    for (size_t k = 0; k < n; k++)
+        printf("%s%td:%s", k ? " " : "", sorted[k].key, b64(sorted[k].points, b));
     printf("\n");
 }
 
 /* The C-only counters must stay 0, or the run says so and fails. */
-static void check_counters(const bb_points_counter *pc, const bb_input_steer *is)
+static void check_counters(const bb_level *lvl, const bb_points_counter *pc, const bb_input_steer *is)
 {
-    if ((pc && pc->log_failures) || (is && is->dropped_keys)) {
-        fprintf(stderr, "C-only limit reached: log_failures=%u dropped_keys=%u\n", pc ? pc->log_failures : 0,
-                is ? is->dropped_keys : 0);
+    uint32_t level_out = lvl ? lvl->out_of_window : 0, log_out = pc ? pc->log_out_of_window : 0;
+    uint32_t dropped = is ? is->dropped_keys : 0;
+    if (window_mode)
+        fprintf(stderr, "depth level=%zu log=%zu\n", lvl ? lvl->max_read_depth : 0, pc ? pc->log_max_depth : 0);
+    if (level_out || log_out || dropped) {
+        fprintf(stderr, "C-only limit reached: level out_of_window=%u log out_of_window=%u dropped_keys=%u\n",
+                level_out, log_out, dropped);
         exit(3);
     }
 }
@@ -301,7 +339,7 @@ static void points(uint64_t seed)
     char b1[17], b2[17], b3[17];
     sm_state = seed;
     bb_points_counter pc;
-    bb_points_counter_init(&pc);
+    bb_points_counter_init(&pc, log_storage, log_window);
     if (sm_next() % 2 == 0)
         bb_points_counter_set_best_score(&pc, (int32_t)(sm_next() % 5000));
     static const double ttcs[] = {30.0, 49.9, 50.0, 50.1, 120.0, 199.9, 200.0, 200.1, 300.0, 0.0, -1.0};
@@ -332,9 +370,9 @@ static void points(uint64_t seed)
         print_pc_tokens(&pc, false);
         printf("\n");
     }
-    print_log(&pc);
-    check_counters(&pc, NULL);
-    bb_points_counter_free(&pc);
+    if (!window_mode)
+        print_log(&pc);
+    check_counters(NULL, &pc, NULL);
 }
 
 static void inputs(uint64_t seed)
@@ -379,7 +417,7 @@ static void inputs(uint64_t seed)
             printf("s %d %s\n", i, b64(bb_input_steer_pop_steer(&st, t), b));
         }
     }
-    check_counters(NULL, &st);
+    check_counters(NULL, NULL, &st);
 }
 
 typedef struct {
@@ -414,7 +452,7 @@ static void game(const char *path)
     bb_player player;
     bb_input_steer steer;
     bb_input_jump jump;
-    bb_player_init(&player);
+    bb_player_init(&player, log_storage, log_window);
     bb_input_steer_init(&steer);
     bb_input_jump_init(&jump);
     size_t ticks = 0;
@@ -458,8 +496,8 @@ static void game(const char *path)
             bb_input_steer_mouse_move(&steer, strtod(w[1], NULL));
         else if (!strcmp(w[0], "tick") || !strcmp(w[0], "tickd")) {
             if (!storage) {
-                storage = malloc(BB_SLIDING_LENGTH_MAX * sizeof *storage);
-                bb_level_init(&lvl, seed, skill, storage, BB_SLIDING_LENGTH_MAX);
+                storage = malloc(level_window * sizeof *storage);
+                bb_level_init(&lvl, seed, skill, storage, level_window);
             }
             double delta;
             if (!strcmp(w[0], "tick")) {
@@ -496,8 +534,12 @@ static void game(const char *path)
         }
     }
     fclose(f);
+    check_counters(storage ? &lvl : NULL, &player.points_counter, &steer);
+    if (window_mode) {
+        free(storage);
+        return;
+    }
     print_log(&player.points_counter);
-    check_counters(&player.points_counter, &steer);
     if (storage) {
         printf("rows first=%td last=%td\n", bb_level_first(&lvl), bb_level_last(&lvl));
         size_t w = bb_level_width(&lvl);
@@ -510,11 +552,11 @@ static void game(const char *path)
         printf("\n");
         free(storage);
     }
-    bb_player_free(&player);
 }
 
 int main(int argc, char **argv)
 {
+    read_windows();
     if (argc >= 2 && !strcmp(argv[1], "pins"))
         pins();
     else if (argc >= 5 && !strcmp(argv[1], "level"))

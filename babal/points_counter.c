@@ -1,7 +1,6 @@
-/* from babalcore points_counter.rs, commit fa985cd. The scores log (HashMap<isize, f64>)
- * is an array by row: its keys are dist.round() and dist is never negative. */
+/* from babalcore points_counter.rs, commit fa985cd. The scores log (HashMap<isize, f64>) is a
+ * window of the newest rows in caller storage; see babal.h. */
 #include <math.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "babal.h"
@@ -10,55 +9,49 @@
 #define INSTANT_SPEED_WEIGHT 3.0
 #define AVERAGE_SPEED_WEIGHT 1.0
 
-void bb_points_counter_init(bb_points_counter *pc)
+void bb_points_counter_init(bb_points_counter *pc, bb_score_entry *log, size_t log_window)
 {
     memset(pc, 0, sizeof *pc);
-}
-
-void bb_points_counter_free(bb_points_counter *pc)
-{
-    free(pc->scores_log);
-    pc->scores_log = NULL;
-    pc->scores_cap = 0;
+    memset(log, 0, log_window * sizeof *log);
+    pc->log = log;
+    pc->log_window = log_window;
+    pc->log_max_key = -1;
 }
 
 static void score_to_log(bb_points_counter *pc, double dist)
 {
     intptr_t key = bb_f64_as_isize(round(dist));
-    if (key < 0) {
-        pc->log_failures++; /* dist is never negative; Rust would store it */
+    /* Keys rise (they are the best distance, rounded); one that does not, or a negative one,
+     * could be lost to the window, so it is counted. */
+    if (key < 0 || (pc->log_max_key >= 0 && key < pc->log_max_key)) {
+        pc->log_out_of_window++;
         return;
     }
-    if ((size_t)key >= pc->scores_cap) {
-        /* Grown to the next power of two past key; a key too large to double, or memory that
-         * runs out, is counted in log_failures (the Rust's HashMap would have stored it). */
-        if ((size_t)key >= SIZE_MAX / sizeof(bb_score_entry) / 2) {
-            pc->log_failures++;
-            return;
-        }
-        size_t cap = pc->scores_cap ? pc->scores_cap : 256;
-        while (cap <= (size_t)key)
-            cap *= 2;
-        bb_score_entry *grown = realloc(pc->scores_log, cap * sizeof *grown);
-        if (!grown) {
-            pc->log_failures++;
-            return;
-        }
-        memset(grown + pc->scores_cap, 0, (cap - pc->scores_cap) * sizeof *grown);
-        pc->scores_log = grown;
-        pc->scores_cap = cap;
-    }
-    pc->scores_log[key].points = pc->total_points;
-    pc->scores_log[key].present = true;
+    bb_score_entry *e = &pc->log[(size_t)key % pc->log_window];
+    e->key = key;
+    e->points = pc->total_points;
+    e->present = true;
+    pc->log_max_key = key;
 }
 
 static void score_from_log(bb_points_counter *pc, double dist)
 {
     intptr_t key = bb_f64_as_isize(round(dist));
-    if (key >= 0 && (size_t)key < pc->scores_cap && pc->scores_log[key].present)
-        pc->total_points = pc->scores_log[key].points;
-    else
-        pc->total_points = 0.0;
+    pc->total_points = 0.0; /* unwrap_or(&0.0) */
+    if (key < 0)
+        return; /* never logged */
+    if (key <= pc->log_max_key) {
+        size_t depth = (size_t)(pc->log_max_key - key);
+        if (depth > pc->log_max_depth)
+            pc->log_max_depth = depth;
+        if (depth >= pc->log_window) {
+            pc->log_out_of_window++; /* it may have been logged and given way */
+            return;
+        }
+    }
+    const bb_score_entry *e = &pc->log[(size_t)key % pc->log_window];
+    if (e->present && e->key == key)
+        pc->total_points = e->points;
 }
 
 void bb_points_counter_handle_dist(bb_points_counter *pc, double delta, double dist, double time_to_complete, bb_events *out)

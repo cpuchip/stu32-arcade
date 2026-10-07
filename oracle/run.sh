@@ -67,7 +67,7 @@ PLANTS=(
     "vec3.c|s/a.x \* one_t + b.x \* t/a.x + (b.x - a.x) * t/|lerp's formula in x"
     "points_counter.c|s/pc->total_points += INSTANT_SPEED_WEIGHT \* delta_best_dist \* instant_speed;/pc->total_points += INSTANT_SPEED_WEIGHT * (delta_best_dist * instant_speed);/|one product regrouped"
     # The plants that survived the first gate (fresh-eyes review, 2026-10-07):
-    "points_counter.c|s/if (key >= 0 \&\& (size_t)key < pc->scores_cap/if (key >= 0 \&\& key < 256 \&\& (size_t)key < pc->scores_cap/|scores from row 256 on never read back"
+    "points_counter.c|s/if (e->present \&\& e->key == key)/if (e->present \&\& e->key == key \&\& key < 256)/|scores from row 256 on never read back"
     "babal.h|s/#define BB_STEER_KEYS_MAX 8/#define BB_STEER_KEYS_MAX 1/|one steer key a side"
     "points_counter.c|s/> 200.0 ? 5 : 10/> 200.0 ? 4 : 10/|the long-level percent step 5 made 4"
     "input_jump.c|s/if (now >= ij->last_request)/if (now > ij->last_request)/|a jump popped at its own instant"
@@ -76,7 +76,6 @@ PLANTS=(
     "maths.c|/bb_heaviside_step(double x)/,/^}/s/return 0.5;/return 0.25;/|heaviside_step at 0"
     "time_tracker.c|s/%03/%3/|TimeTracker's Display padding"
     # From the second review:
-    "points_counter.c|s/(cap - pc->scores_cap) \* sizeof \*grown/(cap - pc->scores_cap - 1) * sizeof *grown/|the log's growth leaves its last entry uninitialised"
     "points_counter.c|s/time_to_complete < 50.0 ?/time_to_complete <= 50.0 ?/|the short-level step edge at 50"
     "points_counter.c|s/time_to_complete > 200.0 ?/time_to_complete >= 200.0 ?/|the long-level step edge at 200"
 )
@@ -136,8 +135,44 @@ if cc -O2 -std=c11 -D_DEFAULT_SOURCE -march=native -ffp-contract=fast "$P/oracle
     if suite "$P/driver" stop > "$P/result"; then echo "probe: -march=native -ffp-contract=fast stays identical"; else echo "probe: -march=native -ffp-contract=fast goes red ($(sed 's/^  red at //' "$P/result"))"; fi
 fi
 
+# The device windows (docs/stage2.md): the level holds its newest LW rows and the scores log its
+# newest GW rows. Games and points must give the same output (less the final log and rows dumps,
+# which show storage) with no read outside a window; windows below the deepest read must fail.
+LW=512
+GW=256
+wsuite() {
+    local drv=$1 lw=$2 gw=$3 stop=${4:-} bad=0
+    while read -r name args; do
+        case $name in game-*|points-*) ;; *) continue ;; esac
+        sed '/^log /,$d' "$B/ref/$name" > "$B/ref.cut"
+        # shellcheck disable=SC2086
+        if ! BB_WINDOW=$lw BB_LOG_WINDOW=$gw MALLOC_PERTURB_=165 timeout $TIMEOUT "$drv" $args > "$B/out" 2>"$B/err" \
+            || ! cmp -s "$B/out" "$B/ref.cut"; then
+            bad=$((bad + 1))
+            [ -n "$stop" ] && { echo "  red at $name ($(grep -m1 'limit\|depth' "$B/err" | tr -d '\n'))"; return 1; }
+            echo "  DIFF $name"
+        fi
+    done < "$B/jobs"
+    return $((bad > 0))
+}
+echo "== the device windows: level $LW rows, log $GW rows"
+if wsuite "$ROOT/build/driver" $LW $GW; then echo "  all games and points identical, no read outside a window"; else echo "  RED"; port_ok=0; fi
+for ctl in "150 $GW|a level window below the deepest read (298)" "$LW 64|a log window below the deepest lookup (103)"; do
+    IFS='|' read -r sizes what <<< "$ctl"
+    # shellcheck disable=SC2086
+    if wsuite "$ROOT/build/driver" $sizes stop > "$B/result"; then echo "SURVIVED: $what"; plants_ok=0; else echo "red: $what ($(sed 's/^  red at //' "$B/result"))"; fi
+done
+P=$B/plant
+rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT/oracle/driver.c" "$P/oracle/"
+sed -i 's/if (e->present \&\& e->key == key)/if (e->present)/' "$P/babal/points_counter.c"
+# shellcheck disable=SC2086
+if cmp -s "$P/babal/points_counter.c" "$ROOT/babal/points_counter.c"; then echo "PLANT DID NOT APPLY: a log slot read without its key"; plants_ok=0
+elif ! cc $CFLAGS "$P/oracle/driver.c" "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then echo "PLANT DID NOT BUILD: a log slot read without its key"; plants_ok=0
+elif wsuite "$P/driver" $LW $GW stop > "$P/result"; then echo "SURVIVED: a log slot read without its key (window mode)"; plants_ok=0
+else echo "red: a log slot read without its key, window mode ($(sed 's/^  red at //' "$P/result"))"; fi
+
 if [ "$port_ok" = 1 ] && [ "$plants_ok" = 1 ]; then
-    echo "GATE GREEN: $jobs jobs identical, $((${#PLANTS[@]} + 1)) plants red"
+    echo "GATE GREEN: $jobs jobs identical, and in the device windows; $((${#PLANTS[@]} + 4)) plants and controls red"
     exit 0
 fi
 echo "GATE RED"

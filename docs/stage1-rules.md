@@ -28,9 +28,9 @@ never `-ffast-math`, so that no multiply-add is fused. What is not a one-to-one 
 | `euclid::Vector3D<f64>`, `lerp` | `bb_vec3`, `a*(1-t) + b*t` | pinned black-box |
 | `Instant`, `Duration`, `Option<Instant>` | int64 nanoseconds, a `has_` flag; no clock inside the rules, the caller passes `now` | the device's clock is the app's tick; `from_secs_f64` / `as_secs_f64` pinned black-box |
 | `HashMap<SlabDef, f64>` densities | sorted array (the Rust sorts it before use) | same order |
-| `HashMap<isize, f64>` scores log | array indexed by row, with a presence flag, grown by doubling | rows are >= 0; see "C-only limits" |
+| `HashMap<isize, f64>` scores log | a window of the newest rows in caller storage, row r at slot r % window | no allocation; docs/stage2.md |
 | `HashMap<i64, KeyState>` steer keys | up to `BB_STEER_KEYS_MAX` (8) ids a side, in insertion order | see quirk 3 and "C-only limits" |
-| `VecDeque<Row>` | ring of `sliding_max` rows, storage given by the caller | only `sliding_max = 10000` is babalcore's behaviour; see below |
+| `VecDeque<Row>` | babalcore's length and row0, the newest `window` rows held in caller storage | the window must exceed the deepest read; docs/stage2.md |
 | `Vec<PlayerEvent>` from `tick` | a fixed array, at most `BB_EVENTS_MAX` (16; a tick makes at most 10) | |
 | `VecDeque<f64>` in FakeInput | a queue of `BB_FAKE_STEERS_MAX` (256) | tests only |
 | `impl LevelQuery` / `impl InputQuery` | the level by pointer; input as two function pointers and a context | |
@@ -44,9 +44,11 @@ checks stays 0.
 
 ### C-only limits (must never be reached; each is counted, and the C driver fails if it moves)
 
-- Scores log: a row too large to double the array for, or memory that runs out, adds to
-  `log_failures` (babalcore's HashMap would have stored it). Before the review this path skipped
-  silently, and an overflowing size freed the log and used it after the free.
+- Scores log: since stage 2 a window of the newest rows (no allocation at all); a lookup older
+  than the window adds to `log_out_of_window`. (Before the review the log grew by realloc, could
+  skip silently, and on an overflowing size freed the log and used it after the free; the second
+  review's growth plant went with that code.)
+- Level: a read older than the window adds to `out_of_window` (docs/stage2.md).
 - Steer keys: a ninth id on one side adds to `dropped_keys` (babalcore keeps every id; keys are
   never removed in either).
 - FakeInput: a steer pushed past 256 queued adds to `dropped`. No driver or game uses FakeInput

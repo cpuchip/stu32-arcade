@@ -41,7 +41,7 @@
 
 static const bb_vec3 ZERO = {0.0, 0.0, 0.0};
 
-void bb_player_init(bb_player *p)
+void bb_player_init(bb_player *p, bb_score_entry *log, size_t log_window)
 {
     memset(p, 0, sizeof *p);
     p->initialized = false;
@@ -53,14 +53,9 @@ void bb_player_init(bb_player *p)
     p->boost_state = false;
     p->cur_level_col = 0;
     p->has_backing_data = false;
-    bb_points_counter_init(&p->points_counter);
+    bb_points_counter_init(&p->points_counter, log, log_window);
     p->boost_count = 0;
     p->overdrive_count = 0;
-}
-
-void bb_player_free(bb_player *p)
-{
-    bb_points_counter_free(&p->points_counter);
 }
 
 static double steer_max_speed(const bb_player *p)
