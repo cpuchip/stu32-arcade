@@ -154,4 +154,8 @@ average, 2,375 us worst; tick 156 us average, 527 us worst.
 
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.
 - The registry patch is with soroban (patches/firmware/0001-*.patch, #4593), abacus reviewing.
-- Changed-line updates (ls027_encode's dirty rows): measure whether they buy frames on a scrolling track.
+- Changed-line updates: measured on the host (consecutive frames compared line by line, 63,068
+  frames of three oracle games): Babal changes about half the lines a frame, median 131-167 of
+  240, mean 112-136, p90 182-193, never all. A dirty-line send (ls027_encode's mask, the
+  framework's to use) would halve Babal's bytes: it matters at 1 MHz (about 10 to 20 frames a
+  second), not at 2 MHz, where a full frame already fits the 50 ms tick. Told to soroban.
