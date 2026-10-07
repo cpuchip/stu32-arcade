@@ -35,3 +35,16 @@ What it means for Babal (stage 2): the ctx must hold the level in at most 32 KB 
 allocation, so the 10,000-row ring and the scores log become windows of recent rows, with a
 counter the oracle checks stays 0 (no read outside the window). delta = ms / 1000.0, clamped
 in the app (quirks 7 and 8). Key ms map to the rules' nanosecond instants (ms * 1,000,000).
+
+## Landed (soroban, #4520)
+
+- In abacus-firmware at c31619d: apps.h is v1 plus app_now_ms. KEYS in firmware/apps.c exercises
+  every call.
+- Linking an app means an entry in `app_registry[]` (firmware/apps.c), its .c files in the
+  Makefile's APP list and both device CMakeLists. Those files are soroban's: the change is a
+  request to soroban with abacus's review, not an arcade edit (charter).
+- ctx: APP_CTX_MAX, 32 KB, in PSRAM on the S3, zeroed per run.
+- Saves: 64 bytes per app name, apart from the calculator's image; they survive restarts (seen on
+  soroban's board).
+- Frame rate, arithmetic only (no Rev A board yet): a full frame is about 12.5 KB of SPI, so about
+  10 frames a second at 1 MHz and 20 at the 2 MHz maximum.
