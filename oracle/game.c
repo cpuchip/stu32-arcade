@@ -125,6 +125,8 @@ int game_run(const char *text, size_t len, bb_row *storage, size_t level_window,
                    b64(bb_player_time_progress_done(&player, &lvl), b[4]), b64(bb_player_time_progress_total(&player), b[5]),
                    bb_level_first(&lvl), bb_level_last(&lvl), bb_level_len(&lvl));
             print_state(&player);
+            if (res && res->on_tick)
+                res->on_tick(res->user, &lvl, &player, &ev);
             ticks++;
         } else {
             fprintf(stderr, "unknown script word %s\n", w[0]);

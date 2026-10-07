@@ -14,7 +14,9 @@ rows, slabs, events and score in both, with a planted divergence red first.
   rand_core 0.10.1, chacha20 0.10.2, euclid 0.22.14, num-traits 0.2.19, the same versions as
   babal's own rust/Cargo.lock (oracle/ref/Cargo.lock is committed, built `--locked`).
 - Never ported: the music (Alexander Nakarada, Serpent Sound Studios) and godot/fonts. The Godot
-  engine, godot-rust and babalgame are not used. hp48/ is look and feel only (stage 2).
+  engine, godot-rust and babalgame are not used. hp48/ is look and feel only (stage 2), and it
+  also ships third parties' HP 48 tools (ASM.lib, PCT.lib, Secrets.lib, StrWrt.lib, credited to
+  others in hp48/README-HP48.TXT) that its Unlicense cannot cover: never opened, used or copied.
 
 ## The port
 

@@ -28,6 +28,9 @@ typedef struct {
     int64_t us_total, us_max;
     size_t depth_level, depth_log;
     uint32_t level_out, log_out, dropped;
+    /* called after each tick is printed, when set: the frame tool draws there */
+    void (*on_tick)(void *user, const bb_level *lvl, const bb_player *p, const bb_events *ev);
+    void *user;
 } game_result;
 
 /* Plays a script (oracle/gen_scripts.py's words). window_mode leaves out the final log and rows

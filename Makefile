@@ -7,7 +7,24 @@ BABAL_SRC := $(wildcard babal/*.c)
 BABAL_OBJ := $(BABAL_SRC:%.c=$(BUILD)/%.o)
 CARGO ?= $(shell command -v cargo || echo $(HOME)/.cargo/bin/cargo)
 
-.PHONY: all test oracle ref clean
+.PHONY: all test oracle ref clean frames
+
+# The firmware's font and frame/app headers, read-only at FIRMWARE_PIN, exported with git archive
+# from a local clone (FIRMWARE_REPO), never built in it.
+FIRMWARE_REPO ?= ../abacus-firmware
+FIRMWARE_PIN := $(shell cat FIRMWARE_PIN)
+FW := $(BUILD)/firmware
+FW_FILES := firmware/font5x7.c firmware/font5x7.h firmware/ls027.h firmware/apps.h firmware/keys.h
+$(FW)/.pin: FIRMWARE_PIN
+	rm -rf $(FW) && mkdir -p $(FW)
+	git -C $(FIRMWARE_REPO) archive $(FIRMWARE_PIN) $(FW_FILES) | tar -x -C $(FW)
+	echo $(FIRMWARE_PIN) > $@
+APP_CFLAGS = -Iapp -Ibabal -Ioracle -I$(FW)/firmware
+
+$(BUILD)/frames: tools/frames.c app/render.c app/render.h $(ORACLE_SRC) oracle/oracle.h $(BUILD)/libbabal.a $(FW)/.pin
+	$(CC) $(CFLAGS) $(APP_CFLAGS) tools/frames.c app/render.c $(FW)/firmware/font5x7.c oracle/out.c oracle/game.c \
+		$(BUILD)/libbabal.a -lm -o $@
+frames: $(BUILD)/frames
 all: $(BUILD)/babal_test $(BUILD)/driver
 
 $(BUILD)/%.o: %.c babal/babal.h babal/internal.h
