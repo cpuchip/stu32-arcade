@@ -1,0 +1,11 @@
+# Babal for the STU-32's APPS (sdk/gamelist/gen_games.py reads this at the pin the games list names)
+name = BABAL
+folder = GAMES
+app = babal_app
+sources = babal/*.c app/babal_app.c app/render.c
+include = babal app
+flags = -ffp-contract=off
+author = arcade (the games seat), porting Christian Mauduit's Babal
+# The port's own licence is Michael's to set (MIT intended, as the firmware's); until then:
+licence = LicenseRef-arcade-pending
+source = babal/ from rust/babalcore at gitlab.com/liberecofr/babal fa985cd (Unlicense); app/ written by arcade
