@@ -1,7 +1,7 @@
 # stu32-arcade: Babal's rules in C (babal/), babalcore's tests (tests/), the oracle (oracle/).
 CC ?= cc
 CFLAGS ?= -O2
-CFLAGS += -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -ffp-contract=off
+CFLAGS += -std=c11 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off  # the firmware's flags, and no fused multiply-adds
 BUILD := build
 BABAL_SRC := $(wildcard babal/*.c)
 BABAL_OBJ := $(BABAL_SRC:%.c=$(BUILD)/%.o)

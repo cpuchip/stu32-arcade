@@ -8,4 +8,4 @@ idf_component_register(
     SRCS bench_main.c "${SCRIPTS_C}" "${REPO}/oracle/out.c" "${REPO}/oracle/game.c" ${BABAL_SRC}
     INCLUDE_DIRS . "${REPO}/oracle" "${REPO}/babal" "${REPO}/build/device")
 # As on the host: no fused multiply-adds (the oracle's pins go red with them).
-target_compile_options(${COMPONENT_LIB} PRIVATE -ffp-contract=off -D_DEFAULT_SOURCE)
+target_compile_options(${COMPONENT_LIB} PRIVATE -ffp-contract=off)

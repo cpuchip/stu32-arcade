@@ -380,7 +380,7 @@ static bb_vec3f export_position3(bb_vec3 v)
 {
     bb_vec3f r;
     double z = v.z / FORWARD_DEPTH_SCALE + 0.5;
-    r.x = (float)(-v.x * 2.0 * M_PI / STEER_WIDTH_SCALE);
+    r.x = (float)(-v.x * 2.0 * BB_PI / STEER_WIDTH_SCALE);
     r.y = (float)(v.y / JUMP_HEIGHT_SCALE);
     r.z = (float)((z - trunc(z)) - 0.5); /* f64::fract is x - x.trunc() */
     return r;
@@ -394,7 +394,7 @@ bb_vec3f bb_player_position(const bb_player *p)
 static bb_vec3f export_speed3(bb_vec3 v)
 {
     bb_vec3f r;
-    r.x = (float)(-v.x * 2.0 * M_PI / STEER_WIDTH_SCALE);
+    r.x = (float)(-v.x * 2.0 * BB_PI / STEER_WIDTH_SCALE);
     r.y = (float)(v.y / JUMP_HEIGHT_SCALE);
     r.z = (float)(v.z / FORWARD_DEPTH_SCALE);
     return r;

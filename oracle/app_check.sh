@@ -9,7 +9,7 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 REF=$ROOT/oracle/ref/target/release/babal-ref
 B=$ROOT/build/appcheck
 N=${N:-8}
-CFLAGS="-O2 -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -ffp-contract=off"
+CFLAGS="-O2 -std=c11 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off"
 FW=$ROOT/build/firmware/firmware
 
 rm -rf "$B" && mkdir -p "$B"

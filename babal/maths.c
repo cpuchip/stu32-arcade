@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "babal.h"
+#include "internal.h"
 
 double bb_fade_in(double x)
 {
@@ -63,7 +64,7 @@ double bb_sawtooth_wave(double x)
 
 double bb_sine_wave(double x)
 {
-    return sin(2.0 * M_PI * x);
+    return sin(2.0 * BB_PI * x);
 }
 
 double bb_pulse(double x, double alpha)

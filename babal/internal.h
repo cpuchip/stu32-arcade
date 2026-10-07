@@ -35,6 +35,9 @@ static inline intptr_t bb_f64_as_isize(double x)
 #endif
 }
 
+/* Rust's std::f64::consts::PI: the same double as POSIX's M_PI, which strict C11 leaves out. */
+#define BB_PI 3.14159265358979323846264338327950288
+
 static inline intptr_t bb_imax(intptr_t a, intptr_t b) { return a > b ? a : b; }
 static inline intptr_t bb_imin(intptr_t a, intptr_t b) { return a < b ? a : b; }
 

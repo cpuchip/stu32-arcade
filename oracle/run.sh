@@ -7,7 +7,7 @@ set -u
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 REF=$ROOT/oracle/ref/target/release/babal-ref
 B=$ROOT/build/oracle
-CFLAGS="-O2 -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -ffp-contract=off"
+CFLAGS="-O2 -std=c11 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off"
 N_SEEDS=${N_SEEDS:-8}
 PER_SEED=${PER_SEED:-5}
 TIMEOUT=120

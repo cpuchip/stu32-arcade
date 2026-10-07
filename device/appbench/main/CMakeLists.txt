@@ -8,4 +8,4 @@ endif()
 idf_component_register(
     SRCS appbench_main.c "${APPS_C}" "${REPO}/app/babal_app.c" "${REPO}/app/render.c" "${FW}/font5x7.c" ${BABAL_SRC}
     INCLUDE_DIRS . "${REPO}/app" "${REPO}/babal" "${FW}" "${REPO}/build/device-app")
-target_compile_options(${COMPONENT_LIB} PRIVATE -ffp-contract=off -D_DEFAULT_SOURCE)
+target_compile_options(${COMPONENT_LIB} PRIVATE -ffp-contract=off)
