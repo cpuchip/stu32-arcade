@@ -14,9 +14,10 @@ keeps a copy, and changes go to the firmware as patches, patches/firmware/). Eve
 soroban's gate; a game by someone outside our seats needs Michael's word before it is listed
 (decision 59).
 
-The manifest (`stu32-game.txt`; its format is in gen_games.py's header): the name APPS shows (at
-most 5 characters), the folder (GAMES or TOOLS), the licence (it must agree with the list's), the
-sources, and the flags the game builds with.
+The manifest (`stu32-game.txt`; its format is in gen_games.py's header): the name APPS shows (1 to
+5 letters, digits or spaces), the folder (GAMES or TOOLS), the licence (one SPDX id, the same as
+the list's), the sources, the include folders (on the game's own files only), the flags it builds
+with, and for a port, original. Nothing exported may be a symlink.
 
 ## The calls (apps.h v1.1)
 

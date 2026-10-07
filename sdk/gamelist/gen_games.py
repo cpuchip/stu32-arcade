@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-# A copy of abacus-firmware's scripts/gen_games.py, the master (soroban's gate, ecf5545 + patches/firmware/0003).
+# A copy of abacus-firmware's scripts/gen_games.py, the master (soroban's gate), at 2596588.
 """The STU-32's games list: export each listed game at its pin and generate the build's part of it.
 
 games.list (in the firmware), one game a line, `#` for comments:
@@ -10,13 +10,14 @@ games.list (in the firmware), one game a line, `#` for comments:
   ID        [a-z][a-z0-9_]{0,15}, unique
   REPO      a local clone's directory name, found in GAMES_REPOS (default: the firmware's parent)
   PIN       the full 40-hex commit; it must be in the clone and be an ancestor of its origin's
-            default branch (a pushed commit), so a build never takes an unpublished one
-  LICENCE   an SPDX expression; must equal the manifest's
+            default branch (refs/remotes/origin/HEAD, which must exist): a pushed commit as of the
+            clone's last fetch, so a build never takes an unpublished one
+  LICENCE   one SPDX licence id (the list splits on blanks); must equal the manifest's
   MANIFEST  the manifest's path in the game's repo at the pin
 
 The manifest (KEY = VALUE lines, `#` comments), in the game's repo:
 
-    name     what APPS shows: 1 to 5 printable ASCII characters
+    name     what APPS shows: 1 to 5 letters, digits or blanks (app_test checks the app_def's name agrees)
     folder   GAMES or TOOLS
     app      the C name of the game's app_def
     sources  the .c files and globs (*.c) to build, relative to the repo, no "..", no absolute path
@@ -30,10 +31,15 @@ the files at the pin, its manifest, and .pin with the pin; the generator then ta
 (whether the pin was pushed cannot be checked there: the one who staged it vouches, and the run says
 so). With a clone, the clone wins and the stage is rebuilt.
 
-Out, in OUT (default build/games): each game exported to OUT/ID/ (with its manifest and .pin); games.mk (GAMES_C, GAMES_INC, and a
-rule per game building its objects with its flags, -Werror=frame-larger-than=1024 always);
-games.cmake (GAMES_SRCS, GAMES_INC, per-file COMPILE_OPTIONS); games.h (GAMES_DECLARE, GAMES_ENTRIES,
-GAMES_FOLDERS for apps.c's registry); .stamp (the list's text, so a build re-runs when it changes).
+No symbolic link may be among what is exported (a source, the manifest, anything under an include
+directory): it could pull a file from outside the game's repo into the build.
+
+Out, in OUT (default build/games): each game exported to OUT/ID/ (with its manifest and .pin); games.mk
+(GAMES_C, and a rule per game building its objects with its flags, -Werror=frame-larger-than=1024 always,
+and its own include directories only: a game's headers never reach the firmware's files or another
+game's); games.cmake (GAMES_SRCS, per-file COMPILE_OPTIONS and INCLUDE_DIRECTORIES); games.h
+(GAMES_DECLARE, GAMES_ENTRIES, GAMES_FOLDERS, GAMES_NAMES for apps.c's registry and app_test); .stamp (the
+list's text, so a build re-runs when it changes).
 Exits 1 with the reason on anything wrong; writes nothing then.
 
 Usage: gen_games.py GAMES_LIST [OUT]
@@ -89,8 +95,8 @@ def read_list(path):
             fail(f"{path}:{n}: bad id {gid!r}")
         if not re.fullmatch(r"[0-9a-f]{40}", pin):
             fail(f"{path}:{n}: {gid}: the pin must be a full 40-hex commit")
-        if not re.fullmatch(r"[A-Za-z0-9.+-]+( (AND|OR) [A-Za-z0-9.+-]+)*", lic):
-            fail(f"{path}:{n}: {gid}: licence {lic!r} is not an SPDX expression")
+        if not re.fullmatch(r"[A-Za-z0-9.+-]+", lic):
+            fail(f"{path}:{n}: {gid}: licence {lic!r} is not an SPDX licence id")
         if not re.fullmatch(r"[A-Za-z0-9._-]+", repo):
             fail(f"{path}:{n}: {gid}: repo must be a directory name")
         games.append(dict(id=gid, repo=repo, pin=pin, licence=lic, manifest=safe_path(manifest, gid)))
@@ -115,8 +121,8 @@ def parse_manifest(text, gid):
     for k in KEYS - OPTIONAL:
         if not m.get(k):
             fail(f"{gid}: manifest lacks {k}")
-    if not re.fullmatch(r"[\x21-\x7e]( ?[\x21-\x7e]){0,4}", m["name"]) or len(m["name"]) > 5:
-        fail(f"{gid}: name {m['name']!r} must be 1 to 5 printable ASCII characters")
+    if not re.fullmatch(r"[A-Za-z0-9]( ?[A-Za-z0-9]){0,4}", m["name"]) or len(m["name"]) > 5:
+        fail(f"{gid}: name {m['name']!r} must be 1 to 5 letters, digits or blanks")
     if m["folder"] not in FOLDERS:
         fail(f"{gid}: folder must be GAMES or TOOLS")
     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", m["app"]):
@@ -147,13 +153,17 @@ def main():
         if os.path.isdir(repo):
             if git(repo, "cat-file", "-e", g["pin"] + "^{commit}") is None:
                 fail(f"{g['id']}: pin {g['pin']} is not in {repo}")
-            head = git(repo, "symbolic-ref", "-q", "--short", "refs/remotes/origin/HEAD") or "origin/main"
-            if git(repo, "merge-base", "--is-ancestor", g["pin"], head.strip()) is None:
-                fail(f"{g['id']}: pin {g['pin'][:12]} is not on {head.strip()} (an unpushed commit?)")
+            head = (git(repo, "symbolic-ref", "-q", "refs/remotes/origin/HEAD") or "").strip()
+            if not head.startswith("refs/remotes/origin/"):
+                fail(f"{g['id']}: {repo} has no refs/remotes/origin/HEAD (git remote set-head origin -a)")
+            if git(repo, "merge-base", "--is-ancestor", g["pin"], head) is None:
+                fail(f"{g['id']}: pin {g['pin'][:12]} is not on {head} (an unpushed commit?)")
             text = git(repo, "show", f"{g['pin']}:{g['manifest']}")
             if text is None:
                 fail(f"{g['id']}: no manifest {g['manifest']} at the pin")
-            files = git(repo, "ls-tree", "-r", "--name-only", g["pin"]).split("\n")
+            tree = [l.split("\t", 1) for l in git(repo, "ls-tree", "-r", g["pin"]).split("\n") if "\t" in l]
+            files = [f for _, f in tree]
+            links = {f for meta, f in tree if meta.split()[0] == "120000"}
         else:
             pin_file = os.path.join(staged, ".pin")
             if not os.path.isfile(pin_file) or open(pin_file).read().strip() != g["pin"]:
@@ -163,6 +173,7 @@ def main():
                 fail(f"{g['id']}: the stage at {staged} lacks its manifest {g['manifest']}")
             text = open(mpath).read()
             files = [os.path.relpath(os.path.join(d, f), staged) for d, _, fs in os.walk(staged) for f in fs]
+            links = {f for f in files if os.path.islink(os.path.join(staged, f))}
             repo = None
         m = parse_manifest(text, g["id"])
         if m["licence"] != g["licence"]:
@@ -181,13 +192,18 @@ def main():
         for inc in m["include"]:
             if not any(f.startswith(inc.rstrip("/") + "/") for f in files):
                 fail(f"{g['id']}: include {inc!r} is no directory at the pin")
+        exported = set(srcs) | {g["manifest"]} | {f for f in files for inc in m["include"]
+                                                  if f.startswith(inc.rstrip("/") + "/")}
+        bad = sorted(exported & links)
+        if bad:
+            fail(f"{g['id']}: {bad[0]!r} is a symbolic link (nothing exported may be one)")
         plans.append((g, m, srcs, repo))
     # all checked: export and write
     os.makedirs(out, exist_ok=True)
-    mk, cm, decl, entries, folders = [], [], [], [], []
+    mk, cm, decl, entries, folders, names_c = [], [], [], [], [], []
     mk.append("# generated by gen_games.py from games.list: do not edit")
     cm.append("# generated by gen_games.py from games.list: do not edit")
-    allc, allinc = [], []
+    allc = []
     for g, m, srcs, repo in plans:
         d = os.path.join(out, g["id"])
         if repo is not None:
@@ -203,33 +219,34 @@ def main():
         cs = [f"{rel}/{s}" for s in srcs]
         incs = [f"-I{rel}/{i}" for i in m["include"]]
         allc += cs
-        allinc += incs
         flags = " ".join(m["flags"] + ["-Werror=frame-larger-than=1024"])
         mk.append(f"# {g['id']}: {m['name']} ({m['folder']}), {g['licence']}, {g['repo']} at {g['pin']}")
         mk.append(f"GAME_{g['id']}_C := {' '.join(cs)}")
+        mk.append(f"GAME_{g['id']}_INC := {' '.join(incs)}")
         mk.append(f"build/games-o/{g['id']}/%.o: {rel}/%.c build/games/.stamp $(wildcard firmware/*.h)")
         mk.append("\t@mkdir -p $(dir $@)")
-        mk.append(f"\t$(CC) $(CFLAGS) {flags} -Ifirmware $(GAMES_INC) -c $< -o $@")
+        mk.append(f"\t$(CC) $(CFLAGS) {flags} -Ifirmware $(GAME_{g['id']}_INC) -c $< -o $@")
         cm.append(f"# {g['id']}: {m['name']} ({m['folder']}), {g['licence']}, {g['repo']} at {g['pin']}")
         cm.append(f"set(GAME_{g['id']}_SRCS {' '.join('${REPO}/' + c for c in cs)})")
         cm.append(f"list(APPEND GAMES_SRCS ${{GAME_{g['id']}_SRCS}})")
         cm.append("if(NOT CMAKE_SCRIPT_MODE_FILE)")
         cm.append(f"    set_source_files_properties(${{GAME_{g['id']}_SRCS}} PROPERTIES COMPILE_OPTIONS \"{';'.join(flags.split())}\"")
+        cm.append(f"                                INCLUDE_DIRECTORIES \"{';'.join('${REPO}/' + i[2:] for i in incs)}\"")
         cm.append("                                OBJECT_DEPENDS \"${REPO}/build/games/.stamp\")")
         cm.append("endif()")
         decl.append(f"extern const app_def {m['app']}; /* {m['name']}, {g['id']} */")
         entries.append(f"&{m['app']}")
         folders.append(f"{FOLDERS[m['folder']]} /* {m['folder']} */")
-    mk.insert(1, f"GAMES_INC := {' '.join(allinc)}")
-    mk.insert(2, f"GAMES_C := {' '.join(allc)}")
-    mk.insert(3, "GAMES_O := $(GAMES_C:build/games/%.c=build/games-o/%.o)")
+        names_c.append(f'"{m["name"]}"')
+    mk.insert(1, f"GAMES_C := {' '.join(allc)}")
+    mk.insert(2, "GAMES_O := $(GAMES_C:build/games/%.c=build/games-o/%.o)")
     cm.insert(1, "set(GAMES_SRCS)")
-    cm.insert(2, f"set(GAMES_INC {' '.join('${REPO}/' + i[2:] for i in allinc)})")
     open(os.path.join(out, "games.mk"), "w").write("\n".join(mk) + "\n")
     open(os.path.join(out, "games.cmake"), "w").write("\n".join(cm) + "\n")
     h = ["/* generated by gen_games.py from games.list: do not edit */", "#ifndef GAMES_H", "#define GAMES_H",
          "#define GAMES_DECLARE " + " ".join(decl), "#define GAMES_ENTRIES " + "".join(", " + e for e in entries),
-         "#define GAMES_FOLDERS " + "".join(", " + f for f in folders), f"#define GAMES_N {len(entries)}", "#endif"]
+         "#define GAMES_FOLDERS " + "".join(", " + f for f in folders),
+         "#define GAMES_NAMES " + "".join(", " + n for n in names_c), f"#define GAMES_N {len(entries)}", "#endif"]
     open(os.path.join(out, "games.h"), "w").write("\n".join(h) + "\n")
     open(os.path.join(out, ".stamp"), "w").write(open(lst).read())
     print(f"gen_games: {len(plans)} game(s): " + ", ".join(
