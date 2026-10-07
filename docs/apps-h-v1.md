@@ -48,3 +48,7 @@ in the app (quirks 7 and 8). Key ms map to the rules' nanosecond instants (ms * 
   soroban's board).
 - Frame rate, arithmetic only (no Rev A board yet): a full frame is about 12.5 KB of SPI, so about
   10 frames a second at 1 MHz and 20 at the 2 MHz maximum.
+- Accepted by abacus (#4530): abacus-firmware 8c51f1d (built at c31619d, with the BEEP2 fix); the
+  save has its own partition. The stand-in draws about 1,348 frames a second (draw only); on the
+  real LS027 plan around 10-20, and consider sending only changed lines (the panel allows it),
+  though a scrolling tunnel changes most of them: measure it in stage 2.
