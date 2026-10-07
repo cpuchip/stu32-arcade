@@ -9,7 +9,7 @@ BABAL_SRC := $(wildcard babal/*.c)
 BABAL_OBJ := $(BABAL_SRC:%.c=$(BUILD)/%.o)
 CARGO ?= $(shell command -v cargo || echo $(HOME)/.cargo/bin/cargo)
 
-.PHONY: all test oracle ref clean frames apphost appcheck driftcheck
+.PHONY: all test oracle ref clean frames apphost appcheck driftcheck sdkcheck
 
 # The firmware's font and frame/app headers, read-only at FIRMWARE_PIN, exported with git archive
 # from a local clone (FIRMWARE_REPO), never built in it.
@@ -41,6 +41,10 @@ apphost: $(BUILD)/apphost $(BUILD)/app-frames.ok
 # The app against babalcore, end to end, with plants (needs `make ref`).
 appcheck: $(BUILD)/apphost ref
 	oracle/app_check.sh
+
+# The games SDK's drawing library: a per-pixel reference, line properties, plants.
+sdkcheck: $(FW)/.pin
+	oracle/sdk_check.sh
 
 # A struggling player's drift, the app's storage against storage that holds everything.
 driftcheck: $(FW)/.pin
