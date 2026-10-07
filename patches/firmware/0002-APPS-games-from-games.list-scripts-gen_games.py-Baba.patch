@@ -1,4 +1,4 @@
-From 48c7d8eed24fcbcb11570a7ad269cc20fd13fdcf Mon Sep 17 00:00:00 2001
+From 4316717076c33d47b857234792fcb02403a7610e Mon Sep 17 00:00:00 2001
 From: Michael Stufflebeam <cpuchip@gmail.com>
 Date: Wed, 7 Oct 2026 16:00:38 +0000
 Subject: [PATCH] APPS: games from games.list (scripts/gen_games.py), Babal its
@@ -16,9 +16,11 @@ game builds with its manifest's flags and -Werror=frame-larger-than=1024, and no
 flags change; apps.c's registry is KEYS then GAMES_ENTRIES. games.h also has GAMES_FOLDERS (0
 TOOLS, 1 GAMES) for the APPS menu's folders, not yet used.
 
-Checked on 54ad593 in a scratch clone: make all and make test pass; app_test 503/503,
-standin_test 349/349; the stand-in and Rev A images build, babal_app linked in both, its 18 files
-compiled with -Werror=frame-larger-than=1024 and -ffp-contract=off, the core with neither.
+Babal's entry is stu32-arcade at 7f0e37c, licence MIT (Michael, abacus decision 61; the manifest
+agrees, and a list that says otherwise is refused). Checked on cc8e048 in a scratch clone: make all
+and make test pass; app_test 503/503, standin_test 349/349; the stand-in and Rev A images build,
+babal_app linked in both, its 18 files compiled with -Werror=frame-larger-than=1024 and
+-ffp-contract=off, the core with neither.
 
 Written by arcade for soroban's gate.
 
@@ -92,10 +94,10 @@ index 7e55a00..ee72c30 100644
  build/power_test: firmware/gauge.c firmware/gauge.h firmware/power.c firmware/power.h firmware/pins.c firmware/pins.h firmware/piezo.c firmware/piezo.h tests/power_test.c | build
  	$(CC) $(CFLAGS) -Ifirmware -o $@ firmware/gauge.c firmware/power.c firmware/pins.c firmware/piezo.c tests/power_test.c -lm
 diff --git a/README.md b/README.md
-index 6c94d3c..d8b1414 100644
+index 2458663..5caf5f8 100644
 --- a/README.md
 +++ b/README.md
-@@ -11,9 +11,9 @@ Work units arrive from the abacus seat (fermion) in `work/`; the core lives in `
+@@ -13,9 +13,9 @@ Work units arrive from the abacus seat (fermion) in `work/`; the core lives in `
  - `make test` builds and runs the host tests; `make all-checks PYTHON=<a python with mpmath>` adds the accuracy
    fuzzers. The decimal library is fetched from netlib and checked against a pinned sha256 by
    `scripts/fetch-intel-dfp.sh` (make runs it).
@@ -240,7 +242,7 @@ index b5e834e..905ed4e 100644
  const int app_registry_n = sizeof app_registry / sizeof app_registry[0];
 diff --git a/games.list b/games.list
 new file mode 100644
-index 0000000..f9ff3c8
+index 0000000..6d349be
 --- /dev/null
 +++ b/games.list
 @@ -0,0 +1,6 @@
@@ -249,7 +251,7 @@ index 0000000..f9ff3c8
 +# A game by anyone outside our seats needs Michael's word before it is listed (decision 59); every
 +# entry passes soroban's gate. Format and manifest: the header of scripts/gen_games.py.
 +# ID   REPO          PIN                                       LICENCE                    MANIFEST
-+babal  stu32-arcade  66eef4a72463c997289781d5fc585f2fde86ea24  LicenseRef-arcade-pending  stu32-game.txt
++babal  stu32-arcade  7f0e37c0c587450d8bf98f712981c2d6cd91bf88  MIT                        stu32-game.txt
 diff --git a/scripts/fetch-arcade.sh b/scripts/fetch-arcade.sh
 deleted file mode 100755
 index f90636c..0000000

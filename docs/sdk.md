@@ -8,12 +8,14 @@ Parts marked **v1.2** are ruled (docs/apps-h-v1.2.md) and not yet built.
 ## Where a game lives
 
 In its own repository, as a folder: the game's C sources and headers and a manifest. The firmware
-reads a games list (repository, pin, licence, folder) and exports each game at its pin with
-`git archive`, as it does Babal (ARCADE_PIN). Every entry passes soroban's gate; a game by someone
-outside our seats needs Michael's word before it is listed (decision 59).
+reads a games list (`games.list`: id, repository, pin, licence, manifest) and exports each game at
+its pin with `git archive` (sdk/gamelist/gen_games.py; patches/firmware/0002 proposes it to
+soroban). Every entry passes soroban's gate; a game by someone outside our seats needs Michael's
+word before it is listed (decision 59).
 
-The manifest (format to be set with soroban): the name APPS shows (at most 5 cells), the folder
-(GAMES or TOOLS), author, licence, and where the source came from.
+The manifest (`stu32-game.txt`; its format is in gen_games.py's header): the name APPS shows (at
+most 5 characters), the folder (GAMES or TOOLS), the licence (it must agree with the list's), the
+sources, and the flags the game builds with.
 
 ## The calls (apps.h v1.1)
 
