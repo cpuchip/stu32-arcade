@@ -1,0 +1,90 @@
+From 7eefe5e41cc67b770868a125520e70538c6fcd71 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Wed, 7 Oct 2026 17:23:04 +0000
+Subject: [PATCH] Games list: a port's original in the manifest; Babal at
+ e695309, its title crediting the original
+
+abacus decision 62: Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the
+Unlicense), wherever Babal is described and in the game. gen_games.py takes an optional manifest
+key, original (a port's original: author, home, licence); the template and any game that is not a
+port leave it out. tests/gen_games_test.sh: a port with original is taken, a key nobody knows is
+still refused; with original made required the test goes red. Babal moves to stu32-arcade
+e695309, whose manifest has original and whose title shows "by Christian Mauduit" and
+"gitlab.com/liberecofr/babal" (abacus #4802, (b)); this generator without the change refuses that
+manifest ("manifest key 'original' unknown").
+
+Checked on ecf5545 (games-list-gate) in a scratch clone: make all and make test pass (app_test
+520/520, standin_test 349/349, the generator test green); the stand-in and Rev A images build, each
+with both credit strings and Babal's 18 files alone under the frame guard and -ffp-contract=off.
+On the S3, Babal's app at e695309: 16,639 frames hash as on the host, the control red.
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ games.list              | 2 +-
+ scripts/gen_games.py    | 6 ++++--
+ tests/gen_games_test.sh | 6 ++++++
+ 3 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/games.list b/games.list
+index 72499ba..49819e3 100644
+--- a/games.list
++++ b/games.list
+@@ -4,4 +4,4 @@
+ # entry passes soroban's gate. Format and manifest: the header of scripts/gen_games.py.
+ # ID   REPO          PIN                                       LICENCE                    MANIFEST
+ # Babal: arcade's port of Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense)
+-babal  stu32-arcade  7f0e37c0c587450d8bf98f712981c2d6cd91bf88  MIT                        stu32-game.txt
++babal  stu32-arcade  e695309748c78435bf0112f62699fa06f470fd68  MIT                        stu32-game.txt
+diff --git a/scripts/gen_games.py b/scripts/gen_games.py
+index f5a34f8..2290493 100755
+--- a/scripts/gen_games.py
++++ b/scripts/gen_games.py
+@@ -21,6 +21,7 @@ The manifest (KEY = VALUE lines, `#` comments), in the game's repo:
+     include  the directories its headers are in (same rules)
+     flags    extra compile flags, from an allowed list (today: -ffp-contract=off); may be empty
+     author, licence, source   who wrote it, its SPDX licence, where it came from (provenance)
++    original  optional: for a port, the original's author, home and licence (abacus decision 62)
+ 
+ Without a clone (no git, or a build from an export), a game may be staged by hand: OUT/ID/ holding
+ the files at the pin, its manifest, and .pin with the pin; the generator then takes it as staged
+@@ -43,7 +44,8 @@ import sys
+ 
+ ALLOWED_FLAGS = {"-ffp-contract=off"}
+ FOLDERS = {"TOOLS": 0, "GAMES": 1}
+-KEYS = {"name", "folder", "app", "sources", "include", "flags", "author", "licence", "source"}
++KEYS = {"name", "folder", "app", "sources", "include", "flags", "author", "licence", "source", "original"}
++OPTIONAL = {"flags", "original"}
+ 
+ 
+ def fail(msg):
+@@ -108,7 +110,7 @@ def parse_manifest(text, gid):
+         if k not in KEYS:
+             fail(f"{gid}: manifest key {k!r} unknown")
+         m[k] = v
+-    for k in KEYS - {"flags"}:
++    for k in KEYS - OPTIONAL:
+         if not m.get(k):
+             fail(f"{gid}: manifest lacks {k}")
+     if not re.fullmatch(r"[\x21-\x7e]( ?[\x21-\x7e]){0,4}", m["name"]) or len(m["name"]) > 5:
+diff --git a/tests/gen_games_test.sh b/tests/gen_games_test.sh
+index 04ee692..e172a85 100755
+--- a/tests/gen_games_test.sh
++++ b/tests/gen_games_test.sh
+@@ -76,6 +76,12 @@ bad() { # bad WHAT SED-ON-MANIFEST MESSAGE: a fresh repo whose manifest is chang
+     (cd "$T/repos/bad" && sed -i "$2" game.txt && git add -A && git -c user.email=t@t -c user.name=t commit -q -m bad && git push -q origin HEAD:main 2>/dev/null)
+     printf 'bad bad %s MIT game.txt\n' "$(git -C "$T/repos/bad" rev-parse HEAD)" > "$T/fw/games.list"; run 1 "$1" "$3"
+ }
++# a port's credit (original) is taken; a key nobody knows is not
++rm -rf "$T/repos/port" "$T/port.git"; mkrepo port PORT
++(cd "$T/repos/port" && printf 'original = Someone, example.org/x (Unlicense)\n' >> game.txt && git add -A \
++    && git -c user.email=t@t -c user.name=t commit -q -m port && git push -q origin HEAD:main 2>/dev/null)
++printf 'port port %s MIT game.txt\n' "$(git -C "$T/repos/port" rev-parse HEAD)" > "$T/fw/games.list"; run 0 "a port with original"
++bad "a key nobody knows" "\$a credit = x" "unknown"
+ bad "a six-character name" "s/^name = .*/name = BABALS/" "must be 1 to 5"
+ bad "a folder that is not GAMES or TOOLS" "s/^folder = .*/folder = MUSIC/" "GAMES or TOOLS"
+ bad "a source outside the repo" "s|^sources = .*|sources = ../x.c|" "unsafe path"
+-- 
+2.53.0
+

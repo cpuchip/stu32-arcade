@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
+# A copy of abacus-firmware's scripts/gen_games.py, the master (soroban's gate, ecf5545 + patches/firmware/0003).
 """The STU-32's games list: export each listed game at its pin and generate the build's part of it.
 
 games.list (in the firmware), one game a line, `#` for comments:
@@ -61,9 +62,16 @@ def git(repo, *args, binary=False):
     return r.stdout if binary else r.stdout.decode()
 
 
-def safe_path(p, what):
+# every path the generator writes into games.mk, games.cmake or a command line: a name from a game's tree could
+# otherwise carry make or shell syntax ($(shell ...), spaces, quotes) into the firmware's build (soroban's gate)
+SAFE_PATH = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.-]*(/[A-Za-z0-9_][A-Za-z0-9_.-]*)*/?")
+
+
+def safe_path(p, what, glob=False):
     if not p or p.startswith("/") or ".." in p.split("/") or "\\" in p:
         fail(f"{what}: unsafe path {p!r}")
+    if not SAFE_PATH.fullmatch(p.replace("*", "x") if glob else p):
+        fail(f"{what}: path {p!r} has a character outside A-Z a-z 0-9 _ . - /")
     return p
 
 
@@ -118,7 +126,7 @@ def parse_manifest(text, gid):
         if fl not in ALLOWED_FLAGS:
             fail(f"{gid}: flag {fl!r} is not allowed (allowed: {' '.join(sorted(ALLOWED_FLAGS))})")
     m["flags"] = flags
-    m["sources"] = [safe_path(s, gid) for s in m["sources"].split()]
+    m["sources"] = [safe_path(s, gid, glob=True) for s in m["sources"].split()]
     m["include"] = [safe_path(s, gid) for s in m["include"].split()]
     return m
 
@@ -169,7 +177,7 @@ def main():
                          and fnmatch.fnmatchcase(os.path.basename(f), os.path.basename(pat)))
             if not hit:
                 fail(f"{g['id']}: sources {pat!r} match no .c file at the pin")
-            srcs += [h for h in hit if h not in srcs]
+            srcs += [safe_path(h, g["id"]) for h in hit if h not in srcs]   # (a name from the game's tree)
         for inc in m["include"]:
             if not any(f.startswith(inc.rstrip("/") + "/") for f in files):
                 fail(f"{g['id']}: include {inc!r} is no directory at the pin")
