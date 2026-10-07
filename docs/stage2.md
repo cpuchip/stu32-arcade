@@ -185,6 +185,15 @@ The app bench at 87fe32d: **DEVICE PASS**, all 16,639 frames identical to the ho
 expectations now come from the reviewed harness's first session), the control red. Draw 1,519 us
 average, 2,375 us worst; tick 156 us average, 527 us worst.
 
+## At ad78006 on the S3 (window 14:03-14:08Z, soroban's go #4675)
+
+The whole level and log (packed rows, the log's bitmap) in PSRAM, and the scores list. Rules bench:
+**DEVICE PASS**, 51 games hash-identical, the control red; 188 us a tick on average (180 with the
+32-byte rows; the packed rows cost a little), 17.2 ms at worst (the oracle driver's 100-row
+generation, which the app spreads). App bench: **DEVICE PASS**, 16,639 frames identical, the
+control red; tick 155 us average, 483 us worst; draw 1,534 us average, 4,534 us worst (was 2,375:
+the finish screen's list, drawn over a box cleared pixel by pixel; still far inside a 50 ms tick).
+
 ## Next
 
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.
