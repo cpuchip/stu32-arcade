@@ -144,6 +144,12 @@ spec that is wrong. Two choices made here, against babalgame: the best is kept p
 finished game (Godot's "New record!" follows the rules' high-score event, which needs a best
 above 0). Both are for abacus and Michael to keep or change.
 
+## The app after both reviews, on the S3 (window 08:30-08:32Z, soroban's go #4621)
+
+The app bench at 87fe32d: **DEVICE PASS**, all 16,639 frames identical to the host's (the
+expectations now come from the reviewed harness's first session), the control red. Draw 1,519 us
+average, 2,375 us worst; tick 156 us average, 527 us worst.
+
 ## Next
 
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.
