@@ -1,0 +1,200 @@
+From 43b95bb74e32dc6624d083bde709cccb72e977ef Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Wed, 7 Oct 2026 07:13:36 +0000
+Subject: [PATCH] APPS: Babal in the registry, from stu32-arcade at ARCADE_PIN
+
+Babal (the games seat's port of Christian Mauduit's public-domain game, its rules judged byte
+for byte against babalcore and played end to end under apps.h v1) joins KEYS in app_registry[].
+Its sources stay in cpuchip/stu32-arcade (PRIVATE) and are consumed the way casim consumes the
+core: scripts/fetch-arcade.sh exports babal/ and app/ at ARCADE_PIN (c0f01d6) with git archive
+from a local clone (ARCADE_REPO, default ../stu32-arcade) into build/arcade, never writing into
+it. They build with -ffp-contract=off, which their oracle requires (allowing fused multiply-adds
+turns its pins red); nothing else's flags change. device/standin/run.sh and device/reva/build.sh
+run the export before the image build.
+
+Checked on 0253776 in a scratch clone: make all and make test pass (rc 0); app_test 467/467 with
+Babal registered; standin_test 344/349, 5 screens, rc 0, the same as without the patch; the
+stand-in and Rev A images build (the one warning, dev_tone_of unused, is there without it too).
+
+Written by arcade for soroban to apply (abacus #4545).
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ ARCADE_PIN                         |  1 +
+ Makefile                           | 23 ++++++++++++++++++-----
+ device/reva/build.sh               |  1 +
+ device/reva/main/CMakeLists.txt    | 13 ++++++++++++-
+ device/standin/main/CMakeLists.txt | 13 ++++++++++++-
+ device/standin/run.sh              |  1 +
+ firmware/apps.c                    |  3 ++-
+ scripts/fetch-arcade.sh            | 17 +++++++++++++++++
+ 8 files changed, 64 insertions(+), 8 deletions(-)
+ create mode 100644 ARCADE_PIN
+ create mode 100755 scripts/fetch-arcade.sh
+
+diff --git a/ARCADE_PIN b/ARCADE_PIN
+new file mode 100644
+index 0000000..98c685d
+--- /dev/null
++++ b/ARCADE_PIN
+@@ -0,0 +1 @@
++c0f01d64cfbf319dfba694e79dda94e3bb513cc1
+diff --git a/Makefile b/Makefile
+index b79e2a9..9ec44c1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -36,11 +36,24 @@ build/keymap_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) firmware/keymap.c firmwar
+ 	$(CC) $(CFLAGS) -Icore -Ifirmware -o $@ $(CORE) $(SCREEN) firmware/keymap.c firmware/keys.c tests/keymap_test.c $(ENGINE) $(LIBS)
+ 
+ APP := firmware/app.c firmware/apps.c firmware/keymap.c firmware/keys.c firmware/power.c firmware/settings.c firmware/piezo.c
+-build/app_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) $(APP) firmware/app.h firmware/keymap.h firmware/power.h firmware/screen.h tests/app_test.c | build
+-	$(CC) $(CFLAGS) -Icore -Ifirmware -o $@ $(CORE) $(SCREEN) $(APP) tests/app_test.c $(ENGINE) $(LIBS)
+-
+-build/standin_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) $(APP) firmware/standin.c firmware/standin.h firmware/app.h firmware/keymap.h firmware/screen.h tests/standin_test.c | build
+-	$(CC) $(CFLAGS) -Icore -Ifirmware -o $@ $(CORE) $(SCREEN) $(APP) firmware/standin.c tests/standin_test.c $(ENGINE) $(LIBS)
++# Babal, an app under APPS from stu32-arcade at ARCADE_PIN (scripts/fetch-arcade.sh); its sources
++# build with -ffp-contract=off, as its oracle requires (no fused multiply-adds), and nothing else does.
++ARCADE_C := $(addprefix build/arcade/babal/,chacha20.c fake_input.c input_jump.c input_steer.c level.c maths.c \
++	player.c player_event.c points_counter.c row.c row_generator.c skill.c slab.c time_tracker.c timeval.c vec3.c) \
++	build/arcade/app/babal_app.c build/arcade/app/render.c
++ARCADE_O := $(ARCADE_C:build/arcade/%.c=build/arcade-o/%.o)
++ARCADE_INC := -Ibuild/arcade/babal -Ibuild/arcade/app
++build/arcade/.pin: ARCADE_PIN
++	scripts/fetch-arcade.sh
++$(ARCADE_C): build/arcade/.pin
++build/arcade-o/%.o: build/arcade/%.c build/arcade/.pin
++	@mkdir -p $(dir $@)
++	$(CC) $(CFLAGS) -ffp-contract=off -Ifirmware $(ARCADE_INC) -c $< -o $@
++build/app_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) $(APP) $(ARCADE_O) firmware/app.h firmware/keymap.h firmware/power.h firmware/screen.h tests/app_test.c | build
++	$(CC) $(CFLAGS) -Icore -Ifirmware $(ARCADE_INC) -o $@ $(CORE) $(SCREEN) $(APP) $(ARCADE_O) tests/app_test.c $(ENGINE) $(LIBS)
++
++build/standin_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) $(APP) $(ARCADE_O) firmware/standin.c firmware/standin.h firmware/app.h firmware/keymap.h firmware/screen.h tests/standin_test.c | build
++	$(CC) $(CFLAGS) -Icore -Ifirmware $(ARCADE_INC) -o $@ $(CORE) $(SCREEN) $(APP) $(ARCADE_O) firmware/standin.c tests/standin_test.c $(ENGINE) $(LIBS)
+ 
+ build/power_test: firmware/gauge.c firmware/gauge.h firmware/power.c firmware/power.h firmware/pins.c firmware/pins.h firmware/piezo.c firmware/piezo.h tests/power_test.c | build
+ 	$(CC) $(CFLAGS) -Ifirmware -o $@ firmware/gauge.c firmware/power.c firmware/pins.c firmware/piezo.c tests/power_test.c -lm
+diff --git a/device/reva/build.sh b/device/reva/build.sh
+index 6a5c7cd..fbd1a6b 100755
+--- a/device/reva/build.sh
++++ b/device/reva/build.sh
+@@ -3,6 +3,7 @@
+ set -euo pipefail
+ IMAGE="espressif/idf:v5.4.2"
+ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
++"$ROOT/scripts/fetch-arcade.sh"
+ docker run --rm -v "$ROOT:/project" -w /project --user "$(id -u):$(id -g)" -e HOME=/tmp "$IMAGE" bash -c '
+ set -euo pipefail
+ . "$IDF_PATH/export.sh" >/dev/null
+diff --git a/device/reva/main/CMakeLists.txt b/device/reva/main/CMakeLists.txt
+index 46ba32e..5108ed3 100644
+--- a/device/reva/main/CMakeLists.txt
++++ b/device/reva/main/CMakeLists.txt
+@@ -9,11 +9,22 @@ else()
+     file(GLOB CORE_SRCS CONFIGURE_DEPENDS "${REPO}/core/*.c")
+ endif()
+ set(FW "${REPO}/firmware")
++# Babal (stu32-arcade at ARCADE_PIN), exported by scripts/fetch-arcade.sh before the build
++set(ARCADE "${REPO}/build/arcade")
++if(NOT EXISTS "${ARCADE}/.pin")
++    message(FATAL_ERROR "no ${ARCADE}: run scripts/fetch-arcade.sh")
++endif()
++file(GLOB ARCADE_SRCS "${ARCADE}/babal/*.c")
++list(APPEND ARCADE_SRCS "${ARCADE}/app/babal_app.c" "${ARCADE}/app/render.c")
++if(NOT CMAKE_SCRIPT_MODE_FILE)  # not allowed while IDF expands requirements in script mode
++    set_source_files_properties(${ARCADE_SRCS} PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
++endif()
+ 
+ idf_component_register(
+     SRCS reva_main.c ${CORE_SRCS} "${FW}/screen.c" "${FW}/font5x7.c" "${FW}/app.c" "${FW}/apps.c" "${FW}/keymap.c"
+          "${FW}/keys.c" "${FW}/power.c" "${FW}/store.c" "${FW}/ls027.c" "${FW}/gauge.c" "${FW}/pins.c" "${FW}/piezo.c" "${FW}/settings.c"
+-    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device"
++         ${ARCADE_SRCS}
++    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device" "${ARCADE}/babal" "${ARCADE}/app"
+     REQUIRES esp_driver_spi esp_driver_i2c esp_driver_gpio esp_driver_ledc esp_psram esp_partition esp_timer ulp esp_hw_support)
+ 
+ set(ulp_app_name ulp_${COMPONENT_NAME})
+diff --git a/device/standin/main/CMakeLists.txt b/device/standin/main/CMakeLists.txt
+index dff5168..e91fe9e 100644
+--- a/device/standin/main/CMakeLists.txt
++++ b/device/standin/main/CMakeLists.txt
+@@ -9,11 +9,22 @@ else()
+     file(GLOB CORE_SRCS CONFIGURE_DEPENDS "${REPO}/core/*.c")
+ endif()
+ set(FW "${REPO}/firmware")
++# Babal (stu32-arcade at ARCADE_PIN), exported by scripts/fetch-arcade.sh before the build
++set(ARCADE "${REPO}/build/arcade")
++if(NOT EXISTS "${ARCADE}/.pin")
++    message(FATAL_ERROR "no ${ARCADE}: run scripts/fetch-arcade.sh")
++endif()
++file(GLOB ARCADE_SRCS "${ARCADE}/babal/*.c")
++list(APPEND ARCADE_SRCS "${ARCADE}/app/babal_app.c" "${ARCADE}/app/render.c")
++if(NOT CMAKE_SCRIPT_MODE_FILE)  # not allowed while IDF expands requirements in script mode
++    set_source_files_properties(${ARCADE_SRCS} PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
++endif()
+ 
+ idf_component_register(
+     SRCS standin_main.c ${CORE_SRCS} "${FW}/screen.c" "${FW}/font5x7.c" "${FW}/app.c" "${FW}/apps.c" "${FW}/keymap.c"
+          "${FW}/keys.c" "${FW}/power.c" "${FW}/standin.c" "${FW}/store.c" "${FW}/ls027.c" "${FW}/settings.c" "${FW}/piezo.c"
+-    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device"
++         ${ARCADE_SRCS}
++    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device" "${ARCADE}/babal" "${ARCADE}/app"
+     REQUIRES esp_lcd esp_driver_i2c esp_driver_gpio esp_driver_uart vfs esp_psram esp_partition esp_timer)
+ 
+ if(NOT EXISTS "${BID_LIB}")
+diff --git a/device/standin/run.sh b/device/standin/run.sh
+index a6c1de5..c3935b5 100755
+--- a/device/standin/run.sh
++++ b/device/standin/run.sh
+@@ -12,6 +12,7 @@ SCRIPT="${2:-}"
+ IMAGE="espressif/idf:v5.4.2"
+ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ mkdir -p "$ROOT/build"
++[ "${FLASH:-1}" = 1 ] && "$ROOT/scripts/fetch-arcade.sh"
+ docker run --rm -i -v "$ROOT:/project" -w /project \
+     --user "$(id -u):$(id -g)" --group-add "$(stat -c %g "$PORT")" --device "$PORT" \
+     -e HOME=/tmp -e PORT="$PORT" -e FLASH="${FLASH:-1}" -e SCRIPT="$SCRIPT" "$IMAGE" bash -c '
+diff --git a/firmware/apps.c b/firmware/apps.c
+index 48fa045..b5e834e 100644
+--- a/firmware/apps.c
++++ b/firmware/apps.c
+@@ -4,6 +4,7 @@
+ #include <string.h>
+ 
+ #include "apps.h"
++#include "babal_app.h" /* Babal (stu32-arcade at ARCADE_PIN, build/arcade) */
+ #include "keymap.h"
+ #include "screen.h"
+ 
+@@ -75,5 +76,5 @@ static void keys_stop(void *ctx)
+ static const app_def keys_app = {"KEYS", sizeof(keys_ctx), keys_load, keys_start, keys_key, keys_tick,
+                                  keys_draw, keys_save, keys_stop};
+ 
+-const app_def *const app_registry[] = {&keys_app};
++const app_def *const app_registry[] = {&keys_app, &babal_app};
+ const int app_registry_n = sizeof app_registry / sizeof app_registry[0];
+diff --git a/scripts/fetch-arcade.sh b/scripts/fetch-arcade.sh
+new file mode 100755
+index 0000000..f90636c
+--- /dev/null
++++ b/scripts/fetch-arcade.sh
+@@ -0,0 +1,17 @@
++#!/bin/sh
++# Babal (cpuchip/stu32-arcade, PRIVATE): its rules (babal/) and its app (app/) at ARCADE_PIN, exported
++# read-only with git archive from a local clone (ARCADE_REPO, default ../stu32-arcade) into
++# build/arcade, the way casim consumes the core: a build never writes into that clone.
++set -eu
++ROOT=$(cd "$(dirname "$0")/.." && pwd)
++PIN=$(cat "$ROOT/ARCADE_PIN")
++REPO=${ARCADE_REPO:-$ROOT/../stu32-arcade}
++OUT=$ROOT/build/arcade
++if [ -f "$OUT/.pin" ] && [ "$(cat "$OUT/.pin")" = "$PIN" ]; then
++    exit 0
++fi
++rm -rf "$OUT"
++mkdir -p "$OUT"
++git -C "$REPO" archive "$PIN" babal app/babal_app.c app/babal_app.h app/render.c app/render.h | tar -x -C "$OUT"
++echo "$PIN" > "$OUT/.pin"
++echo "arcade $PIN"
+-- 
+2.53.0
+
