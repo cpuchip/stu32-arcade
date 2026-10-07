@@ -301,6 +301,8 @@ static void babal_draw(void *ctx, ls027_frame *f)
         static const char *const names[] = {"NOOB", "EASY", "MEDIUM", "HARD", "EXPERT"};
         memset(f, 0, sizeof *f);
         babal_text(f, centred(5, 6), 30, 6, "BABAL");
+        /* the original's credit (abacus decision 62): its author here, its home above the help */
+        babal_text(f, centred(20, 2), 84, 2, "by Christian Mauduit");
         int len = (int)strlen(names[c->skill]) + 4;
         char sel[16] = "< ";
         strcat(sel, names[c->skill]);
@@ -310,6 +312,7 @@ static void babal_draw(void *ctx, ls027_frame *f)
             number(text, "BEST ", best_score(c));
             babal_text(f, centred((int)strlen(text), 2), 150, 2, text);
         }
+        babal_text(f, centred(27, 2), 172, 2, "gitlab.com/liberecofr/babal");
         static const char *const help[] = {"4 6 SKILL   8 ENTER JUMP", "ENTER PLAYS   C ENDS"};
         babal_text(f, centred((int)strlen(help[0]), 2), 196, 2, help[0]);
         babal_text(f, centred((int)strlen(help[1]), 2), 218, 2, help[1]);

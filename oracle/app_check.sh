@@ -13,6 +13,9 @@ N=${N:-8}
 CFLAGS="-O2 -std=c11 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off"
 FW=$ROOT/build/firmware/firmware
 
+# the host under test is built from the sources here, never a stale build/apphost (run directly, the
+# script once checked an app older than the one in the tree, and only the sanitizer pass saw it)
+make -s -C "$ROOT" build/apphost || exit 1
 rm -rf "$B" && mkdir -p "$B"
 python3 "$ROOT/oracle/gen_appscripts.py" "$B/scripts" "$N" || exit 1
 

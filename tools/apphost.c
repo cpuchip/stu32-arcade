@@ -217,12 +217,15 @@ static void expected_frame(void)
     if (ctx.state == BABAL_TITLE) {
         memset(&want, 0, sizeof want);
         ref_text(&want, centred(5, 6), 30, 6, "BABAL");
+        /* abacus decision 62, (b) as ruled (#4802): the author under the logo, the repo above the help */
+        ref_text(&want, centred((int)strlen("by Christian Mauduit"), 2), 84, 2, "by Christian Mauduit");
         snprintf(text, sizeof text, "< %s >", SKILL_NAMES[ctx.skill]);
         ref_text(&want, centred((int)strlen(text), 3), 110, 3, text);
         if (spec_best() > 0) {
             number(text, "BEST ", spec_best());
             ref_text(&want, centred((int)strlen(text), 2), 150, 2, text);
         }
+        ref_text(&want, centred((int)strlen("gitlab.com/liberecofr/babal"), 2), 172, 2, "gitlab.com/liberecofr/babal");
         ref_text(&want, centred(24, 2), 196, 2, "4 6 SKILL   8 ENTER JUMP");
         ref_text(&want, centred(20, 2), 218, 2, "ENTER PLAYS   C ENDS");
         return;
