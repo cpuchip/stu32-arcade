@@ -175,6 +175,7 @@ typedef struct {
     int32_t best_previous_score;
     bool high_score;
     int32_t best_time_pct;
+    uint32_t log_failures; /* C only: scores the log could not keep (it must stay 0) */
 } bb_points_counter;
 void bb_points_counter_init(bb_points_counter *pc);
 void bb_points_counter_free(bb_points_counter *pc);
@@ -193,11 +194,12 @@ typedef struct {
 } bb_input_query;
 
 /* fake_input.rs */
-#define BB_FAKE_STEERS_MAX 64
+#define BB_FAKE_STEERS_MAX 256
 typedef struct {
     intptr_t jumps;
     double steers[BB_FAKE_STEERS_MAX];
     int head, count;
+    uint32_t dropped; /* C only: steers pushed past BB_FAKE_STEERS_MAX queued (must stay 0) */
 } bb_fake_input;
 void bb_fake_input_init(bb_fake_input *fi);
 void bb_fake_input_push_jump(bb_fake_input *fi);
@@ -226,7 +228,7 @@ bool bb_input_jump_pop_jump(bb_input_jump *ij, bb_instant now);
 #define BB_INTENSITY_MIN 0.0
 #define BB_INTENSITY_MAX 1.0
 #define BB_BASE_KEYBOARD_ACC_VALUE 0.01
-#define BB_STEER_KEYS_MAX 4
+#define BB_STEER_KEYS_MAX 8 /* ids ever used on one side; more are counted in dropped_keys */
 typedef struct {
     int64_t id;
     double acc;
@@ -241,6 +243,7 @@ typedef struct {
     double mouse_acc;
     bb_key_map right_keys;
     bb_key_map left_keys;
+    uint32_t dropped_keys; /* C only: presses of ids past BB_STEER_KEYS_MAX (must stay 0) */
 } bb_input_steer;
 void bb_input_steer_init(bb_input_steer *is);
 void bb_input_steer_mouse_move(bb_input_steer *is, double delta_px);

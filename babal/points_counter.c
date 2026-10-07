@@ -25,15 +25,25 @@ void bb_points_counter_free(bb_points_counter *pc)
 static void score_to_log(bb_points_counter *pc, double dist)
 {
     intptr_t key = bb_f64_as_isize(round(dist));
-    if (key < 0)
+    if (key < 0) {
+        pc->log_failures++; /* dist is never negative; Rust would store it */
         return;
+    }
     if ((size_t)key >= pc->scores_cap) {
+        /* Grown to the next power of two past key; a key too large to double, or memory that
+         * runs out, is counted in log_failures (the Rust's HashMap would have stored it). */
+        if ((size_t)key >= SIZE_MAX / sizeof(bb_score_entry) / 2) {
+            pc->log_failures++;
+            return;
+        }
         size_t cap = pc->scores_cap ? pc->scores_cap : 256;
         while (cap <= (size_t)key)
             cap *= 2;
         bb_score_entry *grown = realloc(pc->scores_log, cap * sizeof *grown);
-        if (!grown)
+        if (!grown) {
+            pc->log_failures++;
             return;
+        }
         memset(grown + pc->scores_cap, 0, (cap - pc->scores_cap) * sizeof *grown);
         pc->scores_log = grown;
         pc->scores_cap = cap;

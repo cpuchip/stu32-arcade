@@ -55,6 +55,7 @@ void bb_input_steer_init(bb_input_steer *is)
     is->mouse_acc = 0.0;
     is->right_keys.n = 0;
     is->left_keys.n = 0;
+    is->dropped_keys = 0;
 }
 
 static double flush_mouse(bb_input_steer *is)
@@ -77,7 +78,7 @@ static bb_key_state *find_key(bb_key_map *keys, int64_t id)
     return NULL;
 }
 
-static void bump_key(bb_key_map *keys, int64_t id, double intensity, bb_instant now)
+static void bump_key(bb_key_map *keys, int64_t id, double intensity, bb_instant now, uint32_t *dropped)
 {
     intensity = intensity > BB_INTENSITY_MIN ? (intensity < BB_INTENSITY_MAX ? intensity : BB_INTENSITY_MAX)
                                              : BB_INTENSITY_MIN;
@@ -88,6 +89,8 @@ static void bump_key(bb_key_map *keys, int64_t id, double intensity, bb_instant 
         key_state_bump(k, intensity, now);
     else if (keys->n < BB_STEER_KEYS_MAX)
         key_state_new(&keys->v[keys->n++], id, intensity, now);
+    else
+        (*dropped)++;
 }
 
 static void release_key(bb_key_map *keys, int64_t id, bb_instant now)
@@ -105,22 +108,22 @@ static double flush_keys(bb_key_map *keys, bb_instant now)
     return acc;
 }
 
-static void handle_key(bb_key_map *keys, int64_t id, double intensity, bool state, bb_instant now)
+static void handle_key(bb_key_map *keys, int64_t id, double intensity, bool state, bb_instant now, uint32_t *dropped)
 {
     if (state)
-        bump_key(keys, id, intensity, now);
+        bump_key(keys, id, intensity, now, dropped);
     else
         release_key(keys, id, now);
 }
 
 void bb_input_steer_right_key(bb_input_steer *is, int64_t id, double intensity, bool state, bb_instant now)
 {
-    handle_key(&is->right_keys, id, intensity, state, now);
+    handle_key(&is->right_keys, id, intensity, state, now, &is->dropped_keys);
 }
 
 void bb_input_steer_left_key(bb_input_steer *is, int64_t id, double intensity, bool state, bb_instant now)
 {
-    handle_key(&is->left_keys, id, intensity, state, now);
+    handle_key(&is->left_keys, id, intensity, state, now, &is->dropped_keys);
 }
 
 double bb_input_steer_pop_steer(bb_input_steer *is, bb_instant now)

@@ -23,9 +23,12 @@ static double sm_unit(void)
     return (double)(sm_next() >> 11) * (1.0 / 9007199254740992.0);
 }
 
+/* Floats as their bits; any NaN as "nan" (its sign is not meaningful, and Rust's Debug drops it). */
 static const char *b64(double x, char buf[17])
 {
     uint64_t u;
+    if (x != x)
+        return "nan";
     memcpy(&u, &x, 8);
     snprintf(buf, 17, "%016" PRIx64, u);
     return buf;
@@ -33,9 +36,23 @@ static const char *b64(double x, char buf[17])
 static const char *b32(float x, char buf[9])
 {
     uint32_t u;
+    if (x != x)
+        return "nan";
     memcpy(&u, &x, 4);
     snprintf(buf, 9, "%08" PRIx32, u);
     return buf;
+}
+
+static void print_events(const bb_events *ev)
+{
+    for (int i = 0; i < ev->n; i++) {
+        if (i)
+            printf(",");
+        if (ev->v[i].has_arg)
+            printf("%s:%" PRId32, bb_event_kind_as_str(ev->v[i].kind), ev->v[i].arg);
+        else
+            printf("%s", bb_event_kind_as_str(ev->v[i].kind));
+    }
 }
 
 static void pins(void)
@@ -103,6 +120,41 @@ static void pins(void)
         printf("num %s round=%s fract=%s trunc_i=%" PRId64 " floor=%s f32=%s\n", b64(x, a1), b64(round(x), a2),
                b64(x - trunc(x), a3), bb_f64_as_i64(x), b64(floor(x), a4), b32((float)x, f1));
     }
+    static const double big[] = {9.3e9, 1e10, 1.8e10};
+    for (int i = 0; i < 3; i++)
+        printf("from_secs_f64 %s %" PRIu64 "\n", b64(big[i], a1), bb_duration_from_secs_f64(big[i]));
+    double mx[18 + 200] = {-1.5, -1.0, -0.75, -0.5, -0.25, -0.0, 0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5,
+                           NAN, INFINITY, -INFINITY, 1e-300, 0.9999999999999999};
+    n = 18;
+    for (int i = 0; i < 200; i++)
+        mx[n++] = (sm_unit() - 0.5) * 6.0;
+    static const double alphas[] = {0.0, 0.25, 0.5, 1.0, 1.5, -0.5};
+    for (int i = 0; i < n; i++) {
+        double x = mx[i];
+        printf("maths %s %s %s %s %s %s %s %s %s", b64(x, a1), b64(bb_fade_in(x), a2), b64(bb_fade_out(x), a3),
+               b64(bb_square_wave(x), a4), b64(bb_triangle_wave(x), a5), b64(bb_sawtooth_wave(x), a6),
+               b64(bb_sine_wave(x), a7), b64(bb_boxcar(x), a8), b64(bb_heaviside_step(x), a9));
+        for (int k = 0; k < 6; k++)
+            printf(" %s", b64(bb_pulse(x, alphas[k]), a1));
+        printf("\n");
+    }
+    static const double adds[] = {0.5, 1e12, 0.25, 1e12 - 0.25, 0.25, -1.0, 0.001, 0.0005, 2.0005, 1e11, 9e11, 0.123456, -0.2};
+    bb_time_tracker tt = {0.0};
+    for (int i = 0; i < 13; i++) {
+        char text[32];
+        bb_time_tracker_add(&tt, adds[i]);
+        bb_time_tracker_format(&tt, text);
+        printf("tt %s %s %" PRId64 " %s\n", b64(adds[i], a1), b64(bb_time_tracker_now_sec(&tt), a2),
+               bb_time_tracker_now_msec(&tt), text);
+    }
+    static const int32_t args[] = {42, -7};
+    for (int i = 0; i < 2; i++)
+        for (int k = BB_EVENT_START; k <= BB_EVENT_FINISH; k++) {
+            char text[32];
+            bb_event e = {(bb_event_kind)k, k >= BB_EVENT_THOUSAND_SCORE, k >= BB_EVENT_THOUSAND_SCORE ? args[i] : 0};
+            bb_event_format(&e, text);
+            printf("ev %s\n", text);
+        }
 }
 
 static int cmp_isize(const void *a, const void *b)
@@ -181,9 +233,25 @@ static void tok_v(bb_vec3 v)
     tok_f(v.y);
     tok_f(v.z);
 }
+/* lead: the tokens continue a list (each starts with a comma); otherwise the first has none. */
+static void print_pc_tokens(const bb_points_counter *pc, bool lead)
+{
+    char b[17];
+    if (lead)
+        tok_f(pc->total_points);
+    else
+        printf("%s", b64(pc->total_points, b));
+    tok_f(pc->last_dist);
+    printf(",%td", pc->last_row);
+    tok_f(pc->last_best_dist);
+    printf(",%td", pc->last_best_row);
+    tok_f(pc->time_played_tracker.now_sec_f64);
+    tok_f(pc->delta_total);
+    printf(",%d,%" PRId32 ",%" PRId32 ",%d,%" PRId32, pc->behind ? 1 : 0, pc->best_current_score,
+           pc->best_previous_score, pc->high_score ? 1 : 0, pc->best_time_pct);
+}
 static void print_state(const bb_player *p)
 {
-    const bb_points_counter *pc = &p->points_counter;
     char b[17];
     printf("s %d,%s", p->initialized ? 1 : 0, b64(p->steer_factor, b));
     tok_v(p->position_vec);
@@ -201,27 +269,116 @@ static void print_state(const bb_player *p)
     } else {
         printf(",N");
     }
-    tok_f(pc->total_points);
-    tok_f(pc->last_dist);
-    printf(",%td", pc->last_row);
-    tok_f(pc->last_best_dist);
-    printf(",%td", pc->last_best_row);
-    tok_f(pc->time_played_tracker.now_sec_f64);
-    tok_f(pc->delta_total);
-    printf(",%d,%" PRId32 ",%" PRId32 ",%d,%" PRId32 ",%td,%td\n", pc->behind ? 1 : 0, pc->best_current_score,
-           pc->best_previous_score, pc->high_score ? 1 : 0, pc->best_time_pct, p->boost_count, p->overdrive_count);
+    print_pc_tokens(&p->points_counter, true);
+    printf(",%td,%td\n", p->boost_count, p->overdrive_count);
 }
-static void print_log(const bb_player *p)
+static void print_log(const bb_points_counter *pc)
 {
     char b[17];
     int first = 1;
     printf("log ");
-    for (size_t k = 0; k < p->points_counter.scores_cap; k++)
-        if (p->points_counter.scores_log[k].present) {
-            printf("%s%zu:%s", first ? "" : " ", k, b64(p->points_counter.scores_log[k].points, b));
+    for (size_t k = 0; k < pc->scores_cap; k++)
+        if (pc->scores_log[k].present) {
+            printf("%s%zu:%s", first ? "" : " ", k, b64(pc->scores_log[k].points, b));
             first = 0;
         }
     printf("\n");
+}
+
+/* The C-only counters must stay 0, or the run says so and fails. */
+static void check_counters(const bb_points_counter *pc, const bb_input_steer *is)
+{
+    if ((pc && pc->log_failures) || (is && is->dropped_keys)) {
+        fprintf(stderr, "C-only limit reached: log_failures=%u dropped_keys=%u\n", pc ? pc->log_failures : 0,
+                is ? is->dropped_keys : 0);
+        exit(3);
+    }
+}
+
+static void points(uint64_t seed)
+{
+    char b1[17], b2[17], b3[17];
+    sm_state = seed;
+    bb_points_counter pc;
+    bb_points_counter_init(&pc);
+    if (sm_next() % 2 == 0)
+        bb_points_counter_set_best_score(&pc, (int32_t)(sm_next() % 5000));
+    static const double ttcs[] = {30.0, 49.9, 50.0, 50.1, 120.0, 199.9, 200.0, 200.1, 300.0, 0.0, -1.0};
+    double ttc = ttcs[sm_next() % 11];
+    uint64_t steps = 4000 + (seed % 3) * 6000;
+    printf("points seed=%" PRIu64 " ttc=%s steps=%" PRIu64 "\n", seed, b64(ttc, b1), steps);
+    double dist = 0.0;
+    for (uint64_t i = 0; i < steps; i++) {
+        double r = sm_unit();
+        double delta = r < 0.02 ? 0.0 : r < 0.03 ? -0.01 : sm_unit() * 0.05;
+        double m = sm_unit();
+        if (m < 0.85) {
+            dist += sm_unit() * 0.4;
+        } else if (m < 0.95) {
+            dist -= sm_unit() * 5.0;
+            if (dist < 0.0)
+                dist = 0.0;
+        } else {
+            dist += sm_unit() * 40.0;
+        }
+        bb_events ev = {.n = 0};
+        bb_points_counter_handle_dist(&pc, delta, dist, ttc, &ev);
+        printf("p %" PRIu64 " ev=", i);
+        print_events(&ev);
+        printf(" score=%" PRId32 " best_row=%td best_dist=%s pct=%s st=", bb_points_counter_score(&pc),
+               bb_points_counter_best_row(&pc), b64(bb_points_counter_best_dist(&pc), b2),
+               b64(bb_points_counter_time_pct(&pc, ttc), b3));
+        print_pc_tokens(&pc, false);
+        printf("\n");
+    }
+    print_log(&pc);
+    check_counters(&pc, NULL);
+    bb_points_counter_free(&pc);
+}
+
+static void inputs(uint64_t seed)
+{
+    char b[17];
+    sm_state = seed;
+    bb_input_jump ij;
+    bb_input_steer st;
+    bb_input_jump_init(&ij);
+    bb_input_steer_init(&st);
+    int64_t t = 1000000000000;
+    static const double ints[] = {1.0, 0.5, 0.25, 1.5, 0.0, -0.3};
+    static const double sticks[] = {-1.0, 0.0, 0.05, 0.16, 1.0, 1e10};
+    static const double mice[] = {3.0, -7.5, 0.125, -40.0};
+    printf("inputs seed=%" PRIu64 "\n", seed);
+    for (int i = 0; i < 3000; i++) {
+        uint64_t r = sm_next() % 100;
+        int64_t dt = (int64_t)(sm_next() % 50000000);
+        bool back = sm_next() % 10 == 0;
+        if (back)
+            t -= dt;
+        else if (sm_next() % 5 != 0)
+            t += dt;
+        if (r < 15) {
+            bb_input_jump_push_jump(&ij, t);
+        } else if (r < 30) {
+            printf("j %d %d\n", i, bb_input_jump_pop_jump(&ij, t) ? 1 : 0);
+        } else if (r < 60) {
+            int64_t id = 1 + (int64_t)(sm_next() % 2);
+            double intensity = ints[sm_next() % 6];
+            bool state = sm_next() % 3 != 0;
+            if (r < 45)
+                bb_input_steer_left_key(&st, id, intensity, state, t);
+            else
+                bb_input_steer_right_key(&st, id, intensity, state, t);
+        } else if (r < 65) {
+            bb_input_steer_mouse_move(&st, mice[sm_next() % 4]);
+        } else if (r < 70) {
+            double s = sticks[sm_next() % 6];
+            bb_input_jump_set_stickiness_secs_f64(&ij, s >= 0.0, s);
+        } else {
+            printf("s %d %s\n", i, b64(bb_input_steer_pop_steer(&st, t), b));
+        }
+    }
+    check_counters(NULL, &st);
 }
 
 typedef struct {
@@ -289,10 +446,11 @@ static void game(const char *path)
         else if (!strcmp(w[0], "L") || !strcmp(w[0], "R")) {
             bool state = !strcmp(w[1], "1");
             double intensity = nw > 2 ? strtod(w[2], NULL) : 1.0;
+            int64_t id = nw > 3 ? strtoll(w[3], NULL, 10) : w[0][0] == 'L' ? 1 : 2;
             if (w[0][0] == 'L')
-                bb_input_steer_left_key(&steer, 1, intensity, state, now);
+                bb_input_steer_left_key(&steer, id, intensity, state, now);
             else
-                bb_input_steer_right_key(&steer, 2, intensity, state, now);
+                bb_input_steer_right_key(&steer, id, intensity, state, now);
         } else if (!strcmp(w[0], "J"))
             bb_input_jump_push_jump(&jump, now);
         else if (!strcmp(w[0], "M"))
@@ -318,14 +476,7 @@ static void game(const char *path)
             bb_events ev;
             bb_player_tick(&player, delta, &lvl, &q, &ev);
             printf("t %zu ev=", ticks);
-            for (int i = 0; i < ev.n; i++) {
-                if (i)
-                    printf(",");
-                if (ev.v[i].has_arg)
-                    printf("%s:%" PRId32, bb_event_kind_as_str(ev.v[i].kind), ev.v[i].arg);
-                else
-                    printf("%s", bb_event_kind_as_str(ev.v[i].kind));
-            }
+            print_events(&ev);
             bb_vec3f p = bb_player_position(&player), s = bb_player_speed(&player);
             printf(" p=%s,%s,%s s=%s,%s,%s col=%td row=%td dist=%s score=%" PRId32 " best_row=%td best_dist=%s boost=%d"
                    " blend=%s sf=%s tpd=%s tpt=%s first=%td last=%td len=%zu\n",
@@ -344,7 +495,8 @@ static void game(const char *path)
         }
     }
     fclose(f);
-    print_log(&player);
+    print_log(&player.points_counter);
+    check_counters(&player.points_counter, &steer);
     if (storage) {
         printf("rows first=%td last=%td\n", bb_level_first(&lvl), bb_level_last(&lvl));
         size_t w = bb_level_width(&lvl);
@@ -368,8 +520,12 @@ int main(int argc, char **argv)
         level(strtoull(argv[2], NULL, 10), bb_skill_from_str(argv[3]), strtoull(argv[4], NULL, 10));
     else if (argc >= 3 && !strcmp(argv[1], "game"))
         game(argv[2]);
+    else if (argc >= 3 && !strcmp(argv[1], "points"))
+        points(strtoull(argv[2], NULL, 10));
+    else if (argc >= 3 && !strcmp(argv[1], "inputs"))
+        inputs(strtoull(argv[2], NULL, 10));
     else {
-        fprintf(stderr, "usage: driver pins | level SEED SKILL N | game SCRIPT\n");
+        fprintf(stderr, "usage: driver pins | level SEED SKILL N | game SCRIPT | points SEED | inputs SEED\n");
         return 2;
     }
     return 0;

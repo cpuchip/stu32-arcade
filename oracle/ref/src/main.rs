@@ -22,11 +22,20 @@ impl SplitMix {
     }
 }
 
+// Floats as their bits; any NaN as "nan" (its sign is not meaningful, and Debug drops it).
 fn b64(x: f64) -> String {
-    format!("{:016x}", x.to_bits())
+    if x.is_nan() { "nan".to_string() } else { format!("{:016x}", x.to_bits()) }
 }
 fn b32(x: f32) -> String {
-    format!("{:08x}", x.to_bits())
+    if x.is_nan() { "nan".to_string() } else { format!("{:08x}", x.to_bits()) }
+}
+
+fn events_text(events: &[PlayerEvent]) -> String {
+    let ev: Vec<String> = events.iter().map(|e| match e.arg {
+        Some(a) => format!("{}:{}", e.kind.as_str(), a),
+        None => e.kind.as_str().to_string(),
+    }).collect();
+    ev.join(",")
 }
 
 fn pins(out: &mut String) {
@@ -88,6 +97,121 @@ fn pins(out: &mut String) {
         let _ = writeln!(out, "num {} round={} fract={} trunc_i={} floor={} f32={}",
             b64(x), b64(x.round()), b64(x.fract()), x as i64, b64(x.floor()), b32(x as f32));
     }
+    for s in [9.3e9, 1e10, 1.8e10] {
+        let _ = writeln!(out, "from_secs_f64 {} {}", b64(s), Duration::from_secs_f64(s).as_nanos());
+    }
+    // maths.rs over boundaries, specials and a random sweep.
+    let mut mx: Vec<f64> = vec![-1.5, -1.0, -0.75, -0.5, -0.25, -0.0, 0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5,
+        f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 1e-300, 0.9999999999999999];
+    for _ in 0..200 {
+        mx.push((sm.unit() - 0.5) * 6.0);
+    }
+    for x in mx {
+        let mut line = format!("maths {} {} {} {} {} {} {} {} {}", b64(x), b64(fade_in(x)), b64(fade_out(x)),
+            b64(square_wave(x)), b64(triangle_wave(x)), b64(sawtooth_wave(x)), b64(sine_wave(x)), b64(boxcar(x)),
+            b64(heaviside_step(x)));
+        for a in [0.0, 0.25, 0.5, 1.0, 1.5, -0.5] {
+            let _ = write!(line, " {}", b64(pulse(x, a)));
+        }
+        out.push_str(&line);
+        out.push('\n');
+    }
+    // TimeTracker, including a sum of exactly TIME_TRACKER_MAX_SEC, and its Display.
+    let mut tt = TimeTracker::new();
+    for d in [0.5, 1e12, 0.25, 1e12 - 0.25, 0.25, -1.0, 0.001, 0.0005, 2.0005, 1e11, 9e11, 0.123456, -0.2] {
+        tt.add(d);
+        let _ = writeln!(out, "tt {} {} {} {}", b64(d), b64(tt.now_sec()), tt.now_msec(), tt);
+    }
+    // PlayerEvent's Display.
+    for a in [42, -7] {
+        let evs = [PlayerEvent::new_start(), PlayerEvent::new_jump(), PlayerEvent::new_land(), PlayerEvent::new_fall(),
+            PlayerEvent::new_catch_up(), PlayerEvent::new_change_column(), PlayerEvent::new_boost(),
+            PlayerEvent::new_overdrive(), PlayerEvent::new_thousand_score(a), PlayerEvent::new_percent_time(a),
+            PlayerEvent::new_high_score(a), PlayerEvent::new_finish(a)];
+        for e in evs {
+            let _ = writeln!(out, "ev {}", e);
+        }
+    }
+}
+
+// PointsCounter on its own: seeded walks of distance (mostly forward, some falls, some leaps)
+// over every time-to-complete band, with its whole private state after each step.
+fn points(out: &mut String, seed: u64) {
+    let mut sm = SplitMix(seed);
+    let mut pc = PointsCounter::new();
+    if sm.next() % 2 == 0 {
+        pc.set_best_score((sm.next() % 5000) as i32);
+    }
+    let ttcs = [30.0, 49.9, 50.0, 50.1, 120.0, 199.9, 200.0, 200.1, 300.0, 0.0, -1.0];
+    let ttc = ttcs[(sm.next() % 11) as usize];
+    let steps = 4000 + (seed % 3) * 6000;
+    let _ = writeln!(out, "points seed={} ttc={} steps={}", seed, b64(ttc), steps);
+    let mut dist: f64 = 0.0;
+    for i in 0..steps {
+        let r = sm.unit();
+        let delta = if r < 0.02 { 0.0 } else if r < 0.03 { -0.01 } else { sm.unit() * 0.05 };
+        let m = sm.unit();
+        if m < 0.85 {
+            dist += sm.unit() * 0.4;
+        } else if m < 0.95 {
+            dist -= sm.unit() * 5.0;
+            if dist < 0.0 {
+                dist = 0.0;
+            }
+        } else {
+            dist += sm.unit() * 40.0;
+        }
+        let ev = pc.handle_dist(delta, dist, ttc);
+        let _ = writeln!(out, "p {} ev={} score={} best_row={} best_dist={} pct={} st={}", i, events_text(&ev),
+            pc.score(), pc.best_row(), b64(pc.best_dist()), b64(pc.time_pct(ttc)), debug_tokens(&format!("{:?}", pc)).0);
+    }
+    let _ = writeln!(out, "log {}", debug_tokens(&format!("{:?}", pc)).1);
+}
+
+// InputJump and InputSteer on their own: seeded presses, releases, pops and settings, with time
+// that sometimes stands still or runs backwards, two key ids a side (two terms commute).
+fn inputs(out: &mut String, seed: u64) {
+    let mut sm = SplitMix(seed);
+    let base = Instant::now();
+    let mut ij = InputJump::new();
+    let mut st = InputSteer::new();
+    let mut t: u64 = 1_000_000_000_000;
+    let ints = [1.0, 0.5, 0.25, 1.5, 0.0, -0.3];
+    let sticks = [-1.0, 0.0, 0.05, 0.16, 1.0, 1e10];
+    let mice = [3.0, -7.5, 0.125, -40.0];
+    let _ = writeln!(out, "inputs seed={}", seed);
+    for i in 0..3000 {
+        let r = sm.next() % 100;
+        let dt = sm.next() % 50_000_000;
+        let back = sm.next() % 10 == 0;
+        if back {
+            t -= dt;
+        } else if sm.next() % 5 != 0 {
+            t += dt;
+        }
+        let now = base + Duration::from_nanos(t);
+        if r < 15 {
+            ij.push_jump(Some(now));
+        } else if r < 30 {
+            let _ = writeln!(out, "j {} {}", i, ij.pop_jump(Some(now)) as u8);
+        } else if r < 60 {
+            let id = 1 + (sm.next() % 2) as i64;
+            let intensity = ints[(sm.next() % 6) as usize];
+            let state = sm.next() % 3 != 0;
+            if r < 45 {
+                st.left_key(id, intensity, state, Some(now));
+            } else {
+                st.right_key(id, intensity, state, Some(now));
+            }
+        } else if r < 65 {
+            st.mouse_move(mice[(sm.next() % 4) as usize]);
+        } else if r < 70 {
+            let s = sticks[(sm.next() % 6) as usize];
+            ij.set_stickiness_secs_f64(if s < 0.0 { None } else { Some(s) });
+        } else {
+            let _ = writeln!(out, "s {} {}", i, b64(st.pop_steer(Some(now))));
+        }
+    }
 }
 
 fn level(out: &mut String, seed: u64, skill: Skill, n: usize) {
@@ -140,7 +264,10 @@ fn level(out: &mut String, seed: u64, skill: Skill, n: usize) {
 // they are, booleans 1/0, Option as N or S. The scores log (a HashMap, printed in random order)
 // is cut out and returned sorted by row.
 fn player_state(p: &Player) -> (String, String) {
-    let dbg = format!("{:?}", p);
+    debug_tokens(&format!("{:?}", p))
+}
+
+fn debug_tokens(dbg: &str) -> (String, String) {
     let a = dbg.find("scores_log: {").expect("scores_log") + "scores_log: {".len();
     let b = a + dbg[a..].find('}').expect("end of scores_log");
     let mut log: Vec<(i64, f64)> = dbg[a..b]
@@ -225,10 +352,11 @@ fn game(out: &mut String, script: &str) {
             "L" | "R" => {
                 let state = f[1] == "1";
                 let intensity: f64 = if f.len() > 2 { f[2].parse().unwrap() } else { 1.0 };
+                let id: i64 = if f.len() > 3 { f[3].parse().unwrap() } else if f[0] == "L" { 1 } else { 2 };
                 if f[0] == "L" {
-                    steer.left_key(1, intensity, state, Some(now));
+                    steer.left_key(id, intensity, state, Some(now));
                 } else {
-                    steer.right_key(2, intensity, state, Some(now));
+                    steer.right_key(id, intensity, state, Some(now));
                 }
             }
             "J" => jump.push_jump(Some(now)),
@@ -248,14 +376,10 @@ fn game(out: &mut String, script: &str) {
                 }
                 let mut adapter = Adapter { steer: &mut steer, jump: &mut jump, now: base + Duration::from_nanos(clock) };
                 let events = player.tick(delta, lvl, &mut adapter);
-                let ev: Vec<String> = events.iter().map(|e| match e.arg {
-                    Some(a) => format!("{}:{}", e.kind.as_str(), a),
-                    None => e.kind.as_str().to_string(),
-                }).collect();
                 let (p, s) = (player.position(), player.speed());
                 let _ = writeln!(out,
                     "t {} ev={} p={},{},{} s={},{},{} col={} row={} dist={} score={} best_row={} best_dist={} boost={} blend={} sf={} tpd={} tpt={} first={} last={} len={}",
-                    ticks, ev.join(","), b32(p.x), b32(p.y), b32(p.z), b32(s.x), b32(s.y), b32(s.z),
+                    ticks, events_text(&events), b32(p.x), b32(p.y), b32(p.z), b32(s.x), b32(s.y), b32(s.z),
                     player.level_col(lvl.width()), player.level_row(), b64(player.dist()), player.score(),
                     player.best_row(), b64(player.best_dist()), player.is_boosting() as u8,
                     b64(player.backing_camera_blend()), b64(player.speed_factor(lvl)),
@@ -281,8 +405,10 @@ fn main() {
         Some("pins") => pins(&mut out),
         Some("level") => level(&mut out, args[2].parse().unwrap(), Skill::from_str(&args[3]), args[4].parse().unwrap()),
         Some("game") => game(&mut out, &args[2]),
+        Some("points") => points(&mut out, args[2].parse().unwrap()),
+        Some("inputs") => inputs(&mut out, args[2].parse().unwrap()),
         _ => {
-            eprintln!("usage: babal-ref pins | level SEED SKILL N | game SCRIPT");
+            eprintln!("usage: babal-ref pins | level SEED SKILL N | game SCRIPT | points SEED | inputs SEED");
             std::process::exit(2);
         }
     }

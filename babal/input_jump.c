@@ -15,7 +15,8 @@ void bb_input_jump_set_stickiness_secs_f64(bb_input_jump *ij, bool has, double s
 {
     if (has && secs > 0.0) {
         ij->has_stickiness = true;
-        ij->stickiness = (bb_duration)bb_duration_from_secs_f64(secs);
+        uint64_t ns = bb_duration_from_secs_f64(secs);
+        ij->stickiness = ns > (uint64_t)INT64_MAX ? INT64_MAX : (bb_duration)ns; /* past 292 years */
     } else {
         ij->has_stickiness = false;
     }

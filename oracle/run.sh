@@ -23,6 +23,8 @@ python3 "$ROOT/oracle/gen_scripts.py" "$B/scripts" "$N_SEEDS" "$PER_SEED" || exi
         echo "level-$sk-123-slide level 123 $sk 10350"
     done
     for s in "$B"/scripts/*.txt; do echo "game-$(basename "$s" .txt) game $s"; done
+    for seed in $(seq 0 11); do echo "points-$seed points $seed"; done
+    for seed in $(seq 0 15); do echo "inputs-$seed inputs $seed"; done
 } > "$B/jobs"
 
 while read -r name args; do
@@ -62,7 +64,18 @@ PLANTS=(
     "timeval.c|s/(c == 0 && (q.lo & 1))/c == 0/|from_secs_f64 ties away from zero"
     "vec3.c|s/a.x \* one_t + b.x \* t/a.x + (b.x - a.x) * t/|lerp's formula in x"
     "points_counter.c|s/pc->total_points += INSTANT_SPEED_WEIGHT \* delta_best_dist \* instant_speed;/pc->total_points += INSTANT_SPEED_WEIGHT * (delta_best_dist * instant_speed);/|one product regrouped"
+    # The plants that survived the first gate (fresh-eyes review, 2026-10-07):
+    "points_counter.c|s/if (key >= 0 \&\& (size_t)key < pc->scores_cap/if (key >= 0 \&\& key < 256 \&\& (size_t)key < pc->scores_cap/|scores from row 256 on never read back"
+    "babal.h|s/#define BB_STEER_KEYS_MAX 8/#define BB_STEER_KEYS_MAX 1/|one steer key a side"
+    "points_counter.c|s/> 200.0 ? 5 : 10/> 200.0 ? 4 : 10/|the long-level percent step 5 made 4"
+    "input_jump.c|s/if (now >= ij->last_request)/if (now > ij->last_request)/|a jump popped at its own instant"
+    "input_steer.c|/if (now < k->last_press)/{N;d}|the backwards-clock guard removed"
+    "time_tracker.c|s/tt->now_sec_f64 >= BB_TIME_TRACKER_MAX_SEC/tt->now_sec_f64 > BB_TIME_TRACKER_MAX_SEC/|the time tracker's reset at exactly its maximum"
+    "maths.c|/bb_heaviside_step(double x)/,/^}/s/return 0.5;/return 0.25;/|heaviside_step at 0"
+    "time_tracker.c|s/%03/%3/|TimeTracker's Display padding"
 )
+# Known equivalent, so not a plant: backing_camera_blend's `now_sec <= begin_sec` made `<` gives
+# (now - begin) / half_range = 0.0 at equality, the same 0.0.
 
 echo "== the port"
 if suite "$ROOT/build/driver"; then

@@ -6,6 +6,7 @@ void bb_fake_input_init(bb_fake_input *fi)
     fi->jumps = 0;
     fi->head = 0;
     fi->count = 0;
+    fi->dropped = 0;
 }
 
 void bb_fake_input_push_jump(bb_fake_input *fi)
@@ -15,8 +16,10 @@ void bb_fake_input_push_jump(bb_fake_input *fi)
 
 void bb_fake_input_push_steer(bb_fake_input *fi, double steer)
 {
-    if (fi->count >= BB_FAKE_STEERS_MAX)
+    if (fi->count >= BB_FAKE_STEERS_MAX) {
+        fi->dropped++;
         return;
+    }
     fi->steers[(fi->head + fi->count) % BB_FAKE_STEERS_MAX] = steer;
     fi->count++;
 }

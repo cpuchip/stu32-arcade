@@ -61,13 +61,16 @@ static int cmp_half(u128 x, int k)
 
 uint64_t bb_duration_from_secs_f64(double secs)
 {
-    /* Callers pass secs > 0 (input_jump.rs checks); Rust panics on negative or overflow. */
+    /* Callers pass secs > 0 (input_jump.rs checks). Rust panics on inf, NaN or a value past
+     * 2^64 ns; here those saturate to UINT64_MAX, and a negative gives 0. */
     uint64_t bits;
     memcpy(&bits, &secs, sizeof bits);
     int e = (int)((bits >> 52) & 0x7ff);
     uint64_t m = bits & ((1ULL << 52) - 1);
-    if (e == 0x7ff || (bits >> 63))
+    if (bits >> 63)
         return 0;
+    if (e == 0x7ff)
+        return UINT64_MAX;
     if (e == 0)
         e = 1; /* subnormal */
     else
@@ -75,7 +78,7 @@ uint64_t bb_duration_from_secs_f64(double secs)
     int k = 1075 - e; /* secs = m * 2^-k */
     u128 p = mul_64_32(m, 1000000000u);
     if (k <= 0) {
-        if (k < -10 || p.hi)
+        if (k < -10 || p.hi || (k < 0 && (p.lo >> (64 + k))))
             return UINT64_MAX;
         return p.lo << -k;
     }
@@ -83,8 +86,13 @@ uint64_t bb_duration_from_secs_f64(double secs)
         return 0;
     u128 q = shr(p, k);
     int c = cmp_half(p, k);
-    if (c > 0 || (c == 0 && (q.lo & 1)))
+    if (q.hi)
+        return UINT64_MAX;
+    if (c > 0 || (c == 0 && (q.lo & 1))) {
+        if (q.lo == UINT64_MAX)
+            return UINT64_MAX;
         q.lo += 1;
+    }
     return q.lo;
 }
 

@@ -3,8 +3,9 @@
 
 Script words (read by oracle/ref and oracle/driver.c alike):
   seed U64 | skill NAME | steer_factor F | best I32 | stick F|none | sens MOUSE KBD
-  wait NS | L 0|1 [INTENSITY] | R 0|1 [INTENSITY] | J | M PX | tick NS | tickd DELTA
-One key id per side (quirk 3 in docs/stage1-rules.md).
+  wait NS | L 0|1 [INTENSITY [ID]] | R 0|1 [INTENSITY [ID]] | J | M PX | tick NS | tickd DELTA
+At most two key ids per side: babalcore sums a side's keys in HashMap order, and two terms
+commute while three need not (quirk 3 in docs/stage1-rules.md).
 Usage: gen_scripts.py OUTDIR [N_SEEDS] [SCRIPTS_PER_SEED]
 """
 import os
@@ -24,17 +25,22 @@ def play(rng, seed, skill, ticks):
         out.append(f"stick {rng.choice(['none', '0.05', '0.3', '0.0001'])}")
     if rng.random() < 0.2:
         out.append(f"sens {rng.choice(['1', '2.5'])} {rng.choice(['1000', '400', '2500'])}")
-    held = {"L": False, "R": False}
+    held = {}
     for _ in range(ticks):
         for _ in range(rng.choice([0, 0, 0, 1, 1, 2])):
             r = rng.random()
             if r < 0.35:
                 side = rng.choice("LR")
-                held[side] = not held[side]
-                if held[side] and rng.random() < 0.25:
-                    out.append(f"{side} 1 {rng.choice(['0.3', '0.75', '1', '1.5', '0', '-0.2'])}")
+                # mostly the side's default id; sometimes a second one (3 on the left, 4 on the right)
+                key = (side, None) if rng.random() < 0.8 else (side, 3 if side == "L" else 4)
+                held[key] = not held.get(key, False)
+                intensity = rng.choice(['0.3', '0.75', '1', '1.5', '0', '-0.2']) if rng.random() < 0.25 else '1'
+                if key[1] is not None:
+                    out.append(f"{side} {int(held[key])} {intensity} {key[1]}")
+                elif held[key] and intensity != '1':
+                    out.append(f"{side} 1 {intensity}")
                 else:
-                    out.append(f"{side} {int(held[side])}")
+                    out.append(f"{side} {int(held[key])}")
             elif r < 0.6:
                 out.append("J")
             elif r < 0.7:
@@ -66,6 +72,8 @@ def edges():
                    # Bounded extremes: a 30 s step and a negative step with a key held. Past these,
                    # babalcore itself hangs (quirks 7 and 8 in docs/stage1-rules.md).
                    + ["tickd 30", "tick 16666667", "tickd -0.5"] + ["tick 16666667"] * 60)
+    s["nan"] = (["seed 13", "skill medium"] + ["tick 16666667"] * 30 + ["tickd NaN"] + ["tick 16666667"] * 30
+                + ["M NaN"] + ["tick 16666667"] * 30)
     s["sticky"] = (["seed 11", "skill medium", "stick none", "J", "tick 16666667", "J", "wait 1000", "tick 16666667",
                     "stick 0.5", "J", "tick 1", "tick 1", "wait 600000000", "tick 1"] + ["tick 16666667"] * 200)
     # Noob to its finish (30 s of play on the best row): steer away from falls by brute repetition.
@@ -93,6 +101,11 @@ def main():
             lines = play(rng, seed, skill, rng.randrange(600, 3600))
             with open(os.path.join(outdir, f"play-{seed}-{k}.txt"), "w") as f:
                 f.write("\n".join(lines) + "\n")
+    # Three long games (30,000 ticks, about 8 minutes of play each).
+    for k, skill in enumerate(["noob", "easy", "expert"]):
+        seed = rng.randrange(2**64)
+        with open(os.path.join(outdir, f"long-{skill}-{seed}.txt"), "w") as f:
+            f.write("\n".join(play(rng, seed, skill, 30000)) + "\n")
     for name, lines in edges().items():
         with open(os.path.join(outdir, f"edge-{name}.txt"), "w") as f:
             f.write("\n".join(lines) + "\n")
