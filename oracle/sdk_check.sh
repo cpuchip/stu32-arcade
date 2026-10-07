@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 # sdk/draw against tests/draw_test.c (a pixel-by-pixel reference and line properties), under ASan
 # and UBSan and the frame guard, then plants in sdk/draw.c, each of which must turn the test red.
 set -u

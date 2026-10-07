@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* The reference renderer: render.c as it was at c522381, drawing pixel by pixel (the definition
  * the span renderer was proven byte-identical to: 58,710 frames, and a pixel-by-pixel review probe
  * of 200,000). Symbols renamed; tools/apphost.c draws every frame with it too and compares. Never

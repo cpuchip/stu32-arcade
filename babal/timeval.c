@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* std::time::Duration as player input uses it (input_jump.rs, input_steer.rs): nanoseconds.
  * Pinned black-box against Rust 1.98 (oracle/ref `pins`): from_secs_f64 rounds the exact
  * binary value of secs * 10^9 to the nearest nanosecond, ties to even (k/1024 s, an exact

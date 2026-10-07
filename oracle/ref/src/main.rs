@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // The reference driver: babalcore (fa985cd, read-only) printing what oracle/driver.c prints.
 // Floats are printed as their bits. Usage: babal-ref pins | level SEED SKILL N | game SCRIPT
 use babalcore::*;

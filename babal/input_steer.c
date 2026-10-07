@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore input_steer.rs, commit fa985cd. Each HashMap<i64, KeyState> is a small
  * array in insertion order; see docs/stage1-rules.md, quirk 3. */
 #include "babal.h"

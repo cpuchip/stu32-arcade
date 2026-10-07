@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* Babal's rules on the S3: each oracle game replayed in the app's windows (the whole level and
  * log, in PSRAM as the app's ctx is), its output hashed with FNV-1a 64 (scripts/device.sh
  * compares with the host's), the rules timed per tick (row generation and Player::tick). The

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* sdk/draw against a pixel-by-pixel reference written here, from random frames, with coordinates
  * far off the frame and sizes negative; lines judged by their properties (two correct line
  * algorithms may pick different pixels on a tie): both ends set, max(|dx|, |dy|) + 1 pixels when

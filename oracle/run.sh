@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 # The stage 1 gate: babalcore (oracle/ref) and the C port (oracle/driver.c) print the same
 # pins, levels and games byte for byte, and every planted divergence turns that red.
 # Plants are applied to a scratch copy at run time (never kept), each checked to change its

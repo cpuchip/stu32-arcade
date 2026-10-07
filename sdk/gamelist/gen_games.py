@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """The STU-32's games list: export each listed game at its pin and generate the build's part of it.
 
 games.list (in the firmware), one game a line, `#` for comments:

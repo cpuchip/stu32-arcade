@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore player.rs, commit fa985cd. Arithmetic is kept term for term in Rust's
  * left-to-right order; with -ffp-contract=off the doubles round as the Rust's do. */
 #include <math.h>

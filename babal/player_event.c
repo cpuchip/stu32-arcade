@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore player_event_kind.rs and player_event.rs, commit fa985cd */
 #include <inttypes.h>
 #include <stdio.h>

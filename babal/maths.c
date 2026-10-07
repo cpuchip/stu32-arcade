@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore maths.rs, commit fa985cd */
 #include <math.h>
 

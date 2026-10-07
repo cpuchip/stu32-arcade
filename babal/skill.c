@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore skill.rs, commit fa985cd. def_density's HashMap becomes an array sorted by
  * def, which is the order row_generator.rs sorts it into before use. */
 #include <string.h>

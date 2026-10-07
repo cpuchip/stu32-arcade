@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* A game played from a script in memory (the words of oracle/gen_scripts.py), printing what
  * oracle/ref prints for babalcore. Shared by the host driver and the S3 bench (oracle.h). */
 #include <inttypes.h>

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Compare the S3 bench's report with the host's expected hashes, and summarise the tick times.
 Every game must match; the control (one tick changed) must not. Usage: device_compare.py EXPECTED REPORT"""
 import sys

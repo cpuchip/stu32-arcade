@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 # The app against babalcore, end to end: tools/apphost.c plays seeded app scripts through apps.h's
 # calls and writes the same game as an oracle/ref script; every tick's readings and private state
 # must equal babalcore's (less the level's row counts: the app makes rows a few at a time, babalgame

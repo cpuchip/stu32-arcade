@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 # gen_games.py on throwaway git repos: a valid list generates, and each wrong one fails with its
 # reason and writes nothing. The generated games.h is compiled into a registry.
 set -u

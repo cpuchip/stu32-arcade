@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* Babal's app on the S3: each app script played through apps.h's calls as the framework makes
  * them, the ctx in PSRAM as the framework gives it, the frame in internal RAM. For each script:
  * the hash of its frames' hashes (scripts/device_app.sh compares it with tools/apphost.c's), and

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore input_jump.rs, commit fa985cd. Instants are nanoseconds given by the caller. */
 #include "babal.h"
 

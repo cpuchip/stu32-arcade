@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore fake_input.rs, commit fa985cd */
 #include "babal.h"
 

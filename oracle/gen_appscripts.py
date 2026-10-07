@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Write app scripts for tools/apphost.c: a session at the title (skill keys), a start, then play:
 ticks of uneven length (some 0, some long enough to be clamped) with key presses, releases and jumps
 at their own times between the ticks, until the time runs out or MAX ticks.

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 get_filename_component(REPO "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
 file(GLOB BABAL_SRC "${REPO}/babal/*.c")
 set(FW "${REPO}/build/firmware/firmware")

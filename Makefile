@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 # stu32-arcade: Babal's rules in C (babal/), babalcore's tests (tests/), the oracle (oracle/).
 CC ?= cc
 CFLAGS ?= -O2

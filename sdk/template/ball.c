@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* BALL: the STU-32 games SDK's template (docs/sdk.md). Copy this folder to start a game: one
  * app_def, all state in the ctx, time only from tick and key, drawing with sdk/draw. A paddle (4
  * and 6) keeps a ball in play; each return scores; a miss ends the game; the best is saved. */

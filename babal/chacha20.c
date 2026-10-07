@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* rand 0.10's ChaCha20Rng, as row_generator.rs uses it: written from the ChaCha20 block
  * function (RFC 8439 section 2.3, D. J. Bernstein), not from rand's source. The layout was
  * pinned black-box against rand 0.10.2 (oracle/ref `pins`): the 32-byte seed is the key,

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* Babal's picture: the level and the ball drawn in 1 bit on the LS027's 400 x 240 frame, as the
  * 1995 original read (a flat track in perspective, the ball a dithered disc), the HUD in our own
  * font. Integer fixed point throughout, so a frame is the same bits on the host and on the S3. */

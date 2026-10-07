@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # Builds, flashes and runs Babal's app bench on the board soroban lends (claim it in both lanes
 # first). Exit 0 on DEVICE PASS: every app script's frames on the chip hash as the host's, and the
 # control does not. Prints tick and draw times and row generation's.

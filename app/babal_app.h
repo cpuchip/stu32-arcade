@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* Babal under APPS (unit 037, apps.h v1): the rules of babal/ played from the STU-32's keys,
  * drawn by render.c, a beep on bounces. Keys (proposed, with Michael through basecamp, d15):
  * 4 and 6 steer, 8 and ENTER jump, C ends (the framework's). */

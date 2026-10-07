@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Write the S3 bench's script table and the expected hashes.
 
 For each oracle game script (OUTDIR/scripts/*.txt): its text goes into OUTDIR/scripts.c, and the

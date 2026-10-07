@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Read the bench's serial console until one whole report (BENCH BEGIN .. BENCH DONE) is seen.
 Usage: capture.py PORT LOG TIMEOUT_S"""
 import sys

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore points_counter.rs, commit fa985cd. The scores log (HashMap<isize, f64>) is a
  * window of the newest rows in caller storage; see babal.h. */
 #include <math.h>

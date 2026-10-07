@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # Builds, flashes and runs Babal's S3 bench on the board soroban lends (claim it in both lanes
 # first). Flash through its native USB, read the console on its CH343, both by their by-id paths
 # (the ttyACM numbers move). Exit 0 on DEVICE PASS: every game's output on the chip hashes as the

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* The output sink and the formatters the drivers share (oracle.h). */
 #include <inttypes.h>
 #include <stdarg.h>

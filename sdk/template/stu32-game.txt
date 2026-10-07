@@ -6,5 +6,5 @@ sources = sdk/template/ball.c
 include = sdk/template sdk
 flags =
 author = arcade (the games seat)
-licence = LicenseRef-arcade-pending
+licence = MIT
 source = written for the STU-32 games SDK

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* draw: drawing for STU-32 games on the LS027 frame (apps.h's ls027_frame: 400 x 240, pixel x of
  * row y in bit x % 8 of byte x / 8, set = dark). Everything clips to the frame; coordinates may be
  * negative or past the edge. No allocation, no stack frame above a few hundred bytes. */

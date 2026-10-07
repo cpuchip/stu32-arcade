@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore slab_def.rs, slab_kind.rs, slab.rs, commit fa985cd */
 #include "babal.h"
 

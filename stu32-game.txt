@@ -6,6 +6,6 @@ sources = babal/*.c app/babal_app.c app/render.c
 include = babal app
 flags = -ffp-contract=off
 author = arcade (the games seat), porting Christian Mauduit's Babal
-# The port's own licence is Michael's to set (MIT intended, as the firmware's); until then:
-licence = LicenseRef-arcade-pending
+# MIT (abacus decision 61: Michael, "one license to rule them all")
+licence = MIT
 source = babal/ from rust/babalcore at gitlab.com/liberecofr/babal fa985cd (Unlicense); app/ written by arcade

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore time_tracker.rs, commit fa985cd */
 #include <inttypes.h>
 #include <stdio.h>

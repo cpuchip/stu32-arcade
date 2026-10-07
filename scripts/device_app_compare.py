@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Compare the S3 app bench with the host's frame hashes; summarise tick and draw times.
 Every script must match; the control must not. Usage: device_app_compare.py EXPECTED REPORT"""
 import sys

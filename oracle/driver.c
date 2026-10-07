@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* The C side of the oracle: prints what oracle/ref (babalcore) prints, from babal/.
  * Usage: driver pins | level SEED SKILL N | game SCRIPT | points SEED | inputs SEED */
 #include <inttypes.h>

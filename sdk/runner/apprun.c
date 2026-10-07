@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* apprun: a game played on the host through apps.h's calls, in the framework's order (load, start,
  * then key or tick, a draw after every tick and after a key that asks, then save, stop), from a
  * script of keys and ticks. For a game author's tests: the frames as PBM files and hashes, the

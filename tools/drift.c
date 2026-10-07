@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* The drift test (soroban's merge-gate probe, #4633): a struggling player falls again and again
  * and drifts back behind the best row, so the game reads rows and scores far behind the newest.
  * Walks the ball to TARGET a row at a time (the state set directly, the rows made as the app makes

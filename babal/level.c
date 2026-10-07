@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* from babalcore level.rs and level_query.rs, commit fa985cd. The VecDeque is logical: its
  * length and row0 are babalcore's, and the newest `window` rows are held in the caller's
  * storage (see babal.h). Quirks 1 and 2 of docs/stage1-rules.md are kept as they are. */

@@ -17,3 +17,10 @@ one-to-one translation, and babalcore's quirks kept on purpose: docs/stage1-rule
     tests/        babalcore's tests in C
     oracle/       fetch-babal.sh (pin fa985cd), ref/ (Rust driver), driver.c (C driver),
                   gen_scripts.py (game scripts), run.sh (the gate)
+
+## Licence
+
+MIT (LICENSE), for the port, the renderer, the app and the games SDK (abacus decision 61). `babal/` is
+a port of rust/babalcore, which its author dedicated to the public domain: LICENSE-babalcore keeps
+that notice. Babal's music and fonts are not here and never were. The repository is private until
+Michael opens it.

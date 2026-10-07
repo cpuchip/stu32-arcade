@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Write the S3 app bench's script table and the expected frame hashes.
 
 For each app script (OUTDIR/scripts/*.txt), tools/apphost.c plays it on the host; the expected

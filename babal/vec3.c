@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* euclid::default::Vector3D<f64>::lerp, pinned black-box against euclid 0.22 (oracle/ref `pins`). */
 #include "babal.h"
 

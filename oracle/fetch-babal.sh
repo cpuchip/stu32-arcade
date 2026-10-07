@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: MIT
 # Clone the reference (Babal, the Unlicense) at the one commit stage 1 is judged against.
 # Never edited; refuses any other commit.
 set -eu

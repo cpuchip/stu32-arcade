@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* draw (draw.h). */
 #include <string.h>
 

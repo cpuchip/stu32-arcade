@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Write the oracle's game scripts: seeded play-like runs plus hand-written edges.
 
 Script words (read by oracle/ref and oracle/driver.c alike):

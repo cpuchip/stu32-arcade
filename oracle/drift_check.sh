@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 # The drift test (tools/drift.c): the app at its windows against the app holding everything, under
 # a struggling player's repeated falls, across skills and walked-to rows. Every tick must print the
 # same, and the windows' out-of-window counts must stay 0.

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* Rust's `as` from f64 to an integer saturates (NaN gives 0); C's cast is undefined out of range. */
 #ifndef BABAL_INTERNAL_H
 #define BABAL_INTERNAL_H

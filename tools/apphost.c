@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* The APPS framework on the host, for Babal: plays an app script through apps.h's calls in their
  * order (load, start, then key or tick, a draw after each tick and each key that asks, then save,
  * stop) and judges the app three ways, each against something the app's code does not share:

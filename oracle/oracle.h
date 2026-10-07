@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* Shared by the C driver (host) and the S3 bench: one output sink, the formatters, and a game
  * played from a script in memory, so the chip prints exactly what the host prints. */
 #ifndef ORACLE_H

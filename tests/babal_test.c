@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 /* babalcore's own tests (unit and doc), commit fa985cd, ported one to one. Each function
  * names its source. Not portable and so not here: time_helper.rs (Instant::now, the rules
  * take the time from the caller) and type_helper.rs (Rust type names). The runner fails
