@@ -1,0 +1,514 @@
+From 48c7d8eed24fcbcb11570a7ad269cc20fd13fdcf Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Wed, 7 Oct 2026 16:00:38 +0000
+Subject: [PATCH] APPS: games from games.list (scripts/gen_games.py), Babal its
+ first entry
+
+soroban asked arcade for the games list's format and generator (#4741), under abacus's ruling
+(#4734: games live in their own repos at pins; the firmware reads a list of repo, pin, licence
+and folder). games.list replaces ARCADE_PIN; scripts/gen_games.py (from stu32-arcade
+sdk/gamelist, where its test lives) replaces scripts/fetch-arcade.sh. It exports each game at its
+pin from a local clone in GAMES_REPOS (default this repo's parent), refusing a pin not on the
+clone's origin, a licence the game's manifest disagrees with, a name of more than 5 characters, an
+unsafe path, a flag not on the allowed list, and more; or takes a stage at build/games/ID/ (files,
+manifest, .pin) without a clone. It writes build/games/games.mk, games.cmake and games.h; every
+game builds with its manifest's flags and -Werror=frame-larger-than=1024, and nothing else's
+flags change; apps.c's registry is KEYS then GAMES_ENTRIES. games.h also has GAMES_FOLDERS (0
+TOOLS, 1 GAMES) for the APPS menu's folders, not yet used.
+
+Checked on 54ad593 in a scratch clone: make all and make test pass; app_test 503/503,
+standin_test 349/349; the stand-in and Rev A images build, babal_app linked in both, its 18 files
+compiled with -Werror=frame-larger-than=1024 and -ffp-contract=off, the core with neither.
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ ARCADE_PIN                         |   1 -
+ Makefile                           |  32 ++--
+ README.md                          |   8 +-
+ device/reva/build.sh               |   2 +-
+ device/reva/main/CMakeLists.txt    |  25 +---
+ device/standin/main/CMakeLists.txt |  25 +---
+ device/standin/run.sh              |   2 +-
+ firmware/apps.c                    |   5 +-
+ games.list                         |   6 +
+ scripts/fetch-arcade.sh            |  17 ---
+ scripts/gen_games.py               | 230 +++++++++++++++++++++++++++++
+ 11 files changed, 270 insertions(+), 83 deletions(-)
+ delete mode 100644 ARCADE_PIN
+ create mode 100644 games.list
+ delete mode 100755 scripts/fetch-arcade.sh
+ create mode 100755 scripts/gen_games.py
+
+diff --git a/ARCADE_PIN b/ARCADE_PIN
+deleted file mode 100644
+index 0eb2ea9..0000000
+--- a/ARCADE_PIN
++++ /dev/null
+@@ -1 +0,0 @@
+-7ca157e7e776bfbf7eafdecdb0cac7a32e64095a
+diff --git a/Makefile b/Makefile
+index 7e55a00..ee72c30 100644
+--- a/Makefile
++++ b/Makefile
+@@ -36,25 +36,19 @@ build/keymap_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) firmware/keymap.c firmwar
+ 	$(CC) $(CFLAGS) -Icore -Ifirmware -o $@ $(CORE) $(SCREEN) firmware/keymap.c firmware/keys.c tests/keymap_test.c $(ENGINE) $(LIBS)
+ 
+ APP := firmware/app.c firmware/apps.c firmware/keymap.c firmware/keys.c firmware/power.c firmware/settings.c firmware/piezo.c
+-# Babal, an app under APPS from stu32-arcade at ARCADE_PIN (scripts/fetch-arcade.sh); its sources
+-# build with -ffp-contract=off, as its oracle requires (no fused multiply-adds), and nothing else does; and with no
+-# frame above 1 KB, as arcade builds them (they run on a device task's stack: a 164 KB ctx once sat on it, 7ca157e).
+-ARCADE_C := $(addprefix build/arcade/babal/,chacha20.c fake_input.c input_jump.c input_steer.c level.c maths.c \
+-	player.c player_event.c points_counter.c row.c row_generator.c skill.c slab.c time_tracker.c timeval.c vec3.c) \
+-	build/arcade/app/babal_app.c build/arcade/app/render.c
+-ARCADE_O := $(ARCADE_C:build/arcade/%.c=build/arcade-o/%.o)
+-ARCADE_INC := -Ibuild/arcade/babal -Ibuild/arcade/app
+-build/arcade/.pin: ARCADE_PIN
+-	scripts/fetch-arcade.sh
+-$(ARCADE_C): build/arcade/.pin
+-build/arcade-o/%.o: build/arcade/%.c build/arcade/.pin firmware/apps.h firmware/ls027.h firmware/font5x7.h   # (the firmware headers it includes: merge gate)
+-	@mkdir -p $(dir $@)
+-	$(CC) $(CFLAGS) -ffp-contract=off -Werror=frame-larger-than=1024 -Ifirmware $(ARCADE_INC) -c $< -o $@
+-build/app_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) $(APP) $(ARCADE_O) firmware/app.h firmware/keymap.h firmware/power.h firmware/screen.h tests/app_test.c | build
+-	$(CC) $(CFLAGS) -Icore -Ifirmware $(ARCADE_INC) -o $@ $(CORE) $(SCREEN) $(APP) $(ARCADE_O) tests/app_test.c $(ENGINE) $(LIBS)
+-
+-build/standin_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) $(APP) $(ARCADE_O) firmware/standin.c firmware/standin.h firmware/app.h firmware/keymap.h firmware/screen.h tests/standin_test.c | build
+-	$(CC) $(CFLAGS) -Icore -Ifirmware $(ARCADE_INC) -o $@ $(CORE) $(SCREEN) $(APP) $(ARCADE_O) firmware/standin.c tests/standin_test.c $(ENGINE) $(LIBS)
++# The games (games.list): scripts/gen_games.py exports each at its pin into build/games and writes
++# build/games/games.mk (GAMES_C, GAMES_O, GAMES_INC, and a rule a game: its manifest's flags, always
++# -Werror=frame-larger-than=1024, every object depending on the export's stamp, since git archive gives
++# files their commit's time) and build/games/games.h (GAMES_DECLARE, GAMES_ENTRIES for apps.c).
++build/games/games.mk: games.list scripts/gen_games.py
++	python3 scripts/gen_games.py games.list build/games
++build/games/.stamp build/games/games.h: build/games/games.mk
++include build/games/games.mk
++build/app_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) $(APP) $(GAMES_O) build/games/games.h firmware/app.h firmware/keymap.h firmware/power.h firmware/screen.h tests/app_test.c | build
++	$(CC) $(CFLAGS) -Icore -Ifirmware -Ibuild/games $(GAMES_INC) -o $@ $(CORE) $(SCREEN) $(APP) $(GAMES_O) tests/app_test.c $(ENGINE) $(LIBS)
++
++build/standin_test: $(CORE) $(HDRS) $(ENGINE) $(SCREEN) $(APP) $(GAMES_O) build/games/games.h firmware/standin.c firmware/standin.h firmware/app.h firmware/keymap.h firmware/screen.h tests/standin_test.c | build
++	$(CC) $(CFLAGS) -Icore -Ifirmware -Ibuild/games $(GAMES_INC) -o $@ $(CORE) $(SCREEN) $(APP) $(GAMES_O) firmware/standin.c tests/standin_test.c $(ENGINE) $(LIBS)
+ 
+ build/power_test: firmware/gauge.c firmware/gauge.h firmware/power.c firmware/power.h firmware/pins.c firmware/pins.h firmware/piezo.c firmware/piezo.h tests/power_test.c | build
+ 	$(CC) $(CFLAGS) -Ifirmware -o $@ firmware/gauge.c firmware/power.c firmware/pins.c firmware/piezo.c tests/power_test.c -lm
+diff --git a/README.md b/README.md
+index 6c94d3c..d8b1414 100644
+--- a/README.md
++++ b/README.md
+@@ -11,9 +11,9 @@ Work units arrive from the abacus seat (fermion) in `work/`; the core lives in `
+ - `make test` builds and runs the host tests; `make all-checks PYTHON=<a python with mpmath>` adds the accuracy
+   fuzzers. The decimal library is fetched from netlib and checked against a pinned sha256 by
+   `scripts/fetch-intel-dfp.sh` (make runs it).
+-- The APPS registry includes Babal from cpuchip/stu32-arcade (PRIVATE), exported at `ARCADE_PIN` by
+-  `scripts/fetch-arcade.sh` (make and the device scripts run it) from a local clone beside this repository
+-  (`../stu32-arcade`), or from `ARCADE_REPO`. Without git or a clone, stage `build/arcade/` (its `babal/` and
+-  `app/` at the pin, and `.pin`) by hand.
++- The APPS registry includes the games in `games.list` (Babal from cpuchip/stu32-arcade, PRIVATE), each exported
++  at its pin by `scripts/gen_games.py` (make and the device scripts run it) from a local clone beside this
++  repository, or in `GAMES_REPOS`; the format and each game's manifest are in that script's header. Without git
++  or a clone, stage `build/games/<id>/` by hand (its files at the pin, its manifest, and `.pin`).
+ - Devices: `device/standin/run.sh <port>` and `device/reva/build.sh`, in Espressif's pinned image
+   (`espressif/idf:v5.4.2`).
+diff --git a/device/reva/build.sh b/device/reva/build.sh
+index fbd1a6b..5dab928 100755
+--- a/device/reva/build.sh
++++ b/device/reva/build.sh
+@@ -3,7 +3,7 @@
+ set -euo pipefail
+ IMAGE="espressif/idf:v5.4.2"
+ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+-"$ROOT/scripts/fetch-arcade.sh"
++python3 "$ROOT/scripts/gen_games.py" "$ROOT/games.list" "$ROOT/build/games"
+ docker run --rm -v "$ROOT:/project" -w /project --user "$(id -u):$(id -g)" -e HOME=/tmp "$IMAGE" bash -c '
+ set -euo pipefail
+ . "$IDF_PATH/export.sh" >/dev/null
+diff --git a/device/reva/main/CMakeLists.txt b/device/reva/main/CMakeLists.txt
+index 50846df..a4d26f0 100644
+--- a/device/reva/main/CMakeLists.txt
++++ b/device/reva/main/CMakeLists.txt
+@@ -9,30 +9,17 @@ else()
+     file(GLOB CORE_SRCS CONFIGURE_DEPENDS "${REPO}/core/*.c")
+ endif()
+ set(FW "${REPO}/firmware")
+-# Babal (stu32-arcade at ARCADE_PIN), exported by scripts/fetch-arcade.sh before the build
+-set(ARCADE "${REPO}/build/arcade")
+-if(NOT EXISTS "${ARCADE}/.pin")
+-    message(FATAL_ERROR "no ${ARCADE}: run scripts/fetch-arcade.sh")
+-endif()
+-# a re-export at a new pin reconfigures (the glob's file list) and recompiles every game file: git archive stamps
+-# the files with the commit's time, so their mtimes alone do not show the change (merge gate)
+-if(CMAKE_SCRIPT_MODE_FILE)                  # (as the core's glob: CONFIGURE_DEPENDS outside script mode)
+-    file(GLOB ARCADE_SRCS "${ARCADE}/babal/*.c")
+-else()
+-    file(GLOB ARCADE_SRCS CONFIGURE_DEPENDS "${ARCADE}/babal/*.c")
+-endif()
+-list(APPEND ARCADE_SRCS "${ARCADE}/app/babal_app.c" "${ARCADE}/app/render.c")
+-if(NOT CMAKE_SCRIPT_MODE_FILE)  # not allowed while IDF expands requirements in script mode
+-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${ARCADE}/.pin")
+-    set_source_files_properties(${ARCADE_SRCS} PROPERTIES COMPILE_OPTIONS "-ffp-contract=off;-Werror=frame-larger-than=1024"
+-                                OBJECT_DEPENDS "${ARCADE}/.pin")
++# The games (games.list), exported and described by scripts/gen_games.py before the build
++if(NOT EXISTS "${REPO}/build/games/games.cmake")
++    message(FATAL_ERROR "no ${REPO}/build/games/games.cmake: run python3 scripts/gen_games.py games.list build/games")
+ endif()
++include("${REPO}/build/games/games.cmake")
+ 
+ idf_component_register(
+     SRCS reva_main.c ${CORE_SRCS} "${FW}/screen.c" "${FW}/font5x7.c" "${FW}/app.c" "${FW}/apps.c" "${FW}/keymap.c"
+          "${FW}/keys.c" "${FW}/power.c" "${FW}/store.c" "${FW}/ls027.c" "${FW}/gauge.c" "${FW}/pins.c" "${FW}/piezo.c" "${FW}/settings.c"
+-         ${ARCADE_SRCS}
+-    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device" "${ARCADE}/babal" "${ARCADE}/app"
++         ${GAMES_SRCS}
++    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device" ${GAMES_INC} "${REPO}/build/games"
+     REQUIRES esp_driver_spi esp_driver_i2c esp_driver_gpio esp_driver_ledc esp_psram esp_partition esp_timer ulp esp_hw_support)
+ 
+ set(ulp_app_name ulp_${COMPONENT_NAME})
+diff --git a/device/standin/main/CMakeLists.txt b/device/standin/main/CMakeLists.txt
+index 33288e1..cb62fa1 100644
+--- a/device/standin/main/CMakeLists.txt
++++ b/device/standin/main/CMakeLists.txt
+@@ -9,30 +9,17 @@ else()
+     file(GLOB CORE_SRCS CONFIGURE_DEPENDS "${REPO}/core/*.c")
+ endif()
+ set(FW "${REPO}/firmware")
+-# Babal (stu32-arcade at ARCADE_PIN), exported by scripts/fetch-arcade.sh before the build
+-set(ARCADE "${REPO}/build/arcade")
+-if(NOT EXISTS "${ARCADE}/.pin")
+-    message(FATAL_ERROR "no ${ARCADE}: run scripts/fetch-arcade.sh")
+-endif()
+-# a re-export at a new pin reconfigures (the glob's file list) and recompiles every game file: git archive stamps
+-# the files with the commit's time, so their mtimes alone do not show the change (merge gate)
+-if(CMAKE_SCRIPT_MODE_FILE)                  # (as the core's glob: CONFIGURE_DEPENDS outside script mode)
+-    file(GLOB ARCADE_SRCS "${ARCADE}/babal/*.c")
+-else()
+-    file(GLOB ARCADE_SRCS CONFIGURE_DEPENDS "${ARCADE}/babal/*.c")
+-endif()
+-list(APPEND ARCADE_SRCS "${ARCADE}/app/babal_app.c" "${ARCADE}/app/render.c")
+-if(NOT CMAKE_SCRIPT_MODE_FILE)  # not allowed while IDF expands requirements in script mode
+-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${ARCADE}/.pin")
+-    set_source_files_properties(${ARCADE_SRCS} PROPERTIES COMPILE_OPTIONS "-ffp-contract=off;-Werror=frame-larger-than=1024"
+-                                OBJECT_DEPENDS "${ARCADE}/.pin")
++# The games (games.list), exported and described by scripts/gen_games.py before the build
++if(NOT EXISTS "${REPO}/build/games/games.cmake")
++    message(FATAL_ERROR "no ${REPO}/build/games/games.cmake: run python3 scripts/gen_games.py games.list build/games")
+ endif()
++include("${REPO}/build/games/games.cmake")
+ 
+ idf_component_register(
+     SRCS standin_main.c ${CORE_SRCS} "${FW}/screen.c" "${FW}/font5x7.c" "${FW}/app.c" "${FW}/apps.c" "${FW}/keymap.c"
+          "${FW}/keys.c" "${FW}/power.c" "${FW}/standin.c" "${FW}/store.c" "${FW}/ls027.c" "${FW}/settings.c" "${FW}/piezo.c"
+-         ${ARCADE_SRCS}
+-    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device" "${ARCADE}/babal" "${ARCADE}/app"
++         ${GAMES_SRCS}
++    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device" ${GAMES_INC} "${REPO}/build/games"
+     REQUIRES esp_lcd esp_driver_i2c esp_driver_gpio esp_driver_uart vfs esp_psram esp_partition esp_timer)
+ 
+ if(NOT EXISTS "${BID_LIB}")
+diff --git a/device/standin/run.sh b/device/standin/run.sh
+index c3935b5..7fc2f9f 100755
+--- a/device/standin/run.sh
++++ b/device/standin/run.sh
+@@ -12,7 +12,7 @@ SCRIPT="${2:-}"
+ IMAGE="espressif/idf:v5.4.2"
+ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ mkdir -p "$ROOT/build"
+-[ "${FLASH:-1}" = 1 ] && "$ROOT/scripts/fetch-arcade.sh"
++[ "${FLASH:-1}" = 1 ] && python3 "$ROOT/scripts/gen_games.py" "$ROOT/games.list" "$ROOT/build/games"
+ docker run --rm -i -v "$ROOT:/project" -w /project \
+     --user "$(id -u):$(id -g)" --group-add "$(stat -c %g "$PORT")" --device "$PORT" \
+     -e HOME=/tmp -e PORT="$PORT" -e FLASH="${FLASH:-1}" -e SCRIPT="$SCRIPT" "$IMAGE" bash -c '
+diff --git a/firmware/apps.c b/firmware/apps.c
+index b5e834e..905ed4e 100644
+--- a/firmware/apps.c
++++ b/firmware/apps.c
+@@ -4,7 +4,7 @@
+ #include <string.h>
+ 
+ #include "apps.h"
+-#include "babal_app.h" /* Babal (stu32-arcade at ARCADE_PIN, build/arcade) */
++#include "games.h" /* generated from games.list by scripts/gen_games.py: GAMES_DECLARE, GAMES_ENTRIES */
+ #include "keymap.h"
+ #include "screen.h"
+ 
+@@ -76,5 +76,6 @@ static void keys_stop(void *ctx)
+ static const app_def keys_app = {"KEYS", sizeof(keys_ctx), keys_load, keys_start, keys_key, keys_tick,
+                                  keys_draw, keys_save, keys_stop};
+ 
+-const app_def *const app_registry[] = {&keys_app, &babal_app};
++GAMES_DECLARE
++const app_def *const app_registry[] = {&keys_app GAMES_ENTRIES};
+ const int app_registry_n = sizeof app_registry / sizeof app_registry[0];
+diff --git a/games.list b/games.list
+new file mode 100644
+index 0000000..f9ff3c8
+--- /dev/null
++++ b/games.list
+@@ -0,0 +1,6 @@
++# The games APPS lists. scripts/gen_games.py exports each at its pin (git archive, from a local clone
++# found in GAMES_REPOS, default this repo's parent) and writes build/games/{games.mk,games.cmake,games.h}.
++# A game by anyone outside our seats needs Michael's word before it is listed (decision 59); every
++# entry passes soroban's gate. Format and manifest: the header of scripts/gen_games.py.
++# ID   REPO          PIN                                       LICENCE                    MANIFEST
++babal  stu32-arcade  66eef4a72463c997289781d5fc585f2fde86ea24  LicenseRef-arcade-pending  stu32-game.txt
+diff --git a/scripts/fetch-arcade.sh b/scripts/fetch-arcade.sh
+deleted file mode 100755
+index f90636c..0000000
+--- a/scripts/fetch-arcade.sh
++++ /dev/null
+@@ -1,17 +0,0 @@
+-#!/bin/sh
+-# Babal (cpuchip/stu32-arcade, PRIVATE): its rules (babal/) and its app (app/) at ARCADE_PIN, exported
+-# read-only with git archive from a local clone (ARCADE_REPO, default ../stu32-arcade) into
+-# build/arcade, the way casim consumes the core: a build never writes into that clone.
+-set -eu
+-ROOT=$(cd "$(dirname "$0")/.." && pwd)
+-PIN=$(cat "$ROOT/ARCADE_PIN")
+-REPO=${ARCADE_REPO:-$ROOT/../stu32-arcade}
+-OUT=$ROOT/build/arcade
+-if [ -f "$OUT/.pin" ] && [ "$(cat "$OUT/.pin")" = "$PIN" ]; then
+-    exit 0
+-fi
+-rm -rf "$OUT"
+-mkdir -p "$OUT"
+-git -C "$REPO" archive "$PIN" babal app/babal_app.c app/babal_app.h app/render.c app/render.h | tar -x -C "$OUT"
+-echo "$PIN" > "$OUT/.pin"
+-echo "arcade $PIN"
+diff --git a/scripts/gen_games.py b/scripts/gen_games.py
+new file mode 100755
+index 0000000..c836bc0
+--- /dev/null
++++ b/scripts/gen_games.py
+@@ -0,0 +1,230 @@
++#!/usr/bin/env python3
++"""The STU-32's games list: export each listed game at its pin and generate the build's part of it.
++
++games.list (in the firmware), one game a line, `#` for comments:
++
++    ID  REPO  PIN  LICENCE  MANIFEST
++
++  ID        [a-z][a-z0-9_]{0,15}, unique
++  REPO      a local clone's directory name, found in GAMES_REPOS (default: the firmware's parent)
++  PIN       the full 40-hex commit; it must be in the clone and be an ancestor of its origin's
++            default branch (a pushed commit), so a build never takes an unpublished one
++  LICENCE   an SPDX expression; must equal the manifest's
++  MANIFEST  the manifest's path in the game's repo at the pin
++
++The manifest (KEY = VALUE lines, `#` comments), in the game's repo:
++
++    name     what APPS shows: 1 to 5 printable ASCII characters
++    folder   GAMES or TOOLS
++    app      the C name of the game's app_def
++    sources  the .c files and globs (*.c) to build, relative to the repo, no "..", no absolute path
++    include  the directories its headers are in (same rules)
++    flags    extra compile flags, from an allowed list (today: -ffp-contract=off); may be empty
++    author, licence, source   who wrote it, its SPDX licence, where it came from (provenance)
++
++Without a clone (no git, or a build from an export), a game may be staged by hand: OUT/ID/ holding
++the files at the pin, its manifest, and .pin with the pin; the generator then takes it as staged
++(whether the pin was pushed cannot be checked there: the one who staged it vouches, and the run says
++so). With a clone, the clone wins and the stage is rebuilt.
++
++Out, in OUT (default build/games): each game exported to OUT/ID/ (with its manifest and .pin); games.mk (GAMES_C, GAMES_INC, and a
++rule per game building its objects with its flags, -Werror=frame-larger-than=1024 always);
++games.cmake (GAMES_SRCS, GAMES_INC, per-file COMPILE_OPTIONS); games.h (GAMES_DECLARE, GAMES_ENTRIES,
++GAMES_FOLDERS for apps.c's registry); .stamp (the list's text, so a build re-runs when it changes).
++Exits 1 with the reason on anything wrong; writes nothing then.
++
++Usage: gen_games.py GAMES_LIST [OUT]
++"""
++import fnmatch
++import os
++import re
++import subprocess
++import sys
++
++ALLOWED_FLAGS = {"-ffp-contract=off"}
++FOLDERS = {"TOOLS": 0, "GAMES": 1}
++KEYS = {"name", "folder", "app", "sources", "include", "flags", "author", "licence", "source"}
++
++
++def fail(msg):
++    sys.stderr.write("gen_games: " + msg + "\n")
++    sys.exit(1)
++
++
++def git(repo, *args, binary=False):
++    r = subprocess.run(["git", "-C", repo, *args], capture_output=True)
++    if r.returncode:
++        return None
++    return r.stdout if binary else r.stdout.decode()
++
++
++def safe_path(p, what):
++    if not p or p.startswith("/") or ".." in p.split("/") or "\\" in p:
++        fail(f"{what}: unsafe path {p!r}")
++    return p
++
++
++def read_list(path):
++    games = []
++    for n, line in enumerate(open(path), 1):
++        line = line.split("#", 1)[0].strip()
++        if not line:
++            continue
++        f = line.split()
++        if len(f) != 5:
++            fail(f"{path}:{n}: want ID REPO PIN LICENCE MANIFEST, got {len(f)} fields")
++        gid, repo, pin, lic, manifest = f
++        if not re.fullmatch(r"[a-z][a-z0-9_]{0,15}", gid):
++            fail(f"{path}:{n}: bad id {gid!r}")
++        if not re.fullmatch(r"[0-9a-f]{40}", pin):
++            fail(f"{path}:{n}: {gid}: the pin must be a full 40-hex commit")
++        if not re.fullmatch(r"[A-Za-z0-9.+-]+( (AND|OR) [A-Za-z0-9.+-]+)*", lic):
++            fail(f"{path}:{n}: {gid}: licence {lic!r} is not an SPDX expression")
++        if not re.fullmatch(r"[A-Za-z0-9._-]+", repo):
++            fail(f"{path}:{n}: {gid}: repo must be a directory name")
++        games.append(dict(id=gid, repo=repo, pin=pin, licence=lic, manifest=safe_path(manifest, gid)))
++    ids = [g["id"] for g in games]
++    if len(set(ids)) != len(ids):
++        fail("an id is listed twice")
++    return games
++
++
++def parse_manifest(text, gid):
++    m = {}
++    for n, line in enumerate(text.splitlines(), 1):
++        line = line.split("#", 1)[0].strip()
++        if not line:
++            continue
++        if "=" not in line:
++            fail(f"{gid}: manifest line {n} is not KEY = VALUE")
++        k, v = (s.strip() for s in line.split("=", 1))
++        if k not in KEYS:
++            fail(f"{gid}: manifest key {k!r} unknown")
++        m[k] = v
++    for k in KEYS - {"flags"}:
++        if not m.get(k):
++            fail(f"{gid}: manifest lacks {k}")
++    if not re.fullmatch(r"[\x21-\x7e]( ?[\x21-\x7e]){0,4}", m["name"]) or len(m["name"]) > 5:
++        fail(f"{gid}: name {m['name']!r} must be 1 to 5 printable ASCII characters")
++    if m["folder"] not in FOLDERS:
++        fail(f"{gid}: folder must be GAMES or TOOLS")
++    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", m["app"]):
++        fail(f"{gid}: app {m['app']!r} is not a C name")
++    flags = m.get("flags", "").split()
++    for fl in flags:
++        if fl not in ALLOWED_FLAGS:
++            fail(f"{gid}: flag {fl!r} is not allowed (allowed: {' '.join(sorted(ALLOWED_FLAGS))})")
++    m["flags"] = flags
++    m["sources"] = [safe_path(s, gid) for s in m["sources"].split()]
++    m["include"] = [safe_path(s, gid) for s in m["include"].split()]
++    return m
++
++
++def main():
++    if len(sys.argv) < 2:
++        fail("usage: gen_games.py GAMES_LIST [OUT]")
++    lst = os.path.abspath(sys.argv[1])
++    root = os.path.dirname(lst)
++    out = os.path.abspath(sys.argv[2] if len(sys.argv) > 2 else os.path.join(root, "build", "games"))
++    repos = os.path.abspath(os.environ.get("GAMES_REPOS", os.path.dirname(root)))
++    games = read_list(lst)
++    plans = []
++    names = set()
++    for g in games:
++        repo = os.path.join(repos, g["repo"])
++        staged = os.path.join(out, g["id"])
++        if os.path.isdir(repo):
++            if git(repo, "cat-file", "-e", g["pin"] + "^{commit}") is None:
++                fail(f"{g['id']}: pin {g['pin']} is not in {repo}")
++            head = git(repo, "symbolic-ref", "-q", "--short", "refs/remotes/origin/HEAD") or "origin/main"
++            if git(repo, "merge-base", "--is-ancestor", g["pin"], head.strip()) is None:
++                fail(f"{g['id']}: pin {g['pin'][:12]} is not on {head.strip()} (an unpushed commit?)")
++            text = git(repo, "show", f"{g['pin']}:{g['manifest']}")
++            if text is None:
++                fail(f"{g['id']}: no manifest {g['manifest']} at the pin")
++            files = git(repo, "ls-tree", "-r", "--name-only", g["pin"]).split("\n")
++        else:
++            pin_file = os.path.join(staged, ".pin")
++            if not os.path.isfile(pin_file) or open(pin_file).read().strip() != g["pin"]:
++                fail(f"{g['id']}: no clone at {repo}, and nothing staged at {staged} with .pin {g['pin'][:12]}")
++            mpath = os.path.join(staged, g["manifest"])
++            if not os.path.isfile(mpath):
++                fail(f"{g['id']}: the stage at {staged} lacks its manifest {g['manifest']}")
++            text = open(mpath).read()
++            files = [os.path.relpath(os.path.join(d, f), staged) for d, _, fs in os.walk(staged) for f in fs]
++            repo = None
++        m = parse_manifest(text, g["id"])
++        if m["licence"] != g["licence"]:
++            fail(f"{g['id']}: the list says {g['licence']}, the manifest {m['licence']}")
++        if m["name"] in names:
++            fail(f"{g['id']}: name {m['name']} is taken")
++        names.add(m["name"])
++        srcs = []
++        for pat in m["sources"]:
++            # a pattern matches in its own directory only (fnmatch's * would cross a /)
++            hit = sorted(f for f in files if f.endswith(".c") and os.path.dirname(f) == os.path.dirname(pat)
++                         and fnmatch.fnmatchcase(os.path.basename(f), os.path.basename(pat)))
++            if not hit:
++                fail(f"{g['id']}: sources {pat!r} match no .c file at the pin")
++            srcs += [h for h in hit if h not in srcs]
++        for inc in m["include"]:
++            if not any(f.startswith(inc.rstrip("/") + "/") for f in files):
++                fail(f"{g['id']}: include {inc!r} is no directory at the pin")
++        plans.append((g, m, srcs, repo))
++    # all checked: export and write
++    os.makedirs(out, exist_ok=True)
++    mk, cm, decl, entries, folders = [], [], [], [], []
++    mk.append("# generated by gen_games.py from games.list: do not edit")
++    cm.append("# generated by gen_games.py from games.list: do not edit")
++    allc, allinc = [], []
++    for g, m, srcs, repo in plans:
++        d = os.path.join(out, g["id"])
++        if repo is not None:
++            subprocess.run(["rm", "-rf", d], check=True)
++            os.makedirs(d)
++            paths = sorted({*srcs, *m["include"], g["manifest"]})
++            tar = git(repo, "archive", g["pin"], *paths, binary=True)
++            if tar is None:
++                fail(f"{g['id']}: git archive failed")
++            subprocess.run(["tar", "-x", "-C", d], input=tar, check=True)
++            open(os.path.join(d, ".pin"), "w").write(g["pin"] + "\n")
++        rel = os.path.relpath(d, root)
++        cs = [f"{rel}/{s}" for s in srcs]
++        incs = [f"-I{rel}/{i}" for i in m["include"]]
++        allc += cs
++        allinc += incs
++        flags = " ".join(m["flags"] + ["-Werror=frame-larger-than=1024"])
++        mk.append(f"# {g['id']}: {m['name']} ({m['folder']}), {g['licence']}, {g['repo']} at {g['pin']}")
++        mk.append(f"GAME_{g['id']}_C := {' '.join(cs)}")
++        mk.append(f"build/games-o/{g['id']}/%.o: {rel}/%.c build/games/.stamp $(wildcard firmware/*.h)")
++        mk.append("\t@mkdir -p $(dir $@)")
++        mk.append(f"\t$(CC) $(CFLAGS) {flags} -Ifirmware $(GAMES_INC) -c $< -o $@")
++        cm.append(f"# {g['id']}: {m['name']} ({m['folder']}), {g['licence']}, {g['repo']} at {g['pin']}")
++        cm.append(f"set(GAME_{g['id']}_SRCS {' '.join('${REPO}/' + c for c in cs)})")
++        cm.append(f"list(APPEND GAMES_SRCS ${{GAME_{g['id']}_SRCS}})")
++        cm.append("if(NOT CMAKE_SCRIPT_MODE_FILE)")
++        cm.append(f"    set_source_files_properties(${{GAME_{g['id']}_SRCS}} PROPERTIES COMPILE_OPTIONS \"{';'.join(flags.split())}\"")
++        cm.append("                                OBJECT_DEPENDS \"${REPO}/build/games/.stamp\")")
++        cm.append("endif()")
++        decl.append(f"extern const app_def {m['app']}; /* {m['name']}, {g['id']} */")
++        entries.append(f"&{m['app']}")
++        folders.append(f"{FOLDERS[m['folder']]} /* {m['folder']} */")
++    mk.insert(1, f"GAMES_INC := {' '.join(allinc)}")
++    mk.insert(2, f"GAMES_C := {' '.join(allc)}")
++    mk.insert(3, "GAMES_O := $(GAMES_C:build/games/%.c=build/games-o/%.o)")
++    cm.insert(1, "set(GAMES_SRCS)")
++    cm.insert(2, f"set(GAMES_INC {' '.join('${REPO}/' + i[2:] for i in allinc)})")
++    open(os.path.join(out, "games.mk"), "w").write("\n".join(mk) + "\n")
++    open(os.path.join(out, "games.cmake"), "w").write("\n".join(cm) + "\n")
++    h = ["/* generated by gen_games.py from games.list: do not edit */", "#ifndef GAMES_H", "#define GAMES_H",
++         "#define GAMES_DECLARE " + " ".join(decl), "#define GAMES_ENTRIES " + "".join(", " + e for e in entries),
++         "#define GAMES_FOLDERS " + "".join(", " + f for f in folders), f"#define GAMES_N {len(entries)}", "#endif"]
++    open(os.path.join(out, "games.h"), "w").write("\n".join(h) + "\n")
++    open(os.path.join(out, ".stamp"), "w").write(open(lst).read())
++    print(f"gen_games: {len(plans)} game(s): " + ", ".join(
++        f"{m['name']} ({g['id']} at {g['pin'][:7]}{', staged: not checked as pushed' if r is None else ''})"
++        for g, m, _, r in plans))
++
++
++if __name__ == "__main__":
++    main()
+-- 
+2.53.0
+
