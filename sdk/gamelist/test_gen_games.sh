@@ -76,6 +76,12 @@ bad() { # bad WHAT SED-ON-MANIFEST MESSAGE: a fresh repo whose manifest is chang
     (cd "$T/repos/bad" && sed -i "$2" game.txt && git add -A && git -c user.email=t@t -c user.name=t commit -q -m bad && git push -q origin HEAD:main 2>/dev/null)
     printf 'bad bad %s MIT game.txt\n' "$(git -C "$T/repos/bad" rev-parse HEAD)" > "$T/fw/games.list"; run 1 "$1" "$3"
 }
+# a port's credit (original) is taken; a key nobody knows is not
+rm -rf "$T/repos/port" "$T/port.git"; mkrepo port PORT
+(cd "$T/repos/port" && printf 'original = Someone, example.org/x (Unlicense)\n' >> game.txt && git add -A \
+    && git -c user.email=t@t -c user.name=t commit -q -m port && git push -q origin HEAD:main 2>/dev/null)
+printf 'port port %s MIT game.txt\n' "$(git -C "$T/repos/port" rev-parse HEAD)" > "$T/fw/games.list"; run 0 "a port with original"
+bad "a key nobody knows" "\$a credit = x" "unknown"
 bad "a six-character name" "s/^name = .*/name = BABALS/" "must be 1 to 5"
 bad "a folder that is not GAMES or TOOLS" "s/^folder = .*/folder = MUSIC/" "GAMES or TOOLS"
 bad "a source outside the repo" "s|^sources = .*|sources = ../x.c|" "unsafe path"

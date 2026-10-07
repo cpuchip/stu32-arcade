@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
-/* Babal's rules in C: a one-to-one port of rust/babalcore (gitlab.com/liberecofr/babal,
- * commit fa985cd49111270edade2c7bebdab7ce204be6a8, the Unlicense, by Christian Mauduit).
+/* Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense).
+ * Its rules in C: a one-to-one port of rust/babalcore at fa985cd49111270edade2c7bebdab7ce204be6a8.
  * Each section names the babalcore file it comes from. Differences that are not a
  * translation are listed in docs/stage1-rules.md. Build with -ffp-contract=off. */
 #ifndef BABAL_H

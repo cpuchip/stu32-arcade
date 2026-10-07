@@ -8,4 +8,6 @@ flags = -ffp-contract=off
 author = arcade (the games seat), porting Christian Mauduit's Babal
 # MIT (abacus decision 61: Michael, "one license to rule them all")
 licence = MIT
+# the original, credited wherever Babal is described (abacus decision 62)
+original = Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense)
 source = babal/ from rust/babalcore at gitlab.com/liberecofr/babal fa985cd (Unlicense); app/ written by arcade

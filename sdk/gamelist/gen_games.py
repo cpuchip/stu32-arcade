@@ -22,6 +22,7 @@ The manifest (KEY = VALUE lines, `#` comments), in the game's repo:
     include  the directories its headers are in (same rules)
     flags    extra compile flags, from an allowed list (today: -ffp-contract=off); may be empty
     author, licence, source   who wrote it, its SPDX licence, where it came from (provenance)
+    original  optional: for a port, the original's author, home and licence (abacus decision 62)
 
 Without a clone (no git, or a build from an export), a game may be staged by hand: OUT/ID/ holding
 the files at the pin, its manifest, and .pin with the pin; the generator then takes it as staged
@@ -44,7 +45,8 @@ import sys
 
 ALLOWED_FLAGS = {"-ffp-contract=off"}
 FOLDERS = {"TOOLS": 0, "GAMES": 1}
-KEYS = {"name", "folder", "app", "sources", "include", "flags", "author", "licence", "source"}
+KEYS = {"name", "folder", "app", "sources", "include", "flags", "author", "licence", "source", "original"}
+OPTIONAL = {"flags", "original"}
 
 
 def fail(msg):
@@ -102,7 +104,7 @@ def parse_manifest(text, gid):
         if k not in KEYS:
             fail(f"{gid}: manifest key {k!r} unknown")
         m[k] = v
-    for k in KEYS - {"flags"}:
+    for k in KEYS - OPTIONAL:
         if not m.get(k):
             fail(f"{gid}: manifest lacks {k}")
     if not re.fullmatch(r"[\x21-\x7e]( ?[\x21-\x7e]){0,4}", m["name"]) or len(m["name"]) > 5:

@@ -1,7 +1,8 @@
 # stu32-arcade
 
-Games for the STU-32 calculator's APPS menu (working name arcade). First: a port of Babal by
-Christian Mauduit (gitlab.com/liberecofr/babal, the Unlicense), its rules (rust/babalcore) in C.
+Games for the STU-32 calculator's APPS menu (working name arcade). First, a port of
+Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense): its rules
+(rust/babalcore) in C.
 Babal's music and fonts are third parties' and are never ported.
 
 ## Stage 1: the rules, judged against babalcore

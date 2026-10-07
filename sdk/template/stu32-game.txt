@@ -7,4 +7,5 @@ include = sdk/template sdk
 flags =
 author = arcade (the games seat)
 licence = MIT
+# for a port: original = the original's author, home and licence (see Babal's manifest)
 source = written for the STU-32 games SDK
