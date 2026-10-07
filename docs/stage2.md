@@ -73,6 +73,21 @@ one played to its finish and on into a second game; the save round-trips. Six pl
 steering right, the step clamped at 50 ms, key times in microseconds, a jump on the release, the
 tick's clock a millisecond late, no rows made ahead (red by a hang, caught by the timeout).
 
+## The app on the S3 (measured 2026-10-07, soroban's lent board, window 06:43-07:01Z)
+
+`scripts/device_app.sh`, device/appbench: the 8 app scripts played through apps.h's calls on the
+chip, the ctx in PSRAM (23,880 bytes on the S3), the frame in internal RAM. **DEVICE PASS**: every
+frame's hash (16,639 frames) equals tools/apphost.c's on the host; the control (one key 1 ms
+later) differs.
+
+- tick (the rules, rows made a few at a time): **151 us average, 558 us worst**.
+- row generation alone: 100 rows at once 16,385 us (the first bench's 16.8 ms worst tick, now
+  measured), one at a time 164 us. So spreading it was the fix, and it holds.
+- draw (render.c, the whole frame): **41,016 us average, 45,251 us worst**. Too slow: with the
+  LS027's SPI send (12.5 KB, about 50 ms at 2 MHz) it caps the game near 10 frames a second. The
+  renderer works pixel by pixel in 64-bit arithmetic on a 32-bit core; spans and 32-bit maths next,
+  judged by frames byte-identical to these.
+
 ## Next
 
 - The app on the S3: tick and draw times per frame, frames hashed against the host.
