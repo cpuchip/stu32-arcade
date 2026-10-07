@@ -79,7 +79,7 @@ PLANTS=(
     # From the stage-2 review (2026-10-07): the two defects put back, and the seven plants that survived
     "babal_app.c|/    bb_player_set_best_score(\&c->player, best_score(c));/d|the saved best not given to the rules"
     "babal_app.c|s/save\[2\] > BB_EXPERT)/0)/|a save with a bad skill byte taken"
-    "babal_app.c|s/            c->skill = (bb_skill)key;/            c->skill = (bb_skill)(4 - key);/|soft keys choose skills in reverse"
+    "babal_app.c|s/            c->skill = (bb_skill)(BB_NOOB + (key - APP_KEY_SOFT1));/            c->skill = (bb_skill)(BB_EXPERT - (key - APP_KEY_SOFT1));/|soft keys choose skills in reverse"
     "babal_app.c|s/c->seed = mix64(((uint64_t)c->games << 32) ^ ms);/c->seed = mix64(42 + 0 * ms);/|every game the same seed"
     "babal_app.c|/        if (e->kind == BB_EVENT_FINISH) { \/\* babalgame's _on_Ball_finish \*\//a\            c->new_record = true;|\"New record!\" on every finish"
     "babal_app.c|s/ms - c->done_ms >= 600/ms - c->done_ms >= 60000/|the finish screen held 60 s"

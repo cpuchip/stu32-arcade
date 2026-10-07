@@ -12,10 +12,12 @@
 #include "apps.h"
 #include "babal.h"
 
-#define BABAL_KEY_LEFT 31  /* the 4 key (row 5, column 1) */
-#define BABAL_KEY_RIGHT 33 /* 6 */
-#define BABAL_KEY_JUMP 26  /* 8 */
-#define BABAL_KEY_ENTER 18
+/* The keys by the framework's names (apps.h v1.2, app_keys.h); the soft keys 1 to 5 pick a skill. */
+#define BABAL_KEY_LEFT APP_KEY_4
+#define BABAL_KEY_RIGHT APP_KEY_6
+#define BABAL_KEY_JUMP APP_KEY_8
+#define BABAL_KEY_ENTER APP_KEY_ENTER
+_Static_assert(APP_KEY_SOFT5 - APP_KEY_SOFT1 == BB_EXPERT - BB_NOOB, "a soft key a skill, in order");
 /* The whole level and the whole scores log (docs/stage2.md: a struggling player drifts back
  * without limit, so a window of recent rows is not enough); tools/drift.c builds bigger ones too. */
 #ifndef BABAL_ROWS

@@ -221,8 +221,8 @@ static bool babal_key(void *ctx, int key, bool down, uint32_t ms)
             c->skill = (bb_skill)((c->skill + 4) % 5);
         else if (key == BABAL_KEY_RIGHT)
             c->skill = (bb_skill)((c->skill + 1) % 5);
-        else if (key >= 0 && key <= 4) {
-            c->skill = (bb_skill)key;
+        else if (key >= APP_KEY_SOFT1 && key <= APP_KEY_SOFT5) {
+            c->skill = (bb_skill)(BB_NOOB + (key - APP_KEY_SOFT1));
             start_game(c, ms);
         } else if (key == BABAL_KEY_ENTER || key == BABAL_KEY_JUMP)
             start_game(c, ms);
