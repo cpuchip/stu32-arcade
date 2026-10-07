@@ -85,7 +85,9 @@ static void start_game(babal_ctx *c, uint32_t ms)
     c->seed = mix64(((uint64_t)c->games << 32) ^ ms);
     bb_level_init(&c->level, c->seed, c->skill, c->rows, BABAL_ROWS);
     bb_player_init(&c->player, c->log, BABAL_LOG);
-    bb_player_set_best_score(&c->player, c->best[c->skill]); /* babalgame's update_player_best_score */
+    /* the rules' high-score event needs the best (babalgame calls update_player_best_score at each
+     * start too, but with the best over all skills; here it is this skill's, as the save keeps them) */
+    bb_player_set_best_score(&c->player, c->best[c->skill]);
     bb_input_steer_init(&c->steer);
     bb_input_jump_init(&c->jump);
     c->last_events.n = 0;

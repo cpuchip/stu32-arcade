@@ -120,9 +120,29 @@ finish hold, NEW BEST only above the best, the tone table, the windows at each g
 save's bytes, corrupt saves refused, and a tie made on purpose by replaying game 1 from a save
 holding its score); and every frame against tools/render_ref.c, the committed per-pixel renderer
 (c522381) with the HUD and title composed from the spec. The harness also runs under ASan and
-UBSan with no recovery. `make appcheck`: 16,639 ticks over 15 games identical to babalcore,
+UBSan with no recovery. `make appcheck` then: 16,469 ticks over 15 games identical to babalcore,
 every frame equal to the reference, 15 plants red (the review's seven and its two defects among
-them).
+them). (An earlier draft of this line said 16,639: that is the frame count of the device bench.)
+
+A second review of those fixes found no defect in them (the multiplications overflow nowhere
+reachable, the save checks hold) but found that the harness let the app's own state say when a
+game began and ended, so a game ending at its first fall, 4 starting a game, and tick asking for
+no more ticks all passed; a first game after power-on never ran with a best; the save's magic and a
+best of 1 were untested. Now the spec owns the boundaries: at the title each key's outcome is
+written down (soft key k plays skill k, ENTER and 8 play the shown one, 4 and 6 step it, every
+other key and every release does nothing); no key ends a game; a tick ends one exactly when its
+events hold FINISH; tick never returns 0, nor more than 100 ms in a game. The script plays as two
+recorded sessions, from no save and from a save with a best for every skill, and once more for the
+tie (it runs where game 1 finishes: 3 of the 8 scripts). The sanitizer pass adds
+float-cast-overflow. `make appcheck`: 32,938 ticks over 30 games identical to babalcore, every
+frame equal to the reference, 21 plants red.
+
+What this oracle cannot do: its spec (the key outcomes, the tone table, the HUD and title layout)
+was written by the same hand as the app, so it catches the app drifting from the spec, not a
+spec that is wrong. Two choices made here, against babalgame: the best is kept per skill
+(babalgame passes its best over all skills), and the finish says NEW BEST on a skill's first
+finished game (Godot's "New record!" follows the rules' high-score event, which needs a best
+above 0). Both are for abacus and Michael to keep or change.
 
 ## Next
 

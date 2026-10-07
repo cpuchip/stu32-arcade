@@ -6,8 +6,11 @@
  *    its seed, skill and the saved best, then the keys and steps by this file's own copy of the key
  *    spec: 31 left, 33 right, 26 and 18 jump on the press, steps clamped to 100 ms), and every tick
  *    of it printed here as oracle/out.c prints it, under a "game N" line, for oracle/app_check.sh.
- * 2. The app's own rules, against the spec below (exit 5): a soft key k starts skill k; 4 and 6 step
- *    the skill at the title; no two games share a seed; the finish screen holds 600 ms; NEW BEST
+ * 2. The app's own rules, against the spec below (exit 5): at the title a soft key k starts skill k,
+ *    ENTER and 8 start the shown skill, 4 and 6 step it, every other key and every release does
+ *    nothing; in a game no key ends it, and a tick ends it exactly when its events hold FINISH;
+ *    tick never asks for no more ticks, nor more than 100 ms apart in a game; no two games of a
+ *    session share a seed; the finish screen holds 600 ms; NEW BEST
  *    only for a higher score, and the best kept is the higher; one tone a tick, the first of the
  *    tone table the tick's events name; the windows' counts 0 at each game's end; the save's bytes
  *    as the spec lays them out; a corrupt save (a bad skill byte, short) taken not at all, a best
@@ -15,8 +18,11 @@
  * 3. The picture, against tools/render_ref.c (exit 6): every frame drawn again from the model by
  *    the reference renderer, with the HUD and the title composed here from the spec.
  *
+ * The script is played as two recorded sessions: from no save, then from a save holding a best for
+ * every skill (so a first game after power-on runs with a best); games are numbered on across both.
+ * Then once more, unrecorded, from a save holding game 1's score, to make a tie.
  * App script words: `key K D MS` (key K down 1 or up 0 at MS on the app's clock, never before the
- * last tick) and `tick MS`. Frame hashes (FNV-1a 64) go to FRAMES, one a tick.
+ * last tick) and `tick MS`. Frame hashes (FNV-1a 64), one a tick of the first session, go to FRAMES.
  * Usage: apphost APPSCRIPT PREFIX FRAMES */
 #include <inttypes.h>
 #include <stdarg.h>
@@ -65,7 +71,9 @@ static ls027_frame frame, want;
 static FILE *frames;
 static const char *prefix;
 static FILE *oracle;
-static bool recording = true; /* the tie replay writes nothing */
+static bool recording = true;   /* the tie replay writes nothing */
+static bool keep_frames = true; /* the frame hashes are the first session's (the device bench replays it) */
+static int game_no;             /* games recorded so far, across sessions: names the oracle scripts */
 static void to_stdout(const char *s, size_t n)
 {
     fwrite(s, 1, n, stdout);
@@ -179,15 +187,17 @@ static void game_started(int key, int skill_before)
         fail(5, "soft key %d started skill %d", key, ctx.skill);
     if ((key == K_ENTER || key == K_JUMP) && ctx.skill != (bb_skill)skill_before)
         fail(5, "ENTER or 8 changed the skill");
-    for (int g = 0; g < games && g < 256; g++)
+    for (int g = 0; g < games && g < 256; g++) /* this session's games */
         if (seeds[g] == ctx.seed)
             fail(5, "game %d has game %d's seed", games + 1, g + 1);
     if (games < 256)
         seeds[games] = ctx.seed;
     games++;
+    if (recording)
+        game_no++;
     best_before = ctx.best[ctx.skill];
     char path[512];
-    snprintf(path, sizeof path, "%s.g%d.oracle", recording ? prefix : "/dev/null", games);
+    snprintf(path, sizeof path, "%s.g%d.oracle", prefix, game_no);
     if (!recording)
         snprintf(path, sizeof path, "/dev/null");
     if (oracle)
@@ -196,7 +206,7 @@ static void game_started(int key, int skill_before)
     if (!oracle)
         fail(1, "cannot write %s", path);
     fprintf(oracle, "seed %" PRIu64 "\nskill %s\nbest %" PRId32 "\n", ctx.seed, bb_skill_as_str(ctx.skill), best_before);
-    outf("game %d\n", games);
+    outf("game %d\n", game_no);
     ticks_compared = 0;
 }
 
@@ -228,11 +238,16 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
             int was = ctx.state, skill = ctx.skill;
             if (app->key(&ctx, k, d != 0, ms))
                 draw_and_check(app, at);
-            if (was == BABAL_TITLE && d && ctx.state == BABAL_TITLE) {
-                int want_skill = k == K_LEFT ? (skill + 4) % 5 : k == K_RIGHT ? (skill + 1) % 5 : skill;
-                if ((int)ctx.skill != want_skill)
-                    fail(5, "key %d at the title: skill %d, the spec says %d", k, ctx.skill, want_skill);
+            if (was == BABAL_TITLE) {
+                int starts = d && ((k >= 0 && k <= 4) || k == K_ENTER || k == K_JUMP);
+                int want_skill = !d ? skill : k >= 0 && k <= 4 ? k : k == K_LEFT ? (skill + 4) % 5
+                                            : k == K_RIGHT ? (skill + 1) % 5 : skill;
+                if ((ctx.state == BABAL_PLAY) != starts || (int)ctx.skill != want_skill)
+                    fail(5, "key %d %s at the title: state %d skill %d; the spec says %s, skill %d", k, d ? "down" : "up",
+                         ctx.state, ctx.skill, starts ? "a game" : "the title", want_skill);
             }
+            if (was == BABAL_PLAY && ctx.state != BABAL_PLAY)
+                fail(5, "key %d ended a game", k);
             if (was == BABAL_TITLE && ctx.state == BABAL_PLAY)
                 game_started(k, skill);
             if (was == BABAL_DONE) {
@@ -253,10 +268,12 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
             int was = ctx.state;
             clock_ms += ms;
             beeps = 0;
-            app->tick(&ctx, ms);
+            uint32_t next = app->tick(&ctx, ms);
+            if (next == 0 || (ctx.state == BABAL_PLAY && next > STEP_MAX))
+                fail(5, "tick asked for the next in %u ms (state %d)", next, ctx.state);
             total_beeps += (uint64_t)beeps;
             draw_and_check(app, at);
-            if (recording)
+            if (recording && keep_frames)
                 frame_hash();
             at++;
             if (was != BABAL_PLAY) {
@@ -278,6 +295,12 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
             if (t < 0 ? beeps != 0 : beeps != 1 || beep_hz[0] != TONES[t].hz || beep_ms[0] != TONES[t].ms)
                 fail(5, "tick %" PRIu64 ": %d tone(s), the first %d Hz; the spec says %s %d Hz", at, beeps,
                      beeps ? beep_hz[0] : 0, t < 0 ? "none, so" : "one at", t < 0 ? 0 : TONES[t].hz);
+            int finished = 0;
+            for (int e = 0; e < ctx.last_events.n; e++)
+                finished |= ctx.last_events.v[e].kind == BB_EVENT_FINISH;
+            if ((ctx.state == BABAL_DONE) != finished)
+                fail(5, "tick %" PRIu64 ": the game %s, and the tick's events %s FINISH", at,
+                     ctx.state == BABAL_DONE ? "ended" : "went on", finished ? "hold" : "do not hold");
             if (ctx.state == BABAL_DONE) {
                 int32_t score = bb_player_score(&ctx.player);
                 int newer = score > best_before;
@@ -329,8 +352,44 @@ int main(int argc, char **argv)
         app->load(&t, n, 27);
         if (t.best[1] != 0)
             fail(5, "a 27-byte save was taken");
+        uint8_t m[APP_SAVE_SIZE] = {'X', 1, 2, 0, 5, 0, 0, 0};
+        memset(&t, 0, sizeof t);
+        app->load(&t, m, APP_SAVE_SIZE);
+        if (t.best[0] != 0)
+            fail(5, "a save with the wrong magic was taken");
+        m[0] = 'B';
+        m[1] = 2;
+        memset(&t, 0, sizeof t);
+        app->load(&t, m, APP_SAVE_SIZE);
+        if (t.best[0] != 0)
+            fail(5, "a save of version 2 was taken");
+        m[1] = 1;
+        m[4] = 1;
+        memset(&t, 0, sizeof t);
+        app->load(&t, m, APP_SAVE_SIZE);
+        if (t.best[0] != 1)
+            fail(5, "a best of 1 was not kept");
     }
     replay(in, NULL, 0, true);
+    int session_a_games = games;
+    uint64_t frames_a = frames_checked;
+    {
+        /* session B: from a save with a best for every skill, so game 1 after power-on has one */
+        uint8_t bests[APP_SAVE_SIZE] = {'B', 1, BB_SKILL_DEFAULT};
+        static const int32_t B[5] = {40, 120, 160, 240, 320};
+        for (int i = 0; i < 5; i++)
+            for (int b = 0; b < 4; b++)
+                bests[4 + 4 * i + b] = (uint8_t)((uint32_t)B[i] >> (8 * b));
+        int32_t keep_first = first_score;
+        int keep_skill = first_skill;
+        if (oracle)
+            fclose(oracle);
+        oracle = NULL;
+        keep_frames = false;
+        replay(in, bests, APP_SAVE_SIZE, true);
+        first_score = keep_first;
+        first_skill = keep_skill;
+    }
     if (oracle)
         fclose(oracle);
     oracle = NULL;
@@ -354,7 +413,7 @@ int main(int argc, char **argv)
     app->load(&again, save, APP_SAVE_SIZE);
     if (again.skill != ctx.skill || again.games != ctx.games || memcmp(again.best, ctx.best, sizeof ctx.best))
         fail(4, "save did not round-trip");
-    int recorded_games = games;
+    int recorded_games = game_no;
     uint64_t recorded_frames = frames_checked, recorded_tones = total_beeps;
     if (first_score >= 0) {
         /* a tie, made on purpose: the same script again from a save that holds game 1's score as
@@ -368,7 +427,8 @@ int main(int argc, char **argv)
             fail(5, "the tie replay scored %d, not %d", first_score, want_score);
     }
     fprintf(stderr, "apphost: %d games, %" PRIu64 " frames checked against the reference, %" PRIu64
-            " tones; tie replay %s; ctx %u bytes\n", recorded_games, recorded_frames, recorded_tones,
+            " tones (%d games, %" PRIu64 " frames from no save); tie replay %s; ctx %u bytes\n", recorded_games,
+            recorded_frames, recorded_tones, session_a_games, frames_a,
             first_score >= 0 ? "done" : "skipped (game 1 did not finish)", app->ctx_size);
     fclose(frames);
     return 0;

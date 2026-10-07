@@ -15,29 +15,30 @@ FW=$ROOT/build/firmware/firmware
 rm -rf "$B" && mkdir -p "$B"
 python3 "$ROOT/oracle/gen_appscripts.py" "$B/scripts" "$N" || exit 1
 
-# check HOST: 0 when every script's ticks equal babalcore's.
+# check HOST OUT [stop]: 0 when every script's ticks equal babalcore's; outputs go to OUT.
 check() {
-    local host=$1 stop=${2:-} bad=0
+    local host=$1 O=$2 stop=${3:-} bad=0
+    mkdir -p "$O"
     for s in "$B"/scripts/*.txt; do
         n=$(basename "$s" .txt)
         local rc=0
-        rm -f "$B/$n".g*.oracle
-        timeout 120 "$host" "$s" "$B/$n" "$B/$n.frames" > "$B/$n.app" 2> "$B/$n.err" || rc=$?
+        rm -f "$O/$n".g*.oracle
+        timeout 120 "$host" "$s" "$O/$n" "$O/$n.frames" > "$O/$n.app" 2> "$O/$n.err" || rc=$?
         if [ "$rc" != 0 ]; then
-            [ "$rc" = 124 ] && echo "apphost: timed out (hung)" >> "$B/$n.err"
-            bad=$((bad + 1)); [ -n "$stop" ] && { echo "  red at $n (apphost failed: $(tail -1 "$B/$n.err"))"; return 1; }
-            echo "  APPHOST FAILED $n: $(tail -1 "$B/$n.err")"; continue
+            [ "$rc" = 124 ] && echo "apphost: timed out (hung)" >> "$O/$n.err"
+            bad=$((bad + 1)); [ -n "$stop" ] && { echo "  red at $n (apphost failed: $(tail -1 "$O/$n.err"))"; return 1; }
+            echo "  APPHOST FAILED $n: $(tail -1 "$O/$n.err")"; continue
         fi
-        : > "$B/$n.ref"
-        for g in $(ls "$B/$n".g*.oracle 2>/dev/null | sed -E 's/.*\.g([0-9]+)\.oracle$/\1/' | sort -n); do
-            echo "game $g" >> "$B/$n.ref"
-            timeout 300 "$REF" game "$B/$n.g$g.oracle" | grep -E '^(t|s) ' | sed -E 's/ first=[0-9-]+ last=[0-9-]+ len=[0-9]+$//' >> "$B/$n.ref"
+        : > "$O/$n.ref"
+        for g in $(ls "$O/$n".g*.oracle 2>/dev/null | sed -E 's/.*\.g([0-9]+)\.oracle$/\1/' | sort -n); do
+            echo "game $g" >> "$O/$n.ref"
+            timeout 300 "$REF" game "$O/$n.g$g.oracle" | grep -E '^(t|s) ' | sed -E 's/ first=[0-9-]+ last=[0-9-]+ len=[0-9]+$//' >> "$O/$n.ref"
         done
-        if ! cmp -s "$B/$n.ref" "$B/$n.app"; then
+        if ! cmp -s "$O/$n.ref" "$O/$n.app"; then
             bad=$((bad + 1)); [ -n "$stop" ] && { echo "  red at $n"; return 1; }
             echo "  DIFF $n"
         elif [ -z "$stop" ]; then
-            echo "  $n: $(grep -c '^t ' "$B/$n.app") ticks identical to babalcore; $(tail -1 "$B/$n.err" | sed 's/^apphost: //')"
+            echo "  $n: $(grep -c '^t ' "$O/$n.app") ticks identical to babalcore; $(tail -1 "$O/$n.err" | sed 's/^apphost: //')"
         fi
     done
     return $((bad > 0))
@@ -45,12 +46,12 @@ check() {
 
 ok=1
 echo "== the app against babalcore"
-check "$ROOT/build/apphost" || ok=0
+check "$ROOT/build/apphost" "$B/run" || ok=0
 
 # The same harness under ASan and UBSan (no recovery): undefined behaviour fails the gate.
 echo "== under ASan and UBSan"
 # shellcheck disable=SC2086
-if cc $CFLAGS -fsanitize=address,undefined -fno-sanitize-recover=undefined -I"$ROOT/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW" \
+if cc $CFLAGS -fsanitize=address,undefined,float-cast-overflow -fno-sanitize-recover=undefined,float-cast-overflow -I"$ROOT/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW" \
     "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$ROOT"/app/*.c "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" \
     "$ROOT"/babal/*.c -lm -o "$B/apphost-san" 2> "$B/san-cc.err"; then
     for s in "$B"/scripts/*.txt; do
@@ -80,6 +81,13 @@ PLANTS=(
     "babal_app.c|s/{BB_EVENT_FALL, 150, 150}, //|the fall tone silenced"
     "render.c|s/            int32_t c = r % w;/            int32_t c = w - 1 - r % w;/|the track drawn mirrored"
     "render.c|s/int lift = (int)(p->position_vec.y \* PX_PER_UNIT \/ 100.0);/int lift = (int)(p->position_vec.y * 0.0);/|the ball never lifts"
+    # From the second stage-2 review: what the app's own state could hide
+    "babal_app.c|s/if (c->last_events.v\[i\].kind == BB_EVENT_FINISH)/if (c->last_events.v[i].kind == BB_EVENT_FALL)/|a game ends at its first fall"
+    "babal_app.c|s/            c->skill = (bb_skill)((c->skill + 4) % 5);/            start_game(c, ms);/|4 at the title starts a game"
+    "babal_app.c|s/    return BABAL_TICK_MS;/    return 0;/|tick asks for no more ticks"
+    "babal_app.c|s/bb_player_set_best_score(\&c->player, c->best\[c->skill\]);/bb_player_set_best_score(\&c->player, c->games > 1 ? c->best[c->skill] : 0);/|no best for the first game after power-on"
+    "babal_app.c|s/save\[0\] != SAVE_MAGIC/0/|a save with the wrong magic taken"
+    "babal_app.c|s/c->best\[i\] = b > 0 ? b : 0;/c->best[i] = b > 1 ? b : 0;/|a best of 1 dropped"
 )
 echo "== plants in the app (each must go red)"
 for p in "${PLANTS[@]}"; do
@@ -93,7 +101,7 @@ for p in "${PLANTS[@]}"; do
         "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" "$ROOT"/babal/*.c -lm -o "$P/apphost" 2> "$P/cc.err"; then
         echo "PLANT DID NOT BUILD: $what"; head -3 "$P/cc.err"; ok=0; continue
     fi
-    if check "$P/apphost" stop > "$P/result"; then echo "SURVIVED: $what"; ok=0; else echo "red: $what ($(sed 's/^  //' "$P/result"))"; fi
+    if check "$P/apphost" "$P/run" stop > "$P/result"; then echo "SURVIVED: $what"; ok=0; else echo "red: $what ($(sed 's/^  //' "$P/result"))"; fi
 done
 [ "$ok" = 1 ] && { echo "APP GATE GREEN"; exit 0; }
 echo "APP GATE RED"; exit 1
