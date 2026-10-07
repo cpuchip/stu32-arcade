@@ -50,15 +50,30 @@ Shades (`DRAW_DARK`, `DRAW_HALF`, ... a byte for each row parity), `draw_fill`, 
 face at any scale, `draw_text_width`. Everything clips to the frame. A line costs at most 400 steps
 however far its ends lie. Tested against a pixel-by-pixel reference (`make sdkcheck`).
 
-## Testing a game
+## Starting from the template: sdk/template
 
-What Babal uses, to be lifted into the SDK: a host runner that plays a script of keys and ticks
-through the calls in the framework's order and writes each frame (tools/apphost.c), a reference
-for the picture where one exists, and an S3 bench that replays the same scripts on the chip and
-compares frame hashes with the host's (device/appbench, scripts/device_app.sh). Determinism makes
-all of this possible: draw only from `ctx`, and take time only from `tick` and `key`.
+`sdk/template/ball.c` is BALL, a paddle (4 and 6) keeping a ball in play: one `app_def`, all state in
+a 48-byte ctx, integer positions, a long tick clamped, held keys from key-down and key-up, a tone a
+bounce, the best saved whole or not at all, drawing only with sdk/draw. Copy the folder with its
+manifest (`stu32-game.txt`), rename, and build on it.
+
+## Testing a game: sdk/runner/apprun.c
+
+Build the runner with the game (`cc -DAPP_DEF=my_app sdk/runner/apprun.c my_game.c sdk/draw.c
+font5x7.c ...`) and give it a script: `key K D MS` and `tick MS` lines. It plays the game through the
+calls in the framework's order and checks the framework's bounds (ctx size, name, a key never before
+the last tick, no tick after the game asked for none); `-hashes FILE` writes a frame hash a tick,
+`-pbm DIR -every N` writes frames, `-load`/`-save` take and keep a save, `-v` prints the tones. It
+agrees frame for frame with Babal's own harness (tools/apphost.c) on 8,002 frames. Build a game's own
+sources with `-Wframe-larger-than=1024 -Werror` (alone: the runner is a host tool), and run the
+runner under ASan and UBSan. `make sdkcheck` does all of this for the template.
+
+For a game whose rules have a reference (Babal's are babalcore), compare against it as Babal does
+(oracle/app_check.sh); for the chip, the S3 bench replays the same scripts and compares frame hashes
+with the host's (device/appbench, scripts/device_app.sh; a generic template is still to come).
+Determinism makes all of this possible: draw only from `ctx`, and take time only from `tick` and `key`.
 
 ## Still to come
 
-The games-list format and its generator (with soroban), the v1.2 calls (soroban, through the gate),
-a generic host runner and bench template, and a template game.
+The v1.2 calls (soroban, through the gate), a generic S3 bench template, and where sdk/draw lives in
+the firmware (one copy for every game, not one each: two games each bringing draw.c would clash).

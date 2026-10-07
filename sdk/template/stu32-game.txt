@@ -1,0 +1,10 @@
+# The template game's manifest (sdk/gamelist/gen_games.py): copy it with the folder and change it.
+name = BALL
+folder = GAMES
+app = ball_app
+sources = sdk/template/ball.c
+include = sdk/template sdk
+flags =
+author = arcade (the games seat)
+licence = LicenseRef-arcade-pending
+source = written for the STU-32 games SDK
