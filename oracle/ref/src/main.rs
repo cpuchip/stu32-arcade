@@ -97,8 +97,10 @@ fn pins(out: &mut String) {
         let _ = writeln!(out, "num {} round={} fract={} trunc_i={} floor={} f32={}",
             b64(x), b64(x.round()), b64(x.fract()), x as i64, b64(x.floor()), b32(x as f32));
     }
-    for s in [9.3e9, 1e10, 1.8e10] {
-        let _ = writeln!(out, "from_secs_f64 {} {}", b64(s), Duration::from_secs_f64(s).as_nanos());
+    // Past 2^64 ns Rust still returns (it panics past 2^64 s); the C saturates at u64::MAX.
+    for s in [9.3e9, 1e10, 1.8e10, 1.8446744073709550e10, 1.8446744073709552e10, 1.8446744073709553e10, 1e11, 1e15] {
+        let ns = Duration::from_secs_f64(s).as_nanos().min(u64::MAX as u128);
+        let _ = writeln!(out, "from_secs_f64 {} {}", b64(s), ns);
     }
     // maths.rs over boundaries, specials and a random sweep.
     let mut mx: Vec<f64> = vec![-1.5, -1.0, -0.75, -0.5, -0.25, -0.0, 0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5,
@@ -143,7 +145,7 @@ fn points(out: &mut String, seed: u64) {
         pc.set_best_score((sm.next() % 5000) as i32);
     }
     let ttcs = [30.0, 49.9, 50.0, 50.1, 120.0, 199.9, 200.0, 200.1, 300.0, 0.0, -1.0];
-    let ttc = ttcs[(sm.next() % 11) as usize];
+    let ttc = ttcs[(seed % 11) as usize]; // by seed, so every band edge is used
     let steps = 4000 + (seed % 3) * 6000;
     let _ = writeln!(out, "points seed={} ttc={} steps={}", seed, b64(ttc), steps);
     let mut dist: f64 = 0.0;
@@ -178,7 +180,7 @@ fn inputs(out: &mut String, seed: u64) {
     let mut t: u64 = 1_000_000_000_000;
     let ints = [1.0, 0.5, 0.25, 1.5, 0.0, -0.3];
     let sticks = [-1.0, 0.0, 0.05, 0.16, 1.0, 1e10];
-    let mice = [3.0, -7.5, 0.125, -40.0];
+    let mice = [3.0, -7.5, 0.125, -40.0, f64::NAN];
     let _ = writeln!(out, "inputs seed={}", seed);
     for i in 0..3000 {
         let r = sm.next() % 100;
@@ -204,7 +206,7 @@ fn inputs(out: &mut String, seed: u64) {
                 st.right_key(id, intensity, state, Some(now));
             }
         } else if r < 65 {
-            st.mouse_move(mice[(sm.next() % 4) as usize]);
+            st.mouse_move(mice[(sm.next() % 5) as usize]);
         } else if r < 70 {
             let s = sticks[(sm.next() % 6) as usize];
             ij.set_stickiness_secs_f64(if s < 0.0 { None } else { Some(s) });

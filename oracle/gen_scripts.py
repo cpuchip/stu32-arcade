@@ -72,8 +72,8 @@ def edges():
                    # Bounded extremes: a 30 s step and a negative step with a key held. Past these,
                    # babalcore itself hangs (quirks 7 and 8 in docs/stage1-rules.md).
                    + ["tickd 30", "tick 16666667", "tickd -0.5"] + ["tick 16666667"] * 60)
-    s["nan"] = (["seed 13", "skill medium"] + ["tick 16666667"] * 30 + ["tickd NaN"] + ["tick 16666667"] * 30
-                + ["M NaN"] + ["tick 16666667"] * 30)
+    s["nan-mouse"] = ["seed 13", "skill medium"] + ["tick 16666667"] * 30 + ["M NaN"] + ["tick 16666667"] * 30
+    s["nan-delta"] = ["seed 14", "skill medium"] + ["tick 16666667"] * 30 + ["tickd NaN"] + ["tick 16666667"] * 30
     s["sticky"] = (["seed 11", "skill medium", "stick none", "J", "tick 16666667", "J", "wait 1000", "tick 16666667",
                     "stick 0.5", "J", "tick 1", "tick 1", "wait 600000000", "tick 1"] + ["tick 16666667"] * 200)
     # Noob to its finish (30 s of play on the best row): steer away from falls by brute repetition.

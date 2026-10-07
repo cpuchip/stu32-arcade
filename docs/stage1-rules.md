@@ -49,9 +49,15 @@ checks stays 0.
   silently, and an overflowing size freed the log and used it after the free.
 - Steer keys: a ninth id on one side adds to `dropped_keys` (babalcore keeps every id; keys are
   never removed in either).
-- FakeInput: a steer pushed past 256 queued adds to `dropped`.
-- `Duration::from_secs_f64` panics in Rust on inf, NaN or more than 2^64 ns; the C saturates, and
-  a stickiness past 2^63 ns (292 years) is held at INT64_MAX ns instead of turning negative.
+- FakeInput: a steer pushed past 256 queued adds to `dropped`. No driver or game uses FakeInput
+  (babalcore's tests do not either), so nothing checks this count; the queue costs 2 KB.
+- `Duration::from_secs_f64`: past 2^64 ns Rust still returns (it panics only past 2^64 seconds,
+  or on inf or NaN); the C saturates everything past 2^64 ns at UINT64_MAX (pinned), and a
+  stickiness past 2^63 ns (292 years) is held at INT64_MAX ns. `pop_jump` compares delays far
+  below either, so jumps behave the same.
+- On a 32-bit S3, rows (`isize`) saturate at 2^31 where 64-bit Rust counts on; a game reaches
+  hundreds. On a 64-bit host a key of about 1e8-1e9 rows would make the log allocate gigabytes
+  where Rust stores one entry: the same answer, slowly; no game produces one.
 
 ## Kept as they are (quirks, named so nobody "fixes" one silently)
 
@@ -95,13 +101,15 @@ NaN as `nan` (its sign is not meaningful, and Rust's Debug text drops it).
   grid that includes negative, past-the-end and post-slide rows, and the rows the deque holds.
 - `game <script>`: synthetic time steps, key presses and releases (two ids a side), jumps and mouse
   moves, driving `Player::tick` through `InputSteer` and `InputJump`, with rows kept 100 ahead of
-  the player as babalgame's `generate_missing` does. Each tick prints the events, every public
+  the player as babalgame's `generate_missing` does (the C side runs with glibc's
+  `MALLOC_PERTURB_`, so memory it forgets to initialise shows). Each tick prints the events, every public
   reading of the player, and every private field (read back from Rust's Debug text, which prints
   an f64 shortest-round-trip); the scores log is printed at the end. Scripts: seeded play-like
   runs, three 30,000-tick games, and edges (idle, jump spam, a run to `finish`, zero, long and
   negative deltas, NaN, stickiness).
-- `points <seed>`: PointsCounter alone, seeded walks of distance over every time-to-complete
-  band (30 to 300 s, 0, negative), with its private state after each step.
+- `points <seed>`: PointsCounter alone, seeded walks of distance, the time to complete chosen by
+  seed so every entry is used (30, 49.9, 50, 50.1, 120, 199.9, 200, 200.1, 300, 0, -1 s), with
+  its private state after each step.
 - `inputs <seed>`: InputJump and InputSteer alone, with time standing still or running backwards.
 
 Reach, measured: the longest game holds 500 rows and reaches best row 378; the `points` walks log up
@@ -130,6 +138,12 @@ probed them. Its findings and what changed:
   scores log past 256 rows, and claimed a game past the slide that did not exist. Seven plants
   survived the first gate; six now go red (the seventh is the equivalent mutant above).
 - This doc implied a smaller ring was harmless; the measurement above says otherwise.
+
+A second pass over the fixes (ASan and UBSan over all jobs; about 4 million `from_secs_f64` bit
+patterns against Rust, none different) found no defect in the C. It found three plants the gate
+missed (an uninitialised growth entry: now caught under `MALLOC_PERTURB_`; the step edges at 50
+and 200 s: the `points` seeds now use every band edge), the panic threshold misstated here (2^64
+seconds, not ns), the FakeInput count claimed as checked, and a NaN edge that tested nothing new.
 
 ## Not in stage 1
 

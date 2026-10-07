@@ -61,8 +61,9 @@ static int cmp_half(u128 x, int k)
 
 uint64_t bb_duration_from_secs_f64(double secs)
 {
-    /* Callers pass secs > 0 (input_jump.rs checks). Rust panics on inf, NaN or a value past
-     * 2^64 ns; here those saturate to UINT64_MAX, and a negative gives 0. */
+    /* Callers pass secs > 0 (input_jump.rs checks). Past 2^64 ns Rust still returns a Duration
+     * (it panics only past 2^64 seconds, or on inf or NaN); here everything past 2^64 ns
+     * saturates to UINT64_MAX, and a negative gives 0. input_jump compares delays far below. */
     uint64_t bits;
     memcpy(&bits, &secs, sizeof bits);
     int e = (int)((bits >> 52) & 0x7ff);

@@ -120,8 +120,9 @@ static void pins(void)
         printf("num %s round=%s fract=%s trunc_i=%" PRId64 " floor=%s f32=%s\n", b64(x, a1), b64(round(x), a2),
                b64(x - trunc(x), a3), bb_f64_as_i64(x), b64(floor(x), a4), b32((float)x, f1));
     }
-    static const double big[] = {9.3e9, 1e10, 1.8e10};
-    for (int i = 0; i < 3; i++)
+    static const double big[] = {9.3e9, 1e10, 1.8e10, 1.8446744073709550e10, 1.8446744073709552e10,
+                                 1.8446744073709553e10, 1e11, 1e15};
+    for (int i = 0; i < 8; i++)
         printf("from_secs_f64 %s %" PRIu64 "\n", b64(big[i], a1), bb_duration_from_secs_f64(big[i]));
     double mx[18 + 200] = {-1.5, -1.0, -0.75, -0.5, -0.25, -0.0, 0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5,
                            NAN, INFINITY, -INFINITY, 1e-300, 0.9999999999999999};
@@ -304,7 +305,7 @@ static void points(uint64_t seed)
     if (sm_next() % 2 == 0)
         bb_points_counter_set_best_score(&pc, (int32_t)(sm_next() % 5000));
     static const double ttcs[] = {30.0, 49.9, 50.0, 50.1, 120.0, 199.9, 200.0, 200.1, 300.0, 0.0, -1.0};
-    double ttc = ttcs[sm_next() % 11];
+    double ttc = ttcs[seed % 11]; /* by seed, so every band edge is used */
     uint64_t steps = 4000 + (seed % 3) * 6000;
     printf("points seed=%" PRIu64 " ttc=%s steps=%" PRIu64 "\n", seed, b64(ttc, b1), steps);
     double dist = 0.0;
@@ -347,7 +348,7 @@ static void inputs(uint64_t seed)
     int64_t t = 1000000000000;
     static const double ints[] = {1.0, 0.5, 0.25, 1.5, 0.0, -0.3};
     static const double sticks[] = {-1.0, 0.0, 0.05, 0.16, 1.0, 1e10};
-    static const double mice[] = {3.0, -7.5, 0.125, -40.0};
+    static const double mice[] = {3.0, -7.5, 0.125, -40.0, NAN};
     printf("inputs seed=%" PRIu64 "\n", seed);
     for (int i = 0; i < 3000; i++) {
         uint64_t r = sm_next() % 100;
@@ -370,7 +371,7 @@ static void inputs(uint64_t seed)
             else
                 bb_input_steer_right_key(&st, id, intensity, state, t);
         } else if (r < 65) {
-            bb_input_steer_mouse_move(&st, mice[sm_next() % 4]);
+            bb_input_steer_mouse_move(&st, mice[sm_next() % 5]);
         } else if (r < 70) {
             double s = sticks[sm_next() % 6];
             bb_input_jump_set_stickiness_secs_f64(&ij, s >= 0.0, s);

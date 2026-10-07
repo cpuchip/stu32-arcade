@@ -23,7 +23,7 @@ python3 "$ROOT/oracle/gen_scripts.py" "$B/scripts" "$N_SEEDS" "$PER_SEED" || exi
         echo "level-$sk-123-slide level 123 $sk 10350"
     done
     for s in "$B"/scripts/*.txt; do echo "game-$(basename "$s" .txt) game $s"; done
-    for seed in $(seq 0 11); do echo "points-$seed points $seed"; done
+    for seed in $(seq 0 21); do echo "points-$seed points $seed"; done
     for seed in $(seq 0 15); do echo "inputs-$seed inputs $seed"; done
 } > "$B/jobs"
 
@@ -37,7 +37,9 @@ suite() {
     local drv=$1 stop=${2:-} bad=0
     while read -r name args; do
         # shellcheck disable=SC2086
-        if ! timeout $TIMEOUT "$drv" $args > "$B/out" 2>/dev/null || ! cmp -s "$B/out" "$B/ref/$name"; then
+        # MALLOC_PERTURB_: glibc fills fresh heap with garbage, so memory the C forgets to
+        # initialise shows (it is usually zero and would pass).
+        if ! MALLOC_PERTURB_=165 timeout $TIMEOUT "$drv" $args > "$B/out" 2>/dev/null || ! cmp -s "$B/out" "$B/ref/$name"; then
             bad=$((bad + 1))
             [ -n "$stop" ] && { echo "  red at $name"; return 1; }
             echo "  DIFF $name"
@@ -73,6 +75,10 @@ PLANTS=(
     "time_tracker.c|s/tt->now_sec_f64 >= BB_TIME_TRACKER_MAX_SEC/tt->now_sec_f64 > BB_TIME_TRACKER_MAX_SEC/|the time tracker's reset at exactly its maximum"
     "maths.c|/bb_heaviside_step(double x)/,/^}/s/return 0.5;/return 0.25;/|heaviside_step at 0"
     "time_tracker.c|s/%03/%3/|TimeTracker's Display padding"
+    # From the second review:
+    "points_counter.c|s/(cap - pc->scores_cap) \* sizeof \*grown/(cap - pc->scores_cap - 1) * sizeof *grown/|the log's growth leaves its last entry uninitialised"
+    "points_counter.c|s/time_to_complete < 50.0 ?/time_to_complete <= 50.0 ?/|the short-level step edge at 50"
+    "points_counter.c|s/time_to_complete > 200.0 ?/time_to_complete >= 200.0 ?/|the long-level step edge at 200"
 )
 # Known equivalent, so not a plant: backing_camera_blend's `now_sec <= begin_sec` made `<` gives
 # (now - begin) / half_range = 0.0 at equality, the same 0.0.
