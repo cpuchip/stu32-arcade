@@ -24,6 +24,7 @@
 #endif
 #define BABAL_STEP_MAX_MS 100 /* a tick's step is clamped (quirks 7 and 8: babalcore hangs on wild ones) */
 #define BABAL_TICK_MS 50   /* asked for between ticks while playing */
+#define BABAL_SCORES 5     /* babalgame's NB_SCORES (Scores.gd) */
 
 enum { BABAL_TITLE, BABAL_PLAY, BABAL_DONE };
 
@@ -40,10 +41,15 @@ typedef struct {
     uint32_t now_ms;        /* the app's clock: the sum of the ticks' ms */
     uint32_t done_ms;       /* when the run finished */
     uint32_t games;         /* games started, kept in the save (it seeds the next) */
-    int32_t best[5];        /* the best score per skill, kept in the save */
+    struct {
+        int32_t points;
+        uint8_t skill;
+    } scores[BABAL_SCORES];  /* the best scores over all skills, highest first, kept in the save */
+    int n_scores;
     uint64_t seed;          /* this game's */
     int32_t final_score;
-    bool new_best;
+    bool new_record;        /* the rules' high-score event came this game (babalgame's new_record) */
+    bool score_saved;       /* this game's score is in the list (babalgame's score_saved) */
     double last_delta;      /* the rules' step at the last tick (the host harness reads it) */
     bb_events last_events;
 } babal_ctx;

@@ -10,17 +10,19 @@
  *    ENTER and 8 start the shown skill, 4 and 6 step it, every other key and every release does
  *    nothing; in a game no key ends it, and a tick ends it exactly when its events hold FINISH;
  *    tick never asks for no more ticks, nor more than 100 ms apart in a game; no two games of a
- *    session share a seed; the finish screen holds 600 ms; NEW BEST
- *    only for a higher score, and the best kept is the higher; one tone a tick, the first of the
- *    tone table the tick's events name; the windows' counts 0 at each game's end; the save's bytes
- *    as the spec lays them out; a corrupt save (a bad skill byte, short) taken not at all, a best
- *    below 0 taken as none.
+ *    session share a seed; the finish screen holds 600 ms; the scores list (babalgame's Scores.gd:
+ *    the five highest over all skills, highest first) gets each finished game's score, and an
+ *    unfinished one's when the app is left, once; its top is the best given to the rules; the finish
+ *    says "New record!" exactly when the rules' high-score event came in that game, else "Game
+ *    over"; one tone a tick, the first of the tone table the tick's events name; the windows'
+ *    counts 0 at each game's end; the save's bytes as the spec lays them out, a corrupt save taken
+ *    not at all, a first-format save's bests kept as the list.
  * 3. The picture, against tools/render_ref.c (exit 6): every frame drawn again from the model by
  *    the reference renderer, with the HUD and the title composed here from the spec.
  *
- * The script is played as two recorded sessions: from no save, then from a save holding a best for
- * every skill (so a first game after power-on runs with a best); games are numbered on across both.
- * Then once more, unrecorded, from a save holding game 1's score, to make a tie.
+ * The script is played as two recorded sessions: from no save, then from a save holding a full list
+ * (so a first game after power-on runs with a best); games are numbered on across both. Then once
+ * more, unrecorded, from a save holding only game 1's score, to make a tie (no record).
  * App script words: `key K D MS` (key K down 1 or up 0 at MS on the app's clock, never before the
  * last tick) and `tick MS`. Frame hashes (FNV-1a 64), one a tick of the first session, go to FRAMES.
  * Usage: apphost APPSCRIPT PREFIX FRAMES */
@@ -57,6 +59,89 @@ static const struct {
     {BB_EVENT_LAND, 220, 20},
 };
 static const char *const SKILL_NAMES[] = {"NOOB", "EASY", "MEDIUM", "HARD", "EXPERT"};
+static const char *const SKILL_WORDS[] = {"noob", "easy", "medium", "hard", "expert"};
+
+/* The scores list as the spec keeps it, apart from the app's: babalgame's five highest over all
+ * skills, highest first, a new score after the equal ones. */
+typedef struct {
+    int32_t points;
+    int skill;
+} score;
+static score spec[5];
+static int spec_n;
+static bool seen_high;       /* the rules' high-score event came in this game */
+static int32_t finish_score; /* the finish event's score */
+
+static void spec_add(int32_t points, int skill)
+{
+    score all[6];
+    int n = 0, placed = 0;
+    for (int i = 0; i < spec_n; i++) {
+        if (!placed && points > spec[i].points) {
+            all[n++] = (score){points, skill};
+            placed = 1;
+        }
+        all[n++] = spec[i];
+    }
+    if (!placed)
+        all[n++] = (score){points, skill};
+    spec_n = n < 5 ? n : 5;
+    memcpy(spec, all, sizeof spec[0] * (size_t)spec_n);
+}
+
+static int32_t spec_best(void)
+{
+    return spec_n ? spec[0].points : 0;
+}
+
+static uint32_t get32(const uint8_t *b)
+{
+    return (uint32_t)b[0] | (uint32_t)b[1] << 8 | (uint32_t)b[2] << 16 | (uint32_t)b[3] << 24;
+}
+
+/* A save as the spec lays it out: 'B', 2, the skill, the count, five (points LE32, skill), games LE32. */
+static void make_save(uint8_t *s, int skill, const score *list, int n, uint32_t games_played)
+{
+    memset(s, 0, APP_SAVE_SIZE);
+    s[0] = 'B';
+    s[1] = 2;
+    s[2] = (uint8_t)skill;
+    s[3] = (uint8_t)n;
+    for (int i = 0; i < n; i++) {
+        for (int b = 0; b < 4; b++)
+            s[4 + 5 * i + b] = (uint8_t)((uint32_t)list[i].points >> (8 * b));
+        s[4 + 5 * i + 4] = (uint8_t)list[i].skill;
+    }
+    for (int b = 0; b < 4; b++)
+        s[29 + b] = (uint8_t)(games_played >> (8 * b));
+}
+
+/* What the spec takes from a save: the list (a v2 save whole, a v1 save's bests above 0 in skill
+ * order, a corrupt one nothing). */
+static void spec_from_save(const uint8_t *s, uint32_t n)
+{
+    spec_n = 0;
+    if (!s || n < 28 || s[0] != 'B' || s[2] > 4)
+        return;
+    if (s[1] == 1) {
+        for (int i = 0; i < 5; i++)
+            if ((int32_t)get32(s + 4 + 4 * i) < 0)
+                return;
+        for (int i = 0; i < 5; i++)
+            if ((int32_t)get32(s + 4 + 4 * i) > 0)
+                spec_add((int32_t)get32(s + 4 + 4 * i), i);
+        return;
+    }
+    if (n < 33 || s[1] != 2 || s[3] > 5)
+        return;
+    for (int i = 0; i < s[3]; i++) {
+        int32_t v = (int32_t)get32(s + 4 + 5 * i);
+        if (v < 0 || s[4 + 5 * i + 4] > 4 || (i > 0 && v > (int32_t)get32(s + 4 + 5 * (i - 1))))
+            return;
+    }
+    for (int i = 0; i < s[3]; i++)
+        spec[spec_n++] = (score){(int32_t)get32(s + 4 + 5 * i), s[4 + 5 * i + 4]};
+}
 
 static uint32_t clock_ms;
 static int beeps, beep_hz[8], beep_ms[8];
@@ -136,8 +221,8 @@ static void expected_frame(void)
         ref_text(&want, centred(5, 6), 30, 6, "BABAL");
         snprintf(text, sizeof text, "< %s >", SKILL_NAMES[ctx.skill]);
         ref_text(&want, centred((int)strlen(text), 3), 110, 3, text);
-        if (ctx.best[ctx.skill] > 0) {
-            number(text, "BEST ", ctx.best[ctx.skill]);
+        if (spec_best() > 0) {
+            number(text, "BEST ", spec_best());
             ref_text(&want, centred((int)strlen(text), 2), 150, 2, text);
         }
         ref_text(&want, centred(24, 2), 196, 2, "4 6 SKILL   8 ENTER JUMP");
@@ -145,13 +230,22 @@ static void expected_frame(void)
         return;
     }
     const bb_player *p = &ctx.player;
-    babal_hud hud = {bb_player_score(p), ctx.best[ctx.skill], 0, NULL};
+    babal_hud hud = {bb_player_score(p), 0, 0, NULL}; /* the score and the progress, no best */
     hud.progress = (int32_t)(bb_player_time_progress_done(p, &ctx.level) * 1000.0 / bb_player_time_progress_total(p));
     if (ctx.state == BABAL_DONE) {
-        hud.message = ctx.new_best ? "NEW BEST" : "FINISH";
-        hud.score = ctx.final_score;
+        hud.message = seen_high ? "New record!" : "Game over";
+        hud.score = finish_score;
     }
     ref_render(&want, &ctx.level, p, &hud);
+    if (ctx.state == BABAL_DONE) { /* the list: "N. skill - points", centred on a light box */
+        for (int y = 128; y < 128 + 18 * 5 + 6; y++)
+            for (int x = 40; x < LS027_W - 40; x++)
+                want.px[y][x >> 3] &= (uint8_t)~(1u << (x & 7));
+        for (int i = 0; i < spec_n; i++) {
+            snprintf(text, sizeof text, "%d. %s - %" PRId32, i + 1, SKILL_WORDS[spec[i].skill], spec[i].points);
+            ref_text(&want, centred((int)strlen(text), 2), 132 + 18 * i, 2, text);
+        }
+    }
 }
 
 static void draw_and_check(const app_def *app, uint64_t at)
@@ -188,6 +282,16 @@ static void print_tick(uint64_t n)
     print_state(p);
 }
 
+static void spec_compare(const char *when)
+{
+    if (ctx.n_scores != spec_n)
+        fail(5, "%s: the app's list has %d scores, the spec's %d", when, ctx.n_scores, spec_n);
+    for (int i = 0; i < spec_n; i++)
+        if (ctx.scores[i].points != spec[i].points || ctx.scores[i].skill != spec[i].skill)
+            fail(5, "%s: score %d is %d (skill %d), the spec's %d (skill %d)", when, i, ctx.scores[i].points,
+                 ctx.scores[i].skill, spec[i].points, spec[i].skill);
+}
+
 static void game_started(int key, int skill_before)
 {
     if (key >= 0 && key <= 4 && ctx.skill != (bb_skill)key)
@@ -202,7 +306,8 @@ static void game_started(int key, int skill_before)
     games++;
     if (recording)
         game_no++;
-    best_before = ctx.best[ctx.skill];
+    best_before = spec_best();
+    seen_high = false;
     char path[512];
     snprintf(path, sizeof path, "%s.g%d.oracle", prefix, game_no);
     if (!recording)
@@ -233,6 +338,7 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
     out_set_sink(record ? to_stdout : to_null);
     rewind(in);
     app->load(&ctx, save, n);
+    spec_from_save(save, n);
     app->start(&ctx);
     char line[128];
     uint64_t at = 0;
@@ -279,6 +385,15 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
             if (next == 0 || (ctx.state == BABAL_PLAY && next > STEP_MAX))
                 fail(5, "tick asked for the next in %u ms (state %d)", next, ctx.state);
             total_beeps += (uint64_t)beeps;
+            if (was == BABAL_PLAY)
+                for (int e = 0; e < ctx.last_events.n; e++) {
+                    if (ctx.last_events.v[e].kind == BB_EVENT_HIGH_SCORE)
+                        seen_high = true;
+                    if (ctx.last_events.v[e].kind == BB_EVENT_FINISH) {
+                        finish_score = ctx.last_events.v[e].arg;
+                        spec_add(finish_score, ctx.skill);
+                    }
+                }
             draw_and_check(app, at);
             if (recording && keep_frames)
                 frame_hash();
@@ -309,23 +424,43 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
                 fail(5, "tick %" PRIu64 ": the game %s, and the tick's events %s FINISH", at,
                      ctx.state == BABAL_DONE ? "ended" : "went on", finished ? "hold" : "do not hold");
             if (ctx.state == BABAL_DONE) {
-                int32_t score = bb_player_score(&ctx.player);
-                int newer = score > best_before;
-                if (ctx.final_score != score || ctx.new_best != newer ||
-                    ctx.best[ctx.skill] != (newer ? score : best_before))
-                    fail(5, "the finish: score %d (app %d), best before %d, new best %d (app %d), best now %d", score,
-                         ctx.final_score, best_before, newer, ctx.new_best, ctx.best[ctx.skill]);
+                if (ctx.final_score != finish_score || ctx.new_record != seen_high)
+                    fail(5, "the finish: score %d (app %d), a high-score event %s (app's record %d)", finish_score,
+                         ctx.final_score, seen_high ? "came" : "did not come", ctx.new_record);
+                spec_compare("the finish");
                 done_at = clock_ms;
                 if (games == 1 && first_score < 0) {
-                    first_score = score;
+                    first_score = finish_score;
                     first_skill = ctx.skill;
                 }
                 check_windows();
             }
         }
     }
-    if (ctx.state == BABAL_PLAY)
+    if (ctx.state == BABAL_PLAY) {
         check_windows();
+        spec_add(bb_player_score(&ctx.player), ctx.skill); /* left unfinished: its score is kept */
+    }
+    /* leaving the app: the save, decoded as the spec lays it out, and loaded back into a fresh ctx */
+    uint8_t s[APP_SAVE_SIZE];
+    memset(s, 0xa5, sizeof s);
+    app->save(&ctx, s, APP_SAVE_SIZE);
+    app->stop(&ctx);
+    spec_compare("leaving");
+    if (s[0] != 'B' || s[1] != 2 || s[2] != ctx.skill || s[3] != spec_n)
+        fail(5, "the save's head: %02x %02x %02x %02x", s[0], s[1], s[2], s[3]);
+    for (int i = 0; i < spec_n; i++)
+        if ((int32_t)get32(s + 4 + 5 * i) != spec[i].points || s[4 + 5 * i + 4] != spec[i].skill)
+            fail(5, "the save's score %d: %d (skill %d), the spec's %d (skill %d)", i, (int32_t)get32(s + 4 + 5 * i),
+                 s[8 + 5 * i], spec[i].points, spec[i].skill);
+    if (get32(s + 29) != ctx.games)
+        fail(5, "the save's games: %u, kept %u", get32(s + 29), ctx.games);
+    static babal_ctx again;
+    memset(&again, 0, sizeof again);
+    app->load(&again, s, APP_SAVE_SIZE);
+    if (again.skill != ctx.skill || again.games != ctx.games || again.n_scores != ctx.n_scores ||
+        memcmp(again.scores, ctx.scores, sizeof ctx.scores[0] * (size_t)ctx.n_scores))
+        fail(4, "save did not round-trip");
 }
 
 int main(int argc, char **argv)
@@ -342,51 +477,53 @@ int main(int argc, char **argv)
     const app_def *app = &babal_app;
     if (app->ctx_size > BABAL_CTX_LIMIT || strlen(app->name) > 5)
         fail(1, "app_def out of bounds: ctx %u (limit %u), name %s", app->ctx_size, (unsigned)BABAL_CTX_LIMIT, app->name);
-    /* corrupt saves, into scratch ctxs: taken not at all, or a best below 0 as none */
+    /* saves the spec refuses or converts, each into a fresh ctx: the app must take the same */
     {
         static babal_ctx t;
-        uint8_t s[APP_SAVE_SIZE] = {'B', 1, 9, 0, 7, 0, 0, 0};
+        static const score five[5] = {{900, 4}, {700, 2}, {700, 1}, {300, 0}, {10, 3}};
+        uint8_t v[APP_SAVE_SIZE];
+        struct {
+            const char *what;
+            int byte, value;   /* one byte set after make_save (-1: none) */
+            uint32_t n;        /* bytes given */
+        } cases[] = {
+            {"a whole save", -1, 0, APP_SAVE_SIZE}, {"the wrong magic", 0, 'X', APP_SAVE_SIZE},
+            {"version 3", 1, 3, APP_SAVE_SIZE},    {"skill byte 5", 2, 5, APP_SAVE_SIZE},
+            {"a count of 6", 3, 6, APP_SAVE_SIZE}, {"an entry of skill 9", 8, 9, APP_SAVE_SIZE},
+            {"a negative score", 7, 0x80, APP_SAVE_SIZE}, {"scores out of order", 14, 0xff, APP_SAVE_SIZE},
+            {"32 bytes", -1, 0, 32},
+        };
+        for (size_t c = 0; c < sizeof cases / sizeof cases[0]; c++) {
+            make_save(v, 3, five, 5, 77);
+            if (cases[c].byte >= 0)
+                v[cases[c].byte] = (uint8_t)cases[c].value;
+            memset(&t, 0, sizeof t);
+            app->load(&t, v, cases[c].n);
+            spec_from_save(v, cases[c].n);
+            int same = t.n_scores == spec_n;
+            for (int k = 0; same && k < spec_n; k++)
+                same = t.scores[k].points == spec[k].points && t.scores[k].skill == spec[k].skill;
+            if (!same || (spec_n == 0 && t.games != 0))
+                fail(5, "a save with %s: the app took %d scores, the spec %d", cases[c].what, t.n_scores, spec_n);
+        }
+        /* the first format: a best per skill becomes the list (bests above 0, in skill order) */
+        uint8_t old[APP_SAVE_SIZE] = {'B', 1, 4, 0, 5, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0};
         memset(&t, 0, sizeof t);
-        app->load(&t, s, APP_SAVE_SIZE);
-        if (t.skill != BB_MEDIUM || t.best[0] != 0)
-            fail(5, "a save with skill byte 9 was taken (skill %d, best %d)", t.skill, t.best[0]);
-        uint8_t n[APP_SAVE_SIZE] = {'B', 1, 2, 0, 0xff, 0xff, 0xff, 0xff, 5, 0, 0, 0};
-        memset(&t, 0, sizeof t);
-        app->load(&t, n, APP_SAVE_SIZE);
-        if (t.skill != BB_MEDIUM || t.best[0] != 0 || t.best[1] != 5)
-            fail(5, "a save with a best of -1: skill %d, bests %d %d", t.skill, t.best[0], t.best[1]);
-        memset(&t, 0, sizeof t);
-        app->load(&t, n, 27);
-        if (t.best[1] != 0)
-            fail(5, "a 27-byte save was taken");
-        uint8_t m[APP_SAVE_SIZE] = {'X', 1, 2, 0, 5, 0, 0, 0};
-        memset(&t, 0, sizeof t);
-        app->load(&t, m, APP_SAVE_SIZE);
-        if (t.best[0] != 0)
-            fail(5, "a save with the wrong magic was taken");
-        m[0] = 'B';
-        m[1] = 2;
-        memset(&t, 0, sizeof t);
-        app->load(&t, m, APP_SAVE_SIZE);
-        if (t.best[0] != 0)
-            fail(5, "a save of version 2 was taken");
-        m[1] = 1;
-        m[4] = 1;
-        memset(&t, 0, sizeof t);
-        app->load(&t, m, APP_SAVE_SIZE);
-        if (t.best[0] != 1)
-            fail(5, "a best of 1 was not kept");
+        app->load(&t, old, APP_SAVE_SIZE);
+        spec_from_save(old, APP_SAVE_SIZE);
+        if (t.n_scores != 4 || spec_n != 4 || t.scores[0].points != 9 || t.scores[1].skill != 0 ||
+            t.scores[2].skill != 4 || t.scores[3].points != 1 || t.skill != 4 || t.games != 3)
+            fail(5, "a first-format save: %d scores, top %d, skill %d, games %u", t.n_scores, t.scores[0].points, t.skill,
+                 t.games);
     }
     replay(in, NULL, 0, true);
     int session_a_games = games;
     uint64_t frames_a = frames_checked;
     {
-        /* session B: from a save with a best for every skill, so game 1 after power-on has one */
-        uint8_t bests[APP_SAVE_SIZE] = {'B', 1, BB_SKILL_DEFAULT};
-        static const int32_t B[5] = {40, 120, 160, 240, 320};
-        for (int i = 0; i < 5; i++)
-            for (int b = 0; b < 4; b++)
-                bests[4 + 4 * i + b] = (uint8_t)((uint32_t)B[i] >> (8 * b));
+        /* session B: from a save holding a full list, so game 1 after power-on has a best */
+        static const score B[5] = {{320, 4}, {240, 3}, {160, 2}, {120, 1}, {40, 0}};
+        uint8_t bests[APP_SAVE_SIZE];
+        make_save(bests, BB_SKILL_DEFAULT, B, 5, 0);
         int32_t keep_first = first_score;
         int keep_skill = first_skill;
         if (oracle)
@@ -400,34 +537,14 @@ int main(int argc, char **argv)
     if (oracle)
         fclose(oracle);
     oracle = NULL;
-    /* the save, decoded byte by byte from the spec, and loaded back into a fresh ctx */
-    uint8_t save[APP_SAVE_SIZE];
-    memset(save, 0xa5, sizeof save);
-    app->save(&ctx, save, APP_SAVE_SIZE);
-    app->stop(&ctx);
-    if (save[0] != 'B' || save[1] != 1 || save[2] != ctx.skill)
-        fail(5, "the save's head: %02x %02x %02x", save[0], save[1], save[2]);
-    for (int i = 0; i < 5; i++) {
-        const uint8_t *b = save + 4 + 4 * i;
-        int32_t v = (int32_t)((uint32_t)b[0] | (uint32_t)b[1] << 8 | (uint32_t)b[2] << 16 | (uint32_t)b[3] << 24);
-        if (v != ctx.best[i])
-            fail(5, "the save's best for skill %d: %d, kept %d", i, v, ctx.best[i]);
-    }
-    uint32_t g = (uint32_t)save[24] | (uint32_t)save[25] << 8 | (uint32_t)save[26] << 16 | (uint32_t)save[27] << 24;
-    if (g != ctx.games)
-        fail(5, "the save's games: %u, kept %u", g, ctx.games);
-    static babal_ctx again;
-    app->load(&again, save, APP_SAVE_SIZE);
-    if (again.skill != ctx.skill || again.games != ctx.games || memcmp(again.best, ctx.best, sizeof ctx.best))
-        fail(4, "save did not round-trip");
     int recorded_games = game_no;
     uint64_t recorded_frames = frames_checked, recorded_tones = total_beeps;
     if (first_score >= 0) {
-        /* a tie, made on purpose: the same script again from a save that holds game 1's score as
-         * that skill's best and 0 games, so game 1 replays to the same score: not a new best */
-        uint8_t tie[APP_SAVE_SIZE] = {'B', 1, BB_SKILL_DEFAULT};
-        for (int b = 0; b < 4; b++)
-            tie[4 + 4 * first_skill + b] = (uint8_t)((uint32_t)first_score >> (8 * b));
+        /* a tie, made on purpose: the same script again from a save holding only game 1's score
+         * and 0 games, so game 1 replays to the same score: no high-score event, "Game over" */
+        score one = {first_score, first_skill};
+        uint8_t tie[APP_SAVE_SIZE];
+        make_save(tie, BB_SKILL_DEFAULT, &one, 1, 0);
         int32_t want_score = first_score;
         replay(in, tie, APP_SAVE_SIZE, false);
         if (first_score != want_score)

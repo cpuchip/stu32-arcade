@@ -160,12 +160,24 @@ tie (it runs where game 1 finishes: 3 of the 8 scripts). The sanitizer pass adds
 float-cast-overflow. `make appcheck`: 32,938 ticks over 30 games identical to babalcore, every
 frame equal to the reference, 21 plants red.
 
+**Rulings (abacus #4640, Michael's decision 58).** Controls: 4 and 6 steer, 8 or ENTER jumps, C
+exits, as built. Scores: as babalgame's UI (godot/scripts/GameManager.gd, Scores.gd), where
+babalcore leaves it open. A list of the five highest scores over all skills, highest first, each
+with its skill (save format 2; a format-1 save's per-skill bests are kept as the list); every
+finished game's score goes in, and an unfinished one's when the app is left (C, or the framework's
+idle limit), as babalgame's back and restart do; its top is the best given to the rules (babalgame's
+update_player_best_score); the finish says "New record!" exactly when the rules' high-score event
+came in that game, else "Game over", then shows the list ("N. skill - points", babalgame's
+pretty_print less the date); the play HUD shows the score and the progress, no best. The harness
+keeps the list by its own spec and checks it at every finish and on leaving; a format-2 save is
+taken whole or not at all (wrong magic or version, a count above 5, a skill above 4, a negative or
+out-of-order score). make appcheck: 25 plants red, among them the best per skill again, "New
+record!" on every finish, an unfinished score dropped, the list kept lowest first.
+
 What this oracle cannot do: its spec (the key outcomes, the tone table, the HUD and title layout)
 was written by the same hand as the app, so it catches the app drifting from the spec, not a
-spec that is wrong. Two choices made here, against babalgame: the best is kept per skill
-(babalgame passes its best over all skills), and the finish says NEW BEST on a skill's first
-finished game (Godot's "New record!" follows the rules' high-score event, which needs a best
-above 0). Both are for abacus and Michael to keep or change.
+spec that is wrong. (Two choices first made here against babalgame, a best per skill and NEW BEST on a skill's
+first finish, were ruled out by abacus: see the rulings above.)
 
 ## The app after both reviews, on the S3 (window 08:30-08:32Z, soroban's go #4621)
 

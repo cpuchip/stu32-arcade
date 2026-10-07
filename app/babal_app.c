@@ -6,8 +6,9 @@
 #include "render.h"
 
 #define SAVE_MAGIC 'B'
-#define SAVE_VERSION 1
-#define SAVE_BYTES 28
+#define SAVE_VERSION 2
+#define SAVE_BYTES 33 /* magic, version, skill, count, 5 x (points, skill), games */
+#define SAVE_V1_BYTES 28
 
 static uint64_t mix64(uint64_t z)
 {
@@ -27,33 +28,89 @@ static uint32_t get32(const uint8_t *b)
     return (uint32_t)b[0] | (uint32_t)b[1] << 8 | (uint32_t)b[2] << 16 | (uint32_t)b[3] << 24;
 }
 
+/* babalgame's Scores.gd add_score: the list keeps the five highest, highest first (here a new
+ * score goes after the equal ones already there). */
+static void add_score(babal_ctx *c, int32_t points, bb_skill skill)
+{
+    int at = c->n_scores;
+    while (at > 0 && c->scores[at - 1].points < points)
+        at--;
+    if (at >= BABAL_SCORES)
+        return;
+    int last = c->n_scores < BABAL_SCORES ? c->n_scores : BABAL_SCORES - 1;
+    for (int k = last; k > at; k--)
+        c->scores[k] = c->scores[k - 1];
+    c->scores[at].points = points;
+    c->scores[at].skill = (uint8_t)skill;
+    if (c->n_scores < BABAL_SCORES)
+        c->n_scores++;
+}
+
+/* babalgame's get_best_score_points: the top of the list, over all skills, 0 for none */
+static int32_t best_score(const babal_ctx *c)
+{
+    return c->n_scores ? c->scores[0].points : 0;
+}
+
 static void babal_load(void *ctx, const uint8_t *save, uint32_t n)
 {
     babal_ctx *c = ctx;
     c->skill = BB_SKILL_DEFAULT;
     /* taken whole or not at all */
-    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || save[2] > BB_EXPERT)
+    if (n < SAVE_V1_BYTES || save[0] != SAVE_MAGIC || save[2] > BB_EXPERT)
         return;
-    c->skill = (bb_skill)save[2];
-    for (int i = 0; i < 5; i++) {
-        int32_t b = (int32_t)get32(save + 4 + 4 * i);
-        c->best[i] = b > 0 ? b : 0;
+    if (save[1] == 1) { /* the first save: a best per skill, kept as the list */
+        babal_ctx t;
+        t.n_scores = 0;
+        for (int i = 0; i < 5; i++) {
+            int32_t b = (int32_t)get32(save + 4 + 4 * i);
+            if (b < 0)
+                return;
+            if (b > 0)
+                add_score(&t, b, (bb_skill)i);
+        }
+        memcpy(c->scores, t.scores, sizeof c->scores);
+        c->n_scores = t.n_scores;
+        c->skill = (bb_skill)save[2];
+        c->games = get32(save + 24);
+        return;
     }
-    c->games = get32(save + 24);
+    if (n < SAVE_BYTES || save[1] != SAVE_VERSION || save[3] > BABAL_SCORES)
+        return;
+    for (int i = 0; i < save[3]; i++) {
+        const uint8_t *e = save + 4 + 5 * i;
+        if ((int32_t)get32(e) < 0 || e[4] > BB_EXPERT || (i > 0 && (int32_t)get32(e) > (int32_t)get32(e - 5)))
+            return;
+    }
+    c->skill = (bb_skill)save[2];
+    c->n_scores = save[3];
+    for (int i = 0; i < c->n_scores; i++) {
+        c->scores[i].points = (int32_t)get32(save + 4 + 5 * i);
+        c->scores[i].skill = save[4 + 5 * i + 4];
+    }
+    c->games = get32(save + 29);
 }
 
 static void babal_save(void *ctx, uint8_t *save, uint32_t cap)
 {
     babal_ctx *c = ctx;
+    /* leaving a game unfinished keeps its score, as babalgame's back and restart do */
+    if (c->state == BABAL_PLAY && !c->score_saved) {
+        add_score(c, bb_player_score(&c->player), c->skill);
+        c->score_saved = true;
+    }
     if (cap < SAVE_BYTES)
         return;
     memset(save, 0, SAVE_BYTES);
     save[0] = SAVE_MAGIC;
     save[1] = SAVE_VERSION;
     save[2] = (uint8_t)c->skill;
-    for (int i = 0; i < 5; i++)
-        put32(save + 4 + 4 * i, (uint32_t)c->best[i]);
-    put32(save + 24, c->games);
+    save[3] = (uint8_t)c->n_scores;
+    for (int i = 0; i < c->n_scores; i++) {
+        put32(save + 4 + 5 * i, (uint32_t)c->scores[i].points);
+        save[4 + 5 * i + 4] = c->scores[i].skill;
+    }
+    put32(save + 29, c->games);
 }
 
 static void babal_start(void *ctx)
@@ -85,13 +142,13 @@ static void start_game(babal_ctx *c, uint32_t ms)
     c->seed = mix64(((uint64_t)c->games << 32) ^ ms);
     bb_level_init(&c->level, c->seed, c->skill, c->rows, BABAL_ROWS);
     bb_player_init(&c->player, c->log, c->log_present, BABAL_LOG);
-    /* the rules' high-score event needs the best (babalgame calls update_player_best_score at each
-     * start too, but with the best over all skills; here it is this skill's, as the save keeps them) */
-    bb_player_set_best_score(&c->player, c->best[c->skill]);
+    /* babalgame's update_player_best_score at each start: the best over all skills */
+    bb_player_set_best_score(&c->player, best_score(c));
     bb_input_steer_init(&c->steer);
     bb_input_jump_init(&c->jump);
     c->last_events.n = 0;
-    c->new_best = false;
+    c->new_record = false;
+    c->score_saved = false;
     bb_level_generate(&c->level, 200);
     c->state = BABAL_PLAY;
 }
@@ -138,16 +195,18 @@ static uint32_t babal_tick(void *ctx, uint32_t ms)
     bb_input_query q = {pop_jump, pop_steer, &a};
     bb_player_tick(&c->player, c->last_delta, &c->level, &q, &c->last_events);
     sound(&c->last_events);
-    for (int i = 0; i < c->last_events.n; i++)
-        if (c->last_events.v[i].kind == BB_EVENT_FINISH) {
-            c->final_score = bb_player_score(&c->player);
-            if (c->final_score > c->best[c->skill]) {
-                c->best[c->skill] = c->final_score;
-                c->new_best = true;
-            }
+    for (int i = 0; i < c->last_events.n; i++) {
+        const bb_event *e = &c->last_events.v[i];
+        if (e->kind == BB_EVENT_HIGH_SCORE)
+            c->new_record = true; /* babalgame's _on_Ball_high_score */
+        if (e->kind == BB_EVENT_FINISH) { /* babalgame's _on_Ball_finish */
+            c->final_score = e->arg;
+            add_score(c, e->arg, c->skill);
+            c->score_saved = true;
             c->state = BABAL_DONE;
             c->done_ms = c->now_ms;
         }
+    }
     return BABAL_TICK_MS;
 }
 
@@ -207,6 +266,34 @@ static int centred(int len, int scale)
     return (LS027_W - len * 6 * scale) / 2;
 }
 
+static const char *const SKILL_WORDS[] = {"noob", "easy", "medium", "hard", "expert"};
+
+/* The scores list on the finish screen: rank, skill and points (babalgame's pretty_print, less the
+ * date), centred, on a light box below the message. */
+static void score_list(ls027_frame *f, const babal_ctx *c)
+{
+    for (int y = 128; y < 128 + 18 * BABAL_SCORES + 6; y++)
+        for (int x = 40; x < LS027_W - 40; x++)
+            f->px[y][x >> 3] &= (uint8_t)~(1u << (x & 7));
+    for (int i = 0; i < c->n_scores; i++) {
+        char line[40], pts[16];
+        number(pts, "", c->scores[i].points);
+        int n = 0;
+        line[n++] = (char)('1' + i);
+        line[n++] = '.';
+        line[n++] = ' ';
+        for (const char *w = SKILL_WORDS[c->scores[i].skill]; *w; w++)
+            line[n++] = *w;
+        line[n++] = ' ';
+        line[n++] = '-';
+        line[n++] = ' ';
+        for (const char *d = pts; *d; d++)
+            line[n++] = *d;
+        line[n] = '\0';
+        babal_text(f, centred(n, 2), 132 + 18 * i, 2, line);
+    }
+}
+
 static void babal_draw(void *ctx, ls027_frame *f)
 {
     babal_ctx *c = ctx;
@@ -220,8 +307,8 @@ static void babal_draw(void *ctx, ls027_frame *f)
         strcat(sel, names[c->skill]);
         strcat(sel, " >");
         babal_text(f, centred(len, 3), 110, 3, sel);
-        if (c->best[c->skill] > 0) {
-            number(text, "BEST ", c->best[c->skill]);
+        if (best_score(c) > 0) {
+            number(text, "BEST ", best_score(c));
             babal_text(f, centred((int)strlen(text), 2), 150, 2, text);
         }
         static const char *const help[] = {"4 6 SKILL   8 ENTER JUMP", "ENTER PLAYS   C ENDS"};
@@ -229,14 +316,18 @@ static void babal_draw(void *ctx, ls027_frame *f)
         babal_text(f, centred((int)strlen(help[1]), 2), 218, 2, help[1]);
         return;
     }
-    babal_hud hud = {bb_player_score(&c->player), c->best[c->skill], 0, NULL};
+    /* babalgame shows the score and the progress while playing, no best */
+    babal_hud hud = {bb_player_score(&c->player), 0, 0, NULL};
     hud.progress = (int32_t)(bb_player_time_progress_done(&c->player, &c->level) * 1000.0 /
                              bb_player_time_progress_total(&c->player));
     if (c->state == BABAL_DONE) {
-        hud.message = c->new_best ? "NEW BEST" : "FINISH";
+        /* babalgame's _on_Ball_finish, then its scores list */
+        hud.message = c->new_record ? "New record!" : "Game over";
         hud.score = c->final_score;
     }
     babal_render(f, &c->level, &c->player, &hud);
+    if (c->state == BABAL_DONE)
+        score_list(f, c);
 }
 
 const app_def babal_app = {"BABAL", sizeof(babal_ctx), babal_load, babal_start, babal_key, babal_tick,

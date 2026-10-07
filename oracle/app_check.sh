@@ -75,22 +75,27 @@ PLANTS=(
     "babal_app.c|s/adapter a = {c, (bb_instant)c->now_ms \* 1000000};/adapter a = {c, (bb_instant)(c->now_ms + 1) * 1000000};/|the tick's clock a millisecond late"
     "babal_app.c|/^static void generate_ahead/,/^}/s/bb_level_generate(\&c->level, 1);/(void)0;/|no rows made ahead"
     # From the stage-2 review (2026-10-07): the two defects put back, and the seven plants that survived
-    "babal_app.c|/bb_player_set_best_score(\&c->player, c->best\[c->skill\]);/d|the saved best not given to the rules"
+    "babal_app.c|/    bb_player_set_best_score(\&c->player, best_score(c));/d|the saved best not given to the rules"
     "babal_app.c|s/save\[2\] > BB_EXPERT)/0)/|a save with a bad skill byte taken"
     "babal_app.c|s/            c->skill = (bb_skill)key;/            c->skill = (bb_skill)(4 - key);/|soft keys choose skills in reverse"
     "babal_app.c|s/c->seed = mix64(((uint64_t)c->games << 32) ^ ms);/c->seed = mix64(42 + 0 * ms);/|every game the same seed"
-    "babal_app.c|s/if (c->final_score > c->best\[c->skill\])/if (c->final_score >= c->best[c->skill])/|a tie counted as a new best"
+    "babal_app.c|/        if (e->kind == BB_EVENT_FINISH) { \/\* babalgame's _on_Ball_finish \*\//a\            c->new_record = true;|\"New record!\" on every finish"
     "babal_app.c|s/ms - c->done_ms >= 600/ms - c->done_ms >= 60000/|the finish screen held 60 s"
     "babal_app.c|s/{BB_EVENT_FALL, 150, 150}, //|the fall tone silenced"
     "render.c|s/            int32_t c = r % w;/            int32_t c = w - 1 - r % w;/|the track drawn mirrored"
     "render.c|s/int lift = (int)(p->position_vec.y \* PX_PER_UNIT \/ 100.0);/int lift = (int)(p->position_vec.y * 0.0);/|the ball never lifts"
     # From the second stage-2 review: what the app's own state could hide
-    "babal_app.c|s/if (c->last_events.v\[i\].kind == BB_EVENT_FINISH)/if (c->last_events.v[i].kind == BB_EVENT_FALL)/|a game ends at its first fall"
+    "babal_app.c|s/        if (e->kind == BB_EVENT_FINISH) {/        if (e->kind == BB_EVENT_FALL) {/|a game ends at its first fall"
     "babal_app.c|s/            c->skill = (bb_skill)((c->skill + 4) % 5);/            start_game(c, ms);/|4 at the title starts a game"
     "babal_app.c|s/    return BABAL_TICK_MS;/    return 0;/|tick asks for no more ticks"
-    "babal_app.c|s/bb_player_set_best_score(\&c->player, c->best\[c->skill\]);/bb_player_set_best_score(\&c->player, c->games > 1 ? c->best[c->skill] : 0);/|no best for the first game after power-on"
+    "babal_app.c|s/bb_player_set_best_score(\&c->player, best_score(c));/bb_player_set_best_score(\&c->player, c->games > 1 ? best_score(c) : 0);/|no best for the first game after power-on"
     "babal_app.c|s/save\[0\] != SAVE_MAGIC/0/|a save with the wrong magic taken"
-    "babal_app.c|s/c->best\[i\] = b > 0 ? b : 0;/c->best[i] = b > 1 ? b : 0;/|a best of 1 dropped"
+    "babal_app.c|s/            if (b > 0)/            if (b > 1)/|a first-format best of 1 dropped"
+    # Abacus's ruling (#4640): babalgame's best over all skills, its "New record!", its list
+    "babal_app.c|s/bb_player_set_best_score(\&c->player, best_score(c));/bb_player_set_best_score(\&c->player, c->n_scores \&\& c->scores[0].skill == c->skill ? best_score(c) : 0);/|the best per skill again"
+    "babal_app.c|/    if (c->state == BABAL_PLAY \&\& !c->score_saved) {/,/^    }/s/add_score(c, bb_player_score(\&c->player), c->skill);/(void)0;/|an unfinished game's score dropped on leaving"
+    "babal_app.c|s/while (at > 0 \&\& c->scores\[at - 1\].points < points)/while (at > 0 \&\& c->scores[at - 1].points > points)/|the list kept lowest first"
+    "babal_app.c|s/ \&\& (int32_t)get32(e) > (int32_t)get32(e - 5)))/ \&\& 0))/|a save with scores out of order taken"
 )
 echo "== plants in the app (each must go red)"
 for p in "${PLANTS[@]}"; do
