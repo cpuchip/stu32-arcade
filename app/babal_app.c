@@ -60,17 +60,15 @@ static void babal_load(void *ctx, const uint8_t *save, uint32_t n)
     if (n < SAVE_V1_BYTES || save[0] != SAVE_MAGIC || save[2] > BB_EXPERT)
         return;
     if (save[1] == 1) { /* the first save: a best per skill, kept as the list */
-        babal_ctx t;
-        t.n_scores = 0;
+        for (int i = 0; i < 5; i++)
+            if ((int32_t)get32(save + 4 + 4 * i) < 0)
+                return; /* checked whole before anything is taken (and no ctx on the stack: it is 164 KB) */
+        c->n_scores = 0;
         for (int i = 0; i < 5; i++) {
             int32_t b = (int32_t)get32(save + 4 + 4 * i);
-            if (b < 0)
-                return;
             if (b > 0)
-                add_score(&t, b, (bb_skill)i);
+                add_score(c, b, (bb_skill)i);
         }
-        memcpy(c->scores, t.scores, sizeof c->scores);
-        c->n_scores = t.n_scores;
         c->skill = (bb_skill)save[2];
         c->games = get32(save + 24);
         return;

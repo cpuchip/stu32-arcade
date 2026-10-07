@@ -2,6 +2,8 @@
 CC ?= cc
 CFLAGS ?= -O2
 CFLAGS += -std=c11 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off  # the firmware's flags, and no fused multiply-adds
+# babal/ and app/ run on a device task's small stack: no frame above 1 KB (a 164 KB ctx once sat on one)
+FRAME := -Wframe-larger-than=1024
 BUILD := build
 BABAL_SRC := $(wildcard babal/*.c)
 BABAL_OBJ := $(BABAL_SRC:%.c=$(BUILD)/%.o)
@@ -20,6 +22,10 @@ $(FW)/.pin: FIRMWARE_PIN
 	git -C $(FIRMWARE_REPO) archive $(FIRMWARE_PIN) $(FW_FILES) | tar -x -C $(FW)
 	echo $(FIRMWARE_PIN) > $@
 APP_CFLAGS = -Iapp -Ibabal -Ioracle -I$(FW)/firmware
+# the app's own sources alone, under the frame guard (the host tools around them may use more)
+$(BUILD)/app-frames.ok: app/babal_app.c app/render.c app/babal_app.h app/render.h $(FW)/.pin
+	for f in app/babal_app.c app/render.c; do $(CC) $(CFLAGS) $(FRAME) $(APP_CFLAGS) -c $$f -o /dev/null || exit 1; done
+	touch $@
 
 $(BUILD)/frames: tools/frames.c app/render.c app/render.h $(ORACLE_SRC) oracle/oracle.h $(BUILD)/libbabal.a $(FW)/.pin
 	$(CC) $(CFLAGS) $(APP_CFLAGS) tools/frames.c app/render.c $(FW)/firmware/font5x7.c oracle/out.c oracle/game.c \
@@ -30,7 +36,7 @@ APP_SRC := app/babal_app.c app/render.c
 $(BUILD)/apphost: tools/apphost.c tools/render_ref.c $(APP_SRC) app/babal_app.h app/render.h $(ORACLE_SRC) oracle/oracle.h $(BUILD)/libbabal.a $(FW)/.pin
 	$(CC) $(CFLAGS) $(APP_CFLAGS) tools/apphost.c tools/render_ref.c $(APP_SRC) $(FW)/firmware/font5x7.c oracle/out.c oracle/game.c \
 		$(BUILD)/libbabal.a -lm -o $@
-apphost: $(BUILD)/apphost
+apphost: $(BUILD)/apphost $(BUILD)/app-frames.ok
 
 # The app against babalcore, end to end, with plants (needs `make ref`).
 appcheck: $(BUILD)/apphost ref
@@ -43,7 +49,7 @@ all: $(BUILD)/babal_test $(BUILD)/driver
 
 $(BUILD)/%.o: %.c babal/babal.h babal/internal.h
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(FRAME) -c $< -o $@
 
 $(BUILD)/libbabal.a: $(BABAL_OBJ)
 	ar rcs $@ $^
