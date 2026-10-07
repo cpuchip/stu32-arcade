@@ -22,7 +22,12 @@ The manifest (KEY = VALUE lines, `#` comments), in the game's repo:
     flags    extra compile flags, from an allowed list (today: -ffp-contract=off); may be empty
     author, licence, source   who wrote it, its SPDX licence, where it came from (provenance)
 
-Out, in OUT (default build/games): each game exported to OUT/ID/; games.mk (GAMES_C, GAMES_INC, and a
+Without a clone (no git, or a build from an export), a game may be staged by hand: OUT/ID/ holding
+the files at the pin, its manifest, and .pin with the pin; the generator then takes it as staged
+(whether the pin was pushed cannot be checked there: the one who staged it vouches, and the run says
+so). With a clone, the clone wins and the stage is rebuilt.
+
+Out, in OUT (default build/games): each game exported to OUT/ID/ (with its manifest and .pin); games.mk (GAMES_C, GAMES_INC, and a
 rule per game building its objects with its flags, -Werror=frame-larger-than=1024 always);
 games.cmake (GAMES_SRCS, GAMES_INC, per-file COMPILE_OPTIONS); games.h (GAMES_DECLARE, GAMES_ENTRIES,
 GAMES_FOLDERS for apps.c's registry); .stamp (the list's text, so a build re-runs when it changes).
@@ -127,21 +132,33 @@ def main():
     names = set()
     for g in games:
         repo = os.path.join(repos, g["repo"])
-        if git(repo, "cat-file", "-e", g["pin"] + "^{commit}") is None:
-            fail(f"{g['id']}: pin {g['pin']} is not in {repo}")
-        head = git(repo, "symbolic-ref", "-q", "--short", "refs/remotes/origin/HEAD") or "origin/main"
-        if git(repo, "merge-base", "--is-ancestor", g["pin"], head.strip()) is None:
-            fail(f"{g['id']}: pin {g['pin'][:12]} is not on {head.strip()} (an unpushed commit?)")
-        text = git(repo, "show", f"{g['pin']}:{g['manifest']}")
-        if text is None:
-            fail(f"{g['id']}: no manifest {g['manifest']} at the pin")
+        staged = os.path.join(out, g["id"])
+        if os.path.isdir(repo):
+            if git(repo, "cat-file", "-e", g["pin"] + "^{commit}") is None:
+                fail(f"{g['id']}: pin {g['pin']} is not in {repo}")
+            head = git(repo, "symbolic-ref", "-q", "--short", "refs/remotes/origin/HEAD") or "origin/main"
+            if git(repo, "merge-base", "--is-ancestor", g["pin"], head.strip()) is None:
+                fail(f"{g['id']}: pin {g['pin'][:12]} is not on {head.strip()} (an unpushed commit?)")
+            text = git(repo, "show", f"{g['pin']}:{g['manifest']}")
+            if text is None:
+                fail(f"{g['id']}: no manifest {g['manifest']} at the pin")
+            files = git(repo, "ls-tree", "-r", "--name-only", g["pin"]).split("\n")
+        else:
+            pin_file = os.path.join(staged, ".pin")
+            if not os.path.isfile(pin_file) or open(pin_file).read().strip() != g["pin"]:
+                fail(f"{g['id']}: no clone at {repo}, and nothing staged at {staged} with .pin {g['pin'][:12]}")
+            mpath = os.path.join(staged, g["manifest"])
+            if not os.path.isfile(mpath):
+                fail(f"{g['id']}: the stage at {staged} lacks its manifest {g['manifest']}")
+            text = open(mpath).read()
+            files = [os.path.relpath(os.path.join(d, f), staged) for d, _, fs in os.walk(staged) for f in fs]
+            repo = None
         m = parse_manifest(text, g["id"])
         if m["licence"] != g["licence"]:
             fail(f"{g['id']}: the list says {g['licence']}, the manifest {m['licence']}")
         if m["name"] in names:
             fail(f"{g['id']}: name {m['name']} is taken")
         names.add(m["name"])
-        files = git(repo, "ls-tree", "-r", "--name-only", g["pin"]).split("\n")
         srcs = []
         for pat in m["sources"]:
             # a pattern matches in its own directory only (fnmatch's * would cross a /)
@@ -162,13 +179,15 @@ def main():
     allc, allinc = [], []
     for g, m, srcs, repo in plans:
         d = os.path.join(out, g["id"])
-        subprocess.run(["rm", "-rf", d], check=True)
-        os.makedirs(d)
-        paths = sorted({*srcs, *m["include"]})
-        tar = git(repo, "archive", g["pin"], *paths, binary=True)
-        if tar is None:
-            fail(f"{g['id']}: git archive failed")
-        subprocess.run(["tar", "-x", "-C", d], input=tar, check=True)
+        if repo is not None:
+            subprocess.run(["rm", "-rf", d], check=True)
+            os.makedirs(d)
+            paths = sorted({*srcs, *m["include"], g["manifest"]})
+            tar = git(repo, "archive", g["pin"], *paths, binary=True)
+            if tar is None:
+                fail(f"{g['id']}: git archive failed")
+            subprocess.run(["tar", "-x", "-C", d], input=tar, check=True)
+            open(os.path.join(d, ".pin"), "w").write(g["pin"] + "\n")
         rel = os.path.relpath(d, root)
         cs = [f"{rel}/{s}" for s in srcs]
         incs = [f"-I{rel}/{i}" for i in m["include"]]
@@ -177,7 +196,7 @@ def main():
         flags = " ".join(m["flags"] + ["-Werror=frame-larger-than=1024"])
         mk.append(f"# {g['id']}: {m['name']} ({m['folder']}), {g['licence']}, {g['repo']} at {g['pin']}")
         mk.append(f"GAME_{g['id']}_C := {' '.join(cs)}")
-        mk.append(f"build/games-o/{g['id']}/%.o: {rel}/%.c build/games/.stamp")
+        mk.append(f"build/games-o/{g['id']}/%.o: {rel}/%.c build/games/.stamp $(wildcard firmware/*.h)")
         mk.append("\t@mkdir -p $(dir $@)")
         mk.append(f"\t$(CC) $(CFLAGS) {flags} -Ifirmware $(GAMES_INC) -c $< -o $@")
         cm.append(f"# {g['id']}: {m['name']} ({m['folder']}), {g['licence']}, {g['repo']} at {g['pin']}")
@@ -202,7 +221,9 @@ def main():
          "#define GAMES_FOLDERS " + "".join(", " + f for f in folders), f"#define GAMES_N {len(entries)}", "#endif"]
     open(os.path.join(out, "games.h"), "w").write("\n".join(h) + "\n")
     open(os.path.join(out, ".stamp"), "w").write(open(lst).read())
-    print(f"gen_games: {len(plans)} game(s): " + ", ".join(f"{m['name']} ({g['id']} at {g['pin'][:7]})" for g, m, _, _ in plans))
+    print(f"gen_games: {len(plans)} game(s): " + ", ".join(
+        f"{m['name']} ({g['id']} at {g['pin'][:7]}{', staged: not checked as pushed' if r is None else ''})"
+        for g, m, _, r in plans))
 
 
 if __name__ == "__main__":

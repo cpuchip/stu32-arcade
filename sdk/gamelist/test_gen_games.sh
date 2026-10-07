@@ -49,6 +49,19 @@ const unsigned char folder[] = {0 GAMES_FOLDERS};
 int main(void) { return !(sizeof reg / sizeof reg[0] == 3 && GAMES_N == 2 && folder[1] == 1 && reg[2] == &two_app); }
 C
 cc -std=c11 -Wall -Werror -I"$T/fw/build/games" "$T/reg.c" -o "$T/reg" && "$T/reg" && echo "  ok: games.h builds a registry of 3" || { echo "FAIL: games.h"; ok=0; }
+# staged by hand, without a clone: taken; with a wrong .pin: refused
+printf 'one one %s MIT game.txt\n' "$PIN1" > "$T/fw/games.list"
+GAMES_REPOS="$T/repos" python3 "$GEN" "$T/fw/games.list" > /dev/null 2>&1
+cp -r "$T/fw/build/games/one" "$T/stage-one"
+mv "$T/repos/one" "$T/one-away"
+mkdir -p "$T/fw/build/games" && rm -rf "$T/fw/build/games/one" && cp -r "$T/stage-one" "$T/fw/build/games/one"
+GAMES_REPOS="$T/repos" python3 "$GEN" "$T/fw/games.list" > "$T/out" 2> "$T/err" && grep -q "staged: not checked as pushed" "$T/out" \
+    && grep -q "GAME_one_C := build/games/one/src/a.c build/games/one/src/b.c$" "$T/fw/build/games/games.mk" \
+    && echo "  ok: staged without a clone (and said so)" || { echo "FAIL: staged: $(cat "$T/err")"; ok=0; }
+echo 0123456789abcdef0123456789abcdef01234567 > "$T/fw/build/games/one/.pin"
+GAMES_REPOS="$T/repos" python3 "$GEN" "$T/fw/games.list" > "$T/out" 2> "$T/err"
+[ $? = 1 ] && grep -q "nothing staged" "$T/err" && echo "  refused: a stage with another pin" || { echo "FAIL: a stage with another pin was taken"; ok=0; }
+mv "$T/one-away" "$T/repos/one"
 # the wrong ones
 printf 'one one %s MIT game.txt\n' "0123456789abcdef0123456789abcdef01234567" > "$T/fw/games.list"; run 1 "a pin not in the repo" "is not in"
 (cd "$T/repos/one" && printf 'int c;\n' > src/c.c && git add -A && git -c user.email=t@t -c user.name=t commit -q -m local)
