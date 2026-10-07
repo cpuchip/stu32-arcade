@@ -1,7 +1,7 @@
 # APPS interface v1 (soroban, unit 037), as frozen 2026-10-07
 
 Relayed by soroban in chillacks #4499 after arcade's requests (#4497: a time on key events, a beep,
-key() returning whether to redraw), accepted by abacus (#4501). The header itself is
+key() returning whether to redraw), accepted by abacus (#4501); app_now_ms added in #4506. The header itself is
 abacus-firmware's firmware/apps.h; this copy is for planning stage 2 and is not authoritative.
 
 ```c
@@ -20,6 +20,7 @@ typedef struct {
     void (*stop)(void *ctx);
 } app_def;
 void app_beep(uint16_t hz, uint16_t ms);  /* framework-provided: at once, non-blocking, honours VOL and BEEP */
+uint32_t app_now_ms(void);                /* added at abacus's request (#4506): the app's clock, for draw */
 ```
 
 - Calls: load, start, then key or tick (each tick followed by draw), then save, stop.
