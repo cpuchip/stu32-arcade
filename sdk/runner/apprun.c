@@ -4,7 +4,7 @@
  * script of keys and ticks. For a game author's tests: the frames as PBM files and hashes, the
  * tones, the save, and the framework's bounds checked (the ctx within APP_CTX_MAX, the name 1 to 5
  * characters, tick never asking for no more ticks while the game runs, keys never before the last
- * tick). Build it with the game: cc ... -DAPP_DEF=my_app sdk/runner/apprun.c my_game.c sdk/draw.c ...
+ * tick). Build it with the game: cc ... -DAPP_DEF=my_app sdk/runner/apprun.c my_game.c firmware/draw.c ...
  *
  * Script: `key K D MS` (key K, row * 6 + column, down 1 or up 0, at MS on the game's clock) and
  * `tick MS` (MS since the last tick); `#` comments.

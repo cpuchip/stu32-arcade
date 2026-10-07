@@ -47,24 +47,27 @@ after `draw`, or put anything big on the stack: its calls run on the framework's
 KB. Build with `-Wframe-larger-than=1024 -Werror` (Babal once shipped a 164 KB stack frame that every
 host test passed). Put big state in `ctx`.
 
-## Drawing: sdk/draw.h
+## Drawing: draw.h (the framework's)
 
 Shades (`DRAW_DARK`, `DRAW_HALF`, ... a byte for each row parity), `draw_fill`, `draw_frame_rect`,
 `draw_line`, `draw_blit` (1-bit sprites: OR, SET, XOR, CLEAR), `draw_text` in the firmware's 5 x 7
-face at any scale, `draw_text_width`. Everything clips to the frame. A line costs at most 400 steps
-however far its ends lie. Tested against a pixel-by-pixel reference (`make sdkcheck`).
+face at any scale, `draw_text_width`. Everything clips to the frame; any int coordinates are safe.
+It is abacus-firmware's firmware/draw.{h,c} since apps.h v1.2: one copy for every game. It began
+here as sdk/draw; soroban's gate made it 64-bit where the S3's 32-bit `long` lost far lines, and
+made lines exact for any ends. The framework's tests/draw_test.c checks it against a pixel-by-pixel
+reference on the host and the chip; `make sdkcheck` runs that test here on the copy at FIRMWARE_PIN.
 
 ## Starting from the template: sdk/template
 
 `sdk/template/ball.c` is BALL, a paddle (4 and 6) keeping a ball in play: one `app_def`, all state in
 a 48-byte ctx, integer positions, a long tick clamped, held keys from key-down and key-up, a tone a
-bounce, the best saved whole or not at all, drawing only with sdk/draw. Copy the folder with its
+bounce, the best saved whole or not at all, drawing only with draw.h. Copy the folder with its
 manifest (`stu32-game.txt`), rename, and build on it.
 
 ## Testing a game: sdk/runner/apprun.c
 
-Build the runner with the game (`cc -DAPP_DEF=my_app sdk/runner/apprun.c my_game.c sdk/draw.c
-font5x7.c ...`) and give it a script: `key K D MS` and `tick MS` lines. It plays the game through the
+Build the runner with the game (`cc -DAPP_DEF=my_app sdk/runner/apprun.c my_game.c firmware/draw.c
+firmware/font5x7.c ...`) and give it a script: `key K D MS` and `tick MS` lines. It plays the game through the
 calls in the framework's order and checks the framework's bounds (ctx size, name, a key never before
 the last tick, no tick after the game asked for none); `-hashes FILE` writes a frame hash a tick,
 `-pbm DIR -every N` writes frames, `-load`/`-save` take and keep a save, `-v` prints the tones. It
@@ -79,5 +82,4 @@ Determinism makes all of this possible: draw only from `ctx`, and take time only
 
 ## Still to come
 
-The v1.2 calls (soroban, through the gate), a generic S3 bench template, and where sdk/draw lives in
-the firmware (one copy for every game, not one each: two games each bringing draw.c would clash).
+The v1.2 calls in the runner (seed, tunes, save_size), and a generic S3 bench template.

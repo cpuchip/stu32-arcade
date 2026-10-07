@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /* BALL: the STU-32 games SDK's template (docs/sdk.md). Copy this folder to start a game: one
- * app_def, all state in the ctx, time only from tick and key, drawing with sdk/draw. A paddle (4
- * and 6) keeps a ball in play; each return scores; a miss ends the game; the best is saved. */
+ * app_def, all state in the ctx, time only from tick and key, drawing with the framework's draw.h.
+ * A paddle (4 and 6) keeps a ball in play; each return scores; a miss ends the game; the best is saved. */
 #include <string.h>
 
 #include "apps.h"
@@ -175,4 +175,4 @@ static void ball_draw(void *ctx, ls027_frame *f)
 }
 
 const app_def ball_app = {"BALL", sizeof(ball_ctx), ball_load, ball_start, ball_key, ball_tick,
-                          ball_draw, ball_save, ball_stop};
+                          ball_draw, ball_save, ball_stop, 0 /* save_size: APP_SAVE_SIZE */};

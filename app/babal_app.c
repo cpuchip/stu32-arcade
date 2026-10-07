@@ -333,4 +333,5 @@ static void babal_draw(void *ctx, ls027_frame *f)
 }
 
 const app_def babal_app = {"BABAL", sizeof(babal_ctx), babal_load, babal_start, babal_key, babal_tick,
-                           babal_draw, babal_save, babal_stop};
+                           babal_draw, babal_save, babal_stop,
+                           0 /* save_size: APP_SAVE_SIZE, 33 of its 64 bytes used */};

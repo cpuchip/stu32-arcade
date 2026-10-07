@@ -17,7 +17,8 @@ CARGO ?= $(shell command -v cargo || echo $(HOME)/.cargo/bin/cargo)
 FIRMWARE_REPO ?= ../abacus-firmware
 FIRMWARE_PIN := $(shell cat FIRMWARE_PIN)
 FW := $(BUILD)/firmware
-FW_FILES := firmware/font5x7.c firmware/font5x7.h firmware/ls027.h firmware/apps.h firmware/keys.h
+FW_FILES := firmware/font5x7.c firmware/font5x7.h firmware/ls027.h firmware/apps.h firmware/keys.h \
+    firmware/app_keys.h firmware/draw.h firmware/draw.c tests/draw_test.c
 $(FW)/.pin: FIRMWARE_PIN
 	rm -rf $(FW) && mkdir -p $(FW)
 	git -C $(FIRMWARE_REPO) archive $(FIRMWARE_PIN) $(FW_FILES) | tar -x -C $(FW)
