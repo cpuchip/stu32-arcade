@@ -194,6 +194,16 @@ generation, which the app spreads). App bench: **DEVICE PASS**, 16,639 frames id
 control red; tick 155 us average, 483 us worst; draw 1,534 us average, 4,534 us worst (was 2,375:
 the finish screen's list, drawn over a box cleared pixel by pixel; still far inside a 50 ms tick).
 
+## A stack frame the host could not see (2026-10-07)
+
+The format-1 save migration (4fc28cb) made a babal_ctx on the stack to reuse add_score: 164,720
+bytes once the whole level and log were in the ctx. Every host gate passed (8 MB stack; ASan does
+not flag a frame that fits); on the S3 the app's load runs on the framework's task stack, so a
+board holding a format-1 save would have overflowed it. Found by reading, while answering abacus's
+ASan question (#4713), after it was merged (abacus-firmware 6a48658); fixed at 7ca157e (the list
+built in place) and re-pinned. The guard: babal/ and app/ build here with
+-Wframe-larger-than=1024 under -Werror (the old frame fails it, a planted 4 KB array fails it).
+
 ## Next
 
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.
