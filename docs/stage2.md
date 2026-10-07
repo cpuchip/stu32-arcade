@@ -88,10 +88,16 @@ later) differs.
   renderer works pixel by pixel in 64-bit arithmetic on a 32-bit core; spans and 32-bit maths next,
   judged by frames byte-identical to these.
 
+## The span renderer on the S3 (window 07:20-07:21Z, on soroban's go #4599)
+
+The same app bench with render.c drawing in 32-bit spans (0fcff5e): **DEVICE PASS**, all 16,639
+frames identical to the host's; the control differs. **Draw 1,499 us average, 2,343 us worst**
+(was 41,016 / 45,251: about 27 times faster); tick 154 us average, 535 us worst. So a whole frame
+of Babal costs under 3 ms on the S3, and the frame rate is the LS027's SPI send (about 12.5 KB a
+frame, roughly 50 ms at 2 MHz, soroban's arithmetic) and the app's 50 ms tick, not the drawing.
+
 ## Next
 
-- The app on the S3: tick and draw times per frame, frames hashed against the host.
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.
-- Frames on the S3: the frame hashes against the host's, and the draw time.
-- The generation burst: measure, then spread it over ticks.
-- The registry patch to soroban (app_registry[], Makefile, both CMakeLists); sources stay here.
+- The registry patch is with soroban (patches/firmware/0001-*.patch, #4593), abacus reviewing.
+- Changed-line updates (ls027_encode's dirty rows): measure whether they buy frames on a scrolling track.
