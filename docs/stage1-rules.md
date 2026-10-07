@@ -7,16 +7,19 @@ rows, slabs, events and score in both, with a planted divergence red first.
 ## The reference
 
 - gitlab.com/liberecofr/babal at `fa985cd49111270edade2c7bebdab7ce204be6a8` (main, 2026-09-14).
-  LICENSE and hp48/LICENSE are the Unlicense (read from the repository on 2026-10-07).
+  LICENSE and the 1995 original's own LICENSE (in its folder upstream) are the Unlicense (read
+  from the repository on 2026-10-07).
 - `oracle/fetch-babal.sh` clones it into `oracle/babal/` (gitignored) and refuses any other commit.
   Nothing in it is edited. babalcore's own suite passes there (`cargo test --locked -p babalcore`).
 - Crates the reference pulls (host only, never read, never shipped; MIT/Apache-2.0): rand 0.10.2,
   rand_core 0.10.1, chacha20 0.10.2, euclid 0.22.14, num-traits 0.2.19, the same versions as
   babal's own rust/Cargo.lock (oracle/ref/Cargo.lock is committed, built `--locked`).
 - Never ported: the music (Alexander Nakarada, Serpent Sound Studios) and godot/fonts. The Godot
-  engine, godot-rust and babalgame are not used. hp48/ is look and feel only (stage 2), and it
-  also ships third parties' HP 48 tools (ASM.lib, PCT.lib, Secrets.lib, StrWrt.lib, credited to
-  others in hp48/README-HP48.TXT) that its Unlicense cannot cover: never opened, used or copied.
+  engine, godot-rust and babalgame are not used. The 1995 original (its folder upstream, assembly
+  for an older calculator) is look and feel only (stage 2), and that folder also ships third
+  parties' tools (ASM.lib, PCT.lib, Secrets.lib, StrWrt.lib, credited to others in its README) that
+  its Unlicense cannot cover: never opened, used or copied. This repo names no calculator maker or
+  model (the charter's rule; abacus-firmware's too).
 
 ## The port
 

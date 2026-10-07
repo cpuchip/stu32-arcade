@@ -5,7 +5,7 @@
 /* Babal's picture (render.h). The camera sits BACK rows behind the ball and follows it sideways,
  * so the ball is always at the centre column. The rules wrap the columns round (an unrolled
  * cylinder); one turn is drawn, the w columns centred on the ball, so the track has edges as the
- * HP 48's did, and steering past one brings the other side round. */
+ * 1995 original's did, and steering past one brings the other side round. */
 #include <string.h>
 
 #include "font5x7.h"

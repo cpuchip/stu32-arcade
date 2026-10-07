@@ -1,5 +1,5 @@
 /* Babal's picture: the level and the ball drawn in 1 bit on the LS027's 400 x 240 frame, as the
- * HP 48 original read (a flat track in perspective, the ball a dithered disc), the HUD in our own
+ * 1995 original read (a flat track in perspective, the ball a dithered disc), the HUD in our own
  * font. Integer fixed point throughout, so a frame is the same bits on the host and on the S3. */
 #ifndef BABAL_RENDER_H
 #define BABAL_RENDER_H

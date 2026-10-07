@@ -45,7 +45,7 @@ can spread generation over ticks without changing a row. To be measured before i
 
 ## The picture (first cut)
 
-`app/render.c`: the flat track in perspective, as the HP 48 drew it (hp48/screenshot-hp48.jpg):
+`app/render.c`: the flat track in perspective, as the 1995 original drew it (its screenshot upstream):
 floor dark, boost slabs a 50% checker, overdrive 75%, void light, row seams dotted near the
 camera; the ball a dithered disc at the centre column, lifted by its jump; the score, the best
 and a time bar in the firmware's 5 x 7 face (FIRMWARE_PIN, exported read-only). The columns wrap
