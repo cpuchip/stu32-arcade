@@ -103,14 +103,14 @@ static void track(ls027_frame *f, const bb_level *lvl, const bb_player *p)
         while (x < W) {
             int32_t off = ((int32_t)(x - CX) * z) >> COL_SHIFT;
             if (off < -half) { /* left of the turn: light up to its edge */
-                x = CX + ceil_div(-half << COL_SHIFT, z);
+                x = CX + ceil_div(-half * (1 << COL_SHIFT), z);
                 continue;
             }
             if (off >= half)
                 break; /* right of the turn: light to the end */
             int32_t r = (ball_u + off + 0x8000) >> 16;
-            int32_t next_c = CX + ceil_div((((r + 1) << 16) - 0x8000 - ball_u) << COL_SHIFT, z);
-            int32_t next_v = CX + ceil_div(half << COL_SHIFT, z);
+            int32_t next_c = CX + ceil_div(((r + 1) * 65536 - 0x8000 - ball_u) * (1 << COL_SHIFT), z);
+            int32_t next_v = CX + ceil_div(half * (1 << COL_SHIFT), z);
             int end = next_c < next_v ? next_c : next_v;
             if (end > W)
                 end = W;

@@ -25,7 +25,7 @@ def main():
     for path in sorted(glob.glob(os.path.join(outdir, "scripts", "*.txt"))):
         name = os.path.basename(path)[:-4]
         frames = os.path.join(outdir, name + ".frames")
-        subprocess.run([apphost, path, os.path.join(outdir, name + ".oracle"), frames],
+        subprocess.run([apphost, path, os.path.join(outdir, name), frames],
                        check=True, capture_output=True)
         jobs.append((name, open(path).read(), fnv1a64(open(frames, "rb").read())))
     base = next(j for j in jobs if j[0] == "app-0")

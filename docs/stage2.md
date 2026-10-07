@@ -96,6 +96,34 @@ frames identical to the host's; the control differs. **Draw 1,499 us average, 2,
 of Babal costs under 3 ms on the S3, and the frame rate is the LS027's SPI send (about 12.5 KB a
 frame, roughly 50 ms at 2 MHz, soroban's arithmetic) and the app's 50 ms tick, not the drawing.
 
+## Fresh eyes on stage 2 (2026-10-07)
+
+A reviewer that did not write it, under the same clean-room rules, read and probed stage 2. The
+span renderer matched its pixel-by-pixel definition on 200,000 probe frames, the windows held,
+and the rendering stayed in the frame at every extreme it tried. It found:
+
+- the app never gave the saved best to the rules, so the high-score event and its tone could
+  never happen (babalgame does: update_player_best_score). Fixed;
+- left shifts of negative numbers in render.c (undefined in C, arithmetic in GCC). Now
+  multiplications by 2^6, the same values: 43,571 frames identical to the committed renderer;
+- a corrupt save half-taken. Now a save is taken whole or not at all, and a best below 0 is none;
+- the title's help line off-centre. Centred by its own length;
+- the oracle compared only each session's first game with babalcore (6,589 of 16,639 frames),
+  checked none of the app's own rules, and compared the picture only with itself: seven plants
+  survived (soft keys reversed, one seed for every game, a tie as a new best, a 60 s finish hold,
+  the fall tone silenced, the track mirrored, the ball never lifting).
+
+tools/apphost.c now judges the app three ways, each against something the app does not share:
+every game against babalcore (with the saved best); the app's own rules against a spec written in
+the harness (soft key k starts skill k, 4 and 6 step the skill, no two seeds alike, the 600 ms
+finish hold, NEW BEST only above the best, the tone table, the windows at each game's end, the
+save's bytes, corrupt saves refused, and a tie made on purpose by replaying game 1 from a save
+holding its score); and every frame against tools/render_ref.c, the committed per-pixel renderer
+(c522381) with the HUD and title composed from the spec. The harness also runs under ASan and
+UBSan with no recovery. `make appcheck`: 16,639 ticks over 15 games identical to babalcore,
+every frame equal to the reference, 15 plants red (the review's seven and its two defects among
+them).
+
 ## Next
 
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.

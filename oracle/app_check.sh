@@ -21,18 +21,23 @@ check() {
     for s in "$B"/scripts/*.txt; do
         n=$(basename "$s" .txt)
         local rc=0
-        timeout 120 "$host" "$s" "$B/$n.oracle" "$B/$n.frames" > "$B/$n.app" 2> "$B/$n.err" || rc=$?
+        rm -f "$B/$n".g*.oracle
+        timeout 120 "$host" "$s" "$B/$n" "$B/$n.frames" > "$B/$n.app" 2> "$B/$n.err" || rc=$?
         if [ "$rc" != 0 ]; then
             [ "$rc" = 124 ] && echo "apphost: timed out (hung)" >> "$B/$n.err"
             bad=$((bad + 1)); [ -n "$stop" ] && { echo "  red at $n (apphost failed: $(tail -1 "$B/$n.err"))"; return 1; }
             echo "  APPHOST FAILED $n: $(tail -1 "$B/$n.err")"; continue
         fi
-        timeout 300 "$REF" game "$B/$n.oracle" | grep -E '^(t|s) ' | sed -E 's/ first=[0-9-]+ last=[0-9-]+ len=[0-9]+$//' > "$B/$n.ref"
+        : > "$B/$n.ref"
+        for g in $(ls "$B/$n".g*.oracle 2>/dev/null | sed -E 's/.*\.g([0-9]+)\.oracle$/\1/' | sort -n); do
+            echo "game $g" >> "$B/$n.ref"
+            timeout 300 "$REF" game "$B/$n.g$g.oracle" | grep -E '^(t|s) ' | sed -E 's/ first=[0-9-]+ last=[0-9-]+ len=[0-9]+$//' >> "$B/$n.ref"
+        done
         if ! cmp -s "$B/$n.ref" "$B/$n.app"; then
             bad=$((bad + 1)); [ -n "$stop" ] && { echo "  red at $n"; return 1; }
             echo "  DIFF $n"
         elif [ -z "$stop" ]; then
-            echo "  $n: $(grep -c '^t ' "$B/$n.app") ticks identical; $(tail -1 "$B/$n.err" | sed 's/^apphost: //')"
+            echo "  $n: $(grep -c '^t ' "$B/$n.app") ticks identical to babalcore; $(tail -1 "$B/$n.err" | sed 's/^apphost: //')"
         fi
     done
     return $((bad > 0))
@@ -42,6 +47,22 @@ ok=1
 echo "== the app against babalcore"
 check "$ROOT/build/apphost" || ok=0
 
+# The same harness under ASan and UBSan (no recovery): undefined behaviour fails the gate.
+echo "== under ASan and UBSan"
+# shellcheck disable=SC2086
+if cc $CFLAGS -fsanitize=address,undefined -fno-sanitize-recover=undefined -I"$ROOT/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW" \
+    "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$ROOT"/app/*.c "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" \
+    "$ROOT"/babal/*.c -lm -o "$B/apphost-san" 2> "$B/san-cc.err"; then
+    for s in "$B"/scripts/*.txt; do
+        if ! timeout 300 "$B/apphost-san" "$s" "$B/san" "$B/san.frames" > /dev/null 2> "$B/san.err"; then
+            echo "  SANITIZER: $(basename "$s"): $(grep -m1 -E 'runtime error|ERROR' "$B/san.err" || tail -1 "$B/san.err")"; ok=0
+        fi
+    done
+    [ "$ok" = 1 ] && echo "  clean on every script"
+else
+    echo "  sanitized build failed: $(head -2 "$B/san-cc.err")"; ok=0
+fi
+
 PLANTS=(
     "babal_app.c|s/bb_input_steer_left_key(\&c->steer, 1, 1.0, down, t);/bb_input_steer_right_key(\&c->steer, 1, 1.0, down, t);/|4 steers right"
     "babal_app.h|s/#define BABAL_STEP_MAX_MS 100/#define BABAL_STEP_MAX_MS 50/|the step clamped at 50 ms"
@@ -49,6 +70,16 @@ PLANTS=(
     "babal_app.c|s/BABAL_KEY_ENTER) \&\& down)/BABAL_KEY_ENTER) \&\& !down)/|a jump on the release"
     "babal_app.c|s/adapter a = {c, (bb_instant)c->now_ms \* 1000000};/adapter a = {c, (bb_instant)(c->now_ms + 1) * 1000000};/|the tick's clock a millisecond late"
     "babal_app.c|/^static void generate_ahead/,/^}/s/bb_level_generate(\&c->level, 1);/(void)0;/|no rows made ahead"
+    # From the stage-2 review (2026-10-07): the two defects put back, and the seven plants that survived
+    "babal_app.c|/bb_player_set_best_score(\&c->player, c->best\[c->skill\]);/d|the saved best not given to the rules"
+    "babal_app.c|s/save\[2\] > BB_EXPERT)/0)/|a save with a bad skill byte taken"
+    "babal_app.c|s/            c->skill = (bb_skill)key;/            c->skill = (bb_skill)(4 - key);/|soft keys choose skills in reverse"
+    "babal_app.c|s/c->seed = mix64(((uint64_t)c->games << 32) ^ ms);/c->seed = mix64(42 + 0 * ms);/|every game the same seed"
+    "babal_app.c|s/if (c->final_score > c->best\[c->skill\])/if (c->final_score >= c->best[c->skill])/|a tie counted as a new best"
+    "babal_app.c|s/ms - c->done_ms >= 600/ms - c->done_ms >= 60000/|the finish screen held 60 s"
+    "babal_app.c|s/{BB_EVENT_FALL, 150, 150}, //|the fall tone silenced"
+    "render.c|s/            int32_t c = r % w;/            int32_t c = w - 1 - r % w;/|the track drawn mirrored"
+    "render.c|s/int lift = (int)(p->position_vec.y \* PX_PER_UNIT \/ 100.0);/int lift = (int)(p->position_vec.y * 0.0);/|the ball never lifts"
 )
 echo "== plants in the app (each must go red)"
 for p in "${PLANTS[@]}"; do
@@ -58,7 +89,7 @@ for p in "${PLANTS[@]}"; do
     sed -i "$expr" "$P/app/$file"
     if cmp -s "$P/app/$file" "$ROOT/app/$file"; then echo "PLANT DID NOT APPLY: $what"; ok=0; continue; fi
     # shellcheck disable=SC2086
-    if ! cc $CFLAGS -I"$P/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW" "$ROOT/tools/apphost.c" "$P"/app/*.c \
+    if ! cc $CFLAGS -I"$P/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW" "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$P"/app/*.c \
         "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" "$ROOT"/babal/*.c -lm -o "$P/apphost" 2> "$P/cc.err"; then
         echo "PLANT DID NOT BUILD: $what"; head -3 "$P/cc.err"; ok=0; continue
     fi

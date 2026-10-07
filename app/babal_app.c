@@ -31,12 +31,14 @@ static void babal_load(void *ctx, const uint8_t *save, uint32_t n)
 {
     babal_ctx *c = ctx;
     c->skill = BB_SKILL_DEFAULT;
-    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION)
+    /* taken whole or not at all */
+    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || save[2] > BB_EXPERT)
         return;
-    if (save[2] <= BB_EXPERT)
-        c->skill = (bb_skill)save[2];
-    for (int i = 0; i < 5; i++)
-        c->best[i] = (int32_t)get32(save + 4 + 4 * i);
+    c->skill = (bb_skill)save[2];
+    for (int i = 0; i < 5; i++) {
+        int32_t b = (int32_t)get32(save + 4 + 4 * i);
+        c->best[i] = b > 0 ? b : 0;
+    }
     c->games = get32(save + 24);
 }
 
@@ -83,6 +85,7 @@ static void start_game(babal_ctx *c, uint32_t ms)
     c->seed = mix64(((uint64_t)c->games << 32) ^ ms);
     bb_level_init(&c->level, c->seed, c->skill, c->rows, BABAL_ROWS);
     bb_player_init(&c->player, c->log, BABAL_LOG);
+    bb_player_set_best_score(&c->player, c->best[c->skill]); /* babalgame's update_player_best_score */
     bb_input_steer_init(&c->steer);
     bb_input_jump_init(&c->jump);
     c->last_events.n = 0;
@@ -219,8 +222,9 @@ static void babal_draw(void *ctx, ls027_frame *f)
             number(text, "BEST ", c->best[c->skill]);
             babal_text(f, centred((int)strlen(text), 2), 150, 2, text);
         }
-        babal_text(f, centred(28, 2), 196, 2, "4 6 SKILL   8 ENTER JUMP");
-        babal_text(f, centred(20, 2), 218, 2, "ENTER PLAYS   C ENDS");
+        static const char *const help[] = {"4 6 SKILL   8 ENTER JUMP", "ENTER PLAYS   C ENDS"};
+        babal_text(f, centred((int)strlen(help[0]), 2), 196, 2, help[0]);
+        babal_text(f, centred((int)strlen(help[1]), 2), 218, 2, help[1]);
         return;
     }
     babal_hud hud = {bb_player_score(&c->player), c->best[c->skill], 0, NULL};
