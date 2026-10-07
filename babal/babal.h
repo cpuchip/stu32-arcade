@@ -101,23 +101,27 @@ void bb_generate_first_row(bb_row *out, uint64_t seed, size_t width, bb_skill sk
 void bb_generate_next_row(bb_row *out, uint64_t seed, size_t j, const bb_row *previous_row, bb_skill skill);
 
 /* level.rs, level_query.rs. The level is babalcore's: up to BB_SLIDING_LENGTH_MAX rows kept,
- * row0 counting those slid off the front. Physically only the newest `window` rows are held,
- * row r at rows[r % window] in storage the caller owns; window = BB_SLIDING_LENGTH_MAX holds
- * them all. A read of an older row returns a void row and adds to out_of_window, which must
- * stay 0 (docs/stage2.md). max_read_depth is how far behind the newest row any read went. */
+ * row0 counting those slid off the front. Rows are held packed, all 32 slab defs at 2 bits each
+ * (8 bytes a row), the newest `window` of them, row r at rows[r % window] in storage the caller
+ * owns; window = BB_SLIDING_LENGTH_MAX holds the whole level, which a game needs (a struggling
+ * player drifts back without limit: docs/stage2.md). A read of an older row returns a void row and
+ * adds to out_of_window, which must stay 0. max_read_depth is how far behind the newest row any
+ * read went. bb_level_row_at unpacks into the level's scratch row: valid until the next call. */
+typedef uint64_t bb_packed_row; /* slab j's def in bits 2j and 2j+1 */
 typedef struct {
     uint64_t seed;
-    bb_row *rows;
+    bb_packed_row *rows;
     size_t window;
     size_t len;
     intptr_t row0;
     size_t w;
     bb_skill skl;
     int64_t now_msec;
+    bb_row scratch;          /* C only: bb_level_row_at's */
     uint32_t out_of_window;  /* C only */
     size_t max_read_depth;   /* C only */
 } bb_level;
-void bb_level_init(bb_level *lvl, uint64_t seed, bb_skill skill, bb_row *storage, size_t window);
+void bb_level_init(bb_level *lvl, uint64_t seed, bb_skill skill, bb_packed_row *storage, size_t window);
 void bb_level_push(bb_level *lvl, const bb_row *row);
 void bb_level_generate(bb_level *lvl, size_t n);
 bb_slab_kind bb_level_slab_kind(const bb_level *lvl, intptr_t col, intptr_t row, bool boost);
@@ -163,11 +167,12 @@ void bb_events_push(bb_events *events, bb_event_kind kind, bool has_arg, int32_t
 void bb_event_format(const bb_event *e, char out[32]); /* Display: "jump", "finish: 42" */
 
 /* points_counter.rs. The scores log (HashMap<isize, f64>) holds the newest `log_window` rows in
- * the caller's storage, row r in log[r % log_window]. Rows are logged in rising order (the key is
- * the best distance so far, rounded), so a slot only ever gives way to a newer row. A lookup of a
- * row more than log_window behind the newest adds to log_out_of_window, which must stay 0; a
- * window above the deepest row logged holds babalcore's whole log. */
-typedef struct { intptr_t key; double points; bool present; } bb_score_entry;
+ * the caller's storage: row r's score in log[r % log_window], and a presence bit in log_present.
+ * Rows are logged in rising order (the key is the best distance so far, rounded); logging row k
+ * clears the bits of the rows skipped on the way to it, so a set bit is always its own row's. A
+ * lookup of a row more than log_window behind the newest adds to log_out_of_window, which must
+ * stay 0; a window above the deepest row logged holds babalcore's whole log. */
+#define BB_LOG_PRESENT_WORDS(window) (((window) + 31) / 32)
 typedef struct {
     double total_points;
     double last_dist;
@@ -176,7 +181,8 @@ typedef struct {
     intptr_t last_best_row;
     bb_time_tracker time_played_tracker;
     double delta_total;
-    bb_score_entry *log;
+    double *log;
+    uint32_t *log_present;
     size_t log_window;
     intptr_t log_max_key;      /* the newest row logged, -1 for none */
     bool behind;
@@ -187,7 +193,7 @@ typedef struct {
     uint32_t log_out_of_window; /* C only: must stay 0 */
     size_t log_max_depth;       /* C only: the deepest lookup behind the newest row logged */
 } bb_points_counter;
-void bb_points_counter_init(bb_points_counter *pc, bb_score_entry *log, size_t log_window);
+void bb_points_counter_init(bb_points_counter *pc, double *log, uint32_t *log_present, size_t log_window);
 void bb_points_counter_handle_dist(bb_points_counter *pc, double delta, double dist, double time_to_complete, bb_events *out);
 int32_t bb_points_counter_score(const bb_points_counter *pc);
 void bb_points_counter_set_best_score(bb_points_counter *pc, int32_t best_score);
@@ -278,7 +284,7 @@ typedef struct {
     intptr_t boost_count;
     intptr_t overdrive_count;
 } bb_player;
-void bb_player_init(bb_player *p, bb_score_entry *log, size_t log_window);
+void bb_player_init(bb_player *p, double *log, uint32_t *log_present, size_t log_window);
 void bb_player_tick(bb_player *p, double delta, const bb_level *level, bb_input_query *input, bb_events *out);
 bb_vec3f bb_player_position(const bb_player *p);
 bb_vec3f bb_player_speed(const bb_player *p);

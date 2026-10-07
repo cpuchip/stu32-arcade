@@ -123,9 +123,9 @@ void print_log(const bb_points_counter *pc)
     int first = 1;
     outf("log ");
     for (intptr_t k = 0; k <= pc->log_max_key; k++) {
-        const bb_score_entry *e = &pc->log[(size_t)k % pc->log_window];
-        if (e->present && e->key == k) {
-            outf("%s%td:%s", first ? "" : " ", k, b64(e->points, b));
+        size_t slot = (size_t)k % pc->log_window;
+        if (pc->log_max_key - k < (intptr_t)pc->log_window && (pc->log_present[slot / 32] & (1u << (slot % 32)))) {
+            outf("%s%td:%s", first ? "" : " ", k, b64(pc->log[slot], b));
             first = 0;
         }
     }

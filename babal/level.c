@@ -4,7 +4,7 @@
 #include "babal.h"
 #include "internal.h"
 
-void bb_level_init(bb_level *lvl, uint64_t seed, bb_skill skill, bb_row *storage, size_t window)
+void bb_level_init(bb_level *lvl, uint64_t seed, bb_skill skill, bb_packed_row *storage, size_t window)
 {
     size_t width = bb_skill_width(skill);
     lvl->seed = seed;
@@ -19,9 +19,17 @@ void bb_level_init(bb_level *lvl, uint64_t seed, bb_skill skill, bb_row *storage
     lvl->max_read_depth = 0;
 }
 
-const bb_row *bb_level_row_at(const bb_level *lvl, size_t index)
+static bb_packed_row pack(const bb_row *row)
 {
-    static const bb_row VOID_ROW; /* all slabs BB_DEF_VOID (0) */
+    bb_packed_row v = 0;
+    for (int i = 0; i < BB_WIDTH_MAX; i++)
+        v |= (bb_packed_row)(row->slabs[i].def & 3) << (2 * i);
+    return v;
+}
+
+/* The packed row index rows from the front (0, all void, when it is older than the window). */
+static bb_packed_row packed_at(const bb_level *lvl, size_t index)
+{
     bb_level *mut = (bb_level *)lvl; /* the counters are diagnostics, not level state */
     size_t abs = (size_t)lvl->row0 + index;
     size_t depth = (size_t)bb_level_last(lvl) - 1 - abs;
@@ -29,9 +37,18 @@ const bb_row *bb_level_row_at(const bb_level *lvl, size_t index)
         mut->max_read_depth = depth;
     if (depth >= lvl->window) {
         mut->out_of_window++;
-        return &VOID_ROW;
+        return 0;
     }
-    return &lvl->rows[abs % lvl->window];
+    return lvl->rows[abs % lvl->window];
+}
+
+const bb_row *bb_level_row_at(const bb_level *lvl, size_t index)
+{
+    bb_level *mut = (bb_level *)lvl; /* the scratch row is a cache, not level state */
+    bb_packed_row v = packed_at(lvl, index);
+    for (int i = 0; i < BB_WIDTH_MAX; i++)
+        mut->scratch.slabs[i].def = (uint8_t)((v >> (2 * i)) & 3);
+    return &lvl->scratch;
 }
 
 void bb_level_push(bb_level *lvl, const bb_row *row)
@@ -43,7 +60,7 @@ void bb_level_push(bb_level *lvl, const bb_row *row)
         lvl->row0 += 1;
         lvl->len -= 1;
     }
-    lvl->rows[((size_t)lvl->row0 + lvl->len) % lvl->window] = *row;
+    lvl->rows[((size_t)lvl->row0 + lvl->len) % lvl->window] = pack(row);
     lvl->len += 1;
 }
 
@@ -69,7 +86,8 @@ bb_slab_kind bb_level_slab_kind(const bb_level *lvl, intptr_t col, intptr_t row,
         return BB_KIND_VOID;
     if (real_row < 0 || real_row >= (intptr_t)bb_level_len(lvl))
         return BB_KIND_VOID;
-    bb_slab_kind v = bb_row_slab_kind(bb_level_row_at(lvl, (size_t)real_row), col, lvl->now_msec);
+    bb_slab s = bb_slab_new((bb_slab_def)((packed_at(lvl, (size_t)real_row) >> (2 * col)) & 3));
+    bb_slab_kind v = bb_slab_kind_of(&s, lvl->now_msec); /* what Row::slab_kind gives for col */
     if (v == BB_KIND_BOOST)
         return boost ? BB_KIND_OVERDRIVE : BB_KIND_BOOST;
     return v;

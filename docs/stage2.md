@@ -4,7 +4,30 @@ The brief is abacus's stage 2 (decision 55): the rules of stage 1 running under 
 docs/apps-h-v1.md), drawn in 1 bit on the 400 x 240 LS027, steered and jumped from the keys, a
 beep on bounces, with frames tied to the model and the frame time measured on the S3.
 
-## Memory: the windows (done)
+## Memory: the whole level and log (supersedes the windows below)
+
+soroban's merge gate (#4633) found the windows' bound wrong. "A fall rewinds at most 75 rows"
+holds for one fall; a struggling player falls again and again and drifts back behind the best
+without limit (nothing in babalcore stops it short of row 0), while rows stay 100 to 200 ahead of
+the best. Reproduced here with soroban's probe: walked to rows 400, 600 and 5000 then playing only
+through the app (6 held, 8 every half second, expert), the 256-row log overflowed at ticks 1291,
+1397 and 1457 (the score went to 0) and the 512-row level at 75.5, 82.8 and 84.9 s, after which the
+game left babalcore's. The bound is the whole level, and nothing exact fits in 32 KB: the log alone
+is one exact double for every row ever reached as best.
+
+So the app holds the level and the log whole, compactly: rows packed at 2 bits a slab, all 32 slabs
+(8 bytes a row; 10,000 rows, 80 KB), and the log as 10,240 doubles and a presence bitmap (logging
+row k clears the bits of the rows skipped on the way to it, so a set bit is always its own row's).
+ctx 164,656 bytes, which apps.h v1.1 (APP_CTX_MAX 256 KB, soroban #4637) allows; v1 does not, so
+the registry waits for v1.1 and abacus's ruling on Rev A's PSRAM. The window machinery stays,
+tested at small windows that make the log's slots wrap.
+
+The drift test (`make driftcheck`, tools/drift.c, oracle/drift_check.sh): soroban's walk then
+struggle, through the app's own calls, on medium, hard and expert, walked to 400, 600 and 2000, the
+app against a build holding everything: every tick identical, nothing outside a window (the ball
+drifted as far as 560 rows behind its best); the windows first shipped (512, 256) fail 7 of 9.
+
+## Memory: the windows (first cut, superseded above)
 
 An app gets 32 KB of state (APP_CTX_MAX) and may not allocate. babalcore keeps up to 10,000 rows
 (320 KB) and a scores log that grows with every row, and stage 1's review measured that simply

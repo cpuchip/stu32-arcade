@@ -7,7 +7,7 @@ BABAL_SRC := $(wildcard babal/*.c)
 BABAL_OBJ := $(BABAL_SRC:%.c=$(BUILD)/%.o)
 CARGO ?= $(shell command -v cargo || echo $(HOME)/.cargo/bin/cargo)
 
-.PHONY: all test oracle ref clean frames apphost appcheck
+.PHONY: all test oracle ref clean frames apphost appcheck driftcheck
 
 # The firmware's font and frame/app headers, read-only at FIRMWARE_PIN, exported with git archive
 # from a local clone (FIRMWARE_REPO), never built in it.
@@ -28,13 +28,17 @@ frames: $(BUILD)/frames
 
 APP_SRC := app/babal_app.c app/render.c
 $(BUILD)/apphost: tools/apphost.c tools/render_ref.c $(APP_SRC) app/babal_app.h app/render.h $(ORACLE_SRC) oracle/oracle.h $(BUILD)/libbabal.a $(FW)/.pin
-	$(CC) $(CFLAGS) $(APP_CFLAGS) tools/apphost.c tools/render_ref.c $(APP_SRC) $(FW)/firmware/font5x7.c oracle/out.c oracle/game.c \
+	$(CC) $(CFLAGS) $(APP_CFLAGS) -DBABAL_CTX_LIMIT='(256 * 1024)' tools/apphost.c tools/render_ref.c $(APP_SRC) $(FW)/firmware/font5x7.c oracle/out.c oracle/game.c \
 		$(BUILD)/libbabal.a -lm -o $@
 apphost: $(BUILD)/apphost
 
 # The app against babalcore, end to end, with plants (needs `make ref`).
 appcheck: $(BUILD)/apphost ref
 	oracle/app_check.sh
+
+# A struggling player's drift, the app's storage against storage that holds everything.
+driftcheck: $(FW)/.pin
+	oracle/drift_check.sh
 all: $(BUILD)/babal_test $(BUILD)/driver
 
 $(BUILD)/%.o: %.c babal/babal.h babal/internal.h

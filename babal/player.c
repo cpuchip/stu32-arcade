@@ -41,7 +41,7 @@
 
 static const bb_vec3 ZERO = {0.0, 0.0, 0.0};
 
-void bb_player_init(bb_player *p, bb_score_entry *log, size_t log_window)
+void bb_player_init(bb_player *p, double *log, uint32_t *log_present, size_t log_window)
 {
     memset(p, 0, sizeof *p);
     p->initialized = false;
@@ -53,7 +53,7 @@ void bb_player_init(bb_player *p, bb_score_entry *log, size_t log_window)
     p->boost_state = false;
     p->cur_level_col = 0;
     p->has_backing_data = false;
-    bb_points_counter_init(&p->points_counter, log, log_window);
+    bb_points_counter_init(&p->points_counter, log, log_present, log_window);
     p->boost_count = 0;
     p->overdrive_count = 0;
 }

@@ -9,13 +9,23 @@
 #define INSTANT_SPEED_WEIGHT 3.0
 #define AVERAGE_SPEED_WEIGHT 1.0
 
-void bb_points_counter_init(bb_points_counter *pc, bb_score_entry *log, size_t log_window)
+void bb_points_counter_init(bb_points_counter *pc, double *log, uint32_t *log_present, size_t log_window)
 {
     memset(pc, 0, sizeof *pc);
-    memset(log, 0, log_window * sizeof *log);
+    memset(log_present, 0, BB_LOG_PRESENT_WORDS(log_window) * sizeof *log_present);
     pc->log = log;
+    pc->log_present = log_present;
     pc->log_window = log_window;
     pc->log_max_key = -1;
+}
+
+static void set_present(bb_points_counter *pc, size_t slot, bool on)
+{
+    uint32_t bit = 1u << (slot % 32);
+    if (on)
+        pc->log_present[slot / 32] |= bit;
+    else
+        pc->log_present[slot / 32] &= ~bit;
 }
 
 static void score_to_log(bb_points_counter *pc, double dist)
@@ -27,31 +37,36 @@ static void score_to_log(bb_points_counter *pc, double dist)
         pc->log_out_of_window++;
         return;
     }
-    bb_score_entry *e = &pc->log[(size_t)key % pc->log_window];
-    e->key = key;
-    e->points = pc->total_points;
-    e->present = true;
-    pc->log_max_key = key;
+    if (key > pc->log_max_key) {
+        /* the rows skipped on the way to key were never logged: clear what their slots held */
+        intptr_t from = pc->log_max_key + 1, w = (intptr_t)pc->log_window;
+        if (from < key - w + 1)
+            from = key - w + 1;
+        for (intptr_t j = from; j < key; j++)
+            set_present(pc, (size_t)j % pc->log_window, false);
+        pc->log_max_key = key;
+    }
+    size_t slot = (size_t)key % pc->log_window;
+    pc->log[slot] = pc->total_points;
+    set_present(pc, slot, true);
 }
 
 static void score_from_log(bb_points_counter *pc, double dist)
 {
     intptr_t key = bb_f64_as_isize(round(dist));
     pc->total_points = 0.0; /* unwrap_or(&0.0) */
-    if (key < 0)
+    if (key < 0 || key > pc->log_max_key)
         return; /* never logged */
-    if (key <= pc->log_max_key) {
-        size_t depth = (size_t)(pc->log_max_key - key);
-        if (depth > pc->log_max_depth)
-            pc->log_max_depth = depth;
-        if (depth >= pc->log_window) {
-            pc->log_out_of_window++; /* it may have been logged and given way */
-            return;
-        }
+    size_t depth = (size_t)(pc->log_max_key - key);
+    if (depth > pc->log_max_depth)
+        pc->log_max_depth = depth;
+    if (depth >= pc->log_window) {
+        pc->log_out_of_window++; /* it may have been logged and given way */
+        return;
     }
-    const bb_score_entry *e = &pc->log[(size_t)key % pc->log_window];
-    if (e->present && e->key == key)
-        pc->total_points = e->points;
+    size_t slot = (size_t)key % pc->log_window;
+    if (pc->log_present[slot / 32] & (1u << (slot % 32)))
+        pc->total_points = pc->log[slot];
 }
 
 void bb_points_counter_handle_dist(bb_points_counter *pc, double delta, double dist, double time_to_complete, bb_events *out)

@@ -135,7 +135,7 @@ static int cmp_isize(const void *a, const void *b)
 
 static void level(uint64_t seed, bb_skill skill, size_t n)
 {
-    bb_row *storage = malloc(BB_SLIDING_LENGTH_MAX * sizeof *storage);
+    bb_packed_row *storage = malloc(BB_SLIDING_LENGTH_MAX * sizeof *storage);
     bb_level lvl;
     bb_level_init(&lvl, seed, skill, storage, BB_SLIDING_LENGTH_MAX);
     size_t w = bb_level_width(&lvl);
@@ -199,7 +199,8 @@ static void level(uint64_t seed, bb_skill skill, size_t n)
 #define FULL_LOG_WINDOW 32768
 static size_t level_window = BB_SLIDING_LENGTH_MAX, log_window = FULL_LOG_WINDOW;
 static bool window_mode;
-static bb_score_entry log_storage[FULL_LOG_WINDOW];
+static double log_storage[FULL_LOG_WINDOW];
+static uint32_t log_present[BB_LOG_PRESENT_WORDS(FULL_LOG_WINDOW)];
 
 static void read_windows(void)
 {
@@ -236,7 +237,7 @@ static void points(uint64_t seed)
     char b1[17], b2[17], b3[17];
     sm_state = seed;
     bb_points_counter pc;
-    bb_points_counter_init(&pc, log_storage, log_window);
+    bb_points_counter_init(&pc, log_storage, log_present, log_window);
     if (sm_next() % 2 == 0)
         bb_points_counter_set_best_score(&pc, (int32_t)(sm_next() % 5000));
     static const double ttcs[] = {30.0, 49.9, 50.0, 50.1, 120.0, 199.9, 200.0, 200.1, 300.0, 0.0, -1.0};
@@ -333,9 +334,9 @@ static void game(const char *path)
         exit(1);
     }
     fclose(f);
-    bb_row *storage = malloc(level_window * sizeof *storage);
+    bb_packed_row *storage = malloc(level_window * sizeof *storage);
     game_result res = {0};
-    int rc = game_run(text, (size_t)size, storage, level_window, log_storage, log_window, window_mode, &res);
+    int rc = game_run(text, (size_t)size, storage, level_window, log_storage, log_present, log_window, window_mode, &res);
     if (window_mode)
         fprintf(stderr, "depth level=%zu log=%zu\n", res.depth_level, res.depth_log);
     if (rc == 3)

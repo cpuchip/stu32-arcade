@@ -2,8 +2,8 @@
 """Write the S3 bench's script table and the expected hashes.
 
 For each oracle game script (OUTDIR/scripts/*.txt): its text goes into OUTDIR/scripts.c, and the
-FNV-1a 64 hash of the host C driver's output in the device windows (BB_WINDOW=512,
-BB_LOG_WINDOW=256) into OUTDIR/expected.txt. The gate shows that output equals babalcore's (less
+FNV-1a 64 hash of the host C driver's output in the app's windows (BB_WINDOW=10000,
+BB_LOG_WINDOW=10240) into OUTDIR/expected.txt. The gate shows that output equals babalcore's (less
 the storage dumps). One control is added: edge-idle with one tick a nanosecond longer, expected to
 hash as edge-idle does, so the comparison must call it a mismatch.
 Usage: device_scripts.py OUTDIR DRIVER
@@ -31,7 +31,7 @@ def c_string(text):
 
 def main():
     outdir, driver = sys.argv[1], sys.argv[2]
-    env = dict(os.environ, BB_WINDOW="512", BB_LOG_WINDOW="256")
+    env = dict(os.environ, BB_WINDOW="10000", BB_LOG_WINDOW="10240")
     jobs = []
     for path in sorted(glob.glob(os.path.join(outdir, "scripts", "*.txt"))):
         name = os.path.basename(path)[:-4]

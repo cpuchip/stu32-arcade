@@ -20,7 +20,7 @@ static int checks, failures;
     } while (0)
 #define CHECK_STR(want, got) CHECK(strcmp((want), (got)) == 0)
 
-static bb_row storage[BB_SLIDING_LENGTH_MAX];
+static bb_packed_row storage[BB_SLIDING_LENGTH_MAX];
 
 static void level_new(bb_level *lvl, uint64_t seed, bb_skill skill)
 {

@@ -67,7 +67,7 @@ PLANTS=(
     "vec3.c|s/a.x \* one_t + b.x \* t/a.x + (b.x - a.x) * t/|lerp's formula in x"
     "points_counter.c|s/pc->total_points += INSTANT_SPEED_WEIGHT \* delta_best_dist \* instant_speed;/pc->total_points += INSTANT_SPEED_WEIGHT * (delta_best_dist * instant_speed);/|one product regrouped"
     # The plants that survived the first gate (fresh-eyes review, 2026-10-07):
-    "points_counter.c|s/if (e->present \&\& e->key == key)/if (e->present \&\& e->key == key \&\& key < 256)/|scores from row 256 on never read back"
+    "points_counter.c|s/    if (pc->log_present\[slot \/ 32\] \& (1u << (slot % 32)))/    if (key < 256 \&\& (pc->log_present[slot \/ 32] \& (1u << (slot % 32))))/|scores from row 256 on never read back"
     "babal.h|s/#define BB_STEER_KEYS_MAX 8/#define BB_STEER_KEYS_MAX 1/|one steer key a side"
     "points_counter.c|s/> 200.0 ? 5 : 10/> 200.0 ? 4 : 10/|the long-level percent step 5 made 4"
     "input_jump.c|s/if (now >= ij->last_request)/if (now > ij->last_request)/|a jump popped at its own instant"
@@ -135,11 +135,15 @@ if cc -O2 -std=c11 -D_DEFAULT_SOURCE -march=native -ffp-contract=fast "$P"/oracl
     if suite "$P/driver" stop > "$P/result"; then echo "probe: -march=native -ffp-contract=fast stays identical"; else echo "probe: -march=native -ffp-contract=fast goes red ($(sed 's/^  red at //' "$P/result"))"; fi
 fi
 
-# The device windows (docs/stage2.md): the level holds its newest LW rows and the scores log its
-# newest GW rows. Games and points must give the same output (less the final log and rows dumps,
-# which show storage) with no read outside a window; windows below the deepest read must fail.
-LW=512
-GW=256
+# The windows (docs/stage2.md): the level holds its newest LW rows and the scores log its newest
+# GW rows. Games and points must give the same output (less the final log and rows dumps, which
+# show storage) with no read outside a window, at the app's windows (the whole level and log) and
+# at small ones that make the log's slots wrap many times (the machinery); windows below the
+# deepest read must fail.
+LW=10000
+GW=10240
+SLW=512
+SGW=128
 wsuite() {
     local drv=$1 lw=$2 gw=$3 stop=${4:-} bad=0
     while read -r name args; do
@@ -155,21 +159,25 @@ wsuite() {
     done < "$B/jobs"
     return $((bad > 0))
 }
-echo "== the device windows: level $LW rows, log $GW rows"
-if wsuite "$ROOT/build/driver" $LW $GW; then echo "  all games and points identical, no read outside a window"; else echo "  RED"; port_ok=0; fi
-for ctl in "150 $GW|a level window below the deepest read (298)" "$LW 64|a log window below the deepest lookup (103)"; do
+for win in "$LW $GW|the app's windows" "$SLW $SGW|small windows"; do
+    IFS='|' read -r sizes what <<< "$win"
+    echo "== $what: level and log $sizes"
+    # shellcheck disable=SC2086
+    if wsuite "$ROOT/build/driver" $sizes; then echo "  all games and points identical, no read outside a window"; else echo "  RED"; port_ok=0; fi
+done
+for ctl in "150 $SGW|a level window below the deepest read (298)" "$SLW 64|a log window below the deepest lookup (103)"; do
     IFS='|' read -r sizes what <<< "$ctl"
     # shellcheck disable=SC2086
     if wsuite "$ROOT/build/driver" $sizes stop > "$B/result"; then echo "SURVIVED: $what"; plants_ok=0; else echo "red: $what ($(sed 's/^  red at //' "$B/result"))"; fi
 done
 P=$B/plant
 rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
-sed -i 's/if (e->present \&\& e->key == key)/if (e->present)/' "$P/babal/points_counter.c"
+sed -i 's/            set_present(pc, (size_t)j % pc->log_window, false);/            (void)0;/' "$P/babal/points_counter.c"
 # shellcheck disable=SC2086
-if cmp -s "$P/babal/points_counter.c" "$ROOT/babal/points_counter.c"; then echo "PLANT DID NOT APPLY: a log slot read without its key"; plants_ok=0
-elif ! cc $CFLAGS "$P"/oracle/*.c "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then echo "PLANT DID NOT BUILD: a log slot read without its key"; plants_ok=0
-elif wsuite "$P/driver" $LW $GW stop > "$P/result"; then echo "SURVIVED: a log slot read without its key (window mode)"; plants_ok=0
-else echo "red: a log slot read without its key, window mode ($(sed 's/^  red at //' "$P/result"))"; fi
+if cmp -s "$P/babal/points_counter.c" "$ROOT/babal/points_counter.c"; then echo "PLANT DID NOT APPLY: skipped rows' slots not cleared"; plants_ok=0
+elif ! cc $CFLAGS "$P"/oracle/*.c "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then echo "PLANT DID NOT BUILD: skipped rows' slots not cleared"; plants_ok=0
+elif wsuite "$P/driver" $SLW $SGW stop > "$P/result"; then echo "SURVIVED: skipped rows' slots not cleared (small windows)"; plants_ok=0
+else echo "red: skipped rows' slots not cleared, small windows ($(sed 's/^  red at //' "$P/result"))"; fi
 
 if [ "$port_ok" = 1 ] && [ "$plants_ok" = 1 ]; then
     echo "GATE GREEN: $jobs jobs identical, and in the device windows; $((${#PLANTS[@]} + 4)) plants and controls red"

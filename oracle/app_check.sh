@@ -9,7 +9,9 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 REF=$ROOT/oracle/ref/target/release/babal-ref
 B=$ROOT/build/appcheck
 N=${N:-8}
-CFLAGS="-O2 -std=c11 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off"
+# The ctx limit: apps.h v1.1's 256 KB (soroban #4637, pending abacus); v1 at FIRMWARE_PIN says 32 KB.
+CTX_LIMIT=$((256 * 1024))
+CFLAGS="-O2 -std=c11 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off -DBABAL_CTX_LIMIT=$CTX_LIMIT"
 FW=$ROOT/build/firmware/firmware
 
 rm -rf "$B" && mkdir -p "$B"
@@ -45,6 +47,7 @@ check() {
 }
 
 ok=1
+echo "== the ctx limit judged: $CTX_LIMIT bytes (apps.h v1.1, pending; v1 is 32768)"
 echo "== the app against babalcore"
 check "$ROOT/build/apphost" "$B/run" || ok=0
 

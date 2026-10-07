@@ -71,14 +71,15 @@ int main(int argc, char **argv)
     if (!text || fread(text, 1, (size_t)size, f) != (size_t)size)
         return 1;
     fclose(f);
-    static bb_row rows[512];
-    static bb_score_entry log[256];
+    static bb_packed_row rows[BB_SLIDING_LENGTH_MAX];
+    static double log[10240];
+    static uint32_t log_present[BB_LOG_PRESENT_WORDS(10240)];
     uint64_t tick = 0;
     game_result res = {0};
     res.on_tick = on_tick;
     res.user = &tick;
     out_set_sink(null_sink);
-    int rc = game_run(text, (size_t)size, rows, 512, log, 256, true, &res);
+    int rc = game_run(text, (size_t)size, rows, BB_SLIDING_LENGTH_MAX, log, log_present, 10240, true, &res);
     free(text);
     return rc;
 }

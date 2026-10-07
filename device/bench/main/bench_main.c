@@ -1,7 +1,7 @@
-/* Babal's rules on the S3: each oracle game replayed in the device windows (512 rows, 256 log
- * rows, in PSRAM as the app's ctx is), its output hashed with FNV-1a 64 (scripts/device.sh
+/* Babal's rules on the S3: each oracle game replayed in the app's windows (the whole level and
+ * log, in PSRAM as the app's ctx is), its output hashed with FNV-1a 64 (scripts/device.sh
  * compares with the host's), the rules timed per tick (row generation and Player::tick). The
- * report repeats, so a reader that attaches late still gets a whole one. */
+ * report repeats, so a reader that attaches late still gets a whole one. The windows are the app's. */
 #include <inttypes.h>
 #include <stdio.h>
 
@@ -13,11 +13,12 @@
 #include "oracle.h"
 #include "scripts.h"
 
-#define LEVEL_WINDOW 512
-#define LOG_WINDOW 256
+#define LEVEL_WINDOW BB_SLIDING_LENGTH_MAX /* the app's: the whole level */
+#define LOG_WINDOW 10240
 
-static EXT_RAM_BSS_ATTR bb_row rows[LEVEL_WINDOW];
-static EXT_RAM_BSS_ATTR bb_score_entry log_slots[LOG_WINDOW];
+static EXT_RAM_BSS_ATTR bb_packed_row rows[LEVEL_WINDOW];
+static EXT_RAM_BSS_ATTR double log_slots[LOG_WINDOW];
+static EXT_RAM_BSS_ATTR uint32_t log_present[BB_LOG_PRESENT_WORDS(LOG_WINDOW)];
 
 static uint64_t hash;
 static void hash_sink(const char *s, size_t n)
@@ -46,7 +47,7 @@ static void bench(void *arg)
     for (int i = 0; i < SCRIPT_COUNT; i++) {
         hash = 0xcbf29ce484222325ULL;
         results[i].res = (game_result){.now_us = now_us};
-        results[i].rc = game_run(scripts[i].text, scripts[i].len, rows, LEVEL_WINDOW, log_slots, LOG_WINDOW, true,
+        results[i].rc = game_run(scripts[i].text, scripts[i].len, rows, LEVEL_WINDOW, log_slots, log_present, LOG_WINDOW, true,
                                  &results[i].res);
         results[i].hash = hash;
         printf("ran %d/%d %s\n", i + 1, SCRIPT_COUNT, scripts[i].name);

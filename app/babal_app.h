@@ -14,16 +14,23 @@
 #define BABAL_KEY_RIGHT 33 /* 6 */
 #define BABAL_KEY_JUMP 26  /* 8 */
 #define BABAL_KEY_ENTER 18
-#define BABAL_ROWS 512     /* the level's window (docs/stage2.md) */
-#define BABAL_LOG 256      /* the scores log's window */
+/* The whole level and the whole scores log (docs/stage2.md: a struggling player drifts back
+ * without limit, so a window of recent rows is not enough); tools/drift.c builds bigger ones too. */
+#ifndef BABAL_ROWS
+#define BABAL_ROWS BB_SLIDING_LENGTH_MAX /* 10,000 packed rows, 80 KB */
+#endif
+#ifndef BABAL_LOG
+#define BABAL_LOG 10240    /* rows a game's best can reach before babalcore's own slide breaks it; 80 KB */
+#endif
 #define BABAL_STEP_MAX_MS 100 /* a tick's step is clamped (quirks 7 and 8: babalcore hangs on wild ones) */
 #define BABAL_TICK_MS 50   /* asked for between ticks while playing */
 
 enum { BABAL_TITLE, BABAL_PLAY, BABAL_DONE };
 
 typedef struct {
-    bb_row rows[BABAL_ROWS];
-    bb_score_entry log[BABAL_LOG];
+    bb_packed_row rows[BABAL_ROWS];
+    double log[BABAL_LOG];
+    uint32_t log_present[BB_LOG_PRESENT_WORDS(BABAL_LOG)];
     bb_level level;
     bb_player player;
     bb_input_steer steer;

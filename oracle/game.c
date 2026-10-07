@@ -23,7 +23,7 @@ static double adapter_pop_steer(void *ctx)
     return bb_input_steer_pop_steer(a->steer, a->now);
 }
 
-int game_run(const char *text, size_t len, bb_row *storage, size_t level_window, bb_score_entry *log,
+int game_run(const char *text, size_t len, bb_packed_row *storage, size_t level_window, double *log, uint32_t *log_present,
              size_t log_window, bool window_mode, game_result *res)
 {
     char line[512], b[8][17], fb[6][9];
@@ -35,7 +35,7 @@ int game_run(const char *text, size_t len, bb_row *storage, size_t level_window,
     bb_player player;
     bb_input_steer steer;
     bb_input_jump jump;
-    bb_player_init(&player, log, log_window);
+    bb_player_init(&player, log, log_present, log_window);
     bb_input_steer_init(&steer);
     bb_input_jump_init(&jump);
     size_t ticks = 0;

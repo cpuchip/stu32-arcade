@@ -35,7 +35,7 @@ typedef struct {
 
 /* Plays a script (oracle/gen_scripts.py's words). window_mode leaves out the final log and rows
  * dumps. Returns 0, 1 for a bad script, 3 when a C-only count moved (no dumps then). */
-int game_run(const char *text, size_t len, bb_row *storage, size_t level_window, bb_score_entry *log,
+int game_run(const char *text, size_t len, bb_packed_row *storage, size_t level_window, double *log, uint32_t *log_present,
              size_t log_window, bool window_mode, game_result *res);
 
 #endif
