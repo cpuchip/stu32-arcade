@@ -1,5 +1,5 @@
 /* The C side of the oracle: prints what oracle/ref (babalcore) prints, from babal/.
- * Usage: driver pins | level SEED SKILL N | game SCRIPT */
+ * Usage: driver pins | level SEED SKILL N | game SCRIPT | points SEED | inputs SEED */
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
@@ -8,6 +8,7 @@
 
 #include "../babal/babal.h"
 #include "../babal/internal.h"
+#include "oracle.h"
 
 static uint64_t sm_state;
 static uint64_t sm_next(void)
@@ -21,38 +22,6 @@ static uint64_t sm_next(void)
 static double sm_unit(void)
 {
     return (double)(sm_next() >> 11) * (1.0 / 9007199254740992.0);
-}
-
-/* Floats as their bits; any NaN as "nan" (its sign is not meaningful, and Rust's Debug drops it). */
-static const char *b64(double x, char buf[17])
-{
-    uint64_t u;
-    if (x != x)
-        return "nan";
-    memcpy(&u, &x, 8);
-    snprintf(buf, 17, "%016" PRIx64, u);
-    return buf;
-}
-static const char *b32(float x, char buf[9])
-{
-    uint32_t u;
-    if (x != x)
-        return "nan";
-    memcpy(&u, &x, 4);
-    snprintf(buf, 9, "%08" PRIx32, u);
-    return buf;
-}
-
-static void print_events(const bb_events *ev)
-{
-    for (int i = 0; i < ev->n; i++) {
-        if (i)
-            printf(",");
-        if (ev->v[i].has_arg)
-            printf("%s:%" PRId32, bb_event_kind_as_str(ev->v[i].kind), ev->v[i].arg);
-        else
-            printf("%s", bb_event_kind_as_str(ev->v[i].kind));
-    }
 }
 
 static void pins(void)
@@ -73,10 +42,10 @@ static void pins(void)
         }
         bb_chacha20 rng;
         bb_chacha20_from_seed(&rng, buf);
-        printf("chacha %" PRIu64 " %" PRIu64, seeds[i][0], seeds[i][1]);
+        outf("chacha %" PRIu64 " %" PRIu64, seeds[i][0], seeds[i][1]);
         for (int k = 0; k < 70; k++)
-            printf(" %s", b64(bb_chacha20_random_f64(&rng), a1));
-        printf("\n");
+            outf(" %s", b64(bb_chacha20_random_f64(&rng), a1));
+        outf("\n");
     }
     static const double ts[] = {0.0, 1.0, 0.5, 0.25, 1.0 / 3.0};
     for (int k = 0; k < 300; k++) {
@@ -89,7 +58,7 @@ static void pins(void)
         b.z = sm_unit() * 1e6;
         double t = k < 5 ? ts[k] : sm_unit();
         bb_vec3 r = bb_vec3_lerp(a, b, t);
-        printf("lerp %s %s %s %s %s %s %s -> %s %s %s\n", b64(a.x, a1), b64(a.y, a2), b64(a.z, a3), b64(b.x, a4),
+        outf("lerp %s %s %s %s %s %s %s -> %s %s %s\n", b64(a.x, a1), b64(a.y, a2), b64(a.z, a3), b64(b.x, a4),
                b64(b.y, a5), b64(b.z, a6), b64(t, a7), b64(r.x, a8), b64(r.y, a9), b64(r.z, a10));
     }
     double secs[17 + 300 + 100] = {0.16, 0.0, 1e-9, 0.5e-9, 1.5e-9, 2.5e-9, 0.999999999, 1.0, 0.16 * 0.5, 0.16 * 1.5, 0.16 * 3.0,
@@ -103,11 +72,11 @@ static void pins(void)
     }
     for (int i = 0; i < n; i++)
         if (secs[i] >= 0.0)
-            printf("from_secs_f64 %s %" PRIu64 "\n", b64(secs[i], a1), bb_duration_from_secs_f64(secs[i]));
+            outf("from_secs_f64 %s %" PRIu64 "\n", b64(secs[i], a1), bb_duration_from_secs_f64(secs[i]));
     static const uint64_t fixed_ns[] = {0, 1, 999999999, 1000000000, 160000000};
     for (int k = 0; k < 300; k++) {
         uint64_t ns = k < 5 ? fixed_ns[k] : sm_next() % 100000000000000ULL;
-        printf("as_secs_f64 %" PRIu64 " %s\n", ns, b64(bb_duration_as_secs_f64(ns), a1));
+        outf("as_secs_f64 %" PRIu64 " %s\n", ns, b64(bb_duration_as_secs_f64(ns), a1));
     }
     double xs[8 + 300 + 50] = {0.5, -0.5, 1.5, 2.5, -2.5, 0.49999999999999994, 4503599627370495.5, -0.0};
     n = 8;
@@ -117,13 +86,13 @@ static void pins(void)
         xs[n++] = (double)(sm_next() % 20000) * 0.5 - 5000.0;
     for (int i = 0; i < n; i++) {
         double x = xs[i];
-        printf("num %s round=%s fract=%s trunc_i=%" PRId64 " floor=%s f32=%s\n", b64(x, a1), b64(round(x), a2),
+        outf("num %s round=%s fract=%s trunc_i=%" PRId64 " floor=%s f32=%s\n", b64(x, a1), b64(round(x), a2),
                b64(x - trunc(x), a3), bb_f64_as_i64(x), b64(floor(x), a4), b32((float)x, f1));
     }
     static const double big[] = {9.3e9, 1e10, 1.8e10, 1.8446744073709550e10, 1.8446744073709552e10,
                                  1.8446744073709553e10, 1e11, 1e15};
     for (int i = 0; i < 8; i++)
-        printf("from_secs_f64 %s %" PRIu64 "\n", b64(big[i], a1), bb_duration_from_secs_f64(big[i]));
+        outf("from_secs_f64 %s %" PRIu64 "\n", b64(big[i], a1), bb_duration_from_secs_f64(big[i]));
     double mx[18 + 200] = {-1.5, -1.0, -0.75, -0.5, -0.25, -0.0, 0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5,
                            NAN, INFINITY, -INFINITY, 1e-300, 0.9999999999999999};
     n = 18;
@@ -132,12 +101,12 @@ static void pins(void)
     static const double alphas[] = {0.0, 0.25, 0.5, 1.0, 1.5, -0.5};
     for (int i = 0; i < n; i++) {
         double x = mx[i];
-        printf("maths %s %s %s %s %s %s %s %s %s", b64(x, a1), b64(bb_fade_in(x), a2), b64(bb_fade_out(x), a3),
+        outf("maths %s %s %s %s %s %s %s %s %s", b64(x, a1), b64(bb_fade_in(x), a2), b64(bb_fade_out(x), a3),
                b64(bb_square_wave(x), a4), b64(bb_triangle_wave(x), a5), b64(bb_sawtooth_wave(x), a6),
                b64(bb_sine_wave(x), a7), b64(bb_boxcar(x), a8), b64(bb_heaviside_step(x), a9));
         for (int k = 0; k < 6; k++)
-            printf(" %s", b64(bb_pulse(x, alphas[k]), a1));
-        printf("\n");
+            outf(" %s", b64(bb_pulse(x, alphas[k]), a1));
+        outf("\n");
     }
     static const double adds[] = {0.5, 1e12, 0.25, 1e12 - 0.25, 0.25, -1.0, 0.001, 0.0005, 2.0005, 1e11, 9e11, 0.123456, -0.2};
     bb_time_tracker tt = {0.0};
@@ -145,7 +114,7 @@ static void pins(void)
         char text[32];
         bb_time_tracker_add(&tt, adds[i]);
         bb_time_tracker_format(&tt, text);
-        printf("tt %s %s %" PRId64 " %s\n", b64(adds[i], a1), b64(bb_time_tracker_now_sec(&tt), a2),
+        outf("tt %s %s %" PRId64 " %s\n", b64(adds[i], a1), b64(bb_time_tracker_now_sec(&tt), a2),
                bb_time_tracker_now_msec(&tt), text);
     }
     static const int32_t args[] = {42, -7};
@@ -154,7 +123,7 @@ static void pins(void)
             char text[32];
             bb_event e = {(bb_event_kind)k, k >= BB_EVENT_THOUSAND_SCORE, k >= BB_EVENT_THOUSAND_SCORE ? args[i] : 0};
             bb_event_format(&e, text);
-            printf("ev %s\n", text);
+            outf("ev %s\n", text);
         }
 }
 
@@ -170,7 +139,7 @@ static void level(uint64_t seed, bb_skill skill, size_t n)
     bb_level lvl;
     bb_level_init(&lvl, seed, skill, storage, BB_SLIDING_LENGTH_MAX);
     size_t w = bb_level_width(&lvl);
-    printf("level seed=%" PRIu64 " skill=%s width=%zu\n", seed, bb_skill_as_str(skill), w);
+    outf("level seed=%" PRIu64 " skill=%s width=%zu\n", seed, bb_skill_as_str(skill), w);
     while ((size_t)bb_level_last(&lvl) < n) {
         intptr_t last0 = bb_level_last(&lvl);
         bb_level_generate(&lvl, 100);
@@ -180,11 +149,11 @@ static void level(uint64_t seed, bb_skill skill, size_t n)
             for (size_t c = 0; c < w; c++)
                 text[c] = bb_slab_kind_char(bb_level_slab_kind(&lvl, (intptr_t)c, rel, false));
             text[w] = '\0';
-            printf("r %td %s\n", abs, text);
+            outf("r %td %s\n", abs, text);
         }
     }
     intptr_t first = bb_level_first(&lvl), last = bb_level_last(&lvl);
-    printf("first=%td last=%td len=%zu\n", first, last, bb_level_len(&lvl));
+    outf("first=%td last=%td len=%zu\n", first, last, bb_level_len(&lvl));
     intptr_t rows[8 + 18] = {-3, -1, 0, 1, 2, 3, 50, last / 2};
     int nr = 8;
     for (intptr_t d = -3; d < 3; d++) {
@@ -197,82 +166,31 @@ static void level(uint64_t seed, bb_skill skill, size_t n)
         if (i > 0 && rows[i] == rows[i - 1])
             continue;
         intptr_t r = rows[i];
-        printf("q %td", r);
+        outf("q %td", r);
         for (intptr_t c = -2; c < BB_WIDTH_MAX + 2; c++)
-            printf(" %" PRId64 "%" PRId64 "%" PRId64, bb_level_item(&lvl, c, r, false), bb_level_item(&lvl, c, r, true),
+            outf(" %" PRId64 "%" PRId64 "%" PRId64, bb_level_item(&lvl, c, r, false), bb_level_item(&lvl, c, r, true),
                    bb_slab_kind_as_item(bb_level_slab_kind(&lvl, c, r, true)));
         for (intptr_t c = -2; c < (intptr_t)w + 2; c++) {
             intptr_t c2, r2;
             if (bb_level_find_start_spot(&lvl, c, r, &c2, &r2))
-                printf(" (%td,%td)", c2, r2);
+                outf(" (%td,%td)", c2, r2);
             else
-                printf(" none");
+                outf(" none");
         }
-        printf("\n");
+        outf("\n");
     }
     /* The rows the deque holds, read directly (Level's Display); see the Rust driver. */
-    printf("deque first=%td\n", first);
+    outf("deque first=%td\n", first);
     for (size_t i = 0; i < bb_level_len(&lvl); i++) {
         char text[BB_WIDTH_MAX + 1];
         bb_row_format(bb_level_row_at(&lvl, i), text);
         text[w] = '\0';
-        printf("%s%s", i ? "\n" : "", text);
+        outf("%s%s", i ? "\n" : "", text);
     }
-    printf("\n");
+    outf("\n");
     free(storage);
 }
 
-/* The player's every field in declaration order, as oracle/ref reads it from Debug. */
-static void tok_f(double x)
-{
-    char b[17];
-    printf(",%s", b64(x, b));
-}
-static void tok_v(bb_vec3 v)
-{
-    tok_f(v.x);
-    tok_f(v.y);
-    tok_f(v.z);
-}
-/* lead: the tokens continue a list (each starts with a comma); otherwise the first has none. */
-static void print_pc_tokens(const bb_points_counter *pc, bool lead)
-{
-    char b[17];
-    if (lead)
-        tok_f(pc->total_points);
-    else
-        printf("%s", b64(pc->total_points, b));
-    tok_f(pc->last_dist);
-    printf(",%td", pc->last_row);
-    tok_f(pc->last_best_dist);
-    printf(",%td", pc->last_best_row);
-    tok_f(pc->time_played_tracker.now_sec_f64);
-    tok_f(pc->delta_total);
-    printf(",%d,%" PRId32 ",%" PRId32 ",%d,%" PRId32, pc->behind ? 1 : 0, pc->best_current_score,
-           pc->best_previous_score, pc->high_score ? 1 : 0, pc->best_time_pct);
-}
-static void print_state(const bb_player *p)
-{
-    char b[17];
-    printf("s %d,%s", p->initialized ? 1 : 0, b64(p->steer_factor, b));
-    tok_v(p->position_vec);
-    tok_v(p->speed_vec);
-    tok_f(p->time_tracker.now_sec_f64);
-    printf(",%d,%d,%td", p->is_jumping ? 1 : 0, p->boost_state ? 1 : 0, p->cur_level_col);
-    if (p->has_backing_data) {
-        const bb_point_in_time *pts[4] = {&p->backing_data.begin, &p->backing_data.top_fall,
-                                          &p->backing_data.bottom_fall, &p->backing_data.end};
-        printf(",S");
-        for (int i = 0; i < 4; i++) {
-            tok_v(pts[i]->position_vec);
-            tok_f(pts[i]->time_sec);
-        }
-    } else {
-        printf(",N");
-    }
-    print_pc_tokens(&p->points_counter, true);
-    printf(",%td,%td\n", p->boost_count, p->overdrive_count);
-}
 /* Window sizes: BB_WINDOW (level rows) and BB_LOG_WINDOW (scores log slots) from the
  * environment; unset, they hold everything (babalcore's 10,000 rows; more log slots than any
  * job reaches). With either set the run is in window mode: the final log and rows dumps, which
@@ -300,36 +218,15 @@ static void read_windows(void)
     }
 }
 
-static int cmp_entry(const void *a, const void *b)
-{
-    intptr_t x = ((const bb_score_entry *)a)->key, y = ((const bb_score_entry *)b)->key;
-    return (x > y) - (x < y);
-}
-static void print_log(const bb_points_counter *pc)
-{
-    static bb_score_entry sorted[FULL_LOG_WINDOW];
-    char b[17];
-    size_t n = 0;
-    for (size_t k = 0; k < pc->log_window; k++)
-        if (pc->log[k].present)
-            sorted[n++] = pc->log[k];
-    qsort(sorted, n, sizeof sorted[0], cmp_entry);
-    printf("log ");
-    for (size_t k = 0; k < n; k++)
-        printf("%s%td:%s", k ? " " : "", sorted[k].key, b64(sorted[k].points, b));
-    printf("\n");
-}
-
 /* The C-only counters must stay 0, or the run says so and fails. */
-static void check_counters(const bb_level *lvl, const bb_points_counter *pc, const bb_input_steer *is)
+static void check_counters(const bb_points_counter *pc, const bb_input_steer *is)
 {
-    uint32_t level_out = lvl ? lvl->out_of_window : 0, log_out = pc ? pc->log_out_of_window : 0;
-    uint32_t dropped = is ? is->dropped_keys : 0;
+    uint32_t log_out = pc ? pc->log_out_of_window : 0, dropped = is ? is->dropped_keys : 0;
     if (window_mode)
-        fprintf(stderr, "depth level=%zu log=%zu\n", lvl ? lvl->max_read_depth : 0, pc ? pc->log_max_depth : 0);
-    if (level_out || log_out || dropped) {
-        fprintf(stderr, "C-only limit reached: level out_of_window=%u log out_of_window=%u dropped_keys=%u\n",
-                level_out, log_out, dropped);
+        fprintf(stderr, "depth level=0 log=%zu\n", pc ? pc->log_max_depth : 0);
+    if (log_out || dropped) {
+        fprintf(stderr, "C-only limit reached: level out_of_window=0 log out_of_window=%u dropped_keys=%u\n",
+                log_out, dropped);
         exit(3);
     }
 }
@@ -345,7 +242,7 @@ static void points(uint64_t seed)
     static const double ttcs[] = {30.0, 49.9, 50.0, 50.1, 120.0, 199.9, 200.0, 200.1, 300.0, 0.0, -1.0};
     double ttc = ttcs[seed % 11]; /* by seed, so every band edge is used */
     uint64_t steps = 4000 + (seed % 3) * 6000;
-    printf("points seed=%" PRIu64 " ttc=%s steps=%" PRIu64 "\n", seed, b64(ttc, b1), steps);
+    outf("points seed=%" PRIu64 " ttc=%s steps=%" PRIu64 "\n", seed, b64(ttc, b1), steps);
     double dist = 0.0;
     for (uint64_t i = 0; i < steps; i++) {
         double r = sm_unit();
@@ -362,17 +259,17 @@ static void points(uint64_t seed)
         }
         bb_events ev = {.n = 0};
         bb_points_counter_handle_dist(&pc, delta, dist, ttc, &ev);
-        printf("p %" PRIu64 " ev=", i);
+        outf("p %" PRIu64 " ev=", i);
         print_events(&ev);
-        printf(" score=%" PRId32 " best_row=%td best_dist=%s pct=%s st=", bb_points_counter_score(&pc),
+        outf(" score=%" PRId32 " best_row=%td best_dist=%s pct=%s st=", bb_points_counter_score(&pc),
                bb_points_counter_best_row(&pc), b64(bb_points_counter_best_dist(&pc), b2),
                b64(bb_points_counter_time_pct(&pc, ttc), b3));
         print_pc_tokens(&pc, false);
-        printf("\n");
+        outf("\n");
     }
     if (!window_mode)
         print_log(&pc);
-    check_counters(NULL, &pc, NULL);
+    check_counters(&pc, NULL);
 }
 
 static void inputs(uint64_t seed)
@@ -387,7 +284,7 @@ static void inputs(uint64_t seed)
     static const double ints[] = {1.0, 0.5, 0.25, 1.5, 0.0, -0.3};
     static const double sticks[] = {-1.0, 0.0, 0.05, 0.16, 1.0, 1e10};
     static const double mice[] = {3.0, -7.5, 0.125, -40.0, NAN};
-    printf("inputs seed=%" PRIu64 "\n", seed);
+    outf("inputs seed=%" PRIu64 "\n", seed);
     for (int i = 0; i < 3000; i++) {
         uint64_t r = sm_next() % 100;
         int64_t dt = (int64_t)(sm_next() % 50000000);
@@ -399,7 +296,7 @@ static void inputs(uint64_t seed)
         if (r < 15) {
             bb_input_jump_push_jump(&ij, t);
         } else if (r < 30) {
-            printf("j %d %d\n", i, bb_input_jump_pop_jump(&ij, t) ? 1 : 0);
+            outf("j %d %d\n", i, bb_input_jump_pop_jump(&ij, t) ? 1 : 0);
         } else if (r < 60) {
             int64_t id = 1 + (int64_t)(sm_next() % 2);
             double intensity = ints[sm_next() % 6];
@@ -414,144 +311,40 @@ static void inputs(uint64_t seed)
             double s = sticks[sm_next() % 6];
             bb_input_jump_set_stickiness_secs_f64(&ij, s >= 0.0, s);
         } else {
-            printf("s %d %s\n", i, b64(bb_input_steer_pop_steer(&st, t), b));
+            outf("s %d %s\n", i, b64(bb_input_steer_pop_steer(&st, t), b));
         }
     }
-    check_counters(NULL, NULL, &st);
-}
-
-typedef struct {
-    bb_input_steer *steer;
-    bb_input_jump *jump;
-    bb_instant now;
-} adapter;
-static bool adapter_pop_jump(void *ctx)
-{
-    adapter *a = ctx;
-    return bb_input_jump_pop_jump(a->jump, a->now);
-}
-static double adapter_pop_steer(void *ctx)
-{
-    adapter *a = ctx;
-    return bb_input_steer_pop_steer(a->steer, a->now);
+    check_counters(NULL, &st);
 }
 
 static void game(const char *path)
 {
-    FILE *f = fopen(path, "r");
+    FILE *f = fopen(path, "rb");
     if (!f) {
         perror(path);
         exit(1);
     }
-    char line[512], b[8][17], fb[6][9];
-    int64_t clock = 0;
-    uint64_t seed = 0;
-    bb_skill skill = BB_SKILL_DEFAULT;
-    bb_row *storage = NULL;
-    bb_level lvl;
-    bb_player player;
-    bb_input_steer steer;
-    bb_input_jump jump;
-    bb_player_init(&player, log_storage, log_window);
-    bb_input_steer_init(&steer);
-    bb_input_jump_init(&jump);
-    size_t ticks = 0;
-    while (fgets(line, sizeof line, f)) {
-        char *w[4] = {0};
-        int nw = 0;
-        for (char *tok = strtok(line, " \t\r\n"); tok && nw < 4; tok = strtok(NULL, " \t\r\n"))
-            w[nw++] = tok;
-        if (nw == 0 || w[0][0] == '#')
-            continue;
-        bb_instant now = clock;
-        if (!strcmp(w[0], "seed"))
-            seed = strtoull(w[1], NULL, 10);
-        else if (!strcmp(w[0], "skill"))
-            skill = bb_skill_from_str(w[1]);
-        else if (!strcmp(w[0], "steer_factor"))
-            bb_player_set_steer_factor(&player, strtod(w[1], NULL));
-        else if (!strcmp(w[0], "best"))
-            bb_player_set_best_score(&player, (int32_t)strtol(w[1], NULL, 10));
-        else if (!strcmp(w[0], "stick")) {
-            if (!strcmp(w[1], "none"))
-                bb_input_jump_set_stickiness_secs_f64(&jump, false, 0.0);
-            else
-                bb_input_jump_set_stickiness_secs_f64(&jump, true, strtod(w[1], NULL));
-        } else if (!strcmp(w[0], "sens")) {
-            steer.mouse_sensibility = strtod(w[1], NULL);
-            steer.keyboard_sensibility = strtod(w[2], NULL);
-        } else if (!strcmp(w[0], "wait"))
-            clock += (int64_t)strtoull(w[1], NULL, 10);
-        else if (!strcmp(w[0], "L") || !strcmp(w[0], "R")) {
-            bool state = !strcmp(w[1], "1");
-            double intensity = nw > 2 ? strtod(w[2], NULL) : 1.0;
-            int64_t id = nw > 3 ? strtoll(w[3], NULL, 10) : w[0][0] == 'L' ? 1 : 2;
-            if (w[0][0] == 'L')
-                bb_input_steer_left_key(&steer, id, intensity, state, now);
-            else
-                bb_input_steer_right_key(&steer, id, intensity, state, now);
-        } else if (!strcmp(w[0], "J"))
-            bb_input_jump_push_jump(&jump, now);
-        else if (!strcmp(w[0], "M"))
-            bb_input_steer_mouse_move(&steer, strtod(w[1], NULL));
-        else if (!strcmp(w[0], "tick") || !strcmp(w[0], "tickd")) {
-            if (!storage) {
-                storage = malloc(level_window * sizeof *storage);
-                bb_level_init(&lvl, seed, skill, storage, level_window);
-            }
-            double delta;
-            if (!strcmp(w[0], "tick")) {
-                uint64_t ns = strtoull(w[1], NULL, 10);
-                clock += (int64_t)ns;
-                delta = (double)ns / 1e9;
-            } else {
-                delta = strtod(w[1], NULL);
-            }
-            /* babalgame's generate_missing: keep 100 rows ahead of the player. */
-            while (bb_level_last(&lvl) < bb_player_level_row(&player) + 100)
-                bb_level_generate(&lvl, 100);
-            adapter a = {&steer, &jump, clock};
-            bb_input_query q = {adapter_pop_jump, adapter_pop_steer, &a};
-            bb_events ev;
-            bb_player_tick(&player, delta, &lvl, &q, &ev);
-            printf("t %zu ev=", ticks);
-            print_events(&ev);
-            bb_vec3f p = bb_player_position(&player), s = bb_player_speed(&player);
-            printf(" p=%s,%s,%s s=%s,%s,%s col=%td row=%td dist=%s score=%" PRId32 " best_row=%td best_dist=%s boost=%d"
-                   " blend=%s sf=%s tpd=%s tpt=%s first=%td last=%td len=%zu\n",
-                   b32(p.x, fb[0]), b32(p.y, fb[1]), b32(p.z, fb[2]), b32(s.x, fb[3]), b32(s.y, fb[4]), b32(s.z, fb[5]),
-                   bb_player_level_col(&player, bb_level_width(&lvl)), bb_player_level_row(&player),
-                   b64(bb_player_dist(&player), b[0]), bb_player_score(&player), bb_player_best_row(&player),
-                   b64(bb_player_best_dist(&player), b[1]), bb_player_is_boosting(&player) ? 1 : 0,
-                   b64(bb_player_backing_camera_blend(&player), b[2]), b64(bb_player_speed_factor(&player, &lvl), b[3]),
-                   b64(bb_player_time_progress_done(&player, &lvl), b[4]), b64(bb_player_time_progress_total(&player), b[5]),
-                   bb_level_first(&lvl), bb_level_last(&lvl), bb_level_len(&lvl));
-            print_state(&player);
-            ticks++;
-        } else {
-            fprintf(stderr, "unknown script word %s\n", w[0]);
-            exit(1);
-        }
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    char *text = malloc((size_t)size + 1);
+    if (!text || fread(text, 1, (size_t)size, f) != (size_t)size) {
+        perror(path);
+        exit(1);
     }
     fclose(f);
-    check_counters(storage ? &lvl : NULL, &player.points_counter, &steer);
-    if (window_mode) {
-        free(storage);
-        return;
-    }
-    print_log(&player.points_counter);
-    if (storage) {
-        printf("rows first=%td last=%td\n", bb_level_first(&lvl), bb_level_last(&lvl));
-        size_t w = bb_level_width(&lvl);
-        for (size_t i = 0; i < bb_level_len(&lvl); i++) {
-            char text[BB_WIDTH_MAX + 1];
-            bb_row_format(bb_level_row_at(&lvl, i), text);
-            text[w] = '\0';
-            printf("%s%s", i ? "\n" : "", text);
-        }
-        printf("\n");
-        free(storage);
-    }
+    bb_row *storage = malloc(level_window * sizeof *storage);
+    game_result res = {0};
+    int rc = game_run(text, (size_t)size, storage, level_window, log_storage, log_window, window_mode, &res);
+    if (window_mode)
+        fprintf(stderr, "depth level=%zu log=%zu\n", res.depth_level, res.depth_log);
+    if (rc == 3)
+        fprintf(stderr, "C-only limit reached: level out_of_window=%u log out_of_window=%u dropped_keys=%u\n",
+                res.level_out, res.log_out, res.dropped);
+    free(storage);
+    free(text);
+    if (rc)
+        exit(rc);
 }
 
 int main(int argc, char **argv)

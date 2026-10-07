@@ -96,14 +96,14 @@ plants_ok=1
 for p in "${PLANTS[@]}"; do
     IFS='|' read -r file expr what <<< "$p"
     P=$B/plant
-    rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT/oracle/driver.c" "$P/oracle/"
+    rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
     sed -i "$expr" "$P/babal/$file"
     if cmp -s "$P/babal/$file" "$ROOT/babal/$file"; then
         echo "PLANT DID NOT APPLY: $what"; plants_ok=0; continue
     fi
     rm -f "$P/driver"
     # shellcheck disable=SC2086
-    if ! cc $CFLAGS "$P/oracle/driver.c" "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then
+    if ! cc $CFLAGS "$P"/oracle/*.c "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then
         echo "PLANT DID NOT BUILD: $what"; head -3 "$P/cc.err"; plants_ok=0; continue
     fi
     if suite "$P/driver" stop > "$P/result"; then
@@ -130,8 +130,8 @@ fi
 
 # Not a gate: the same port with fused multiply-adds allowed, to show what the flag holds off.
 P=$B/plant
-rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT/oracle/driver.c" "$P/oracle/"
-if cc -O2 -std=c11 -D_DEFAULT_SOURCE -march=native -ffp-contract=fast "$P/oracle/driver.c" "$P"/babal/*.c -lm -o "$P/driver" 2>/dev/null; then
+rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
+if cc -O2 -std=c11 -D_DEFAULT_SOURCE -march=native -ffp-contract=fast "$P"/oracle/*.c "$P"/babal/*.c -lm -o "$P/driver" 2>/dev/null; then
     if suite "$P/driver" stop > "$P/result"; then echo "probe: -march=native -ffp-contract=fast stays identical"; else echo "probe: -march=native -ffp-contract=fast goes red ($(sed 's/^  red at //' "$P/result"))"; fi
 fi
 
@@ -163,11 +163,11 @@ for ctl in "150 $GW|a level window below the deepest read (298)" "$LW 64|a log w
     if wsuite "$ROOT/build/driver" $sizes stop > "$B/result"; then echo "SURVIVED: $what"; plants_ok=0; else echo "red: $what ($(sed 's/^  red at //' "$B/result"))"; fi
 done
 P=$B/plant
-rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT/oracle/driver.c" "$P/oracle/"
+rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
 sed -i 's/if (e->present \&\& e->key == key)/if (e->present)/' "$P/babal/points_counter.c"
 # shellcheck disable=SC2086
 if cmp -s "$P/babal/points_counter.c" "$ROOT/babal/points_counter.c"; then echo "PLANT DID NOT APPLY: a log slot read without its key"; plants_ok=0
-elif ! cc $CFLAGS "$P/oracle/driver.c" "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then echo "PLANT DID NOT BUILD: a log slot read without its key"; plants_ok=0
+elif ! cc $CFLAGS "$P"/oracle/*.c "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then echo "PLANT DID NOT BUILD: a log slot read without its key"; plants_ok=0
 elif wsuite "$P/driver" $LW $GW stop > "$P/result"; then echo "SURVIVED: a log slot read without its key (window mode)"; plants_ok=0
 else echo "red: a log slot read without its key, window mode ($(sed 's/^  red at //' "$P/result"))"; fi
 

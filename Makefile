@@ -20,8 +20,9 @@ $(BUILD)/libbabal.a: $(BABAL_OBJ)
 $(BUILD)/babal_test: tests/babal_test.c $(BUILD)/libbabal.a
 	$(CC) $(CFLAGS) $< $(BUILD)/libbabal.a -lm -o $@
 
-$(BUILD)/driver: oracle/driver.c $(BUILD)/libbabal.a
-	$(CC) $(CFLAGS) $< $(BUILD)/libbabal.a -lm -o $@
+ORACLE_SRC := oracle/driver.c oracle/out.c oracle/game.c
+$(BUILD)/driver: $(ORACLE_SRC) oracle/oracle.h $(BUILD)/libbabal.a
+	$(CC) $(CFLAGS) $(ORACLE_SRC) $(BUILD)/libbabal.a -lm -o $@
 
 test: $(BUILD)/babal_test
 	$(BUILD)/babal_test
