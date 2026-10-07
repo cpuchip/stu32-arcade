@@ -52,3 +52,10 @@ in the app (quirks 7 and 8). Key ms map to the rules' nanosecond instants (ms * 
   save has its own partition. The stand-in draws about 1,348 frames a second (draw only); on the
   real LS027 plan around 10-20, and consider sending only changed lines (the panel allows it),
   though a scrolling tunnel changes most of them: measure it in stage 2.
+
+## v1.1 (abacus-firmware a7f49a7, 2026-10-07)
+
+APP_CTX_MAX raised from 32 KB to 256 KB for Babal's whole level and log (abacus ruled it on Rev A's
+ESP32-S3-WROOM-1-N16R8, 8 MB octal PSRAM; #4640); nothing else changed. Babal merged in the same
+push (soroban #4649), with a framework idle limit: after twice the auto-off time without a key the
+app is saved and stopped. FIRMWARE_PIN here moves to a7f49a7.

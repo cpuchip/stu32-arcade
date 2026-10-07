@@ -36,12 +36,9 @@
 #include "oracle.h"
 #include "render.h"
 
-/* The ctx limit judged against: apps.h's, unless the build names another. Babal holds the whole
- * level and log (about 165 KB), which apps.h v1.1 allows (APP_CTX_MAX 256 KB, soroban #4637,
- * pending abacus's ruling on Rev A's PSRAM); v1 at FIRMWARE_PIN says 32 KB. */
-#ifndef BABAL_CTX_LIMIT
+/* The ctx limit judged against: apps.h's (v1.1, 256 KB, at FIRMWARE_PIN). Babal holds the whole
+ * level and log, about 165 KB. */
 #define BABAL_CTX_LIMIT APP_CTX_MAX
-#endif
 
 void ref_render(ls027_frame *f, const bb_level *lvl, const bb_player *p, const babal_hud *hud);
 int ref_text(ls027_frame *f, int x, int y, int scale, const char *s);

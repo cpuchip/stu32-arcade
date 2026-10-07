@@ -28,7 +28,7 @@ frames: $(BUILD)/frames
 
 APP_SRC := app/babal_app.c app/render.c
 $(BUILD)/apphost: tools/apphost.c tools/render_ref.c $(APP_SRC) app/babal_app.h app/render.h $(ORACLE_SRC) oracle/oracle.h $(BUILD)/libbabal.a $(FW)/.pin
-	$(CC) $(CFLAGS) $(APP_CFLAGS) -DBABAL_CTX_LIMIT='(256 * 1024)' tools/apphost.c tools/render_ref.c $(APP_SRC) $(FW)/firmware/font5x7.c oracle/out.c oracle/game.c \
+	$(CC) $(CFLAGS) $(APP_CFLAGS) tools/apphost.c tools/render_ref.c $(APP_SRC) $(FW)/firmware/font5x7.c oracle/out.c oracle/game.c \
 		$(BUILD)/libbabal.a -lm -o $@
 apphost: $(BUILD)/apphost
 
