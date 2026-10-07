@@ -351,6 +351,7 @@ fn game(out: &mut String, script: &str) {
                 steer.keyboard_sensibility = f[2].parse().unwrap();
             }
             "wait" => clock += f[1].parse::<u64>().unwrap(),
+            "at" => clock = f[1].parse::<u64>().unwrap(),
             "L" | "R" => {
                 let state = f[1] == "1";
                 let intensity: f64 = if f.len() > 2 { f[2].parse().unwrap() } else { 1.0 };

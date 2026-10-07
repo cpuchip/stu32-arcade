@@ -3,7 +3,8 @@
 
 Script words (read by oracle/ref and oracle/driver.c alike):
   seed U64 | skill NAME | steer_factor F | best I32 | stick F|none | sens MOUSE KBD
-  wait NS | L 0|1 [INTENSITY [ID]] | R 0|1 [INTENSITY [ID]] | J | M PX | tick NS | tickd DELTA
+  wait NS | at NS | L 0|1 [INTENSITY [ID]] | R 0|1 [INTENSITY [ID]] | J | M PX | tick NS | tickd DELTA
+(at sets the clock: tools/apphost.c writes it, since the app's keys carry their own times)
 At most two key ids per side: babalcore sums a side's keys in HashMap order, and two terms
 commute while three need not (quirk 3 in docs/stage1-rules.md).
 Usage: gen_scripts.py OUTDIR [N_SEEDS] [SCRIPTS_PER_SEED]

@@ -54,9 +54,28 @@ past one brings the other side round. Integer fixed point from the model's doubl
 the same bits on host and chip: `make frames` and `build/frames SCRIPT [TICK...]` print a hash per
 tick (the frame oracle for the S3) and write chosen frames as PBM.
 
+## The app (first cut)
+
+`app/babal_app.c` on apps.h v1 (FIRMWARE_PIN): a title (4 and 6 or a soft key choose the skill,
+the best shown, ENTER or 8 plays), the game, a finish screen (FINISH or NEW BEST). Keys go to
+babalcore's own InputSteer (4 left as id 1, 6 right as id 2) and InputJump (8 and ENTER on the
+press) at their own ms; a tick's step is clamped to 100 ms (quirks 7 and 8); rows are made a
+few a tick (100 to 200 ahead, as babalgame keeps them) instead of 100 at once; a tone a tick
+(finish, fall, overdrive, boost, high score, a thousand, land). The save: magic, version, the
+skill, the best per skill, the games played (28 of 64 bytes). ctx: 23,944 bytes on the host.
+
+The oracle (`make appcheck`, oracle/app_check.sh): tools/apphost.c plays seeded app scripts
+(oracle/gen_appscripts.py: a title, a start, uneven ticks some of them clamped, keys at their own
+times) through apps.h's calls in the framework's order, and writes the same game as an oracle/ref
+script from its own copy of the key spec. Every tick's readings and private state equal
+babalcore's (less the level's row counts, which differ by design): 8 sessions, up to 4,001 ticks,
+one played to its finish and on into a second game; the save round-trips. Six plants red: 4
+steering right, the step clamped at 50 ms, key times in microseconds, a jump on the release, the
+tick's clock a millisecond late, no rows made ahead (red by a hang, caught by the timeout).
+
 ## Next
 
-- The app (start, key, tick, draw, save) on apps.h v1; delta clamped to 0..100 ms (quirks 7, 8).
+- The app on the S3: tick and draw times per frame, frames hashed against the host.
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.
 - Frames on the S3: the frame hashes against the host's, and the draw time.
 - The generation burst: measure, then spread it over ticks.

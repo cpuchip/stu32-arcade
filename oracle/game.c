@@ -73,6 +73,8 @@ int game_run(const char *text, size_t len, bb_row *storage, size_t level_window,
             steer.keyboard_sensibility = strtod(w[2], NULL);
         } else if (!strcmp(w[0], "wait"))
             clock += (int64_t)strtoull(w[1], NULL, 10);
+        else if (!strcmp(w[0], "at"))
+            clock = (int64_t)strtoull(w[1], NULL, 10);
         else if (!strcmp(w[0], "L") || !strcmp(w[0], "R")) {
             bool state = !strcmp(w[1], "1");
             double intensity = nw > 2 ? strtod(w[2], NULL) : 1.0;
