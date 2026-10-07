@@ -1,0 +1,125 @@
+#!/bin/bash
+# The stage 1 gate: babalcore (oracle/ref) and the C port (oracle/driver.c) print the same
+# pins, levels and games byte for byte, and every planted divergence turns that red.
+# Plants are applied to a scratch copy at run time (never kept), each checked to change its
+# file and to build. Env: N_SEEDS (8), PER_SEED (5) scripts per seed.
+set -u
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+REF=$ROOT/oracle/ref/target/release/babal-ref
+B=$ROOT/build/oracle
+CFLAGS="-O2 -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -ffp-contract=off"
+N_SEEDS=${N_SEEDS:-8}
+PER_SEED=${PER_SEED:-5}
+TIMEOUT=120
+
+rm -rf "$B" && mkdir -p "$B/ref"
+python3 "$ROOT/oracle/gen_scripts.py" "$B/scripts" "$N_SEEDS" "$PER_SEED" || exit 1
+
+# The jobs: name and arguments, one per line.
+{
+    echo "pins pins"
+    for sk in noob easy medium hard expert; do
+        for seed in 0 1 18446744073709551615 9876543210; do echo "level-$sk-$seed level $seed $sk 300"; done
+        echo "level-$sk-123-slide level 123 $sk 10350"
+    done
+    for s in "$B"/scripts/*.txt; do echo "game-$(basename "$s" .txt) game $s"; done
+} > "$B/jobs"
+
+while read -r name args; do
+    # shellcheck disable=SC2086
+    timeout $TIMEOUT "$REF" $args > "$B/ref/$name" || { echo "reference failed: $name"; exit 1; }
+done < "$B/jobs"
+
+# suite DRIVER [stop-at-first]: 0 when every job matches the reference.
+suite() {
+    local drv=$1 stop=${2:-} bad=0
+    while read -r name args; do
+        # shellcheck disable=SC2086
+        if ! timeout $TIMEOUT "$drv" $args > "$B/out" 2>/dev/null || ! cmp -s "$B/out" "$B/ref/$name"; then
+            bad=$((bad + 1))
+            [ -n "$stop" ] && { echo "  red at $name"; return 1; }
+            echo "  DIFF $name"
+        fi
+    done < "$B/jobs"
+    return $((bad > 0))
+}
+
+jobs=$(wc -l < "$B/jobs")
+bytes=$(cat "$B"/ref/* | wc -c)
+ticks=$(cat "$B"/ref/game-* | grep -c '^t ')
+rows=$(cat "$B"/ref/level-* | grep -c '^r ')
+echo "reference: $jobs jobs, $bytes bytes ($ticks game ticks, $rows level rows)"
+
+# Plants: file, sed expression, what it breaks.
+PLANTS=(
+    "player.c|s/(JUMP_HEIGHT_SCALE \* 6.0)/(JUMP_HEIGHT_SCALE * 6.01)/|a constant (JUMP_GRAVITY)"
+    "row_generator.c|s/double change = bb_chacha20_random_f64(rng);/double change = f;/|an RNG draw skipped"
+    "chacha20.c|s/s\[14\] = 0;/s[14] = 1;/|the ChaCha stream word"
+    "player.c|/BB_EVENT_CATCH_UP/d|an event dropped (catch_up at the end of a fall)"
+    "player.c|s/    handle_boost(p, level, out);/    handle_forward(p, delta, level);/;t;s/    handle_forward(p, delta, level);/    handle_boost(p, level, out);/|two handlers swapped (boost, forward)"
+    "level.c|s/bb_level_slab_kind(lvl, col, lvl->row0 + row, boost)/bb_level_slab_kind(lvl, col, row, boost)/|quirk 2 fixed in item"
+    "level.c|s/size_t j = lvl->len;/size_t j = (size_t)lvl->row0 + lvl->len;/|quirk 1 fixed (absolute row seeds)"
+    "timeval.c|s/(c == 0 && (q.lo & 1))/c == 0/|from_secs_f64 ties away from zero"
+    "vec3.c|s/a.x \* one_t + b.x \* t/a.x + (b.x - a.x) * t/|lerp's formula in x"
+    "points_counter.c|s/pc->total_points += INSTANT_SPEED_WEIGHT \* delta_best_dist \* instant_speed;/pc->total_points += INSTANT_SPEED_WEIGHT * (delta_best_dist * instant_speed);/|one product regrouped"
+)
+
+echo "== the port"
+if suite "$ROOT/build/driver"; then
+    echo "  all $jobs identical"
+    port_ok=1
+else
+    echo "  RED"
+    port_ok=0
+fi
+
+echo "== plants (each must go red)"
+plants_ok=1
+for p in "${PLANTS[@]}"; do
+    IFS='|' read -r file expr what <<< "$p"
+    P=$B/plant
+    rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT/oracle/driver.c" "$P/oracle/"
+    sed -i "$expr" "$P/babal/$file"
+    if cmp -s "$P/babal/$file" "$ROOT/babal/$file"; then
+        echo "PLANT DID NOT APPLY: $what"; plants_ok=0; continue
+    fi
+    rm -f "$P/driver"
+    # shellcheck disable=SC2086
+    if ! cc $CFLAGS "$P/oracle/driver.c" "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then
+        echo "PLANT DID NOT BUILD: $what"; head -3 "$P/cc.err"; plants_ok=0; continue
+    fi
+    if suite "$P/driver" stop > "$P/result"; then
+        echo "SURVIVED: $what"; plants_ok=0
+    else
+        echo "red: $what ($(sed 's/^  red at //' "$P/result"))"
+    fi
+done
+
+# babalcore's own tests (make test) must see a plant too.
+P=$B/plant
+rm -rf "$P" && mkdir -p "$P/tests" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT/tests/babal_test.c" "$P/tests/"
+sed -i 's/buf\[8 + i\] = (uint8_t)(j >> (8 \* i));/buf[8 + i] = (uint8_t)((j + 1) >> (8 * i));/' "$P/babal/row_generator.c"
+# shellcheck disable=SC2086
+if cmp -s "$P/babal/row_generator.c" "$ROOT/babal/row_generator.c"; then
+    echo "PLANT DID NOT APPLY: tests, row seed off by one"; plants_ok=0
+elif ! cc $CFLAGS "$P/tests/babal_test.c" "$P"/babal/*.c -lm -o "$P/babal_test" 2> "$P/cc.err"; then
+    echo "PLANT DID NOT BUILD: tests, row seed off by one"; plants_ok=0
+elif "$P/babal_test" > "$P/result"; then
+    echo "SURVIVED: tests, row seed off by one"; plants_ok=0
+else
+    echo "red: tests, row seed off by one ($(grep -c FAIL "$P/result") checks failed)"
+fi
+
+# Not a gate: the same port with fused multiply-adds allowed, to show what the flag holds off.
+P=$B/plant
+rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT/oracle/driver.c" "$P/oracle/"
+if cc -O2 -std=c11 -D_DEFAULT_SOURCE -march=native -ffp-contract=fast "$P/oracle/driver.c" "$P"/babal/*.c -lm -o "$P/driver" 2>/dev/null; then
+    if suite "$P/driver" stop > "$P/result"; then echo "probe: -march=native -ffp-contract=fast stays identical"; else echo "probe: -march=native -ffp-contract=fast goes red ($(sed 's/^  red at //' "$P/result"))"; fi
+fi
+
+if [ "$port_ok" = 1 ] && [ "$plants_ok" = 1 ]; then
+    echo "GATE GREEN: $jobs jobs identical, $((${#PLANTS[@]} + 1)) plants red"
+    exit 0
+fi
+echo "GATE RED"
+exit 1

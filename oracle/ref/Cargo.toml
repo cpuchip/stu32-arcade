@@ -1,0 +1,11 @@
+[package]
+name = "babal-ref"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# The reference driver: babalcore at the pinned commit (oracle/fetch-babal.sh), read-only.
+[dependencies]
+babalcore = { path = "../babal/rust/babalcore" }
+rand = { version = "=0.10.2", default-features = false, features = ["chacha"] }
+euclid = "0.22.14"
