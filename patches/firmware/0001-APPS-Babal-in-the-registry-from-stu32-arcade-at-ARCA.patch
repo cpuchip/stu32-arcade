@@ -1,4 +1,4 @@
-From cceadb274e1cfb13eff9320708b6e86707b8da79 Mon Sep 17 00:00:00 2001
+From 22a53f898c1a9ef6167828cdd53c969ed72c2a52 Mon Sep 17 00:00:00 2001
 From: Michael Stufflebeam <cpuchip@gmail.com>
 Date: Wed, 7 Oct 2026 07:13:36 +0000
 Subject: [PATCH] APPS: Babal in the registry, from stu32-arcade at ARCADE_PIN
@@ -6,7 +6,7 @@ Subject: [PATCH] APPS: Babal in the registry, from stu32-arcade at ARCADE_PIN
 Babal (the games seat's port of Christian Mauduit's public-domain game, its rules judged byte
 for byte against babalcore and played end to end under apps.h v1) joins KEYS in app_registry[].
 Its sources stay in cpuchip/stu32-arcade (PRIVATE) and are consumed the way casim consumes the
-core: scripts/fetch-arcade.sh exports babal/ and app/ at ARCADE_PIN (24f57af) with git archive
+core: scripts/fetch-arcade.sh exports babal/ and app/ at ARCADE_PIN (94c821d) with git archive
 from a local clone (ARCADE_REPO, default ../stu32-arcade) into build/arcade, never writing into
 it. They build with -ffp-contract=off, which their oracle requires (allowing fused multiply-adds
 turns its pins red); nothing else's flags change. device/standin/run.sh and device/reva/build.sh
@@ -35,11 +35,11 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 diff --git a/ARCADE_PIN b/ARCADE_PIN
 new file mode 100644
-index 0000000..404af88
+index 0000000..78f7b0b
 --- /dev/null
 +++ b/ARCADE_PIN
 @@ -0,0 +1 @@
-+24f57af233e91ed8399fe49e960439a265363386
++94c821db1725e1680d41450d92d011d453cb8c3a
 diff --git a/Makefile b/Makefile
 index b79e2a9..9ec44c1 100644
 --- a/Makefile
