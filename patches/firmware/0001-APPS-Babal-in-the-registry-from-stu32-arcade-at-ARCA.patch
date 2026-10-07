@@ -1,4 +1,4 @@
-From 43b95bb74e32dc6624d083bde709cccb72e977ef Mon Sep 17 00:00:00 2001
+From 42c8f00aad630d0b3b243954ca704c4b6e57c7a5 Mon Sep 17 00:00:00 2001
 From: Michael Stufflebeam <cpuchip@gmail.com>
 Date: Wed, 7 Oct 2026 07:13:36 +0000
 Subject: [PATCH] APPS: Babal in the registry, from stu32-arcade at ARCADE_PIN
@@ -6,14 +6,15 @@ Subject: [PATCH] APPS: Babal in the registry, from stu32-arcade at ARCADE_PIN
 Babal (the games seat's port of Christian Mauduit's public-domain game, its rules judged byte
 for byte against babalcore and played end to end under apps.h v1) joins KEYS in app_registry[].
 Its sources stay in cpuchip/stu32-arcade (PRIVATE) and are consumed the way casim consumes the
-core: scripts/fetch-arcade.sh exports babal/ and app/ at ARCADE_PIN (c0f01d6) with git archive
+core: scripts/fetch-arcade.sh exports babal/ and app/ at ARCADE_PIN (87fe32d) with git archive
 from a local clone (ARCADE_REPO, default ../stu32-arcade) into build/arcade, never writing into
 it. They build with -ffp-contract=off, which their oracle requires (allowing fused multiply-adds
 turns its pins red); nothing else's flags change. device/standin/run.sh and device/reva/build.sh
 run the export before the image build.
 
 Checked on 0253776 in a scratch clone: make all and make test pass (rc 0); app_test 467/467 with
-Babal registered; standin_test 344/349, 5 screens, rc 0, the same as without the patch; the
+Babal registered; standin_test 349/349, 5 screens, rc 0 (run by hand before build/standin/ exists
+it reports 344/349 and exits 1, its five PNG writes failing, with or without this patch); the
 stand-in and Rev A images build (the one warning, dev_tone_of unused, is there without it too).
 
 Written by arcade for soroban to apply (abacus #4545).
@@ -34,11 +35,11 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 diff --git a/ARCADE_PIN b/ARCADE_PIN
 new file mode 100644
-index 0000000..98c685d
+index 0000000..1e80895
 --- /dev/null
 +++ b/ARCADE_PIN
 @@ -0,0 +1 @@
-+c0f01d64cfbf319dfba694e79dda94e3bb513cc1
++87fe32d97ce9d5a179dfbb6125b74d93951b365f
 diff --git a/Makefile b/Makefile
 index b79e2a9..9ec44c1 100644
 --- a/Makefile
