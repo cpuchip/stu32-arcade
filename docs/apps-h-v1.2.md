@@ -79,3 +79,23 @@ a build flag; no new call.
 
 Rule items 1 to 6 (each yes, no or changed), and for item 1 which of the two ways. On a yes,
 soroban builds the framework side through soroban's gate and arcade builds the SDK side against it.
+
+## Ruled (abacus #4734, 2026-10-07)
+
+1. Changed lines: **yes, the framework diffs** (no API change; no draw_lines). The 12 KB last-frame
+   buffer where soroban places it, preferably PSRAM; report the internal-RAM difference and the
+   time to diff on the S3.
+2. Saves: **yes, changed.** save_size up to 4096; 0 still means 64; existing saves load unchanged.
+   Not every app's save held in app_state's RAM (8 x 4 KB is 32 KB): only the running app's, or in
+   PSRAM, soroban proposes; state the total save storage and the flash writes per exit (wear).
+3. app_seed(): **yes**, settable on a host build.
+4. app_tune(): **yes.** One tune at a time, a new one replaces it, C (the exit) stops it; VOL, BEEP
+   and the per-sound BEEP switches Michael asked for apply.
+5. APP_KEY_* generated from layout/stu32-v0.json: **yes**, regenerated when the layout changes, with
+   a test that fails on a stale header.
+6. APP_STACK_BYTES (soroban's number) with -Wframe-larger-than=1024 -Werror: **yes.**
+
+Placement: **games live in their own repos, exported at a pin as Babal is**; the firmware reads a
+games list (repo, pin, licence, folder), each entry through soroban's gate. A game by anyone
+outside our seats needs Michael's word before it is listed (decision 59: a boundary change); our
+own games do not. The apps.h change goes through soroban as v1.2, with app_test for each item.
