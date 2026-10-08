@@ -61,7 +61,8 @@ interpretation, not memory placement.
 
 **WAMR's fast interpreter (38b044a) crashes on the S3** in its loader (LoadProhibited at address 0x1
 in wasm_loader_check_br, from wasm_loader_prepare_bytecode) loading the same module the host loads
-and runs. Not chased.
+and runs. **Open**, left unchased by abacus's ruling (#5092): if the fast interpreter is ever wanted on
+the chip, this is the first thing to look at (and to report upstream).
 
 **wasm3 needs more stack than a game gets.** 37-50 KB of the task's stack against APP_STACK_BYTES
 16 KB; WAMR's interpreter keeps its own stack and used 2.2 KB of the task's.
