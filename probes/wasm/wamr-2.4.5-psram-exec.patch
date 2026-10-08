@@ -1,0 +1,179 @@
+WAMR's ESP-IDF port: AOT code in PSRAM, mapped executable (the wasm probe; nothing in any build applies this)
+
+Applies to: WAMR (github.com/wasm-micro-runtime/wasm-micro-runtime) tag WAMR-2.4.5,
+commit 25bd7eb63e828e4bd242cc9b38d260b4b31c6605.
+Licence: this is a modification of WAMR, so it is under WAMR's licence, Apache-2.0 WITH LLVM-exception,
+NOT the MIT licence of the rest of this repository.
+Why and how it was measured: docs/wasm-probe.md ("The game's code in PSRAM, mapped executable").
+Kept by abacus's ruling (#5169); whether it is carried or upstreamed waits on Michael's ruling.
+
+What it changes:
+- espidf_memmap.c: os_mmap(MMAP_PROT_EXEC) allocates page-aligned PSRAM and maps its physical pages
+  executable with esp_mmu_map; os_get_dbus_mirror returns the block's data address; os_munmap unmaps.
+  Replaces the fixed MEM_DUAL_BUS_OFFSET, which sends PSRAM 0x3C.. to 0x3A.. on the ESP32-S3.
+- shared_platform.cmake: the dual-bus mirror on for CONFIG_SPIRAM (was CONFIG_ESP32S3_SPIRAM_SUPPORT).
+- build-scripts/esp-idf/wamr/CMakeLists.txt: REQUIRES esp_mm esp_psram heap.
+- aot_reloc_xtensa.c: a diagnostic print in check_reloc_offset's failure branch (the probe's
+  instrument; not needed for the fix).
+
+diff --git a/build-scripts/esp-idf/wamr/CMakeLists.txt b/build-scripts/esp-idf/wamr/CMakeLists.txt
+index b47cd16..82000df 100644
+--- a/build-scripts/esp-idf/wamr/CMakeLists.txt
++++ b/build-scripts/esp-idf/wamr/CMakeLists.txt
+@@ -87,7 +87,7 @@ endif ()
+ 
+ idf_component_register(SRCS ${srcs}
+                        INCLUDE_DIRS ${include_dirs}
+-                       REQUIRES pthread lwip esp_timer
++                       REQUIRES pthread lwip esp_timer esp_mm esp_psram heap
+                        KCONFIG ${CMAKE_CURRENT_LIST_DIR}/Kconfig)
+ 
+ target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format")
+diff --git a/core/iwasm/aot/arch/aot_reloc_xtensa.c b/core/iwasm/aot/arch/aot_reloc_xtensa.c
+index a866883..228584a 100644
+--- a/core/iwasm/aot/arch/aot_reloc_xtensa.c
++++ b/core/iwasm/aot/arch/aot_reloc_xtensa.c
+@@ -143,6 +143,8 @@ check_reloc_offset(uint32 target_section_size, uint64 reloc_offset,
+ {
+     if (!(reloc_offset < (uint64)target_section_size
+           && reloc_offset + reloc_data_size <= (uint64)target_section_size)) {
++        os_printf("PROBE reloc: section size %u, offset %llu, data size %u\n", target_section_size,
++                  (unsigned long long)reloc_offset, reloc_data_size); /* arcade's probe instrument */
+         set_error_buf(error_buf, error_buf_size,
+                       "AOT module load failed: invalid relocation offset.");
+         return false;
+diff --git a/core/shared/platform/esp-idf/espidf_memmap.c b/core/shared/platform/esp-idf/espidf_memmap.c
+index b0c493d..922739a 100644
+--- a/core/shared/platform/esp-idf/espidf_memmap.c
++++ b/core/shared/platform/esp-idf/espidf_memmap.c
+@@ -9,12 +9,51 @@
+ #include "soc/mmu.h"
+ #include "rom/cache.h"
+ 
+-#define MEM_DUAL_BUS_OFFSET (SOC_IROM_LOW - SOC_IROM_HIGH)
+-
+-#define in_ibus_ext(addr) \
+-    (((uint32)addr >= SOC_IROM_LOW) && ((uint32)addr < SOC_IROM_HIGH))
++#include "esp_mmu_map.h"
+ 
+ static portMUX_TYPE s_spinlock = portMUX_INITIALIZER_UNLOCKED;
++
++/* arcade's probe: AOT code in PSRAM, mapped executable by the MMU (esp_mmu_map), written through its
++   data address and run through its instruction address; replaces the fixed offset, which sent
++   PSRAM 0x3C.. to 0x3A.. on the S3 */
++#ifndef CONFIG_MMU_PAGE_SIZE
++#define CONFIG_MMU_PAGE_SIZE 0x10000
++#endif
++#define EXEC_MAP_MAX 8
++static struct {
++    char *ibus, *dbus;
++    size_t size;
++} exec_maps[EXEC_MAP_MAX];
++
++static void *
++exec_map_alloc(size_t size)
++{
++    size_t page = CONFIG_MMU_PAGE_SIZE, len = (size + page - 1) & ~(page - 1);
++    char *d = heap_caps_aligned_alloc(page, len, MALLOC_CAP_SPIRAM);
++    esp_paddr_t pa;
++    mmu_target_t tgt;
++    void *i = NULL;
++    if (!d)
++        return NULL;
++    if (esp_mmu_vaddr_to_paddr(d, &pa, &tgt) != ESP_OK
++        || esp_mmu_map(pa, len, tgt, MMU_MEM_CAP_EXEC | MMU_MEM_CAP_READ | MMU_MEM_CAP_32BIT,
++                       ESP_MMU_MMAP_FLAG_PADDR_SHARED, &i)
++               != ESP_OK) {
++        heap_caps_free(d);
++        return NULL;
++    }
++    for (int k = 0; k < EXEC_MAP_MAX; k++)
++        if (!exec_maps[k].ibus) {
++            exec_maps[k].ibus = i;
++            exec_maps[k].dbus = d;
++            exec_maps[k].size = len;
++            memset(d, 0, len);
++            return i;
++        }
++    esp_mmu_unmap(i);
++    heap_caps_free(d);
++    return NULL;
++}
+ #endif
+ 
+ void *
+@@ -22,10 +61,9 @@ os_mmap(void *hint, size_t size, int prot, int flags, os_file_handle file)
+ {
+     if (prot & MMAP_PROT_EXEC) {
+ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-        uint32_t mem_caps = MALLOC_CAP_SPIRAM;
+-#else
+-        uint32_t mem_caps = MALLOC_CAP_EXEC;
++        return exec_map_alloc(size);
+ #endif
++        uint32_t mem_caps = MALLOC_CAP_EXEC;
+ 
+         // Memory allocation with MALLOC_CAP_EXEC will return 4-byte aligned
+         // Reserve extra 4 byte to fixup alignment and size for the pointer to
+@@ -42,13 +80,8 @@ os_mmap(void *hint, size_t size, int prot, int flags, os_file_handle file)
+ 
+         uintptr_t *addr_field = buf_fixed - sizeof(uintptr_t);
+         *addr_field = (uintptr_t)buf_origin;
+-#if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-        memset(buf_fixed + MEM_DUAL_BUS_OFFSET, 0, size);
+-        return buf_fixed + MEM_DUAL_BUS_OFFSET;
+-#else
+         memset(buf_fixed, 0, size);
+         return buf_fixed;
+-#endif
+     }
+     else {
+ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+@@ -90,9 +123,13 @@ os_munmap(void *addr, size_t size)
+     char *ptr = (char *)addr;
+ 
+ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-    if (in_ibus_ext(ptr)) {
+-        ptr -= MEM_DUAL_BUS_OFFSET;
+-    }
++    for (int k = 0; k < EXEC_MAP_MAX; k++)
++        if (exec_maps[k].ibus == ptr) {
++            esp_mmu_unmap(exec_maps[k].ibus);
++            heap_caps_free(exec_maps[k].dbus);
++            exec_maps[k].ibus = NULL;
++            return;
++        }
+ #endif
+     // We don't need special handling of the executable allocations
+     // here, free() of esp-idf handles it properly
+@@ -133,11 +170,10 @@ os_icache_flush(void *start, size_t len)
+ void *
+ os_get_dbus_mirror(void *ibus)
+ {
+-    if (in_ibus_ext(ibus)) {
+-        return (void *)((char *)ibus - MEM_DUAL_BUS_OFFSET);
+-    }
+-    else {
+-        return ibus;
+-    }
++    for (int k = 0; k < EXEC_MAP_MAX; k++)
++        if (exec_maps[k].ibus && (char *)ibus >= exec_maps[k].ibus
++            && (char *)ibus < exec_maps[k].ibus + exec_maps[k].size)
++            return exec_maps[k].dbus + ((char *)ibus - exec_maps[k].ibus);
++    return ibus;
+ }
+ #endif
+diff --git a/core/shared/platform/esp-idf/shared_platform.cmake b/core/shared/platform/esp-idf/shared_platform.cmake
+index d254b08..3f520d2 100644
+--- a/core/shared/platform/esp-idf/shared_platform.cmake
++++ b/core/shared/platform/esp-idf/shared_platform.cmake
+@@ -17,6 +17,8 @@ set (PLATFORM_SHARED_SOURCE ${source_all} ${PLATFORM_COMMON_MATH_SOURCE})
+ 
+ # If enable PSRAM of ESP32-S3, it had better to put AOT into PSRAM, so that
+ # users can use SRAM to for Wi-Fi/BLE and peripheral driver.
+-if(CONFIG_ESP32S3_SPIRAM_SUPPORT)
++# arcade's probe: the mirror's offset (SOC_IROM_LOW - SOC_IROM_HIGH) sends PSRAM 0x3C.. to 0x3A..,
++# not instruction memory, on the S3 (IllegalInstruction at 0x3a0779b4); AOT code in internal IRAM instead
++if(CONFIG_SPIRAM)   # arcade's probe: the mirror back on, mapped by esp_mmu_map (espidf_memmap.c)
+     add_definitions(-DWASM_MEM_DUAL_BUS_MIRROR=1)
+ endif()

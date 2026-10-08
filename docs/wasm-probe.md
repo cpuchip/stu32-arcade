@@ -125,7 +125,8 @@ stacks and panel buffers already hold the rest.
 
 ESP-IDF can map PSRAM's physical pages into the instruction space: esp_mmu_vaddr_to_paddr then
 esp_mmu_map(paddr, size, MMU_TARGET_PSRAM0, MMU_MEM_CAP_EXEC | READ | 32BIT, PADDR_SHARED). That is
-what WAMR's dual-bus mirror meant to do. The scratch copy of WAMR 2.4.5 now does it in os_mmap
+what WAMR's dual-bus mirror meant to do. The scratch copy of WAMR 2.4.5 now does it (the change is
+probes/wasm/wamr-2.4.5-psram-exec.patch, under WAMR's licence, applied by no build) in os_mmap
 (page-aligned PSRAM, 64 KB pages; the data address kept for os_get_dbus_mirror, through which the loader
 copies and relocates the code; os_munmap unmaps and frees), with the mirror on for CONFIG_SPIRAM.
 
