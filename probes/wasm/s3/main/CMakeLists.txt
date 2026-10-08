@@ -29,6 +29,10 @@ elseif(BACKEND STREQUAL "wasm3" OR BACKEND STREQUAL "wasm3flash")
         target_compile_options(m3 PUBLIC -O3 -freorder-blocks)   # generic: no ESP32, so no IRAM_ATTR on the ops
     endif()
     target_compile_options(${COMPONENT_LIB} PRIVATE -DB_WASM3)
+elseif(BACKEND STREQUAL "wamraot")
+    idf_component_register(SRCS ${B} PRIV_REQUIRES esp_timer esp_psram pthread freertos wamr
+                           EMBED_FILES ${WASM}/guest/babal-s3.aot)
+    target_compile_options(${COMPONENT_LIB} PRIVATE -DB_WAMR -DGAME_AOT)
 else()
     idf_component_register(SRCS ${B} PRIV_REQUIRES esp_timer esp_psram pthread freertos wamr
                            EMBED_FILES ${WASM}/guest/babal-mvp.wasm)

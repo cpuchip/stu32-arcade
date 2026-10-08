@@ -32,7 +32,7 @@ types, which WAMR's default build refuses ("zero byte expected").
 ## Every backend draws the same frames
 
 Hash `bd0df19696198fe3` from native on the host and the S3, wasm3, WAMR classic interpreter, WAMR
-fast interpreter (host) and WAMR AOT (host). The same .wasm gives the same game everywhere it ran:
+fast interpreter (host) and WAMR AOT (host and S3). The same .wasm gives the same game everywhere it ran:
 wasm's f64 is strict IEEE and has no fused multiply-add.
 
 ## On the S3 (ESP32-S3 at 240 MHz, ESP-IDF 5.4.2, -O2; bench in a pthread with a 64 KB stack)
@@ -67,15 +67,62 @@ the chip, this is the first thing to look at (and to report upstream).
 **wasm3 needs more stack than a game gets.** 37-50 KB of the task's stack against APP_STACK_BYTES
 16 KB; WAMR's interpreter keeps its own stack and used 2.2 KB of the task's.
 
-## AOT: native speed on the host; on the S3 not yet measured
+## AOT: about 1.5x native on the S3
 
-wamrc compiles the .wasm ahead of time to the target's machine code; WAMR then loads that (.aot,
-target-specific). On the host (x86-64, WAMR 2.4.5 with its matching wamrc, AOT format 5): same hash,
-draw 18-19 us against 17 us native, the int loop 1.3 ms against 1.46 ms. The prebuilt wamrc has no
-Xtensa backend ("llvm get target from triple (xtensa-pc-linux-gnu) failed"); WAMR builds one from
-Espressif's LLVM fork (github.com/espressif/llvm-project, branch xtensa_release_18.1.2, per
-build-scripts/build_llvm.py), a third-party source not yet asked for. WAMR main's AOT format is 6, the
-2.4.5 release's 5: wamrc and the runtime must come from the same version.
+wamrc compiles the .wasm ahead of time to the target's machine code; WAMR loads that (.aot,
+target-specific). The prebuilt wamrc has no Xtensa backend, so wamrc 2.4.5 was built (in Docker,
+16 CPUs and 24 GB capped) on Espressif's LLVM fork, github.com/espressif/llvm-project branch
+xtensa_release_18.1.2 at 344b928e67bfc1d07cb150609c55548e86a9bf19 (LICENSE.TXT: Apache-2.0 WITH
+LLVM-exception plus the legacy University of Illinois/NCSA notice; sha256 prefix 8d85c1057d742e59),
+targets X86 and Xtensa, Release, no tests or tools (abacus #5092, basecamp #5096). ESP-IDF's prebuilt
+esp-clang (esp-18.1.2_20240912, sha256 as idf_tools lists) was checked first: it has libLLVM.so but no
+LLVM headers or CMake package, so it could not build wamrc. The runtime is WAMR 2.4.5 (25bd7eb), whose
+AOT format (5) matches; WAMR main is at format 6.
+
+Babal's game compiled with `wamrc --target=xtensa --cpu=esp32s3 --size-level=0`, on casim's XIAO:
+
+| | tick avg | draw avg (worst) | int loop 1M | f64 loop 1M | task stack used | internal RAM after load |
+|---|---|---|---|---|---|---|
+| native | 91 us | 1.53 ms (4.2) | 33 ms | 1.23 s | 2,024 B | 0 |
+| WAMR AOT | 146 us | 2.32 ms (4.97) | 48 ms | 1.21 s | 2,568 B | 91,284 B (+ 381,452 PSRAM) |
+
+The hash is bd0df19696198fe3 again. Draw 1.5x native, the tight loop 1.4x, f64 the same (both call
+the same soft-float routines). **The .aot is 92,368 B** (the .wasm 143,832 B). **The AOT runtime** (AOT
+loader only, no interpreter) is 37,086 B: 35,110 B of code in flash, 1,840 B of RAM. **The task stack**,
+2.6 KB, is well inside APP_STACK_BYTES (16 KB). **The cost is internal RAM:** the game's code runs from
+internal RAM, 91 KB for Babal after load, out of the 341,760 B of DIRAM the S3's build reports, which
+also holds the calculator's own state and stacks.
+
+What it took, each found on the chip and recorded:
+1. **WAMR's PSRAM code mapping is wrong on the S3.** With PSRAM on, WAMR 2.4.5 (shared_platform.cmake)
+   puts AOT code in PSRAM and computes its instruction address as data address + (SOC_IROM_LOW -
+   SOC_IROM_HIGH) = - 0x2000000: 0x3C0779b4 became 0x3a0779b4, not instruction memory
+   (IllegalInstruction there). Disabled in the scratch copy (WASM_MEM_DUAL_BUS_MIRROR off), so the
+   code goes to internal executable RAM (MALLOC_CAP_EXEC).
+2. **ESP-IDF's memory protection off** (CONFIG_ESP_SYSTEM_MEMPROT_FEATURE=n), as WAMR's own ESP-IDF
+   example sets it: memory protection forbids executable heap. **This is a firmware-wide setting
+   (soroban's) with a security cost:** it is what stops code from being written into executable memory.
+3. **`--size-level=0`.** The default build's .aot (110,960 B) is refused: "invalid relocation offset"
+   (aot_reloc_xtensa.c). The object's relocations all fit their sections, so the fault is in the .aot
+   or its loader; open. size-level 0 (WAMR's own hint for Xtensa's L32R range) loads.
+4. **XIP is not available on Xtensa:** `--xip` still leaves 574 L32R relocations in .text, which XIP
+   mode refuses ("cannot apply relocation to text section ... --enable-indirect-mode").
+
+The scratch copy of WAMR 2.4.5 carries two changes for this: the mirror disabled (1), and a print in
+check_reloc_offset's failure branch (diagnostic only).
+
+## Recommendation (arcade, for abacus's ruling)
+
+**WAMR, its AOT mode on the S3.** One .wasm per game is the portable file (the browser runs it as it is;
+Android and the S3 through WAMR); the S3 runs an .aot compiled from it with wamrc, per target, when a
+game is built or listed (an .aot is target-specific). On the S3 that is about 1.5x native and a 2.6 KB
+task stack, for 37 KB of runtime in flash. Interpreted (wasm3 or WAMR), a Babal-class game is about 35x
+native: too slow to draw at frame rate. wasm3 also needs 37-50 KB of task stack, past APP_STACK_BYTES.
+
+**What abacus and soroban would be ruling with it:** each running game's code in internal RAM (91 KB for
+Babal); ESP-IDF's memory protection off, firmware-wide; a scratch fix to WAMR's ESP-IDF port (the PSRAM
+mirror), which would have to be carried as a patch or reported upstream; wamrc built on Espressif's LLVM
+(a build tool, not shipped); `--size-level=0` until the default build's relocation fault is understood.
 
 ## How to run it
 

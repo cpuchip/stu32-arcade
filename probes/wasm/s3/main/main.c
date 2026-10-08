@@ -16,6 +16,11 @@ void bench_run(const uint8_t *wasm, uint32_t n);
 static const uint8_t none[1];
 #define WASM none
 #define WASM_N 0u
+#elif defined(GAME_AOT)
+extern const uint8_t wasm_start[] asm("_binary_babal_s3_aot_start");
+extern const uint8_t wasm_end[] asm("_binary_babal_s3_aot_end");
+#define WASM wasm_start
+#define WASM_N ((uint32_t)(wasm_end - wasm_start))
 #else
 extern const uint8_t wasm_start[] asm("_binary_babal_mvp_wasm_start");
 extern const uint8_t wasm_end[] asm("_binary_babal_mvp_wasm_end");

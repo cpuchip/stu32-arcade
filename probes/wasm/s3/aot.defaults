@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+# WAMR AOT only: the loader for wamrc's .aot, no interpreter
+CONFIG_WAMR_ENABLE_AOT=y
+CONFIG_WAMR_ENABLE_INTERP=n
+CONFIG_ESP_SYSTEM_MEMPROT_FEATURE=n
