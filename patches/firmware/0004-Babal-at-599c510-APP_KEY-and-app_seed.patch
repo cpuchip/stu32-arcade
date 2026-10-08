@@ -1,0 +1,37 @@
+From 8e79323b4b43a202c7ec2924934a839e3e927f66 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Thu, 8 Oct 2026 00:48:04 +0000
+Subject: [PATCH] Babal at stu32-arcade 599c510: its keys by APP_KEY_*, its
+ seed from app_seed() (apps.h v1.2)
+
+Babal names its keys by app_keys.h and seeds each game from app_seed() (the hardware RNG here),
+folded into the game count and the start key's ms, so levels no longer repeat across power cycles.
+Same frames otherwise. At stu32-arcade: appcheck (9 scripts identical to babalcore and the spec,
+app-far reaching row 126, every plant red), and on the S3 in soroban's window (#4899) 22,641 frames
+hashing as on the host, the control red.
+
+Checked on 7776c7c in a scratch clone (GAMES_REPOS and CASIM_REPO set to the local clones): make all
+and make test pass (app_test 625/625, standin_test 349/349, the generator test green); the stand-in
+and Rev A images build, Babal's 18 files with the frame guard and -ffp-contract=off (casim.c has the
+guard of its own).
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ games.list | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/games.list b/games.list
+index 49819e3..33b3a90 100644
+--- a/games.list
++++ b/games.list
+@@ -4,4 +4,4 @@
+ # entry passes soroban's gate. Format and manifest: the header of scripts/gen_games.py.
+ # ID   REPO          PIN                                       LICENCE                    MANIFEST
+ # Babal: arcade's port of Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense)
+-babal  stu32-arcade  e695309748c78435bf0112f62699fa06f470fd68  MIT                        stu32-game.txt
++babal  stu32-arcade  599c51060bb63b011f03e9a4077cfea2328b88b4  MIT                        stu32-game.txt
+-- 
+2.53.0
+
