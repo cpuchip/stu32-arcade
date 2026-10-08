@@ -3,6 +3,10 @@
 """Write app scripts for tools/apphost.c: a session at the title (skill keys), a start, then play:
 ticks of uneven length (some 0, some long enough to be clamped) with key presses, releases and jumps
 at their own times between the ticks, until the time runs out or MAX ticks.
+Also app-far: a noob game played as the original is, weaving (4 and 6 held in turn) and jumping, to
+go far down the track: the random sessions stop near row 85 at the finish, short of where rows must be
+made ahead of the ball (row 100), which only luck in the seeds had reached (oracle/app_check.sh
+checks that some game passes row 110).
 Words: key K D MS | tick MS. Usage: gen_appscripts.py OUTDIR [N]"""
 import os
 import random
@@ -48,6 +52,25 @@ def session(rng, ticks, start=None):
     return out
 
 
+def far(ticks=6000, period=300, jump=700):
+    """Weave every PERIOD ms (the original's accelerator: forward speed comes from steering) and jump
+    every JUMP ms (speed while rising), 20 ms ticks, from soft key 0 (noob)."""
+    out = ["tick 20", "key 0 1 30", "key 0 0 30", "tick 20"]
+    clock, held = 40, LEFT
+    out.append(f"key {held} 1 {clock}")
+    swap = hop = clock
+    for _ in range(ticks):
+        clock += 20
+        if clock - swap >= period:
+            out += [f"key {held} 0 {clock - 20}", f"key {RIGHT if held == LEFT else LEFT} 1 {clock - 20}"]
+            held, swap = RIGHT if held == LEFT else LEFT, clock
+        if clock - hop >= jump:
+            out += [f"key {JUMP} 1 {clock - 20}", f"key {JUMP} 0 {clock - 18}"]
+            hop = clock
+        out.append("tick 20")
+    return out
+
+
 def main():
     outdir = sys.argv[1]
     n = int(sys.argv[2]) if len(sys.argv) > 2 else 8
@@ -58,6 +81,8 @@ def main():
         lines = session(rng, 8000, start=0) if i == 0 else session(rng, rng.choice([400, 1500, 4000]))
         with open(os.path.join(outdir, f"app-{i}.txt"), "w") as f:
             f.write("\n".join(lines) + "\n")
+    with open(os.path.join(outdir, "app-far.txt"), "w") as f:
+        f.write("\n".join(far()) + "\n")
 
 
 if __name__ == "__main__":

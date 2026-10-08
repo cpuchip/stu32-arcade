@@ -27,6 +27,12 @@ uint32_t app_now_ms(void)
 {
     return clock_ms;
 }
+uint32_t app_seed(void) /* the framework's host choice (abacus-firmware firmware/app.c, apps.h v1.2) */
+{
+    uint32_t x = app_now_ms() ^ 0x9E3779B9u;
+    x ^= x << 13, x ^= x >> 17, x ^= x << 5;
+    return x;
+}
 
 static uint64_t fnv(uint64_t h, const void *p, size_t n)
 {

@@ -138,7 +138,9 @@ static void generate_ahead(babal_ctx *c)
 static void start_game(babal_ctx *c, uint32_t ms)
 {
     c->games++;
-    c->seed = mix64(((uint64_t)c->games << 32) ^ ms);
+    /* the framework's seed (the device's hardware RNG, apps.h v1.2) folded into the game count and the
+       start key's ms: entropy on the device, and still a new level each game where a host fixes it */
+    c->seed = mix64(mix64(app_seed()) ^ ((uint64_t)c->games << 32) ^ ms);
     bb_level_init(&c->level, c->seed, c->skill, c->rows, BABAL_ROWS);
     bb_player_init(&c->player, c->log, c->log_present, BABAL_LOG);
     /* babalgame's update_player_best_score at each start: the best over all skills */

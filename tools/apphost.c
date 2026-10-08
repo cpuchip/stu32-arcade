@@ -11,9 +11,10 @@
  *    ENTER and 8 start the shown skill, 4 and 6 step it, every other key and every release does
  *    nothing; in a game no key ends it, and a tick ends it exactly when its events hold FINISH;
  *    tick never asks for no more ticks, nor more than 100 ms apart in a game; no two games of a
- *    session share a seed; the finish screen holds 600 ms; the scores list (babalgame's Scores.gd:
- *    the five highest over all skills, highest first) gets each finished game's score, and an
- *    unfinished one's when the app is left, once; its top is the best given to the rules; the finish
+ *    session share a seed, and each takes app_seed() (apps.h v1.2) once as it starts; the finish
+ *    screen holds 600 ms; the scores list (babalgame's Scores.gd: the five highest over all skills,
+ *    highest first) gets each finished game's score, and an unfinished one's when the app is left,
+ *    once; its top is the best given to the rules; the finish
  *    says "New record!" exactly when the rules' high-score event came in that game, else "Game
  *    over"; one tone a tick, the first of the tone table the tick's events name; the windows'
  *    counts 0 at each game's end; the save's bytes as the spec lays them out, a corrupt save taken
@@ -154,6 +155,14 @@ void app_beep(uint16_t hz, uint16_t ms)
 uint32_t app_now_ms(void)
 {
     return clock_ms;
+}
+static int seed_calls; /* the spec: each game takes the framework's seed once, at its start */
+uint32_t app_seed(void) /* the framework's host choice (abacus-firmware firmware/app.c, apps.h v1.2) */
+{
+    seed_calls++;
+    uint32_t x = app_now_ms() ^ 0x9E3779B9u;
+    x ^= x << 13, x ^= x >> 17, x ^= x << 5;
+    return x;
 }
 
 static babal_ctx ctx;
@@ -299,6 +308,8 @@ static void game_started(int key, int skill_before)
         fail(5, "soft key %d started skill %d", key, ctx.skill);
     if ((key == K_ENTER || key == K_JUMP) && ctx.skill != (bb_skill)skill_before)
         fail(5, "ENTER or 8 changed the skill");
+    if (seed_calls != games + 1)
+        fail(5, "game %d took %d seeds from app_seed in this session, not %d", games + 1, seed_calls, games + 1);
     for (int g = 0; g < games && g < 256; g++) /* this session's games */
         if (seeds[g] == ctx.seed)
             fail(5, "game %d has game %d's seed", games + 1, g + 1);
@@ -334,6 +345,7 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
     memset(&ctx, 0, sizeof ctx);
     clock_ms = 0;
     games = 0;
+    seed_calls = 0;
     first_score = -1;
     recording = record;
     out_set_sink(record ? to_stdout : to_null);

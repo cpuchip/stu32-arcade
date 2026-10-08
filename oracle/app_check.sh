@@ -52,6 +52,12 @@ ok=1
 echo "== the ctx limit: $(grep -m1 -o 'define APP_CTX_MAX ([0-9 *]*)' "$FW/apps.h") (apps.h at FIRMWARE_PIN)"
 echo "== the app against babalcore"
 check "$ROOT/build/apphost" "$B/run" || ok=0
+# Coverage, not luck: some game must pass row 110, where rows are made ahead of the ball past the
+# first 200 (generate_ahead). Under new seeds the random sessions stopped near row 85, and a plant
+# there survived until app-far was added.
+far=$(cat "$B"/run/*.app 2>/dev/null | grep -o ' row=[0-9]*' | cut -d= -f2 | sort -n | tail -1)
+if [ "${far:-0}" -ge 110 ]; then echo "  the furthest game reaches row $far (rows made ahead are played)"
+else echo "  RED: no game passes row 110 (furthest ${far:-none}): rows made ahead go untested"; ok=0; fi
 
 # The same harness under ASan and UBSan (no recovery): undefined behaviour fails the gate.
 echo "== under ASan and UBSan"
@@ -80,7 +86,8 @@ PLANTS=(
     "babal_app.c|/    bb_player_set_best_score(\&c->player, best_score(c));/d|the saved best not given to the rules"
     "babal_app.c|s/save\[2\] > BB_EXPERT)/0)/|a save with a bad skill byte taken"
     "babal_app.c|s/            c->skill = (bb_skill)(BB_NOOB + (key - APP_KEY_SOFT1));/            c->skill = (bb_skill)(BB_EXPERT - (key - APP_KEY_SOFT1));/|soft keys choose skills in reverse"
-    "babal_app.c|s/c->seed = mix64(((uint64_t)c->games << 32) ^ ms);/c->seed = mix64(42 + 0 * ms);/|every game the same seed"
+    "babal_app.c|s/c->seed = mix64(mix64(app_seed()) ^ ((uint64_t)c->games << 32) ^ ms);/c->seed = mix64(app_seed() * 0 + 42 + 0 * ms);/|every game the same seed"
+    "babal_app.c|s/c->seed = mix64(mix64(app_seed()) ^ ((uint64_t)c->games << 32) ^ ms);/c->seed = mix64(((uint64_t)c->games << 32) ^ ms);/|the framework's seed ignored"
     "babal_app.c|/        if (e->kind == BB_EVENT_FINISH) { \/\* babalgame's _on_Ball_finish \*\//a\            c->new_record = true;|\"New record!\" on every finish"
     "babal_app.c|s/ms - c->done_ms >= 600/ms - c->done_ms >= 60000/|the finish screen held 60 s"
     "babal_app.c|s/{BB_EVENT_FALL, 150, 150}, //|the fall tone silenced"
