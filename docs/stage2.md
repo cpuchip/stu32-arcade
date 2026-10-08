@@ -204,6 +204,15 @@ ASan question (#4713), after it was merged (abacus-firmware 6a48658); fixed at 7
 built in place) and re-pinned. The guard: babal/ and app/ build here with
 -Wframe-larger-than=1024 under -Werror (the old frame fails it, a planted 4 KB array fails it).
 
+## On apps.h v1.2 (abacus-firmware 0bc7be9), on the S3 (window 2026-10-08, soroban's go #4899)
+
+Babal names its keys APP_KEY_* and seeds from app_seed() (the hardware RNG on the device, folded into
+the game count and the start key's ms). The new seeds changed every script's levels and showed that
+only luck had carried a game past row 100, where rows are made ahead of the ball: app-far (weaving
+and jumping, noob) now reaches row 126, and appcheck fails if no game passes row 110. At a27d7c1,
+scripts/device_app.sh: DEVICE PASS, 9 scripts and 22,641 frames hash on the chip as on the host, the
+control red; draw 1.5 ms average, 4.3 ms worst; tick 170 us average, 501 us worst.
+
 ## Next
 
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.
