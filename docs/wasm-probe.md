@@ -111,18 +111,75 @@ What it took, each found on the chip and recorded:
 The scratch copy of WAMR 2.4.5 carries two changes for this: the mirror disabled (1), and a print in
 check_reloc_offset's failure branch (diagnostic only).
 
+## Internal RAM in the real firmware: it does not fit there (abacus #5157)
+
+The stand-in at abacus-firmware 8502c76 (a scratch clone with one print added, on soroban's S3, go
+#5159), after its tasks start: internal free 50,779 B, largest block 31,744 (its own boot line, before
+the last tasks: 59,779, as soroban measured, #5133); executable 0 (memory protection on). With WAMR's AOT
+runtime linked and initialised and memory protection off: internal 49,883 B, executable free 10,408 B,
+largest block 7,680 B. Babal's AOT code is about 73 KB (91 KB internal after load on the bench). So in
+this firmware a game's code cannot run from internal RAM, by about ten times; the calculator's own state,
+stacks and panel buffers already hold the rest.
+
+## The game's code in PSRAM, mapped executable: it fits, with memory protection on
+
+ESP-IDF can map PSRAM's physical pages into the instruction space: esp_mmu_vaddr_to_paddr then
+esp_mmu_map(paddr, size, MMU_TARGET_PSRAM0, MMU_MEM_CAP_EXEC | READ | 32BIT, PADDR_SHARED). That is
+what WAMR's dual-bus mirror meant to do. The scratch copy of WAMR 2.4.5 now does it in os_mmap
+(page-aligned PSRAM, 64 KB pages; the data address kept for os_get_dbus_mirror, through which the loader
+copies and relocates the code; os_munmap unmaps and frees), with the mirror on for CONFIG_SPIRAM.
+
+On casim's XIAO (go #5165), Babal's .aot, **memory protection on** (ESP-IDF's default):
+
+| | tick avg | draw avg (worst) | int loop 1M | internal RAM after load | PSRAM |
+|---|---|---|---|---|---|
+| native | 91 us | 1.53 ms (4.2) | 33 ms | 0 | 0 |
+| AOT, code in internal RAM (protection off) | 146 us | 2.32 ms (4.97) | 48 ms | 91,284 B | 381,452 B |
+| **AOT, code in PSRAM (protection on)** | 631 us | 2.54 ms (5.28) | 48 ms | **5,236 B** | 520,980 B |
+
+The hash is bd0df19696198fe3. With protection off the PSRAM run is the same to within 1%. The tick is
+slower from PSRAM (rules code fetched through the cache; 631 us of a 20-50 ms tick), the draw barely.
+**Both of abacus's tensions go:** 5 KB of internal RAM fits the firmware's 49 KB free, and memory
+protection stays on (code is mapped, not heap-executable).
+
+## Rules that go with AOT (abacus #5157)
+
+**The S3 loads only an .aot that our own pinned wamrc made from the game's .wasm.** An .aot is native
+code: WAMR's sandbox (bounds checks on linear memory) is only as good as the compiler that emitted it, so
+an .aot from anyone else is never loaded. The .wasm is the file a game ships as; the .aot is built from it
+when the game is listed. soroban owns the memory-protection setting itself.
+
+## Draft upstream report (outward: needs Michael's yes; not sent)
+
+Title: ESP32-S3 with PSRAM: AOT code's instruction address is wrong (WASM_MEM_DUAL_BUS_MIRROR)
+
+> WAMR 2.4.5 (25bd7eb), ESP-IDF v5.4.2, ESP32-S3 with 8 MB octal PSRAM, AOT from wamrc 2.4.5
+> (--target=xtensa --cpu=esp32s3 --size-level=0). With CONFIG_SPIRAM set,
+> core/shared/platform/esp-idf/shared_platform.cmake defines WASM_MEM_DUAL_BUS_MIRROR=1, and os_mmap
+> returns PSRAM data-bus memory plus MEM_DUAL_BUS_OFFSET = SOC_IROM_LOW - SOC_IROM_HIGH (-0x2000000)
+> as the code's address. On the S3 PSRAM's data address 0x3C0779b4 becomes 0x3A0779b4, which is not
+> instruction memory: the first call into the module panics with IllegalInstruction at PC 0x3a0779b4.
+> A fixed offset cannot work here, since heap pages in PSRAM are not mapped for instruction fetch; mapping
+> the block's physical pages with esp_mmu_vaddr_to_paddr and esp_mmu_map(paddr, len, target,
+> MMU_MEM_CAP_EXEC | MMU_MEM_CAP_READ | MMU_MEM_CAP_32BIT, ESP_MMU_MMAP_FLAG_PADDR_SHARED, &ibus) on a
+> page-aligned PSRAM block, and returning that block's data address from os_get_dbus_mirror, runs the
+> module correctly with CONFIG_ESP_SYSTEM_MEMPROT_FEATURE left on (same results as native, 5 KB of
+> internal RAM). With the mirror off (code in MALLOC_CAP_EXEC) it also runs, but only with memory
+> protection disabled. We can share the patch.
+
 ## Recommendation (arcade, for abacus's ruling)
 
-**WAMR, its AOT mode on the S3.** One .wasm per game is the portable file (the browser runs it as it is;
-Android and the S3 through WAMR); the S3 runs an .aot compiled from it with wamrc, per target, when a
-game is built or listed (an .aot is target-specific). On the S3 that is about 1.5x native and a 2.6 KB
-task stack, for 37 KB of runtime in flash. Interpreted (wasm3 or WAMR), a Babal-class game is about 35x
+**WAMR, its AOT mode on the S3, the game's code in PSRAM.** One .wasm per game is the portable file
+(the browser runs it as it is; Android and the S3 through WAMR); the S3 runs an .aot compiled from it with
+our pinned wamrc, per target, when a game is listed (an .aot is target-specific). On the S3 that is about
+1.7x native in Babal's draw, a 2.6 KB task stack, 5 KB of internal RAM, memory protection on, for 37 KB
+of runtime in flash. Interpreted (wasm3 or WAMR), a Babal-class game is about 35x
 native: too slow to draw at frame rate. wasm3 also needs 37-50 KB of task stack, past APP_STACK_BYTES.
 
-**What abacus and soroban would be ruling with it:** each running game's code in internal RAM (91 KB for
-Babal); ESP-IDF's memory protection off, firmware-wide; a scratch fix to WAMR's ESP-IDF port (the PSRAM
-mirror), which would have to be carried as a patch or reported upstream; wamrc built on Espressif's LLVM
-(a build tool, not shipped); `--size-level=0` until the default build's relocation fault is understood.
+**What abacus and soroban would be ruling with it:** a patch to WAMR's ESP-IDF port (the PSRAM mapping,
+about 60 lines in espidf_memmap.c, plus three component requirements), carried by us or upstreamed (the
+draft above); wamrc built on Espressif's LLVM (a build tool, not shipped); `--size-level=0` until the
+default build's relocation fault is understood; only .aot from our pinned wamrc.
 
 ## How to run it
 
