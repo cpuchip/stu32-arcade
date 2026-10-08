@@ -1,6 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: MIT
-# A copy of abacus-firmware's tests/gen_games_test.sh at 2596588 (the master), run on sdk/gamelist's copy.
+# A copy of abacus-firmware's tests/gen_games_test.sh at edf23aa (the master), run on sdk/gamelist's copy.
 # scripts/gen_games.py on throwaway git repos: a valid list generates, and each wrong one fails with its
 # reason and writes nothing. The generated games.h is compiled into a registry. (From arcade's
 # stu32-arcade sdk/gamelist/test_gen_games.sh; the firmware's copy of the generator is the master,

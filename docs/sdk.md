@@ -49,6 +49,10 @@ What a game must not do: allocate, call the calculator's core (`ab_*`), keep poi
 after `draw`, or put anything big on the stack: its calls may use APP_STACK_BYTES (16 KB) of the framework's
 task stack. Build with `-Wframe-larger-than=1024 -Werror` (Babal once shipped a 164 KB stack frame that every
 host test passed). Put big state in `ctx`.
+On a host that spelling is the portable one (clang and primer's emcc take it, abacus #5012); the
+device's gcc build may use `-Werror=frame-larger-than=1024`, but never mix the two forms
+(`-Wframe-larger-than=1024 -Werror=frame-larger-than` is refused outright by gcc 15 and the S3's
+xtensa gcc).
 
 ## Drawing: draw.h (the framework's)
 
