@@ -66,7 +66,7 @@ static void imp_tune(wasm_exec_env_t env, int32_t notes, int32_t n)
 {
     wasm_module_inst_t inst = wasm_runtime_get_module_inst(env);
     if (n < 0 || n > 255 || !wasm_runtime_validate_app_addr(inst, (uint64_t)(uint32_t)notes, (uint64_t)n * 4))
-        return; /* the exception is already set on the instance */
+        return; /* n out of range is ignored; notes outside the guest's memory set the exception (a trap) */
     app_tune(wasm_runtime_addr_app_to_native(inst, (uint64_t)(uint32_t)notes), (uint8_t)n);
 }
 
@@ -127,7 +127,7 @@ static uint8_t *guest_bytes(wasm_bridge_ctx *c, uint32_t app, uint32_t size)
 void wasm_bridge_load(const wasm_game *g, void *ctx, const uint8_t *save, uint32_t n)
 {
     wasm_bridge_ctx *c = ctx;
-    char err[96];
+    char err[96] = "";  /* wasm_runtime_create_exec_env has no error text of its own */
     uint32_t argv[1];
     c->game = g;
     if (runtimes == 0) {
@@ -158,7 +158,7 @@ void wasm_bridge_load(const wasm_game *g, void *ctx, const uint8_t *save, uint32
     if (!(c->module = wasm_runtime_load(c->aot_copy, aot_size, err, sizeof err))
         || !(c->inst = wasm_runtime_instantiate(c->module, WASM_STACK, 0, err, sizeof err))
         || !(c->env = wasm_runtime_create_exec_env(c->inst, WASM_STACK))) {
-        fail(c, "load", err);
+        fail(c, "load", err[0] ? err : "no exec env");
         return;
     }
 #ifdef ESP_PLATFORM
