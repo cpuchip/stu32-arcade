@@ -20,12 +20,19 @@ Matrix, Rev A (STU_WASM=1, no game) on ab51544 plus the unit, ESP-IDF v5.4.2:
 - B, no property, WASI on: fails, in libc-wasi's locking.h (pthread_cond_timedwait and its timespec).
 - control, the unpatched series, WASI on: fails with the same 27 distinct diagnostics in the same 13 objects,
   so B's failure predates this patch: WASI on does not build in this configuration either way.
-- C, no property, WASI off: builds with lwip, 3,970,352 B (today's behaviour).
+- C, no property, WASI off: builds with lwip, 3,970,352 B. The default is not unchanged at the source: without
+  libc-wasi, espidf_socket.c and espidf_file.c are no longer compiled and readv/writev are guarded, whatever the
+  property says (abacus #5535 asked). The linked image is: C with BABLW listed (WAMR linked) is 4,163,200 B
+  against the unpatched series and with 0005, byte-identical apart from the app descriptor, with the same loaded
+  sections, because nothing without libc-wasi references what is left out. Without a game, C is identical too.
 - D, property, WASI on: stops with "WAMR_NO_LWIP is set, but libc-wasi needs lwip" (the planted mismatch).
 - E, the stand-in, property, WASI off: builds, 4,013,072 B (main's size), no lwip file compiled.
 With BABLW listed (WAMR, the bridge and one game linked), property on: Rev A +192,848 B flash and +372 B
 static D/IRAM over main; the stand-in +192,864 B and +288 B. The .aot is 143,096 B of that, embedded as
 143,100; libwamr is 34,281 B.
+
+Upstream: held (abacus #5535). WASI on does not build in this configuration with or without 0005, and that is
+the configuration a maintainer would ask about; the WASI-on failure in libc-wasi's locking.h is its own finding.
 
 Console (abacus #5530): Rev A's sdkconfig has the console on UART0 at main already (ESP_CONSOLE_UART_DEFAULT,
 UART_NUM 0, USB-Serial/JTAG secondary), identical in all three builds (main, C, A). VFS only adds the
