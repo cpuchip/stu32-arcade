@@ -1,0 +1,68 @@
+The second upstream branch's commit (WAMR #5147), for abacus to read before anything is opened. It applies to
+WAMR main at ea5dd88; a modification of WAMR, so under Apache-2.0 WITH LLVM-exception, not this repository's
+MIT. The PR draft is pr2.md beside it.
+
+From 9463c24480d4f3c0bec5332d9bbe828a967867e7 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 14:23:22 +0000
+Subject: [PATCH] xtensa: fix L32R relocation lost to strict aliasing
+
+put_imm16_to_addr() wrote the new L32R immediate into an int8 buffer
+through an int16 pointer and read the buffer back through an int32
+pointer. That breaks strict aliasing, and GCC at -O2 (ESP-IDF v5.4.2)
+removes the write-back whenever the immediate does not cross a word
+boundary, so those L32R instructions keep their unrelocated offset and
+load from the start of the function instead of the literal pool.
+
+Copy the immediate with memcpy into a uint32 array, and write the
+result back with 32-bit stores only, which instruction memory needs.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ core/iwasm/aot/arch/aot_reloc_xtensa.c | 30 +++++++++++---------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
+
+diff --git a/core/iwasm/aot/arch/aot_reloc_xtensa.c b/core/iwasm/aot/arch/aot_reloc_xtensa.c
+index a866883..625422f 100644
+--- a/core/iwasm/aot/arch/aot_reloc_xtensa.c
++++ b/core/iwasm/aot/arch/aot_reloc_xtensa.c
+@@ -159,23 +159,19 @@ check_reloc_offset(uint32 target_section_size, uint64 reloc_offset,
+ static void
+ put_imm16_to_addr(int16 imm16, int16 *addr)
+ {
+-    int8 bytes[8];
+-    int32 *addr_aligned1, *addr_aligned2;
+-
+-    addr_aligned1 = (int32 *)((intptr_t)addr & ~3);
+-
+-    if ((intptr_t)addr % 4 != 3) {
+-        *(int32 *)bytes = *addr_aligned1;
+-        *(int16 *)(bytes + ((intptr_t)addr % 4)) = imm16;
+-        *addr_aligned1 = *(int32 *)bytes;
+-    }
+-    else {
+-        addr_aligned2 = (int32 *)(((intptr_t)addr + 3) & ~3);
+-        *(int32 *)bytes = *addr_aligned1;
+-        *(int32 *)(bytes + 4) = *addr_aligned2;
+-        *(int16 *)(bytes + 3) = imm16;
+-        memcpy(addr_aligned1, bytes, 8);
+-    }
++    uint32 offset = (uint32)((uintptr_t)addr & 3);
++    uint32 *addr_aligned = (uint32 *)((uintptr_t)addr & ~(uintptr_t)3);
++    uint32 words[2];
++
++    /* memcpy keeps this free of strict-aliasing violations; instruction
++     * memory only takes 32-bit stores */
++    words[0] = addr_aligned[0];
++    if (offset == 3)
++        words[1] = addr_aligned[1];
++    memcpy((uint8 *)words + offset, &imm16, sizeof(imm16));
++    addr_aligned[0] = words[0];
++    if (offset == 3)
++        addr_aligned[1] = words[1];
+ }
+ 
+ static union {
+-- 
+2.53.0
+
