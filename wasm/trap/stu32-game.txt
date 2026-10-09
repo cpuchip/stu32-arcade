@@ -1,0 +1,12 @@
+# The trap test game, for the firmware's wasm gate only (made by probes/wasm/trap/build.sh; do not edit)
+name = TRAP
+folder = GAMES
+kind = wasm
+aot = wasm/trap/trap.aot
+aot_sha256 = e95dd7ee6d71d75eee51521051809baad46c5f44e00748a642e3212a8e58fb94
+wasm = wasm/trap/trap.wasm
+wasm_sha256 = 6c9b9063de8bba0c3bae00d1d71c2edb38493399aac4b93fbe633418526a10aa
+author = arcade (the games seat)
+licence = MIT
+source = probes/wasm/trap/trap_app.c through sdk/wasm/guest.c, built by probes/wasm/trap/build.sh
+toolchain = 34.0 clang -mcpu=mvp -O2; wamrc --target=xtensa --cpu=esp32s3, WAMR tree 13f26968cf1fd69fd8172b510bf6c05469321b41, LLVM 344b928e67bfc1d07cb150609c55548e86a9bf19
