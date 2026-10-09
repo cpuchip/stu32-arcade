@@ -1,0 +1,121 @@
+From 9480496d002e58359ced49c7244e6766de58dbf6 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 17:18:37 +0000
+Subject: [PATCH 4/5] 055 (4/5): resources.py static --env, the option's cost
+
+static BASE NEW --env K=V (repeatable) builds both commits with the option set, in its own build directory.
+With STU_WASM=1 it runs scripts/fetch-wamr.sh in each worktree that has it (WAMR_REPO from the environment,
+like CASIM_REPO), and refuses a build whose sdkconfig is not WAMR's AOT-only one, so an off build cannot pass
+as on (soroban #5527). Falsified both ways: an option-on build directory passes, an option-off one read as on is
+refused. Inert on a base without the option.
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ scripts/resources.py | 36 ++++++++++++++++++++++++++----------
+ 1 file changed, 26 insertions(+), 10 deletions(-)
+
+diff --git a/scripts/resources.py b/scripts/resources.py
+index 6a4baee..12fd310 100644
+--- a/scripts/resources.py
++++ b/scripts/resources.py
+@@ -1,9 +1,11 @@
+ #!/usr/bin/env python3
+ """resources: a unit's cost in each resource (abacus decision 68, unit 052).
+ 
+-    scripts/resources.py static BASE NEW [--targets standin,reva]
++    scripts/resources.py static BASE NEW [--targets standin,reva] [--env K=V ...]
+         flash (the image, and each library's change), static DIRAM and IRAM, and the internal-RAM symbols that moved
+-        (nm, 0x3FC88000-0x3FD00000), for two commits; no board
++        (nm, 0x3FC88000-0x3FD00000), for two commits; no board. --env sets a build option in both builds: with
++        STU_WASM=1, WAMR is fetched into each worktree that has scripts/fetch-wamr.sh (WAMR_REPO from the
++        environment, default ../wasm-micro-runtime); the device CMakeLists append device/sdkconfig.wasm
+     scripts/resources.py board BASE NEW --port PORT
+         on the stand-in: the internal heap free after boot, the worst stack through the keys (047's deepest site, 048's
+         CAS keys) and the speed benches (device/standin/speed.txt), each commit flashed in turn; the board is left on NEW
+@@ -57,19 +59,27 @@ def worktree(commit):
+     return sha, wt
+ 
+ 
+-def docker(wt, script, port=None):
++def docker(wt, script, port=None, env=None):
+     cmd = ["docker", "run", "--rm", "-v", f"{wt}:/project", "-w", "/project", "--user", f"{os.getuid()}:{os.getgid()}",
+            "-e", "HOME=/tmp"]
++    for k, v in sorted((env or {}).items()):
++        cmd += ["-e", f"{k}={v}"]
+     if port:
+         cmd += ["--group-add", str(os.stat(port).st_gid), "--device", port, "-e", f"PORT={port}"]
+     cmd += [IMAGE, "bash", "-c", ". \"$IDF_PATH/export.sh\" >/dev/null 2>&1\nset -euo pipefail\n" + script]
+     return subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+ 
+ 
+-def build(wt, target, bdir="build-res", extra_defaults=None, flash_port=None):
++def build(wt, target, bdir="build-res", extra_defaults=None, flash_port=None, env=None):
+     """the target built in <wt>/<dir>/<bdir> with a fresh sdkconfig; its size JSON and text, and the ELF's nm"""
+     d, name = TARGETS[target]
+     defaults = "sdkconfig.defaults"
++    if env:                                     # (its own build directory: a commit's build differs per option)
++        bdir += "-" + "-".join(f"{k}{v}" for k, v in sorted(env.items())).lower()
++    wasm = (env or {}).get("STU_WASM") == "1" and os.path.exists(os.path.join(wt, "scripts", "fetch-wamr.sh"))
++    if wasm:
++        wamr = os.environ.get("WAMR_REPO", os.path.join(ROOT, "..", "wasm-micro-runtime"))
++        subprocess.run(["scripts/fetch-wamr.sh"], cwd=wt, env=dict(os.environ, WAMR_REPO=wamr), check=True)
+     if extra_defaults:
+         with open(os.path.join(wt, d, "res-extra.defaults"), "w") as f:
+             f.write(extra_defaults)
+@@ -82,7 +92,7 @@ def build(wt, target, bdir="build-res", extra_defaults=None, flash_port=None):
+         if not os.path.exists(os.path.join(b, "res-calc.txt")):    # (cached before the frame column existed)
+             docker(wt, f"xtensa-esp32s3-elf-objdump -d --disassemble=calc_task {d}/{bdir}/{name}.elf | "
+                        f"grep -A1 '<calc_task>:' > {d}/{bdir}/res-calc.txt || true")
+-        return read_build(b)
++        return read_build(b, wasm)
+     flash = f'idf.py -B {bdir} -DSDKCONFIG={bdir}/sdkconfig -p "$PORT" flash >/dev/null\n' if flash_port else ""
+     r = docker(wt, f"""
+ TARGET=esp32s3 scripts/fetch-intel-dfp.sh >/dev/null
+@@ -93,13 +103,17 @@ idf.py -B {bdir} -DSDKCONFIG={bdir}/sdkconfig size-components --format json2 --o
+ idf.py -B {bdir} -DSDKCONFIG={bdir}/sdkconfig size > {bdir}/res-size.txt
+ xtensa-esp32s3-elf-nm -t d -S {bdir}/{name}.elf > {bdir}/res-nm.txt
+ xtensa-esp32s3-elf-objdump -d --disassemble=calc_task {bdir}/{name}.elf | grep -A1 "<calc_task>:" > {bdir}/res-calc.txt || true
+-{flash}""", port=flash_port)
++{flash}""", port=flash_port, env=env)
+     if r.returncode != 0:
+         sys.exit(f"resources: {target} at {wt} did not build:\n{r.stdout[-3000:]}")
+-    return read_build(os.path.join(wt, d, bdir))
++    return read_build(os.path.join(wt, d, bdir), wasm)
+ 
+ 
+-def read_build(b):
++def read_build(b, wasm=False):
++    if wasm:                                    # an off build must not pass as on (soroban #5527)
++        cfg = open(os.path.join(b, "sdkconfig")).read()
++        if "CONFIG_WAMR_ENABLE_AOT=y" not in cfg or "CONFIG_WAMR_ENABLE_INTERP=y" in cfg:
++            sys.exit(f"resources: {b} was built with STU_WASM=1 but its sdkconfig is not WAMR's AOT-only one")
+     size = json.load(open(os.path.join(b, "res-size.json")))
+     arch = json.load(open(os.path.join(b, "res-arch.json")))
+     bins = [f for f in os.listdir(b) if f.endswith(".bin")]      # the app's image as flashed (padded to 16 B)
+@@ -138,10 +152,11 @@ def static(args):
+     shas = []
+     for c in (args.base, args.new):
+         shas.append(worktree(c))
++    env = dict(kv.split("=", 1) for kv in args.env)
+     for target in args.targets.split(","):
+         (s0, w0), (s1, w1) = shas
+-        a, b = build(w0, target), build(w1, target)
+-        print(f"\n### {target}: {s0} -> {s1}\n")
++        a, b = build(w0, target, env=env), build(w1, target, env=env)
++        print(f"\n### {target}: {s0} -> {s1}" + "".join(f", {k}={v}" for k, v in sorted(env.items())) + "\n")
+         print("| resource | before | after | change |\n|---|---|---|---|")
+         print(f"| flash (the app's .bin) | {fmt(a['image'])} | {fmt(b['image'])} | {delta(a['image'], b['image'])} |")
+         ua, ub = a["region"]["DIRAM"]["used"], b["region"]["DIRAM"]["used"]
+@@ -291,6 +306,7 @@ def main():
+     s.add_argument("base")
+     s.add_argument("new")
+     s.add_argument("--targets", default="standin,reva")
++    s.add_argument("--env", action="append", default=[], metavar="K=V", help="a build option, in both builds")
+     b = sp.add_parser("board")
+     b.add_argument("base")
+     b.add_argument("new")
+-- 
+2.53.0
+

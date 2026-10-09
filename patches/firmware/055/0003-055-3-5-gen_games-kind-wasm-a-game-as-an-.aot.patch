@@ -1,0 +1,263 @@
+From 7d7049088bb74ab66af699cb67fcc4e961027f53 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 17:18:37 +0000
+Subject: [PATCH 3/5] 055 (3/5): gen_games kind = wasm, a game as an .aot
+
+A manifest with kind = wasm names its .aot (for the ESP32-S3, from our pinned wamrc) and the .wasm it was made
+from, each with its sha256, and the toolchain that made them; it has no sources, include, flags or app. Both
+files are exported at the pin and checked against their hashes (a symbolic link, a missing file or a wrong hash
+is refused), so a stage is checked as a clone is. Only the .aot is built in, and only with STU_WASM=1:
+games.cmake embeds it (EMBED_FILES) with a generated WASM_GAME wrapper, games.h lists the game under
+#ifdef STU_WASM, and games.mk and the host build never have it. tests/gen_games_test.sh gains the cases: a
+native and a wasm game together, the outputs, games.h with and without STU_WASM, a stage without a clone, and
+refusals (a wrong .aot or .wasm hash, sources on a wasm game, no toolchain, a hash that is not hex, a missing
+.aot, an unknown kind). The staged-wasm case was red before the .wasm was exported and green after.
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ scripts/gen_games.py    | 85 +++++++++++++++++++++++++++++++++++++----
+ tests/gen_games_test.sh | 53 +++++++++++++++++++++++++
+ 2 files changed, 130 insertions(+), 8 deletions(-)
+
+diff --git a/scripts/gen_games.py b/scripts/gen_games.py
+index 3624328..6ad8ea2 100755
+--- a/scripts/gen_games.py
++++ b/scripts/gen_games.py
+@@ -24,6 +24,14 @@ The manifest (KEY = VALUE lines, `#` comments), in the game's repo:
+     author, licence, source   who wrote it, its SPDX licence, where it came from (provenance)
+     original  optional: for a port, the original's author, home and licence (abacus decision 62)
+ 
++A WebAssembly game (kind = wasm; decisions 67, 68) has no sources, include, flags or app. In their place:
++    aot, aot_sha256    its .aot for the ESP32-S3, from our pinned wamrc, and that file's sha256
++    wasm, wasm_sha256  the .wasm the .aot was made from, and its sha256 (both checked at the pin)
++    toolchain          the wasi-sdk, wamrc, WAMR tree and LLVM that made them
++Both are exported, so a stage is checked as a clone is; only the .aot is built in, and only with STU_WASM=1
++(games.cmake embeds it and a WASM_GAME wrapper, firmware/wasm/wasm_app.h); games.h lists it under
++#ifdef STU_WASM, and the host build never has it.
++
+ Without a clone (no git, or a build from an export), a game may be staged by hand: OUT/ID/ holding
+ the files at the pin, its manifest, and .pin with the pin; the generator then takes it as staged
+ (whether the pin was pushed cannot be checked there: the one who staged it vouches, and the run says
+@@ -45,6 +53,7 @@ Exits 1 with the reason on anything wrong; writes nothing then.
+ Usage: gen_games.py GAMES_LIST [OUT]
+ """
+ import fnmatch
++import hashlib
+ import os
+ import pathlib
+ import re
+@@ -53,8 +62,11 @@ import sys
+ 
+ ALLOWED_FLAGS = {"-ffp-contract=off"}
+ FOLDERS = {"TOOLS": 0, "GAMES": 1}
+-KEYS = {"name", "folder", "app", "sources", "include", "flags", "author", "licence", "source", "original"}
+-OPTIONAL = {"flags", "original"}
++KEYS = {"name", "folder", "app", "sources", "include", "flags", "author", "licence", "source", "original",
++        "kind", "aot", "aot_sha256", "wasm", "wasm_sha256", "toolchain"}
++OPTIONAL = {"flags", "original", "kind"}
++NATIVE_ONLY = {"app", "sources", "include", "flags"}
++WASM_ONLY = {"aot", "aot_sha256", "wasm", "wasm_sha256", "toolchain"}
+ 
+ 
+ def fail(msg):
+@@ -119,13 +131,28 @@ def parse_manifest(text, gid):
+         if k not in KEYS:
+             fail(f"{gid}: manifest key {k!r} unknown")
+         m[k] = v
+-    for k in KEYS - OPTIONAL:
++    kind = m.get("kind", "native")
++    if kind not in ("native", "wasm"):
++        fail(f"{gid}: kind must be native or wasm")
++    m["kind"] = kind
++    own, other = (WASM_ONLY, NATIVE_ONLY) if kind == "wasm" else (NATIVE_ONLY, WASM_ONLY)
++    for k in sorted(other & set(m)):
++        fail(f"{gid}: a {kind} game has no {k}")
++    for k in sorted(KEYS - OPTIONAL - other):
+         if not m.get(k):
+             fail(f"{gid}: manifest lacks {k}")
+     if not re.fullmatch(r"[A-Za-z0-9]( ?[A-Za-z0-9]){0,4}", m["name"]) or len(m["name"]) > 5:
+         fail(f"{gid}: name {m['name']!r} must be 1 to 5 letters, digits or blanks")
+     if m["folder"] not in FOLDERS:
+         fail(f"{gid}: folder must be GAMES or TOOLS")
++    if kind == "wasm":
++        for k in ("aot_sha256", "wasm_sha256"):
++            if not re.fullmatch(r"[0-9a-f]{64}", m[k]):
++                fail(f"{gid}: {k} must be 64 hex digits")
++        m["aot"], m["wasm"] = safe_path(m["aot"], gid), safe_path(m["wasm"], gid)
++        m["app"] = f"{gid}_wasm_app"
++        m["flags"], m["sources"], m["include"] = [], [], []
++        return m
+     if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", m["app"]):
+         fail(f"{gid}: app {m['app']!r} is not a C name")
+     flags = m.get("flags", "").split()
+@@ -165,6 +192,7 @@ def main():
+             tree = [l.split("\t", 1) for l in git(repo, "ls-tree", "-r", g["pin"]).split("\n") if "\t" in l]
+             files = [f for _, f in tree]
+             links = {f for meta, f in tree if meta.split()[0] == "120000"}
++            read = lambda f, repo=repo, pin=g["pin"]: git(repo, "show", f"{pin}:{f}", binary=True)
+         else:
+             pin_file = os.path.join(staged, ".pin")
+             if not os.path.isfile(pin_file) or open(pin_file).read().strip() != g["pin"]:
+@@ -175,6 +203,7 @@ def main():
+             text = open(mpath).read()
+             files = [os.path.relpath(os.path.join(d, f), staged) for d, _, fs in os.walk(staged) for f in fs]
+             links = {f for f in files if os.path.islink(os.path.join(staged, f))}
++            read = lambda f, staged=staged: open(os.path.join(staged, f), "rb").read()
+             repo = None
+         m = parse_manifest(text, g["id"])
+         if m["licence"] != g["licence"]:
+@@ -182,6 +211,16 @@ def main():
+         if m["name"] in names:
+             fail(f"{g['id']}: name {m['name']} is taken")
+         names.add(m["name"])
++        if m["kind"] == "wasm":
++            for k in ("aot", "wasm"):
++                if m[k] not in files:
++                    fail(f"{g['id']}: {k} {m[k]!r} is not at the pin")
++                if m[k] in links:
++                    fail(f"{g['id']}: {m[k]!r} is a symbolic link (nothing exported may be one)")
++                if hashlib.sha256(read(m[k])).hexdigest() != m[k + "_sha256"]:
++                    fail(f"{g['id']}: {m[k]} at the pin is not the manifest's {k}_sha256")
++            plans.append((g, m, [], repo))
++            continue
+         srcs = []
+         for pat in m["sources"]:
+             # a pattern matches in its own directory only (fnmatch's * would cross a /)
+@@ -202,6 +241,7 @@ def main():
+     # all checked: export and write
+     os.makedirs(out, exist_ok=True)
+     mk, cm, decl, entries, folders, names_c = [], [], [], [], [], []
++    wdecl, wentries, wfolders, wnames = [], [], [], []
+     mk.append("# generated by gen_games.py from games.list: do not edit")
+     cm.append("# generated by gen_games.py from games.list: do not edit")
+     allc = []
+@@ -210,7 +250,7 @@ def main():
+         if repo is not None:
+             subprocess.run(["rm", "-rf", d], check=True)
+             os.makedirs(d)
+-            paths = sorted({*srcs, *m["include"], g["manifest"]})
++            paths = sorted({*srcs, *m["include"], g["manifest"], *([m["aot"], m["wasm"]] if m["kind"] == "wasm" else [])})
+             tar = git(repo, "archive", g["pin"], *paths, binary=True)
+             if tar is None:
+                 fail(f"{g['id']}: git archive failed")
+@@ -218,6 +258,27 @@ def main():
+             open(os.path.join(d, ".pin"), "w").write(g["pin"] + "\n")
+         rel = pathlib.PurePath(os.path.relpath(d, root)).as_posix()     # make and CMake read "/" (tally #5455: a
+                                                                         # Windows python wrote "\g", a bad escape)
++        if m["kind"] == "wasm":
++            # the .aot under a name of its own (its EMBED_FILES symbols follow the file name) and its app_def
++            aot = os.path.join(d, f"{g['id']}.aot")
++            subprocess.run(["cp", os.path.join(d, m["aot"]), aot], check=True)
++            open(os.path.join(d, f"{g['id']}_wasm.c"), "w").write(
++                "/* generated by gen_games.py from games.list: do not edit */\n#include \"wasm_app.h\"\n"
++                f"extern const uint8_t {g['id']}_aot_start[] asm(\"_binary_{g['id']}_aot_start\");\n"
++                f"extern const uint8_t {g['id']}_aot_end[] asm(\"_binary_{g['id']}_aot_end\");\n"
++                f"WASM_GAME({m['app']}, \"{m['name']}\", {g['id']}_aot_start, {g['id']}_aot_end, 0);\n")
++            what = f"{m['name']} ({m['folder']}, wasm), {g['licence']}, {g['repo']} at {g['pin']}"
++            mk.append(f"# {g['id']}: {what}: device only (STU_WASM)")
++            cm.append(f"# {g['id']}: {what}")
++            cm.append('if("$ENV{STU_WASM}" STREQUAL "1")')
++            cm.append(f"    list(APPEND GAMES_SRCS ${{REPO}}/{rel}/{g['id']}_wasm.c)")
++            cm.append(f"    list(APPEND GAMES_EMBED ${{REPO}}/{rel}/{g['id']}.aot)")
++            cm.append("endif()")
++            wdecl.append(f"extern const app_def {m['app']}; /* {m['name']}, {g['id']}, wasm */")
++            wentries.append(f"&{m['app']}")
++            wfolders.append(f"{FOLDERS[m['folder']]} /* {m['folder']} */")
++            wnames.append(f'"{m["name"]}"')
++            continue
+         cs = [f"{rel}/{s}" for s in srcs]
+         incs = [f"-I{rel}/{i}" for i in m["include"]]
+         allc += cs
+@@ -248,12 +309,20 @@ def main():
+     mk.insert(1, f"GAMES_C := {' '.join(allc)}")
+     mk.insert(2, "GAMES_O := $(GAMES_C:build/games/%.c=build/games-o/%.o)")
+     cm.insert(1, "set(GAMES_SRCS)")
++    cm.insert(2, "set(GAMES_EMBED)")
+     open(os.path.join(out, "games.mk"), "w").write("\n".join(mk) + "\n")
+     open(os.path.join(out, "games.cmake"), "w").write("\n".join(cm) + "\n")
+-    h = ["/* generated by gen_games.py from games.list: do not edit */", "#ifndef GAMES_H", "#define GAMES_H",
+-         "#define GAMES_DECLARE " + " ".join(decl), "#define GAMES_ENTRIES " + "".join(", " + e for e in entries),
+-         "#define GAMES_FOLDERS " + "".join(", " + f for f in folders),
+-         "#define GAMES_NAMES " + "".join(", " + n for n in names_c), f"#define GAMES_N {len(entries)}", "#endif"]
++    def block(dl, en, fo, na):
++        return ["#define GAMES_DECLARE " + " ".join(dl), "#define GAMES_ENTRIES " + "".join(", " + e for e in en),
++                "#define GAMES_FOLDERS " + "".join(", " + f for f in fo),
++                "#define GAMES_NAMES " + "".join(", " + n for n in na), f"#define GAMES_N {len(en)}"]
++    h = ["/* generated by gen_games.py from games.list: do not edit */", "#ifndef GAMES_H", "#define GAMES_H"]
++    if wentries:
++        h += ["#ifdef STU_WASM"] + block(decl + wdecl, entries + wentries, folders + wfolders, names_c + wnames)
++        h += ["#else"] + block(decl, entries, folders, names_c) + ["#endif"]
++    else:
++        h += block(decl, entries, folders, names_c)
++    h += ["#endif"]
+     open(os.path.join(out, "games.h"), "w").write("\n".join(h) + "\n")
+     open(os.path.join(out, ".stamp"), "w").write(open(lst).read())
+     print(f"gen_games: {len(plans)} game(s): " + ", ".join(
+diff --git a/tests/gen_games_test.sh b/tests/gen_games_test.sh
+index e3ba041..77a572e 100755
+--- a/tests/gen_games_test.sh
++++ b/tests/gen_games_test.sh
+@@ -113,5 +113,58 @@ printf 'bad bad %s MIT game.txt\n' "$(git -C "$T/repos/bad" rev-parse HEAD)" > "
+ printf 'one one %s MIT game.txt\n' "$PIN1" > "$T/fw/games.list"; run 0 "one game"
+ grep -q "^GAME_one_INC := -Ibuild/games/one/inc$" "$mk" && ! grep -q "GAMES_INC" "$mk" && grep -q 'INCLUDE_DIRECTORIES "${REPO}/build/games/one/inc"' "$T/fw/build/games/games.cmake" \
+     && echo "  ok: a game's include directories on its own rule only" || { echo "FAIL: include scope: $(grep INC "$mk")"; ok=0; }
++# a WebAssembly game (kind = wasm): its .aot and .wasm checked by sha256 at the pin; the .aot and a WASM_GAME
++# wrapper only for STU_WASM, and games.h lists it under #ifdef STU_WASM
++mkwasm() { # mkwasm NAME LABEL: a repo with a wasm game, its manifest's hashes right
++    git -c init.defaultBranch=main init -q --bare "$T/$1.git"
++    git clone -q "$T/$1.git" "$T/repos/$1" 2>/dev/null
++    (cd "$T/repos/$1" && mkdir -p w && printf 'not really an aot %s\n' "$1" > w/g.aot && printf 'not really wasm\n' > w/g.wasm \
++        && printf 'name = %s\nfolder = GAMES\nkind = wasm\naot = w/g.aot\naot_sha256 = %s\nwasm = w/g.wasm\nwasm_sha256 = %s\ntoolchain = t\nauthor = t\nlicence = MIT\nsource = t\n' \
++           "$2" "$(sha256sum w/g.aot | cut -c1-64)" "$(sha256sum w/g.wasm | cut -c1-64)" > game.txt \
++        && git add -A && git -c user.email=t@t -c user.name=t commit -q -m one && git push -q origin HEAD:main 2>/dev/null \
++        && git remote set-head origin main >/dev/null)
++}
++mkwasm wg WASMG
++PINW=$(git -C "$T/repos/wg" rev-parse HEAD)
++printf 'one one %s MIT game.txt\nwg wg %s MIT game.txt\n' "$PIN1" "$PINW" > "$T/fw/games.list"; run 0 "a native game and a wasm game"
++cmk=$T/fw/build/games/games.cmake
++[ -f "$T/fw/build/games/wg/wg.aot" ] && cmp -s "$T/fw/build/games/wg/wg.aot" "$T/repos/wg/w/g.aot" \
++    && grep -q 'list(APPEND GAMES_EMBED ${REPO}/build/games/wg/wg.aot)' "$cmk" && grep -q 'STU_WASM' "$cmk" \
++    && grep -q 'WASM_GAME(wg_wasm_app, "WASMG", wg_aot_start, wg_aot_end, 0);' "$T/fw/build/games/wg/wg_wasm.c" \
++    && ! grep -q '^GAMES_C .*wg' "$T/fw/build/games/games.mk" \
++    && echo "  ok: the wasm game's .aot exported, embedded and wrapped for STU_WASM only" || { echo "FAIL: wasm outputs"; ok=0; }
++cat > "$T/regw.c" <<'C'
++typedef struct { const char *name; } app_def;
++#include "games.h"
++GAMES_DECLARE
++const app_def keys_app = {"KEYS"}, one_app = {"ONE"}, wg_wasm_app = {"WASMG"};
++const app_def *const reg[] = {&keys_app GAMES_ENTRIES};
++int main(void) { return !(sizeof reg / sizeof reg[0] == 1 + GAMES_N); }
++C
++cc -std=c11 -Wall -Werror -I"$T/fw/build/games" "$T/regw.c" -o "$T/regw" && "$T/regw" \
++    && cc -std=c11 -Wall -Werror -DSTU_WASM -I"$T/fw/build/games" "$T/regw.c" -o "$T/regw2" && "$T/regw2" \
++    && [ "$(printf '#include "games.h"\nGAMES_N\n' | cpp -P -I"$T/fw/build/games" - | tail -1)" = 1 ] \
++    && [ "$(printf '#include "games.h"\nGAMES_N\n' | cpp -P -DSTU_WASM -I"$T/fw/build/games" - | tail -1)" = 2 ] \
++    && echo "  ok: games.h lists the wasm game with STU_WASM only (1 game without, 2 with)" || { echo "FAIL: games.h with a wasm game"; ok=0; }
++# a wasm game staged by an earlier run, without a clone: the stage holds both files the hashes check
++cp -r "$T/fw/build/games/wg" "$T/stage-wg" && mv "$T/repos/wg" "$T/wg-away"
++rm -rf "$T/fw/build/games/wg" && cp -r "$T/stage-wg" "$T/fw/build/games/wg"
++GAMES_REPOS="$T/repos" python3 "$GEN" "$T/fw/games.list" > "$T/out" 2> "$T/err" && grep -q "staged: not checked as pushed" "$T/out" \
++    && cmp -s "$T/fw/build/games/wg/wg.aot" "$T/stage-wg/wg.aot" \
++    && echo "  ok: a wasm game staged without a clone" || { echo "FAIL: a staged wasm game: $(cat "$T/err")"; ok=0; }
++mv "$T/wg-away" "$T/repos/wg"
++badw() { # badw WHAT SED-ON-MANIFEST MESSAGE: a fresh wasm repo whose manifest is changed, pushed
++    rm -rf "$T/repos/bw" "$T/bw.git"; mkwasm bw BADW
++    (cd "$T/repos/bw" && sed -i "$2" game.txt && git add -A && git -c user.email=t@t -c user.name=t commit -q -m bad && git push -q origin HEAD:main 2>/dev/null)
++    printf 'bw bw %s MIT game.txt\n' "$(git -C "$T/repos/bw" rev-parse HEAD)" > "$T/fw/games.list"; run 1 "$1" "$3"
++}
++badw "a wasm game whose .aot is not its sha256" "s/^aot_sha256 = ./aot_sha256 = f/" "not the manifest's aot_sha256"
++badw "a wasm game whose .wasm is not its sha256" "s/^wasm_sha256 = ./wasm_sha256 = f/" "not the manifest's wasm_sha256"
++badw "a wasm game with sources" '$a sources = w/*.c' "a wasm game has no sources"
++badw "a wasm game without its toolchain" "/^toolchain/d" "lacks toolchain"
++badw "a wasm game whose hash is not hex" "s/^aot_sha256 = .*/aot_sha256 = nothex/" "64 hex digits"
++badw "a wasm game whose .aot is not at the pin" "s|^aot = .*|aot = w/none.aot|" "is not at the pin"
++bad "a native game with an aot" '$a aot = x.aot' "a native game has no aot"
++bad "an unknown kind" '$a kind = lua' "kind must be native or wasm"
+ [ "$ok" = 1 ] && { echo "GAMES-LIST GENERATOR GREEN"; exit 0; }
+ echo "GAMES-LIST GENERATOR RED"; exit 1
+-- 
+2.53.0
+

@@ -1,0 +1,603 @@
+From bfd3d1757e7c891333eb505b7c00e501510ca7ec Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 17:18:20 +0000
+Subject: [PATCH 2/5] 055 (2/5): STU_WASM, WebAssembly apps through WAMR, off
+ by default
+
+With STU_WASM=1 in the environment, the stand-in and Rev A builds add WAMR's ESP-IDF component from build/wamr
+(1/5) and firmware/wasm/wasm_app.{c,h}, the bridge between the framework's app_def calls and a game built with
+stu32-arcade sdk/wasm/guest.c (from stu32-arcade sdk/wasm/bridge.c at aeb8fca). Off, nothing of it is built.
+- device/sdkconfig.wasm: WAMR's AOT loader only; no interpreter, libc layers or pthread library. It is appended
+  to the caller's SDKCONFIG_DEFAULTS, never replacing them (soroban #5542).
+- WAMR_NO_LWIP (patch 0005): no libc-wasi, so no lwip and the VFS and console drivers it would bring.
+- WAMR_BUILD_QUICK_AOT_ENTRY=0: its 768 B table is sorted at init, so it would sit in internal DRAM; the generic
+  call path costs about 0.2% of a frame (BABLW 381.0 frames a second off, 381.7 on).
+- The bridge: WAMR is initialised at a game's load and destroyed at its stop, so it holds nothing while the
+  calculator runs. Its allocations and the module's copy go to PSRAM (a running game: 152 B of internal heap,
+  104 B of it once, at the first wasm_runtime_full_init). It sets the calc task's native stack boundary itself,
+  2 KB above the stack's start, since WAMR's own lookup returns NULL without the trace facility. Under the
+  frame guard (-Werror=frame-larger-than=1024).
+- run.sh and build.sh build it in build-wasm and run fetch-wamr.sh; run.sh re-makes the sdkconfig when
+  device/sdkconfig.wasm is newer, like 051's rule for sdkconfig.defaults.
+- make clang-check compiles the bridge with -DSTU_WASM and WAMR's headers when build/wamr is fetched, and says
+  so when it is not.
+
+Checked: resources.py static ab51544 against this commit, option off, is +0 on both targets (see 055's work
+file in 5/5 for the table with the option on).
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ .gitignore                         |   1 +
+ Makefile                           |   3 +
+ device/reva/CMakeLists.txt         |  13 ++
+ device/reva/build.sh               |  12 +-
+ device/reva/main/CMakeLists.txt    |  20 ++-
+ device/sdkconfig.wasm              |   8 +
+ device/standin/CMakeLists.txt      |  13 ++
+ device/standin/main/CMakeLists.txt |  20 ++-
+ device/standin/run.sh              |  16 +-
+ firmware/wasm/wasm_app.c           | 248 +++++++++++++++++++++++++++++
+ firmware/wasm/wasm_app.h           |  46 ++++++
+ 11 files changed, 385 insertions(+), 15 deletions(-)
+ create mode 100644 device/sdkconfig.wasm
+ create mode 100644 firmware/wasm/wasm_app.c
+ create mode 100644 firmware/wasm/wasm_app.h
+
+diff --git a/.gitignore b/.gitignore
+index 1be8607..95a138f 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -5,3 +5,4 @@ tests/device/build-*/
+ tests/device/main/generated/
+ tests/device/sdkconfig*.old
+ build-prof/
++device/*/build-wasm/
+diff --git a/Makefile b/Makefile
+index c657f55..960eca7 100644
+--- a/Makefile
++++ b/Makefile
+@@ -264,6 +264,9 @@ clang-check: build/casim/.pin build/games/games.h
+ 	    x=""; [ "$$f" = core/abn_intel.c ] && x="$(BID_FLAGS) -isystem $(INTEL_SRC)"; \
+ 	    n=$$((n + 1)); clang-18 $(CLANG_FLAGS) $$x -c -o /dev/null $$f || bad=$$((bad + 1)); \
+ 	  done; \
++	  if [ -f build/wamr/.pin ]; then n=$$((n + 1)); clang-18 $(CLANG_FLAGS) -DSTU_WASM=1 -Ifirmware/wasm \
++	    -isystem build/wamr/core/iwasm/include -c -o /dev/null firmware/wasm/wasm_app.c || bad=$$((bad + 1)); \
++	  else echo "clang-check: no build/wamr (scripts/fetch-wamr.sh), so firmware/wasm/wasm_app.c is not compiled"; fi; \
+ 	  echo "clang-check: $$n files, $$bad failing (the control refused)"; [ $$bad = 0 ]'
+ 
+ all-checks:
+diff --git a/device/reva/CMakeLists.txt b/device/reva/CMakeLists.txt
+index 2260a42..60e48b4 100644
+--- a/device/reva/CMakeLists.txt
++++ b/device/reva/CMakeLists.txt
+@@ -2,5 +2,18 @@
+ # device/reva/build.sh; not yet run on a board (Rev A is being ordered).
+ cmake_minimum_required(VERSION 3.16)
+ set(COMPONENTS main)
++# STU_WASM=1 in the environment (decisions 67, 68; off by default): WAMR from scripts/fetch-wamr.sh, AOT only
++if("$ENV{STU_WASM}" STREQUAL "1")
++    get_filename_component(WAMR_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
++    set(EXTRA_COMPONENT_DIRS "${WAMR_REPO_ROOT}/build/wamr/build-scripts/esp-idf")
++    if(NOT DEFINED SDKCONFIG_DEFAULTS)   # appended to, so a caller's own defaults files are kept (soroban #5542)
++        set(SDKCONFIG_DEFAULTS "${CMAKE_CURRENT_LIST_DIR}/sdkconfig.defaults")
++    endif()
++    list(APPEND SDKCONFIG_DEFAULTS "${WAMR_REPO_ROOT}/device/sdkconfig.wasm")
++    set(WAMR_BUILD_QUICK_AOT_ENTRY 0)  # its 768 B table is sorted at init, so it would sit in internal DRAM (decision 68)
++endif()
+ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
++if("$ENV{STU_WASM}" STREQUAL "1")
++    idf_build_set_property(WAMR_NO_LWIP 1)    # no libc-wasi, so no lwip and its VFS and console (WAMR patch 0005)
++endif()
+ project(abacus_reva)
+diff --git a/device/reva/build.sh b/device/reva/build.sh
+index a29ba08..315db30 100755
+--- a/device/reva/build.sh
++++ b/device/reva/build.sh
+@@ -3,16 +3,20 @@
+ set -euo pipefail
+ IMAGE="espressif/idf:v5.4.2"
+ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
++WASM="${STU_WASM:-0}"   # STU_WASM=1: with WAMR (decisions 67, 68), in build-wasm
++B=build
++[ "$WASM" = 1 ] && B=build-wasm
+ # a changed sdkconfig.defaults takes effect: ESP-IDF never re-reads it into an existing sdkconfig (unit 051)
+-if [ "$ROOT/device/reva/sdkconfig.defaults" -nt "$ROOT/device/reva/build/sdkconfig" ]; then
+-    rm -f "$ROOT/device/reva/build/sdkconfig"
++if [ "$ROOT/device/reva/sdkconfig.defaults" -nt "$ROOT/device/reva/$B/sdkconfig" ]; then
++    rm -f "$ROOT/device/reva/$B/sdkconfig"
+ fi
+ python3 "$ROOT/scripts/gen_games.py" "$ROOT/games.list" "$ROOT/build/games"
+ "$ROOT/scripts/fetch-casim.sh"
+-docker run --rm -v "$ROOT:/project" -w /project --user "$(id -u):$(id -g)" -e HOME=/tmp "$IMAGE" bash -c '
++[ "$WASM" = 1 ] && "$ROOT/scripts/fetch-wamr.sh"
++docker run --rm -v "$ROOT:/project" -w /project --user "$(id -u):$(id -g)" -e HOME=/tmp -e STU_WASM="$WASM" -e B="$B" "$IMAGE" bash -c '
+ set -euo pipefail
+ . "$IDF_PATH/export.sh" >/dev/null
+ TARGET=esp32s3 scripts/fetch-intel-dfp.sh
+ cd device/reva
+-idf.py -B build -DSDKCONFIG=build/sdkconfig build
++idf.py -B "$B" -DSDKCONFIG="$B/sdkconfig" build
+ '
+diff --git a/device/reva/main/CMakeLists.txt b/device/reva/main/CMakeLists.txt
+index 3481ebb..61a0ec0 100644
+--- a/device/reva/main/CMakeLists.txt
++++ b/device/reva/main/CMakeLists.txt
+@@ -9,6 +9,15 @@ else()
+     file(GLOB CORE_SRCS CONFIGURE_DEPENDS "${REPO}/core/*.c")
+ endif()
+ set(FW "${REPO}/firmware")
++# STU_WASM: firmware/wasm/wasm_app.c (the bridge to WAMR) and the wamr component (device/CMakeLists.txt)
++if("$ENV{STU_WASM}" STREQUAL "1")
++    if(NOT EXISTS "${REPO}/build/wamr/.pin")
++        message(FATAL_ERROR "STU_WASM=1 but no ${REPO}/build/wamr: run scripts/fetch-wamr.sh")
++    endif()
++    set(WASM_SRCS "${FW}/wasm/wasm_app.c")
++    set(WASM_INC "${FW}/wasm")
++    set(WASM_REQUIRES wamr)
++endif()
+ # The games (games.list), exported and described by scripts/gen_games.py before the build
+ if(NOT EXISTS "${REPO}/build/games/games.cmake")
+     message(FATAL_ERROR "no ${REPO}/build/games/games.cmake: run python3 scripts/gen_games.py games.list build/games")
+@@ -25,11 +34,12 @@ if(NOT CMAKE_SCRIPT_MODE_FILE)
+ endif()
+ 
+ idf_component_register(
+-    SRCS reva_main.c ${CORE_SRCS} "${FW}/screen.c" "${FW}/font5x7.c" "${FW}/draw.c" "${FW}/app.c" "${FW}/apps.c" "${FW}/keymap.c"
++    SRCS ${WASM_SRCS} reva_main.c ${CORE_SRCS} "${FW}/screen.c" "${FW}/font5x7.c" "${FW}/draw.c" "${FW}/app.c" "${FW}/apps.c" "${FW}/keymap.c"
+          "${FW}/keys.c" "${FW}/power.c" "${FW}/store.c" "${FW}/ls027.c" "${FW}/gauge.c" "${FW}/pins.c" "${FW}/piezo.c" "${FW}/settings.c"
+          ${GAMES_SRCS} "${CASIM}/casim.c"
+-    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device" "${REPO}/build/games" "${CASIM}"
+-    REQUIRES esp_driver_spi esp_driver_i2c esp_driver_gpio esp_driver_ledc esp_psram esp_partition esp_timer ulp esp_hw_support)
++    EMBED_FILES ${GAMES_EMBED}
++    INCLUDE_DIRS . "${REPO}/core" "${FW}" ${WASM_INC} "${REPO}/device" "${REPO}/build/games" "${CASIM}"
++    REQUIRES esp_driver_spi esp_driver_i2c esp_driver_gpio esp_driver_ledc esp_psram esp_partition esp_timer ulp esp_hw_support ${WASM_REQUIRES})
+ 
+ set(ulp_app_name ulp_${COMPONENT_NAME})
+ ulp_embed_binary(${ulp_app_name} "ulp/main.c" "reva_main.c")
+@@ -51,3 +61,7 @@ target_compile_definitions(${COMPONENT_LIB} PRIVATE
+     DECIMAL_CALL_BY_REFERENCE=0 DECIMAL_GLOBAL_ROUNDING=0 DECIMAL_GLOBAL_EXCEPTION_FLAGS=0)
+ target_link_libraries(${COMPONENT_LIB} PRIVATE "${BID_LIB}")
+ set_source_files_properties("${REPO}/core/arena.c" PROPERTIES COMPILE_OPTIONS "-include;${REPO}/device/pool_attr.h")
++if("$ENV{STU_WASM}" STREQUAL "1")
++    target_compile_definitions(${COMPONENT_LIB} PRIVATE STU_WASM=1)
++    set_source_files_properties("${FW}/wasm/wasm_app.c" PROPERTIES COMPILE_OPTIONS "-Werror=frame-larger-than=1024")
++endif()
+diff --git a/device/sdkconfig.wasm b/device/sdkconfig.wasm
+new file mode 100644
+index 0000000..82f3225
+--- /dev/null
++++ b/device/sdkconfig.wasm
+@@ -0,0 +1,8 @@
++# STU_WASM (decisions 67, 68): WAMR's AOT loader only, for games built by our pinned wamrc. No interpreter, no
++# libc layers, no pthread library. PSRAM is on, so AOT code is mapped from PSRAM (WAMR patch 0001) and memory
++# protection stays on.
++CONFIG_WAMR_ENABLE_AOT=y
++CONFIG_WAMR_ENABLE_INTERP=n
++CONFIG_WAMR_ENABLE_LIBC_BUILTIN=n
++CONFIG_WAMR_ENABLE_LIBC_WASI=n
++CONFIG_WAMR_ENABLE_LIB_PTHREAD=n
+diff --git a/device/standin/CMakeLists.txt b/device/standin/CMakeLists.txt
+index e86689c..9bdb303 100644
+--- a/device/standin/CMakeLists.txt
++++ b/device/standin/CMakeLists.txt
+@@ -2,5 +2,18 @@
+ # keyboard on the board's RGB screen and touch panel. Build and flash with device/standin/run.sh.
+ cmake_minimum_required(VERSION 3.16)
+ set(COMPONENTS main)
++# STU_WASM=1 in the environment (decisions 67, 68; off by default): WAMR from scripts/fetch-wamr.sh, AOT only
++if("$ENV{STU_WASM}" STREQUAL "1")
++    get_filename_component(WAMR_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
++    set(EXTRA_COMPONENT_DIRS "${WAMR_REPO_ROOT}/build/wamr/build-scripts/esp-idf")
++    if(NOT DEFINED SDKCONFIG_DEFAULTS)   # appended to, so a caller's own defaults files are kept (soroban #5542)
++        set(SDKCONFIG_DEFAULTS "${CMAKE_CURRENT_LIST_DIR}/sdkconfig.defaults")
++    endif()
++    list(APPEND SDKCONFIG_DEFAULTS "${WAMR_REPO_ROOT}/device/sdkconfig.wasm")
++    set(WAMR_BUILD_QUICK_AOT_ENTRY 0)  # its 768 B table is sorted at init, so it would sit in internal DRAM (decision 68)
++endif()
+ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
++if("$ENV{STU_WASM}" STREQUAL "1")
++    idf_build_set_property(WAMR_NO_LWIP 1)    # no libc-wasi, so no lwip and its VFS and console (WAMR patch 0005)
++endif()
+ project(abacus_standin)
+diff --git a/device/standin/main/CMakeLists.txt b/device/standin/main/CMakeLists.txt
+index 906b3f9..b04b4b2 100644
+--- a/device/standin/main/CMakeLists.txt
++++ b/device/standin/main/CMakeLists.txt
+@@ -9,6 +9,15 @@ else()
+     file(GLOB CORE_SRCS CONFIGURE_DEPENDS "${REPO}/core/*.c")
+ endif()
+ set(FW "${REPO}/firmware")
++# STU_WASM: firmware/wasm/wasm_app.c (the bridge to WAMR) and the wamr component (device/CMakeLists.txt)
++if("$ENV{STU_WASM}" STREQUAL "1")
++    if(NOT EXISTS "${REPO}/build/wamr/.pin")
++        message(FATAL_ERROR "STU_WASM=1 but no ${REPO}/build/wamr: run scripts/fetch-wamr.sh")
++    endif()
++    set(WASM_SRCS "${FW}/wasm/wasm_app.c")
++    set(WASM_INC "${FW}/wasm")
++    set(WASM_REQUIRES wamr)
++endif()
+ # The games (games.list), exported and described by scripts/gen_games.py before the build
+ if(NOT EXISTS "${REPO}/build/games/games.cmake")
+     message(FATAL_ERROR "no ${REPO}/build/games/games.cmake: run python3 scripts/gen_games.py games.list build/games")
+@@ -25,11 +34,12 @@ if(NOT CMAKE_SCRIPT_MODE_FILE)
+ endif()
+ 
+ idf_component_register(
+-    SRCS standin_main.c ${CORE_SRCS} "${FW}/screen.c" "${FW}/font5x7.c" "${FW}/draw.c" "${FW}/app.c" "${FW}/apps.c" "${FW}/keymap.c"
++    SRCS ${WASM_SRCS} standin_main.c ${CORE_SRCS} "${FW}/screen.c" "${FW}/font5x7.c" "${FW}/draw.c" "${FW}/app.c" "${FW}/apps.c" "${FW}/keymap.c"
+          "${FW}/keys.c" "${FW}/power.c" "${FW}/standin.c" "${FW}/store.c" "${FW}/ls027.c" "${FW}/settings.c" "${FW}/piezo.c"
+          ${GAMES_SRCS} "${CASIM}/casim.c"
+-    INCLUDE_DIRS . "${REPO}/core" "${FW}" "${REPO}/device" "${REPO}/build/games" "${CASIM}"
+-    REQUIRES esp_lcd esp_driver_i2c esp_driver_gpio esp_driver_uart vfs esp_psram esp_partition esp_timer)
++    EMBED_FILES ${GAMES_EMBED}
++    INCLUDE_DIRS . "${REPO}/core" "${FW}" ${WASM_INC} "${REPO}/device" "${REPO}/build/games" "${CASIM}"
++    REQUIRES esp_lcd esp_driver_i2c esp_driver_gpio esp_driver_uart vfs esp_psram esp_partition esp_timer ${WASM_REQUIRES})
+ 
+ if(NOT EXISTS "${BID_LIB}")
+     message(FATAL_ERROR "no ${BID_LIB}: run TARGET=esp32s3 scripts/fetch-intel-dfp.sh")
+@@ -54,3 +64,7 @@ if(AB_PROF)
+     set_property(SOURCE ${CORE_SRCS} APPEND PROPERTY COMPILE_OPTIONS "-finstrument-functions")
+     target_compile_definitions(${COMPONENT_LIB} PRIVATE AB_PROF=1)
+ endif()
++if("$ENV{STU_WASM}" STREQUAL "1")
++    target_compile_definitions(${COMPONENT_LIB} PRIVATE STU_WASM=1)
++    set_source_files_properties("${FW}/wasm/wasm_app.c" PROPERTIES COMPILE_OPTIONS "-Werror=frame-larger-than=1024")
++endif()
+diff --git a/device/standin/run.sh b/device/standin/run.sh
+index 84621ce..6b58e64 100755
+--- a/device/standin/run.sh
++++ b/device/standin/run.sh
+@@ -4,6 +4,7 @@
+ #   device/standin/run.sh /dev/ttyACM0                 build, flash, then a session (stdin keys)
+ #   device/standin/run.sh /dev/ttyACM0 script.txt      build, flash, run the script's lines
+ #   FLASH=0 device/standin/run.sh /dev/ttyACM0 s.txt   no build or flash: talk to what is there
++#   STU_WASM=1 device/standin/run.sh ...                with WAMR (decisions 67, 68), in build-wasm
+ #
+ # The session's transcript is kept in build/standin.log. Nothing is installed on the host.
+ set -euo pipefail
+@@ -11,24 +12,29 @@ PORT="${1:?serial port}"
+ SCRIPT="${2:-}"
+ IMAGE="espressif/idf:v5.4.2"
+ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
++WASM="${STU_WASM:-0}"
++B=build
++[ "$WASM" = 1 ] && B=build-wasm
+ mkdir -p "$ROOT/build"
+ # a changed sdkconfig.defaults takes effect: ESP-IDF never re-reads it into an existing sdkconfig, so that one is made
+ # again (unit 051: QIO set in the defaults stayed DIO in an old build)
+-if [ "${FLASH:-1}" = 1 ] && [ "$ROOT/device/standin/sdkconfig.defaults" -nt "$ROOT/device/standin/build/sdkconfig" ]; then
+-    rm -f "$ROOT/device/standin/build/sdkconfig"
++if [ "${FLASH:-1}" = 1 ] && { [ "$ROOT/device/standin/sdkconfig.defaults" -nt "$ROOT/device/standin/$B/sdkconfig" ] ||
++    { [ "$WASM" = 1 ] && [ "$ROOT/device/sdkconfig.wasm" -nt "$ROOT/device/standin/$B/sdkconfig" ]; }; }; then
++    rm -f "$ROOT/device/standin/$B/sdkconfig"
+ fi
+ [ "${FLASH:-1}" = 1 ] && python3 "$ROOT/scripts/gen_games.py" "$ROOT/games.list" "$ROOT/build/games"
+ [ "${FLASH:-1}" = 1 ] && "$ROOT/scripts/fetch-casim.sh"
++[ "${FLASH:-1}" = 1 ] && [ "$WASM" = 1 ] && "$ROOT/scripts/fetch-wamr.sh"
+ docker run --rm -i -v "$ROOT:/project" -w /project \
+     --user "$(id -u):$(id -g)" --group-add "$(stat -c %g "$PORT")" --device "$PORT" \
+-    -e HOME=/tmp -e PORT="$PORT" -e FLASH="${FLASH:-1}" -e SCRIPT="$SCRIPT" "$IMAGE" bash -c '
++    -e HOME=/tmp -e PORT="$PORT" -e FLASH="${FLASH:-1}" -e SCRIPT="$SCRIPT" -e STU_WASM="$WASM" -e B="$B" "$IMAGE" bash -c '
+ set -euo pipefail
+ . "$IDF_PATH/export.sh" >/dev/null
+ if [ "$FLASH" = 1 ]; then
+     TARGET=esp32s3 scripts/fetch-intel-dfp.sh
+     cd device/standin
+-    idf.py -B build -DSDKCONFIG=build/sdkconfig build
+-    idf.py -B build -DSDKCONFIG=build/sdkconfig -p "$PORT" flash
++    idf.py -B "$B" -DSDKCONFIG="$B/sdkconfig" build
++    idf.py -B "$B" -DSDKCONFIG="$B/sdkconfig" -p "$PORT" flash
+     cd /project
+ fi
+ python device/standin/talk.py "$PORT" /project/build/standin.log ${SCRIPT:+"/project/$SCRIPT"}
+diff --git a/firmware/wasm/wasm_app.c b/firmware/wasm/wasm_app.c
+new file mode 100644
+index 0000000..317bba2
+--- /dev/null
++++ b/firmware/wasm/wasm_app.c
+@@ -0,0 +1,248 @@
++/* wasm_app (wasm_app.h, STU_WASM; decisions 67, 68), from stu32-arcade sdk/wasm/bridge.c at aeb8fca: WAMR
++ * (wasm_export.h) between the framework's app_def calls and a game built with stu32-arcade sdk/wasm/guest.c.
++ * WAMR is initialised at a game's load and destroyed at its stop, so it holds nothing while the calculator
++ * runs. */
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++
++#include "wasm_app.h"
++#include "wasm_export.h"
++
++#ifdef ESP_PLATFORM
++#include "freertos/FreeRTOS.h"
++#include "freertos/idf_additions.h"
++#include "freertos/task.h"
++#define BRIDGE_STACK_GUARD 2048 /* WAMR's 1 KB default left 212 B after a trap on the S3; 2 KB (abacus #5450) */
++#include "esp_heap_caps.h"
++/* WAMR's allocations and the module's copy in PSRAM: the calculator's internal heap is the tight one, and none
++   of WAMR runs with the cache off (soroban #5501) */
++#define BRIDGE_CAPS (MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)
++static void *bridge_malloc(unsigned int n)
++{
++    return heap_caps_malloc(n, BRIDGE_CAPS);
++}
++static void *bridge_realloc(void *p, unsigned int n)
++{
++    return heap_caps_realloc(p, n, BRIDGE_CAPS);
++}
++static void bridge_free(void *p)
++{
++    heap_caps_free(p);
++}
++#else
++static void *bridge_malloc(unsigned int n)
++{
++    return malloc(n);
++}
++static void *bridge_realloc(void *p, unsigned int n)
++{
++    return realloc(p, n);
++}
++static void bridge_free(void *p)
++{
++    free(p);
++}
++#endif
++
++#define WASM_STACK 8192 /* WAMR's operand stack for the instance (AOT barely uses it) */
++
++static void imp_beep(wasm_exec_env_t env, int32_t hz, int32_t ms)
++{
++    (void)env;
++    app_beep((uint16_t)hz, (uint16_t)ms);
++}
++static int32_t imp_now_ms(wasm_exec_env_t env)
++{
++    (void)env;
++    return (int32_t)app_now_ms();
++}
++static int32_t imp_seed(wasm_exec_env_t env)
++{
++    (void)env;
++    return (int32_t)app_seed();
++}
++static void imp_tune(wasm_exec_env_t env, int32_t notes, int32_t n)
++{
++    wasm_module_inst_t inst = wasm_runtime_get_module_inst(env);
++    if (n < 0 || n > 255 || !wasm_runtime_validate_app_addr(inst, (uint64_t)(uint32_t)notes, (uint64_t)n * 4))
++        return; /* the exception is already set on the instance */
++    app_tune(wasm_runtime_addr_app_to_native(inst, (uint64_t)(uint32_t)notes), (uint8_t)n);
++}
++
++/* WAMR takes each import as a void *; ISO C has no conversion from a function pointer, so a union */
++static void *fn(void (*f)(void))
++{
++    union {
++        void (*f)(void);
++        void *p;
++    } u;
++    u.f = f;
++    return u.p;
++}
++
++static NativeSymbol imports[4];
++
++static void fill_imports(void)
++{
++    imports[0] = (NativeSymbol){"app_beep", fn((void (*)(void))imp_beep), "(ii)", NULL};
++    imports[1] = (NativeSymbol){"app_now_ms", fn((void (*)(void))imp_now_ms), "()i", NULL};
++    imports[2] = (NativeSymbol){"app_seed", fn((void (*)(void))imp_seed), "()i", NULL};
++    imports[3] = (NativeSymbol){"app_tune", fn((void (*)(void))imp_tune), "(ii)", NULL};
++}
++
++static int runtimes; /* games loaded; WAMR is up while this is non-zero */
++
++static void fail(wasm_bridge_ctx *c, const char *what, const char *why)
++{
++    c->dead = true;
++    snprintf(c->error, sizeof c->error, "%.40s: %.50s", what, why ? why : "?"); /* both bounded: 93 of 96 */
++    printf("wasm %s: %s\n", c->game ? c->game->name : "?", c->error);
++}
++
++static bool call(wasm_bridge_ctx *c, const char *name, uint32_t argc, uint32_t *argv)
++{
++    if (c->dead)
++        return false;
++    wasm_function_inst_t f = wasm_runtime_lookup_function(c->inst, name);
++    if (!f) {
++        fail(c, name, "not exported");
++        return false;
++    }
++    if (!wasm_runtime_call_wasm(c->env, f, argc, argv)) {
++        fail(c, name, wasm_runtime_get_exception(c->inst));
++        return false;
++    }
++    return true;
++}
++
++/* the native address of `size` bytes at the guest pointer `app`, or NULL */
++static uint8_t *guest_bytes(wasm_bridge_ctx *c, uint32_t app, uint32_t size)
++{
++    if (!wasm_runtime_validate_app_addr(c->inst, app, size))
++        return NULL;
++    return wasm_runtime_addr_app_to_native(c->inst, app);
++}
++
++void wasm_bridge_load(const wasm_game *g, void *ctx, const uint8_t *save, uint32_t n)
++{
++    wasm_bridge_ctx *c = ctx;
++    char err[96];
++    uint32_t argv[1];
++    c->game = g;
++    if (runtimes == 0) {
++        RuntimeInitArgs init;
++        fill_imports();
++        memset(&init, 0, sizeof init);
++        init.mem_alloc_type = Alloc_With_Allocator;
++        init.mem_alloc_option.allocator.malloc_func = fn((void (*)(void))bridge_malloc);
++        init.mem_alloc_option.allocator.realloc_func = fn((void (*)(void))bridge_realloc);
++        init.mem_alloc_option.allocator.free_func = fn((void (*)(void))bridge_free);
++        init.native_module_name = "env";
++        init.native_symbols = imports;
++        init.n_native_symbols = sizeof imports / sizeof imports[0];
++        if (!wasm_runtime_full_init(&init)) {
++            fail(c, "init", "wasm_runtime_full_init failed");
++            return;
++        }
++    }
++    runtimes++;
++    c->counted = true;
++    uint32_t aot_size = (uint32_t)(g->aot_end - g->aot);
++    c->aot_copy = bridge_malloc(aot_size);
++    if (!c->aot_copy) {
++        fail(c, "load", "no memory for the module");
++        return;
++    }
++    memcpy(c->aot_copy, g->aot, aot_size);
++    if (!(c->module = wasm_runtime_load(c->aot_copy, aot_size, err, sizeof err))
++        || !(c->inst = wasm_runtime_instantiate(c->module, WASM_STACK, 0, err, sizeof err))
++        || !(c->env = wasm_runtime_create_exec_env(c->inst, WASM_STACK))) {
++        fail(c, "load", err);
++        return;
++    }
++#ifdef ESP_PLATFORM
++    /* the calling task's own stack start: WAMR's lookup returns NULL without the FreeRTOS trace facility,
++       which would leave the AOT code's native stack checks without a boundary */
++    wasm_runtime_set_native_stack_boundary(c->env, pxTaskGetStackStart(NULL) + BRIDGE_STACK_GUARD);
++#endif
++    if (!call(c, "_initialize", 0, NULL) || !call(c, "game_io", 0, argv))
++        return;
++    uint32_t cap = g->save_size ? g->save_size : APP_SAVE_SIZE;
++    uint8_t *io = guest_bytes(c, argv[0], cap);
++    if (!io) {
++        fail(c, "load", "game_io out of bounds");
++        return;
++    }
++    if (n > cap)
++        n = 0; /* a save that does not fit is not taken */
++    if (n)
++        memcpy(io, save, n);
++    argv[0] = n;
++    if (call(c, "game_load", 1, argv) && !argv[0])
++        fail(c, "load", "the game has no memory for its ctx");
++}
++
++void wasm_bridge_start(void *ctx)
++{
++    call(ctx, "game_start", 0, NULL);
++}
++
++bool wasm_bridge_key(void *ctx, int key, bool down, uint32_t ms)
++{
++    uint32_t argv[3] = {(uint32_t)key, down, ms};
++    return call(ctx, "game_key", 3, argv) && argv[0];
++}
++
++uint32_t wasm_bridge_tick(void *ctx, uint32_t ms)
++{
++    uint32_t argv[1] = {ms};
++    return call(ctx, "game_tick", 1, argv) ? argv[0] : 0;
++}
++
++void wasm_bridge_draw(void *ctx, ls027_frame *f)
++{
++    wasm_bridge_ctx *c = ctx;
++    uint32_t argv[1];
++    uint8_t *px;
++    if (!call(c, "game_draw", 0, argv) || !(px = guest_bytes(c, argv[0], sizeof f->px))) {
++        memset(f, 0, sizeof *f);
++        return;
++    }
++    memcpy(f->px, px, sizeof f->px);
++}
++
++void wasm_bridge_save(void *ctx, uint8_t *save, uint32_t cap)
++{
++    wasm_bridge_ctx *c = ctx;
++    uint32_t argv[1] = {cap};
++    uint8_t *io;
++    if (!call(c, "game_save", 1, argv) || !call(c, "game_io", 0, argv) || !(io = guest_bytes(c, argv[0], cap)))
++        return;
++    memcpy(save, io, cap);
++}
++
++void wasm_bridge_stop(void *ctx)
++{
++    wasm_bridge_ctx *c = ctx;
++    if (c->inst && !c->dead)
++        call(c, "game_stop", 0, NULL);
++    if (c->env)
++        wasm_runtime_destroy_exec_env(c->env);
++    if (c->inst)
++        wasm_runtime_deinstantiate(c->inst);
++    if (c->module)
++        wasm_runtime_unload(c->module);
++    bridge_free(c->aot_copy);
++    if (c->counted && --runtimes == 0)
++        wasm_runtime_destroy();
++    c->counted = false;
++    c->env = c->inst = c->module = NULL;
++    c->aot_copy = NULL;
++}
++
++const char *wasm_bridge_error(void *ctx)
++{
++    wasm_bridge_ctx *c = ctx;
++    return c->error[0] ? c->error : NULL;
++}
+diff --git a/firmware/wasm/wasm_app.h b/firmware/wasm/wasm_app.h
+new file mode 100644
+index 0000000..cc88be5
+--- /dev/null
++++ b/firmware/wasm/wasm_app.h
+@@ -0,0 +1,46 @@
++/* wasm_app (STU_WASM): a WebAssembly game (an .aot built from stu32-arcade sdk/wasm/guest.c) run through WAMR
++ * as an ordinary app_def. One WASM_GAME line per game makes its app_def; the framework calls it like any app. A trap
++ * ends the game cleanly (tick returns 0, the frame is cleared, the exception is kept and logged). */
++#ifndef STU32_WASM_APP_H
++#define STU32_WASM_APP_H
++
++#include <stdbool.h>
++#include <stdint.h>
++
++#include "apps.h"
++
++typedef struct {
++    const char *name;     /* APPS' label, as the game's manifest gives it */
++    const uint8_t *aot, *aot_end; /* the .aot, as embedded in the image (EMBED_FILES' start and end) */
++    uint32_t save_size;   /* the manifest's save_size (0: APP_SAVE_SIZE) */
++} wasm_game;
++
++typedef struct {
++    const wasm_game *game;
++    void *module, *inst, *env; /* WAMR's handles (wasm_export.h types, kept opaque here) */
++    uint8_t *aot_copy;         /* WAMR's loader may write its buffer */
++    bool counted, dead; /* counted: this game holds a share of WAMR's runtime */
++    char error[96];
++} wasm_bridge_ctx;
++
++void wasm_bridge_load(const wasm_game *g, void *ctx, const uint8_t *save, uint32_t n);
++void wasm_bridge_start(void *ctx);
++bool wasm_bridge_key(void *ctx, int key, bool down, uint32_t ms);
++uint32_t wasm_bridge_tick(void *ctx, uint32_t ms);
++void wasm_bridge_draw(void *ctx, ls027_frame *f);
++void wasm_bridge_save(void *ctx, uint8_t *save, uint32_t cap);
++void wasm_bridge_stop(void *ctx);
++/* the exception that ended the game, or NULL */
++const char *wasm_bridge_error(void *ctx);
++
++#define WASM_GAME(sym, label, aot_start, aot_stop, save_bytes)                                     \
++    static const wasm_game sym##_game = {label, aot_start, aot_stop, save_bytes};                  \
++    static void sym##_load(void *c, const uint8_t *s, uint32_t n)                                   \
++    {                                                                                               \
++        wasm_bridge_load(&sym##_game, c, s, n);                                                     \
++    }                                                                                               \
++    const app_def sym = {label,           sizeof(wasm_bridge_ctx), sym##_load,       wasm_bridge_start, \
++                         wasm_bridge_key, wasm_bridge_tick,        wasm_bridge_draw, wasm_bridge_save,  \
++                         wasm_bridge_stop, save_bytes}
++
++#endif
+-- 
+2.53.0
+

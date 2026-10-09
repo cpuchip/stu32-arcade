@@ -1,0 +1,858 @@
+From 756b962ee1f1f7a833f0db6408cdce8477f4dfef Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 17:17:48 +0000
+Subject: [PATCH 1/5] 055 (1/5): WAMR pinned, with its patch series
+ (third_party/wamr, scripts/fetch-wamr.sh)
+
+Decision 67 (Michael, abacus a6a3c73, #5322): "WAMR, and send the fix upstream too". third_party/wamr/PIN
+names WAMR main ea5dd88 and five patches by sha256, and the tree they must make (13f26968).
+scripts/fetch-wamr.sh exports that commit from a local clone (WAMR_REPO, default ../wasm-micro-runtime) in a
+private object store, applies the patches in order and writes build/wamr only when the result is PIN's tree;
+a patch with another hash, a commit not on the clone's origin or another tree writes nothing. The clone is
+never written to. The patches are WAMR's code, under its licence (Apache-2.0 WITH LLVM-exception):
+- 0001, PSRAM AOT code mapped on the instruction bus (WAMR PR #5146, issue #5145);
+- 0002, the Xtensa L32R relocation lost to strict aliasing (PR #5148, issue #5147);
+- 0003, os_self_thread() returns the FreeRTOS task handle, so apps on the calc task can call AOT code (local;
+  soroban #5413, accepted abacus #5450);
+- 0004, the target symbol maps const, so they sit in flash (local; accepted abacus #5508);
+- 0005, a project without libc-wasi may leave lwip out (local; accepted abacus #5541).
+The audits of 0003-0005 are in stu32-arcade probes/wasm/. Nothing builds this until STU_WASM (2/5).
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ scripts/fetch-wamr.sh                         |  40 +++
+ third_party/wamr/PIN                          |   9 +
+ third_party/wamr/README.md                    |  25 ++
+ ...SRAM-AOT-code-on-the-instruction-bus.patch | 214 ++++++++++++++
+ ...R-relocation-lost-to-strict-aliasing.patch |  64 +++++
+ ...thread-returns-the-FreeRTOS-task-han.patch |  37 +++
+ ...ot-keep-the-target-symbol-maps-const.patch | 272 ++++++++++++++++++
+ ...oject-without-libc-wasi-leave-lwip-o.patch | 104 +++++++
+ 8 files changed, 765 insertions(+)
+ create mode 100755 scripts/fetch-wamr.sh
+ create mode 100644 third_party/wamr/PIN
+ create mode 100644 third_party/wamr/README.md
+ create mode 100644 third_party/wamr/patches/0001-esp-idf-map-PSRAM-AOT-code-on-the-instruction-bus.patch
+ create mode 100644 third_party/wamr/patches/0002-xtensa-fix-L32R-relocation-lost-to-strict-aliasing.patch
+ create mode 100644 third_party/wamr/patches/0003-esp-idf-os_self_thread-returns-the-FreeRTOS-task-han.patch
+ create mode 100644 third_party/wamr/patches/0004-aot-keep-the-target-symbol-maps-const.patch
+ create mode 100644 third_party/wamr/patches/0005-esp-idf-let-a-project-without-libc-wasi-leave-lwip-o.patch
+
+diff --git a/scripts/fetch-wamr.sh b/scripts/fetch-wamr.sh
+new file mode 100755
+index 0000000..cf0627d
+--- /dev/null
++++ b/scripts/fetch-wamr.sh
+@@ -0,0 +1,40 @@
++#!/bin/sh
++# WAMR (github.com/wasm-micro-runtime/wasm-micro-runtime, Apache-2.0 WITH LLVM-exception) for STU_WASM:
++# third_party/wamr/PIN's commit, exported from a local clone (WAMR_REPO, default ../wasm-micro-runtime) with
++# the patches of third_party/wamr/patches applied in order, into build/wamr. Each patch must match PIN's
++# sha256 and the result must be PIN's tree, or nothing is written. The commit must be on the clone's origin.
++# The work is done in a private object store, so the build never writes into that clone.
++set -eu
++ROOT=$(cd "$(dirname "$0")/.." && pwd)
++PIN=$ROOT/third_party/wamr/PIN
++REPO=${WAMR_REPO:-$ROOT/../wasm-micro-runtime}
++OUT=$ROOT/build/wamr
++COMMIT=$(awk '$1 == "commit" {print $2}' "$PIN")
++TREE=$(awk '$1 == "tree" {print $2}' "$PIN")
++if [ -f "$OUT/.pin" ] && [ "$(cat "$OUT/.pin")" = "$TREE" ]; then
++    exit 0
++fi
++case "$COMMIT$TREE" in *[!0-9a-f]*|"") echo "fetch-wamr: PIN has no commit or tree" >&2; exit 1;; esac
++HEAD=$(git -C "$REPO" symbolic-ref -q refs/remotes/origin/HEAD) || { echo "fetch-wamr: $REPO has no origin/HEAD" >&2; exit 1; }
++git -C "$REPO" merge-base --is-ancestor "$COMMIT" "$HEAD" || { echo "fetch-wamr: $COMMIT is not on $HEAD" >&2; exit 1; }
++awk '$1 == "patch" {print $2, $3}' "$PIN" | while read -r name sum; do
++    got=$(sha256sum "$ROOT/third_party/wamr/patches/$name" | cut -c1-64)
++    [ "$got" = "$sum" ] || { echo "fetch-wamr: $name is $got, PIN says $sum" >&2; exit 1; }
++done
++TMP=$(mktemp -d)
++trap 'rm -rf "$TMP"' EXIT
++GITDIR=$(git -C "$REPO" rev-parse --absolute-git-dir)
++export GIT_DIR="$GITDIR" GIT_INDEX_FILE="$TMP/index" GIT_OBJECT_DIRECTORY="$TMP/objects"
++export GIT_ALTERNATE_OBJECT_DIRECTORIES="$GITDIR/objects"
++mkdir -p "$TMP/objects"
++git read-tree "$COMMIT"
++awk '$1 == "patch" {print $2}' "$PIN" | while read -r name; do
++    git apply --cached "$ROOT/third_party/wamr/patches/$name" || { echo "fetch-wamr: $name does not apply" >&2; exit 1; }
++done
++GOT=$(git write-tree)
++[ "$GOT" = "$TREE" ] || { echo "fetch-wamr: the patched tree is $GOT, PIN says $TREE" >&2; exit 1; }
++rm -rf "$OUT"
++mkdir -p "$OUT"
++git checkout-index -a --prefix="$OUT/"
++echo "$TREE" > "$OUT/.pin"
++echo "wamr $COMMIT + $(grep -c '^patch' "$PIN") patches = tree $TREE"
+diff --git a/third_party/wamr/PIN b/third_party/wamr/PIN
+new file mode 100644
+index 0000000..713b181
+--- /dev/null
++++ b/third_party/wamr/PIN
+@@ -0,0 +1,9 @@
++# WAMR for STU_WASM (decisions 67, 68): scripts/fetch-wamr.sh exports this commit, applies these patches in order
++# (each checked by sha256) and refuses any result whose tree is not this one. Repin: docs in README.md.
++commit ea5dd88e9ca40a44b6a5d9ffeb87a20833b13b8a
++patch 0001-esp-idf-map-PSRAM-AOT-code-on-the-instruction-bus.patch 5c4eb7a7408e72f26b1836dcc21999e5db646f0235fba74a989b9666c1da9644
++patch 0002-xtensa-fix-L32R-relocation-lost-to-strict-aliasing.patch 9bb7b8b2c5e692043325b244ca07423fbc932cff22e5b94967a67fa0f26889df
++patch 0003-esp-idf-os_self_thread-returns-the-FreeRTOS-task-han.patch d59ed26a712f7f8683c59118624aae3984401edd2d713e72f3d638d34d740648
++patch 0004-aot-keep-the-target-symbol-maps-const.patch 3ff3d00aec2fca8871803e78582fa083aee6ec1b2ec16e3f195542e98dfab91a
++patch 0005-esp-idf-let-a-project-without-libc-wasi-leave-lwip-o.patch 54a77ea74556ef290b9bb642b41a452acb2d6b368f8e5d48d7d55a7bf85bd994
++tree 13f26968cf1fd69fd8172b510bf6c05469321b41
+diff --git a/third_party/wamr/README.md b/third_party/wamr/README.md
+new file mode 100644
+index 0000000..f0b0b28
+--- /dev/null
++++ b/third_party/wamr/README.md
+@@ -0,0 +1,25 @@
++# WAMR, pinned (STU_WASM)
++
++WebAssembly Micro Runtime, github.com/wasm-micro-runtime/wasm-micro-runtime, under Apache-2.0 WITH
++LLVM-exception (its LICENSE). It runs .wasm games as .aot built by our pinned wamrc (decision 67: Michael,
++"WAMR, and send the fix upstream too"); its costs are counted under decision 68. Only with `STU_WASM`
++on; off, nothing of it is built.
++
++`scripts/fetch-wamr.sh` exports `PIN`'s commit from a local clone and applies `patches/` in order, checking
++each patch's sha256 and the resulting tree against `PIN`. The patches are modifications of WAMR, under its
++licence:
++
++1. `0001` maps PSRAM AOT code on the instruction bus (upstream PR #5146; issue #5145).
++2. `0002` fixes the Xtensa L32R relocation lost to strict aliasing (upstream PR #5148; issue #5147).
++3. `0003` makes `os_self_thread()` return the FreeRTOS task handle, so apps on the calc task can call
++   AOT code (local; soroban's ruling #5413). Its audit and the chip proof are in stu32-arcade
++   `probes/wasm/wamr-local-os-self-thread.patch`.
++4. `0004` makes every architecture's target symbol map const, so it sits in flash, not internal DRAM (local,
++   decision 68: with it and `WAMR_BUILD_QUICK_AOT_ENTRY=0` the option costs the stand-in 324 B of static
++   D/IRAM, not 2,100, and the stand-in boots). Audit: stu32-arcade `probes/wasm/wamr-local-const-symbol-map.patch`.
++5. `0005` lets a project without libc-wasi leave lwip out (local, decision 68): the device builds set
++   `WAMR_NO_LWIP`, so the option brings no VFS or console drivers, and Rev A with the option on and no game
++   is main's size. Audit: stu32-arcade `probes/wasm/wamr-local-no-lwip.patch`.
++
++Repin: move `commit`, drop each patch upstream has merged, regenerate the rest on the new commit, and
++record their sha256s and the new `git write-tree` in `PIN`; then measure the decision 68 table again.
+diff --git a/third_party/wamr/patches/0001-esp-idf-map-PSRAM-AOT-code-on-the-instruction-bus.patch b/third_party/wamr/patches/0001-esp-idf-map-PSRAM-AOT-code-on-the-instruction-bus.patch
+new file mode 100644
+index 0000000..ca74aad
+--- /dev/null
++++ b/third_party/wamr/patches/0001-esp-idf-map-PSRAM-AOT-code-on-the-instruction-bus.patch
+@@ -0,0 +1,214 @@
++From 0207506ec8bf83d0592513812385be9704e33ab0 Mon Sep 17 00:00:00 2001
++From: Michael Stufflebeam <cpuchip@gmail.com>
++Date: Fri, 9 Oct 2026 13:36:14 +0000
++Subject: [PATCH 1/3] esp-idf: map PSRAM AOT code on the instruction bus
++
++On ESP32-S3 with PSRAM, WASM_MEM_DUAL_BUS_MIRROR put AOT code in PSRAM
++and returned its data bus address plus SOC_IROM_LOW - SOC_IROM_HIGH as
++the code address. That is not instruction memory, so the first call
++into an AOT module panicked with IllegalInstruction.
++
++Map the block's physical pages on the instruction bus with
++esp_mmu_map() instead, return that address from os_mmap(), and return
++the block's data bus address from os_get_dbus_mirror() so the loader
++copies and relocates the code there. os_munmap() unmaps and frees it.
++The wamr component now requires esp_mm for esp_mmu_map.h.
++
++Co-Authored-By: Claude <noreply@anthropic.com>
++---
++ build-scripts/esp-idf/wamr/CMakeLists.txt    |   2 +-
++ core/shared/platform/esp-idf/espidf_memmap.c | 132 ++++++++++++++++---
++ 2 files changed, 116 insertions(+), 18 deletions(-)
++
++diff --git a/build-scripts/esp-idf/wamr/CMakeLists.txt b/build-scripts/esp-idf/wamr/CMakeLists.txt
++index c5662f2..f89e075 100644
++--- a/build-scripts/esp-idf/wamr/CMakeLists.txt
+++++ b/build-scripts/esp-idf/wamr/CMakeLists.txt
++@@ -91,7 +91,7 @@ endif ()
++ 
++ idf_component_register(SRCS ${srcs}
++                        INCLUDE_DIRS ${include_dirs}
++-                       REQUIRES pthread lwip esp_timer
+++                       REQUIRES pthread lwip esp_timer esp_mm
++                        KCONFIG ${CMAKE_CURRENT_LIST_DIR}/Kconfig)
++ 
++ # ESP-IDF enables -Wformat-security by default.  It must be disabled together
++diff --git a/core/shared/platform/esp-idf/espidf_memmap.c b/core/shared/platform/esp-idf/espidf_memmap.c
++index 23b23d1..027a645 100644
++--- a/core/shared/platform/esp-idf/espidf_memmap.c
+++++ b/core/shared/platform/esp-idf/espidf_memmap.c
++@@ -8,13 +8,109 @@
++ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
++ #include "soc/mmu.h"
++ #include "rom/cache.h"
+++#include "esp_mmu_map.h"
++ 
++-#define MEM_DUAL_BUS_OFFSET (SOC_IROM_LOW - SOC_IROM_HIGH)
+++static portMUX_TYPE s_spinlock = portMUX_INITIALIZER_UNLOCKED;
++ 
++-#define in_ibus_ext(addr) \
++-    (((uint32)addr >= SOC_IROM_LOW) && ((uint32)addr < SOC_IROM_HIGH))
+++/* Heap memory in PSRAM is mapped on the data bus only. To run AOT code from
+++ * PSRAM, map the same physical pages on the instruction bus too. The code is
+++ * written through the data bus address (os_get_dbus_mirror) and run through
+++ * the instruction bus address that os_mmap returns. */
+++#define EXEC_MAP_MAX 8
++ 
++-static portMUX_TYPE s_spinlock = portMUX_INITIALIZER_UNLOCKED;
+++typedef struct ExecMap {
+++    uint8 *ibus;
+++    uint8 *dbus;
+++    size_t size;
+++} ExecMap;
+++
+++static ExecMap exec_maps[EXEC_MAP_MAX];
+++
+++static void *
+++exec_mmap(size_t size)
+++{
+++    size_t page = CONFIG_MMU_PAGE_SIZE;
+++    size_t map_size = (size + page - 1) & ~(page - 1);
+++    esp_paddr_t paddr;
+++    mmu_target_t target;
+++    void *ibus = NULL;
+++    uint8 *dbus;
+++    esp_err_t err;
+++    int i;
+++
+++    dbus = heap_caps_aligned_alloc(page, map_size, MALLOC_CAP_SPIRAM);
+++    if (!dbus) {
+++        os_printf("os_mmap: failed to allocate %u bytes of PSRAM for AOT "
+++                  "code\n",
+++                  (uint32)map_size);
+++        return NULL;
+++    }
+++
+++    err = esp_mmu_vaddr_to_paddr(dbus, &paddr, &target);
+++    if (err != ESP_OK) {
+++        os_printf("os_mmap: esp_mmu_vaddr_to_paddr failed: %s\n",
+++                  esp_err_to_name(err));
+++        heap_caps_free(dbus);
+++        return NULL;
+++    }
+++
+++    err = esp_mmu_map(paddr, map_size, target,
+++                      MMU_MEM_CAP_EXEC | MMU_MEM_CAP_READ | MMU_MEM_CAP_32BIT,
+++                      ESP_MMU_MMAP_FLAG_PADDR_SHARED, &ibus);
+++    if (err != ESP_OK) {
+++        os_printf("os_mmap: esp_mmu_map of %u bytes for AOT code failed: "
+++                  "%s\n",
+++                  (uint32)map_size, esp_err_to_name(err));
+++        heap_caps_free(dbus);
+++        return NULL;
+++    }
+++
+++    portENTER_CRITICAL(&s_spinlock);
+++    for (i = 0; i < EXEC_MAP_MAX; i++) {
+++        if (!exec_maps[i].ibus) {
+++            exec_maps[i].ibus = ibus;
+++            exec_maps[i].dbus = dbus;
+++            exec_maps[i].size = map_size;
+++            break;
+++        }
+++    }
+++    portEXIT_CRITICAL(&s_spinlock);
+++
+++    if (i == EXEC_MAP_MAX) {
+++        os_printf("os_mmap: more than %d AOT code blocks are mapped\n",
+++                  EXEC_MAP_MAX);
+++        esp_mmu_unmap(ibus);
+++        heap_caps_free(dbus);
+++        return NULL;
+++    }
+++
+++    memset(dbus, 0, map_size);
+++    return ibus;
+++}
+++
+++static bool
+++exec_munmap(void *ibus)
+++{
+++    uint8 *dbus = NULL;
+++    int i;
+++
+++    portENTER_CRITICAL(&s_spinlock);
+++    for (i = 0; i < EXEC_MAP_MAX; i++) {
+++        if (exec_maps[i].ibus == ibus) {
+++            dbus = exec_maps[i].dbus;
+++            exec_maps[i].ibus = NULL;
+++            break;
+++        }
+++    }
+++    portEXIT_CRITICAL(&s_spinlock);
+++
+++    if (!dbus) {
+++        return false;
+++    }
+++    esp_mmu_unmap(ibus);
+++    heap_caps_free(dbus);
+++    return true;
+++}
++ #endif
++ 
++ void *
++@@ -22,10 +118,9 @@ os_mmap(void *hint, size_t size, int prot, int flags, os_file_handle file)
++ {
++     if (prot & MMAP_PROT_EXEC) {
++ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
++-        uint32_t mem_caps = MALLOC_CAP_SPIRAM;
+++        return exec_mmap(size);
++ #else
++         uint32_t mem_caps = MALLOC_CAP_EXEC;
++-#endif
++ 
++         // Memory allocation with MALLOC_CAP_EXEC will return 4-byte aligned
++         // Reserve extra 4 byte to fixup alignment and size for the pointer to
++@@ -42,10 +137,6 @@ os_mmap(void *hint, size_t size, int prot, int flags, os_file_handle file)
++ 
++         uintptr_t *addr_field = buf_fixed - sizeof(uintptr_t);
++         *addr_field = (uintptr_t)buf_origin;
++-#if (WASM_MEM_DUAL_BUS_MIRROR != 0)
++-        memset(buf_fixed + MEM_DUAL_BUS_OFFSET, 0, size);
++-        return buf_fixed + MEM_DUAL_BUS_OFFSET;
++-#else
++         memset(buf_fixed, 0, size);
++         return buf_fixed;
++ #endif
++@@ -90,8 +181,8 @@ os_munmap(void *addr, size_t size)
++     char *ptr = (char *)addr;
++ 
++ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
++-    if (in_ibus_ext(ptr)) {
++-        ptr -= MEM_DUAL_BUS_OFFSET;
+++    if (exec_munmap(ptr)) {
+++        return;
++     }
++ #endif
++     // We don't need special handling of the executable allocations
++@@ -134,11 +225,18 @@ os_icache_flush(void *start, size_t len)
++ void *
++ os_get_dbus_mirror(void *ibus)
++ {
++-    if (in_ibus_ext(ibus)) {
++-        return (void *)((char *)ibus - MEM_DUAL_BUS_OFFSET);
++-    }
++-    else {
++-        return ibus;
+++    void *dbus = ibus;
+++    int i;
+++
+++    portENTER_CRITICAL(&s_spinlock);
+++    for (i = 0; i < EXEC_MAP_MAX; i++) {
+++        if (exec_maps[i].ibus && (uint8 *)ibus >= exec_maps[i].ibus
+++            && (uint8 *)ibus < exec_maps[i].ibus + exec_maps[i].size) {
+++            dbus = exec_maps[i].dbus + ((uint8 *)ibus - exec_maps[i].ibus);
+++            break;
+++        }
++     }
+++    portEXIT_CRITICAL(&s_spinlock);
+++    return dbus;
++ }
++ #endif
++-- 
++2.53.0
++
+diff --git a/third_party/wamr/patches/0002-xtensa-fix-L32R-relocation-lost-to-strict-aliasing.patch b/third_party/wamr/patches/0002-xtensa-fix-L32R-relocation-lost-to-strict-aliasing.patch
+new file mode 100644
+index 0000000..402c27c
+--- /dev/null
++++ b/third_party/wamr/patches/0002-xtensa-fix-L32R-relocation-lost-to-strict-aliasing.patch
+@@ -0,0 +1,64 @@
++From 2782612c40ccf450f1624383f61e42be1360d28e Mon Sep 17 00:00:00 2001
++From: Michael Stufflebeam <cpuchip@gmail.com>
++Date: Fri, 9 Oct 2026 14:23:22 +0000
++Subject: [PATCH 2/3] xtensa: fix L32R relocation lost to strict aliasing
++
++put_imm16_to_addr() wrote the new L32R immediate into an int8 buffer
++through an int16 pointer and read the buffer back through an int32
++pointer. That breaks strict aliasing, and GCC at -O2 (ESP-IDF v5.4.2)
++removes the write-back whenever the immediate does not cross a word
++boundary, so those L32R instructions keep their unrelocated offset and
++load from the start of the function instead of the literal pool.
++
++Copy the immediate with memcpy into a uint32 array, and write the
++result back with 32-bit stores only, which instruction memory needs.
++
++Co-Authored-By: Claude <noreply@anthropic.com>
++---
++ core/iwasm/aot/arch/aot_reloc_xtensa.c | 30 +++++++++++---------------
++ 1 file changed, 13 insertions(+), 17 deletions(-)
++
++diff --git a/core/iwasm/aot/arch/aot_reloc_xtensa.c b/core/iwasm/aot/arch/aot_reloc_xtensa.c
++index a866883..625422f 100644
++--- a/core/iwasm/aot/arch/aot_reloc_xtensa.c
+++++ b/core/iwasm/aot/arch/aot_reloc_xtensa.c
++@@ -159,23 +159,19 @@ check_reloc_offset(uint32 target_section_size, uint64 reloc_offset,
++ static void
++ put_imm16_to_addr(int16 imm16, int16 *addr)
++ {
++-    int8 bytes[8];
++-    int32 *addr_aligned1, *addr_aligned2;
++-
++-    addr_aligned1 = (int32 *)((intptr_t)addr & ~3);
++-
++-    if ((intptr_t)addr % 4 != 3) {
++-        *(int32 *)bytes = *addr_aligned1;
++-        *(int16 *)(bytes + ((intptr_t)addr % 4)) = imm16;
++-        *addr_aligned1 = *(int32 *)bytes;
++-    }
++-    else {
++-        addr_aligned2 = (int32 *)(((intptr_t)addr + 3) & ~3);
++-        *(int32 *)bytes = *addr_aligned1;
++-        *(int32 *)(bytes + 4) = *addr_aligned2;
++-        *(int16 *)(bytes + 3) = imm16;
++-        memcpy(addr_aligned1, bytes, 8);
++-    }
+++    uint32 offset = (uint32)((uintptr_t)addr & 3);
+++    uint32 *addr_aligned = (uint32 *)((uintptr_t)addr & ~(uintptr_t)3);
+++    uint32 words[2];
+++
+++    /* memcpy keeps this free of strict-aliasing violations; instruction
+++     * memory only takes 32-bit stores */
+++    words[0] = addr_aligned[0];
+++    if (offset == 3)
+++        words[1] = addr_aligned[1];
+++    memcpy((uint8 *)words + offset, &imm16, sizeof(imm16));
+++    addr_aligned[0] = words[0];
+++    if (offset == 3)
+++        addr_aligned[1] = words[1];
++ }
++ 
++ static union {
++-- 
++2.53.0
++
+diff --git a/third_party/wamr/patches/0003-esp-idf-os_self_thread-returns-the-FreeRTOS-task-han.patch b/third_party/wamr/patches/0003-esp-idf-os_self_thread-returns-the-FreeRTOS-task-han.patch
+new file mode 100644
+index 0000000..02311c8
+--- /dev/null
++++ b/third_party/wamr/patches/0003-esp-idf-os_self_thread-returns-the-FreeRTOS-task-han.patch
+@@ -0,0 +1,37 @@
++From a988dc1a2ef7aa1cee6515b0796f5f58f21fa152 Mon Sep 17 00:00:00 2001
++From: Michael Stufflebeam <cpuchip@gmail.com>
++Date: Fri, 9 Oct 2026 15:39:20 +0000
++Subject: [PATCH 3/3] esp-idf: os_self_thread returns the FreeRTOS task handle
++ (STU-32 local)
++
++The STU-32 firmware calls apps from a plain FreeRTOS task, where
++pthread_self() asserts. In the AOT-only build the handle is only stored in
++the exec env and printed by the logger; the embedder sets the native stack
++boundary itself (wasm_runtime_set_native_stack_boundary).
++
++Co-Authored-By: Claude <noreply@anthropic.com>
++---
++ core/shared/platform/esp-idf/espidf_thread.c | 7 ++++---
++ 1 file changed, 4 insertions(+), 3 deletions(-)
++
++diff --git a/core/shared/platform/esp-idf/espidf_thread.c b/core/shared/platform/esp-idf/espidf_thread.c
++index cb68df8..f7e622d 100644
++--- a/core/shared/platform/esp-idf/espidf_thread.c
+++++ b/core/shared/platform/esp-idf/espidf_thread.c
++@@ -33,9 +33,10 @@ os_thread_wrapper(void *arg)
++ korp_tid
++ os_self_thread(void)
++ {
++-    /* only allowed if this is a thread, xTaskCreate is not enough look at
++-     * product_mini for how to use this*/
++-    return pthread_self();
+++    /* The FreeRTOS task handle, so a plain task (not a pthread) can call into
+++     * AOT code; pthread_self() asserts on one. In the AOT-only build the handle
+++     * is only stored in the exec env and printed by the logger. */
+++    return (korp_tid)xTaskGetCurrentTaskHandle();
++ }
++ 
++ int
++-- 
++2.53.0
++
+diff --git a/third_party/wamr/patches/0004-aot-keep-the-target-symbol-maps-const.patch b/third_party/wamr/patches/0004-aot-keep-the-target-symbol-maps-const.patch
+new file mode 100644
+index 0000000..9e5df6e
+--- /dev/null
++++ b/third_party/wamr/patches/0004-aot-keep-the-target-symbol-maps-const.patch
+@@ -0,0 +1,272 @@
++From ce4b135434e9c7b3dfb9bac62a0bfec87c12edf5 Mon Sep 17 00:00:00 2001
++From: Michael Stufflebeam <cpuchip@gmail.com>
++Date: Fri, 9 Oct 2026 16:26:33 +0000
++Subject: [PATCH] aot: keep the target symbol maps const
++
++Nothing writes target_sym_map: the loader only looks symbols up in it,
++and x86_64 copies addresses out of it into its PLT. Declared const, it
++goes to flash rodata on a microcontroller instead of internal RAM. On the
++ESP32-S3 that is 1,000 bytes of DRAM for the Xtensa map.
++
++Co-Authored-By: Claude <noreply@anthropic.com>
++---
++ core/iwasm/aot/aot_loader.c             | 4 ++--
++ core/iwasm/aot/aot_reloc.h              | 2 +-
++ core/iwasm/aot/arch/aot_reloc_aarch64.c | 4 ++--
++ core/iwasm/aot/arch/aot_reloc_arc.c     | 4 ++--
++ core/iwasm/aot/arch/aot_reloc_arm.c     | 4 ++--
++ core/iwasm/aot/arch/aot_reloc_dummy.c   | 2 +-
++ core/iwasm/aot/arch/aot_reloc_mips.c    | 4 ++--
++ core/iwasm/aot/arch/aot_reloc_riscv.c   | 4 ++--
++ core/iwasm/aot/arch/aot_reloc_thumb.c   | 4 ++--
++ core/iwasm/aot/arch/aot_reloc_x86_32.c  | 4 ++--
++ core/iwasm/aot/arch/aot_reloc_x86_64.c  | 4 ++--
++ core/iwasm/aot/arch/aot_reloc_xtensa.c  | 4 ++--
++ 12 files changed, 22 insertions(+), 22 deletions(-)
++
++diff --git a/core/iwasm/aot/aot_loader.c b/core/iwasm/aot/aot_loader.c
++index 121708d..b8dc48e 100644
++--- a/core/iwasm/aot/aot_loader.c
+++++ b/core/iwasm/aot/aot_loader.c
++@@ -621,7 +621,7 @@ get_native_symbol_by_name(const char *name)
++ {
++     void *func = NULL;
++     uint32 symnum = 0;
++-    SymbolMap *sym = NULL;
+++    const SymbolMap *sym = NULL;
++ 
++     sym = get_target_symbol_map(&symnum);
++ 
++@@ -3097,7 +3097,7 @@ static void *
++ resolve_target_sym(const char *symbol, int32 *p_index)
++ {
++     uint32 i, num = 0;
++-    SymbolMap *target_sym_map;
+++    const SymbolMap *target_sym_map;
++ 
++     if (!(target_sym_map = get_target_symbol_map(&num)))
++         return NULL;
++diff --git a/core/iwasm/aot/aot_reloc.h b/core/iwasm/aot/aot_reloc.h
++index ed225b5..a1606fb 100644
++--- a/core/iwasm/aot/aot_reloc.h
+++++ b/core/iwasm/aot/aot_reloc.h
++@@ -234,7 +234,7 @@ typedef struct {
++         return false;                                   \
++   } while (0)
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num);
++ 
++ uint32
++diff --git a/core/iwasm/aot/arch/aot_reloc_aarch64.c b/core/iwasm/aot/arch/aot_reloc_aarch64.c
++index e42d2cd..afd4258 100644
++--- a/core/iwasm/aot/arch/aot_reloc_aarch64.c
+++++ b/core/iwasm/aot/arch/aot_reloc_aarch64.c
++@@ -34,7 +34,7 @@
++ #define R_AARCH64_CALL26 283
++ 
++ /* clang-format off */
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     REG_COMMON_SYMBOLS
++ };
++ /* clang-format on */
++@@ -46,7 +46,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
++         snprintf(error_buf, error_buf_size, "%s", string);
++ }
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++diff --git a/core/iwasm/aot/arch/aot_reloc_arc.c b/core/iwasm/aot/arch/aot_reloc_arc.c
++index 2ce1154..c8c91f8 100644
++--- a/core/iwasm/aot/arch/aot_reloc_arc.c
+++++ b/core/iwasm/aot/arch/aot_reloc_arc.c
++@@ -130,7 +130,7 @@ void __lesf2();
++ void __unorddf2();
++ /* clang-format on */
++ 
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     /* clang-format off */
++     REG_COMMON_SYMBOLS
++ #ifndef __CCAC__
++@@ -258,7 +258,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
++         snprintf(error_buf, error_buf_size, "%s", string);
++ }
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++diff --git a/core/iwasm/aot/arch/aot_reloc_arm.c b/core/iwasm/aot/arch/aot_reloc_arm.c
++index 0be17ef..cc01c6d 100644
++--- a/core/iwasm/aot/arch/aot_reloc_arm.c
+++++ b/core/iwasm/aot/arch/aot_reloc_arm.c
++@@ -110,7 +110,7 @@ void __unorddf2(void);
++ void __unordsf2(void);
++ /* clang-format on */
++ 
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     /* clang-format off */
++     REG_COMMON_SYMBOLS
++     /* compiler-rt symbols that come from compiler(e.g. gcc) */
++@@ -220,7 +220,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
++         snprintf(error_buf, error_buf_size, "%s", string);
++ }
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++diff --git a/core/iwasm/aot/arch/aot_reloc_dummy.c b/core/iwasm/aot/arch/aot_reloc_dummy.c
++index bc05d7b..922f643 100644
++--- a/core/iwasm/aot/arch/aot_reloc_dummy.c
+++++ b/core/iwasm/aot/arch/aot_reloc_dummy.c
++@@ -5,7 +5,7 @@
++ 
++ #include "aot_reloc.h"
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     abort();
++diff --git a/core/iwasm/aot/arch/aot_reloc_mips.c b/core/iwasm/aot/arch/aot_reloc_mips.c
++index 4b85611..d9de7a4 100644
++--- a/core/iwasm/aot/arch/aot_reloc_mips.c
+++++ b/core/iwasm/aot/arch/aot_reloc_mips.c
++@@ -9,12 +9,12 @@
++ #define R_MIPS_26 4 /* Direct 26 bit shifted */
++ 
++ /* clang-format off */
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     REG_COMMON_SYMBOLS
++ };
++ /* clang-format on */
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++diff --git a/core/iwasm/aot/arch/aot_reloc_riscv.c b/core/iwasm/aot/arch/aot_reloc_riscv.c
++index d05ed0d..426eed4 100644
++--- a/core/iwasm/aot/arch/aot_reloc_riscv.c
+++++ b/core/iwasm/aot/arch/aot_reloc_riscv.c
++@@ -111,7 +111,7 @@ bool __atomic_compare_exchange_4(volatile void *, void *, unsigned int,
++ void __atomic_store_4(volatile void *, unsigned int, int);
++ /* clang-format on */
++ 
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     /* clang-format off */
++     REG_COMMON_SYMBOLS
++ #ifdef NEED_SOFT_FP
++@@ -216,7 +216,7 @@ get_plt_item_size(void)
++ #endif
++ }
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++diff --git a/core/iwasm/aot/arch/aot_reloc_thumb.c b/core/iwasm/aot/arch/aot_reloc_thumb.c
++index a5414f8..cbbb996 100644
++--- a/core/iwasm/aot/arch/aot_reloc_thumb.c
+++++ b/core/iwasm/aot/arch/aot_reloc_thumb.c
++@@ -116,7 +116,7 @@ void __unorddf2(void);
++ void __unordsf2(void);
++ /* clang-format on */
++ 
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     /* clang-format off */
++     REG_COMMON_SYMBOLS
++     /* compiler-rt symbols that come from compiler(e.g. gcc) */
++@@ -232,7 +232,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
++         snprintf(error_buf, error_buf_size, "%s", string);
++ }
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++diff --git a/core/iwasm/aot/arch/aot_reloc_x86_32.c b/core/iwasm/aot/arch/aot_reloc_x86_32.c
++index 9776f3f..194dea4 100644
++--- a/core/iwasm/aot/arch/aot_reloc_x86_32.c
+++++ b/core/iwasm/aot/arch/aot_reloc_x86_32.c
++@@ -72,7 +72,7 @@ __allrem(int64 a, int64 b)
++ #endif /* !defined(_WIN32) && !defined(_WIN32_) */
++ 
++ /* clang-format off */
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     REG_COMMON_SYMBOLS
++     /* compiler-rt symbols that come from compiler(e.g. gcc) */
++     REG_SYM(__divdi3),
++@@ -94,7 +94,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
++         snprintf(error_buf, error_buf_size, "%s", string);
++ }
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++diff --git a/core/iwasm/aot/arch/aot_reloc_x86_64.c b/core/iwasm/aot/arch/aot_reloc_x86_64.c
++index d2c2080..520c307 100644
++--- a/core/iwasm/aot/arch/aot_reloc_x86_64.c
+++++ b/core/iwasm/aot/arch/aot_reloc_x86_64.c
++@@ -34,7 +34,7 @@
++ #endif
++ 
++ /* clang-format off */
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     REG_COMMON_SYMBOLS
++ };
++ /* clang-format on */
++@@ -46,7 +46,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
++         snprintf(error_buf, error_buf_size, "%s", string);
++ }
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++diff --git a/core/iwasm/aot/arch/aot_reloc_xtensa.c b/core/iwasm/aot/arch/aot_reloc_xtensa.c
++index 625422f..1623940 100644
++--- a/core/iwasm/aot/arch/aot_reloc_xtensa.c
+++++ b/core/iwasm/aot/arch/aot_reloc_xtensa.c
++@@ -50,7 +50,7 @@ void __floatdisf(void);
++ void __floatundisf(void);
++ 
++ 
++-static SymbolMap target_sym_map[] = {
+++static const SymbolMap target_sym_map[] = {
++     REG_COMMON_SYMBOLS
++ 
++     /* API's for soft-float */
++@@ -105,7 +105,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
++         snprintf(error_buf, error_buf_size, "%s", string);
++ }
++ 
++-SymbolMap *
+++const SymbolMap *
++ get_target_symbol_map(uint32 *sym_num)
++ {
++     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
++-- 
++2.53.0
++
+diff --git a/third_party/wamr/patches/0005-esp-idf-let-a-project-without-libc-wasi-leave-lwip-o.patch b/third_party/wamr/patches/0005-esp-idf-let-a-project-without-libc-wasi-leave-lwip-o.patch
+new file mode 100644
+index 0000000..f4c8184
+--- /dev/null
++++ b/third_party/wamr/patches/0005-esp-idf-let-a-project-without-libc-wasi-leave-lwip-o.patch
+@@ -0,0 +1,104 @@
++From a00cab91817d997eb66e0f8b77c1cbe008be9490 Mon Sep 17 00:00:00 2001
++From: Michael Stufflebeam <cpuchip@gmail.com>
++Date: Fri, 9 Oct 2026 17:09:20 +0000
++Subject: [PATCH] esp-idf: let a project without libc-wasi leave lwip out
++
++The ESP-IDF component always requires lwip, and lwip brings VFS, the UART
++driver and the VFS console into the build. Only libc-wasi uses sockets.
++Without libc-wasi, espidf_socket.c and espidf_file.c are left out (as
++the Zephyr port does), the socket headers and readv/writev (whose struct
++iovec comes from lwip) are guarded, and a project can drop lwip with
++idf_build_set_property(WAMR_NO_LWIP 1) before project(). Requirements
++are resolved before sdkconfig is read, so the choice is a build property;
++the default keeps lwip, and the property with libc-wasi on is an error.
++
++Co-Authored-By: Claude <noreply@anthropic.com>
++---
++ build-scripts/esp-idf/wamr/CMakeLists.txt          | 14 +++++++++++++-
++ core/shared/platform/esp-idf/espidf_platform.c     |  3 +++
++ core/shared/platform/esp-idf/platform_internal.h   |  2 ++
++ core/shared/platform/esp-idf/shared_platform.cmake |  5 +++++
++ 4 files changed, 23 insertions(+), 1 deletion(-)
++
++diff --git a/build-scripts/esp-idf/wamr/CMakeLists.txt b/build-scripts/esp-idf/wamr/CMakeLists.txt
++index f89e075..a635ad6 100644
++--- a/build-scripts/esp-idf/wamr/CMakeLists.txt
+++++ b/build-scripts/esp-idf/wamr/CMakeLists.txt
++@@ -89,9 +89,21 @@ if (NOT CMAKE_BUILD_EARLY_EXPANSION)
++                     "${IWASM_COMMON_DIR}")
++ endif ()
++ 
+++# lwip is needed only for the sockets of libc-wasi. Requirements are resolved
+++# before sdkconfig is read, so a project built without libc-wasi that does not
+++# want lwip (and the VFS and console drivers it brings) says so with a build
+++# property set before project():  idf_build_set_property(WAMR_NO_LWIP 1)
+++idf_build_get_property (wamr_no_lwip WAMR_NO_LWIP)
+++set (requires pthread esp_timer esp_mm)
+++if (NOT wamr_no_lwip)
+++  list (APPEND requires lwip)
+++elseif (CONFIG_WAMR_ENABLE_LIBC_WASI)
+++  message (FATAL_ERROR "WAMR_NO_LWIP is set, but libc-wasi needs lwip")
+++endif ()
+++
++ idf_component_register(SRCS ${srcs}
++                        INCLUDE_DIRS ${include_dirs}
++-                       REQUIRES pthread lwip esp_timer esp_mm
+++                       REQUIRES ${requires}
++                        KCONFIG ${CMAKE_CURRENT_LIST_DIR}/Kconfig)
++ 
++ # ESP-IDF enables -Wformat-security by default.  It must be disabled together
++diff --git a/core/shared/platform/esp-idf/espidf_platform.c b/core/shared/platform/esp-idf/espidf_platform.c
++index a9b3d4d..0db6075 100644
++--- a/core/shared/platform/esp-idf/espidf_platform.c
+++++ b/core/shared/platform/esp-idf/espidf_platform.c
++@@ -96,6 +96,8 @@ os_usleep(uint32 usec)
++     return usleep(usec);
++ }
++ 
+++/* struct iovec comes from lwip, which only libc-wasi requires */
+++#if defined(WASM_ENABLE_LIBC_WASI) && WASM_ENABLE_LIBC_WASI != 0
++ /* Below parts of readv & writev are ported from Nuttx, under Apache License
++  * v2.0 */
++ 
++@@ -194,6 +196,7 @@ writev(int fildes, const struct iovec *iov, int iovcnt)
++ 
++     return ntotal;
++ }
+++#endif /* end of WASM_ENABLE_LIBC_WASI != 0 */
++ 
++ #if OPENAT_SUPPORT
++ int
++diff --git a/core/shared/platform/esp-idf/platform_internal.h b/core/shared/platform/esp-idf/platform_internal.h
++index a704bb0..6f14dcf 100644
++--- a/core/shared/platform/esp-idf/platform_internal.h
+++++ b/core/shared/platform/esp-idf/platform_internal.h
++@@ -17,8 +17,10 @@
++ #include <math.h>
++ #include <unistd.h>
++ #include <pthread.h>
+++#if defined(WASM_ENABLE_LIBC_WASI) && WASM_ENABLE_LIBC_WASI != 0
++ #include <arpa/inet.h>
++ #include <sys/socket.h>
+++#endif
++ #include <sys/uio.h>
++ #include <dirent.h>
++ 
++diff --git a/core/shared/platform/esp-idf/shared_platform.cmake b/core/shared/platform/esp-idf/shared_platform.cmake
++index d254b08..1705514 100644
++--- a/core/shared/platform/esp-idf/shared_platform.cmake
+++++ b/core/shared/platform/esp-idf/shared_platform.cmake
++@@ -13,6 +13,11 @@ file (GLOB_RECURSE source_all ${PLATFORM_SHARED_DIR}/*.c)
++ include (${CMAKE_CURRENT_LIST_DIR}/../common/libc-util/platform_common_libc_util.cmake)
++ set (source_all ${source_all} ${PLATFORM_COMMON_LIBC_UTIL_SOURCE})
++ 
+++if (NOT WAMR_BUILD_LIBC_WASI EQUAL 1)
+++    list(REMOVE_ITEM source_all ${PLATFORM_SHARED_DIR}/espidf_socket.c)
+++    list(REMOVE_ITEM source_all ${PLATFORM_SHARED_DIR}/espidf_file.c)
+++endif ()
+++
++ set (PLATFORM_SHARED_SOURCE ${source_all} ${PLATFORM_COMMON_MATH_SOURCE})
++ 
++ # If enable PSRAM of ESP32-S3, it had better to put AOT into PSRAM, so that
++-- 
++2.53.0
++
+-- 
+2.53.0
+
