@@ -13,7 +13,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/idf_additions.h"
 #include "freertos/task.h"
-#define BRIDGE_STACK_GUARD 2048 /* WAMR's 1 KB default left 212 B after a trap on the S3; 2 KB (abacus #5450) */
+/* A trap runs about 1.1 KB below the boundary: WAMR formats its message with newlib's snprintf, whose
+   _svfprintf_r takes an 800 B frame. 3.5 KB leaves 2 KB of the calc task's stack after a trap (soroban #5561). */
+#define BRIDGE_STACK_GUARD 3584
 #include "esp_heap_caps.h"
 /* WAMR's allocations and the module's copy in PSRAM: the calculator's internal heap is the tight one, and none
    of WAMR runs with the cache off (soroban #5501) */

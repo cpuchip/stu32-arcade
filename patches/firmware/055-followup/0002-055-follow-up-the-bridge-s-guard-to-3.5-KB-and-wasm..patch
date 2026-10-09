@@ -1,0 +1,131 @@
+From deea122769a788ad52968440da65006f2177b300 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 17:54:52 +0000
+Subject: [PATCH 2/2] 055 follow-up: the bridge's guard to 3.5 KB, and wasm.txt
+ holds 2 KB after a trap
+
+abacus #5560 and soroban #5561: after TRAP's trap the calc task had 964 B left. The trap path runs about
+1.1 KB below the native stack boundary: AOT code -> aot_set_exception_with_id (32 B) ->
+wasm_set_exception_with_id (32) -> wasm_set_exception (32) -> snprintf (192) -> _svfprintf_r (800, entry
+a1, 0x320) -> __ssprint_r (48), frames read from the image; WAMR formats "Exception: %s" with newlib's
+snprintf. The exception lock's path (os_mutex_lock -> pthread -> xQueueSemaphoreTake, 176 B) is shallower.
+BRIDGE_STACK_GUARD goes from 2,048 to 3,584.
+
+talk.py gains `expect-min KEY MIN [SECONDS]`: the next printed KEY=<integer> must be at least MIN, else
+FAIL, as for a missed expect. Nothing else in it changes. Through a pty: 964 against 2048 is FAIL, 2500
+is PASS, no value is FAIL. wasm.txt checks stack-free >= 2048 after the trap.
+
+On soroban's S3 (wasm.txt, run.sh with STU_WASM=1 and games-wasm-gate.list): with this commit, ALL MET and
+2,484 B left after the trap (1,100 B used past the boundary); with the guard planted back at 2,048, only
+expect-min fails (964).
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ device/standin/talk.py   | 28 ++++++++++++++++++++++++++++
+ device/standin/wasm.txt  |  5 +++--
+ firmware/wasm/wasm_app.c |  4 +++-
+ 3 files changed, 34 insertions(+), 3 deletions(-)
+
+diff --git a/device/standin/talk.py b/device/standin/talk.py
+index 1707926..98afe31 100644
+--- a/device/standin/talk.py
++++ b/device/standin/talk.py
+@@ -8,6 +8,9 @@ Copies every line the board prints to stdout and LOG. With a SCRIPT, runs its li
+     send TEXT              send TEXT and a newline (the firmware reads K<n> as key n, and more)
+     wait TEXT [SECONDS]    wait for a printed line containing TEXT (default 10 s); fail if none
+     expect TEXT [SECONDS]  the same, named for a check: a miss is reported as FAIL
++    expect-min KEY MIN [SECONDS]
++                           the next printed KEY=<integer> must be at least MIN: a miss or a smaller
++                           value is reported as FAIL (unit 055: stack-free after a wasm trap)
+     reset                  pulse EN through the board's auto-reset (RTS, with DTR held low)
+     press0 MS              hold IO0 low for MS ms through the auto-reset's DTR line (RTS high), as
+                            pressing BOOT: a key for the light-sleep probe (unit 023)
+@@ -17,6 +20,7 @@ Copies every line the board prints to stdout and LOG. With a SCRIPT, runs its li
+ Exits 0 when every wait and expect was met. Without a SCRIPT it relays stdin lines to the board
+ until EOF. Needs pyserial (present in the ESP-IDF environment). DTR and RTS are held low on open
+ so opening the port neither resets the chip nor enters its bootloader."""
++import re
+ import sys
+ import threading
+ import time
+@@ -63,6 +67,21 @@ def wait_for(text, limit, seen_from):
+     return False
+ 
+ 
++def wait_value(key, limit, seen_from):
++    """the integer in the next printed KEY=<integer>, or None"""
++    pat = re.compile(re.escape(key) + r"=(-?\d+)")
++    end = time.time() + limit
++    while time.time() < end:
++        with lock:
++            for i in range(seen_from[0], len(lines)):
++                m = pat.search(lines[i])
++                if m:
++                    seen_from[0] = i + 1
++                    return int(m.group(1))
++        time.sleep(0.05)
++    return None
++
++
+ failures = 0
+ if script:
+     pos = [0]
+@@ -88,6 +107,15 @@ if script:
+                 print(f"talk.py: {tag} line {n}: {word} {rest!r}", flush=True)
+                 out.write(f"talk.py: {tag} line {n}: {word} {rest!r}\n")
+             failures += not ok
++        elif word == "expect-min":
++            p = rest.split()
++            key, low, limit = p[0], int(p[1]), float(p[2]) if len(p) > 2 else 10.0
++            got = wait_value(key, limit, pos)
++            ok = got is not None and got >= low
++            msg = f"talk.py: {'PASS' if ok else 'FAIL'} line {n}: expect-min {key} {low} (got {got})"
++            print(msg, flush=True)
++            out.write(msg + "\n")
++            failures += not ok
+         elif word == "reset":
+             s.dtr = False
+             s.rts = True
+diff --git a/device/standin/wasm.txt b/device/standin/wasm.txt
+index 47d7fcd..14f77ac 100644
+--- a/device/standin/wasm.txt
++++ b/device/standin/wasm.txt
+@@ -1,8 +1,8 @@
+ # The wasm gate (STU_WASM=1, games-wasm-gate.list; soroban #5467, #5501): BABAL, then BABLW (Babal as WebAssembly)
+ # with keys held, then TRAP: key 0 recurses 100 deep and returns, key 1 never stops and must trap. The calc task's
+ # stack-free in each X line is the least ever free, so each bounds its step and all before it; read them from the
+-# log (2026-10-09 on the S3 at ab51544: 29,060 through BABAL and BABLW, 23,300 after TRAP's key 0, 964 after the
+-# trap). Then C, and 2 ENTER 3 + must still give 5.
++# log (2026-10-09 on the S3 at ab51544: 29,060 through BABAL and BABLW, 23,300 after TRAP's key 0); after the trap it
++# must be at least 2,048 (expect-min). Then C, and 2 ENTER 3 + must still give 5.
+ send RESTART
+ wait STANDIN READY 30
+ send X
+@@ -71,6 +71,7 @@ expect native stack overflow
+ send U1
+ sleep 1
+ send X
++expect-min stack-free 2048
+ expect app: TRAP
+ send K42
+ send U42
+diff --git a/firmware/wasm/wasm_app.c b/firmware/wasm/wasm_app.c
+index bd7d860..92b1237 100644
+--- a/firmware/wasm/wasm_app.c
++++ b/firmware/wasm/wasm_app.c
+@@ -13,7 +13,9 @@
+ #include "freertos/FreeRTOS.h"
+ #include "freertos/idf_additions.h"
+ #include "freertos/task.h"
+-#define BRIDGE_STACK_GUARD 2048 /* WAMR's 1 KB default left 212 B after a trap on the S3; 2 KB (abacus #5450) */
++/* A trap runs about 1.1 KB below the boundary: WAMR formats its message with newlib's snprintf, whose
++   _svfprintf_r takes an 800 B frame. 3.5 KB leaves 2 KB of the calc task's stack after a trap (soroban #5561). */
++#define BRIDGE_STACK_GUARD 3584
+ #include "esp_heap_caps.h"
+ /* WAMR's allocations and the module's copy in PSRAM: the calculator's internal heap is the tight one, and none
+    of WAMR runs with the cache off (soroban #5501) */
+-- 
+2.53.0
+

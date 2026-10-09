@@ -1,0 +1,35 @@
+From 3bd2d3bf29dc12e337a286450adbdb303565b847 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 17:52:01 +0000
+Subject: [PATCH 1/2] gen_games test: a wasm game whose .aot is a symbolic link
+
+soroban's note from 055's gate: the refusal had no test. The .aot is a link
+to a copy of itself, so only the link check can refuse it; with that check
+removed the case fails on the hash instead, and the test goes red.
+
+Written by arcade for soroban's gate.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ tests/gen_games_test.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/tests/gen_games_test.sh b/tests/gen_games_test.sh
+index 77a572e..62a1f54 100755
+--- a/tests/gen_games_test.sh
++++ b/tests/gen_games_test.sh
+@@ -164,6 +164,11 @@ badw "a wasm game with sources" '$a sources = w/*.c' "a wasm game has no sources
+ badw "a wasm game without its toolchain" "/^toolchain/d" "lacks toolchain"
+ badw "a wasm game whose hash is not hex" "s/^aot_sha256 = .*/aot_sha256 = nothex/" "64 hex digits"
+ badw "a wasm game whose .aot is not at the pin" "s|^aot = .*|aot = w/none.aot|" "is not at the pin"
++# a wasm game whose .aot is a symbolic link to a copy of itself, so only the link check can refuse it (soroban, 055's gate)
++rm -rf "$T/repos/bw" "$T/bw.git"; mkwasm bw BADW
++(cd "$T/repos/bw" && mv w/g.aot w/real.aot && ln -s real.aot w/g.aot && git add -A \
++    && git -c user.email=t@t -c user.name=t commit -q -m link && git push -q origin HEAD:main 2>/dev/null)
++printf 'bw bw %s MIT game.txt\n' "$(git -C "$T/repos/bw" rev-parse HEAD)" > "$T/fw/games.list"; run 1 "a wasm game whose .aot is a symbolic link" "symbolic link"
+ bad "a native game with an aot" '$a aot = x.aot' "a native game has no aot"
+ bad "an unknown kind" '$a kind = lua' "kind must be native or wasm"
+ [ "$ok" = 1 ] && { echo "GAMES-LIST GENERATOR GREEN"; exit 0; }
+-- 
+2.53.0
+
