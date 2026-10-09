@@ -1,0 +1,218 @@
+The upstream branch's commit, for abacus to read before anything is opened (decision 67). It applies to WAMR
+main at ea5dd88 (github.com/wasm-micro-runtime/wasm-micro-runtime); a modification of WAMR, so under
+Apache-2.0 WITH LLVM-exception, not this repository's MIT. Drafts beside it: issue.md, pr.md.
+
+From 5f03e40bc958d65adbc9e686cb6e2c8b8d907e53 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 13:36:14 +0000
+Subject: [PATCH] esp-idf: map PSRAM AOT code on the instruction bus
+
+On ESP32-S3 with PSRAM, WASM_MEM_DUAL_BUS_MIRROR put AOT code in PSRAM
+and returned its data bus address plus SOC_IROM_LOW - SOC_IROM_HIGH as
+the code address. That is not instruction memory, so the first call
+into an AOT module panicked with IllegalInstruction.
+
+Map the block's physical pages on the instruction bus with
+esp_mmu_map() instead, return that address from os_mmap(), and return
+the block's data bus address from os_get_dbus_mirror() so the loader
+copies and relocates the code there. os_munmap() unmaps and frees it.
+The wamr component now requires esp_mm for esp_mmu_map.h.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ build-scripts/esp-idf/wamr/CMakeLists.txt    |   2 +-
+ core/shared/platform/esp-idf/espidf_memmap.c | 132 ++++++++++++++++---
+ 2 files changed, 116 insertions(+), 18 deletions(-)
+
+diff --git a/build-scripts/esp-idf/wamr/CMakeLists.txt b/build-scripts/esp-idf/wamr/CMakeLists.txt
+index c5662f2..f89e075 100644
+--- a/build-scripts/esp-idf/wamr/CMakeLists.txt
++++ b/build-scripts/esp-idf/wamr/CMakeLists.txt
+@@ -91,7 +91,7 @@ endif ()
+ 
+ idf_component_register(SRCS ${srcs}
+                        INCLUDE_DIRS ${include_dirs}
+-                       REQUIRES pthread lwip esp_timer
++                       REQUIRES pthread lwip esp_timer esp_mm
+                        KCONFIG ${CMAKE_CURRENT_LIST_DIR}/Kconfig)
+ 
+ # ESP-IDF enables -Wformat-security by default.  It must be disabled together
+diff --git a/core/shared/platform/esp-idf/espidf_memmap.c b/core/shared/platform/esp-idf/espidf_memmap.c
+index 23b23d1..027a645 100644
+--- a/core/shared/platform/esp-idf/espidf_memmap.c
++++ b/core/shared/platform/esp-idf/espidf_memmap.c
+@@ -8,13 +8,109 @@
+ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+ #include "soc/mmu.h"
+ #include "rom/cache.h"
++#include "esp_mmu_map.h"
+ 
+-#define MEM_DUAL_BUS_OFFSET (SOC_IROM_LOW - SOC_IROM_HIGH)
++static portMUX_TYPE s_spinlock = portMUX_INITIALIZER_UNLOCKED;
+ 
+-#define in_ibus_ext(addr) \
+-    (((uint32)addr >= SOC_IROM_LOW) && ((uint32)addr < SOC_IROM_HIGH))
++/* Heap memory in PSRAM is mapped on the data bus only. To run AOT code from
++ * PSRAM, map the same physical pages on the instruction bus too. The code is
++ * written through the data bus address (os_get_dbus_mirror) and run through
++ * the instruction bus address that os_mmap returns. */
++#define EXEC_MAP_MAX 8
+ 
+-static portMUX_TYPE s_spinlock = portMUX_INITIALIZER_UNLOCKED;
++typedef struct ExecMap {
++    uint8 *ibus;
++    uint8 *dbus;
++    size_t size;
++} ExecMap;
++
++static ExecMap exec_maps[EXEC_MAP_MAX];
++
++static void *
++exec_mmap(size_t size)
++{
++    size_t page = CONFIG_MMU_PAGE_SIZE;
++    size_t map_size = (size + page - 1) & ~(page - 1);
++    esp_paddr_t paddr;
++    mmu_target_t target;
++    void *ibus = NULL;
++    uint8 *dbus;
++    esp_err_t err;
++    int i;
++
++    dbus = heap_caps_aligned_alloc(page, map_size, MALLOC_CAP_SPIRAM);
++    if (!dbus) {
++        os_printf("os_mmap: failed to allocate %u bytes of PSRAM for AOT "
++                  "code\n",
++                  (uint32)map_size);
++        return NULL;
++    }
++
++    err = esp_mmu_vaddr_to_paddr(dbus, &paddr, &target);
++    if (err != ESP_OK) {
++        os_printf("os_mmap: esp_mmu_vaddr_to_paddr failed: %s\n",
++                  esp_err_to_name(err));
++        heap_caps_free(dbus);
++        return NULL;
++    }
++
++    err = esp_mmu_map(paddr, map_size, target,
++                      MMU_MEM_CAP_EXEC | MMU_MEM_CAP_READ | MMU_MEM_CAP_32BIT,
++                      ESP_MMU_MMAP_FLAG_PADDR_SHARED, &ibus);
++    if (err != ESP_OK) {
++        os_printf("os_mmap: esp_mmu_map of %u bytes for AOT code failed: "
++                  "%s\n",
++                  (uint32)map_size, esp_err_to_name(err));
++        heap_caps_free(dbus);
++        return NULL;
++    }
++
++    portENTER_CRITICAL(&s_spinlock);
++    for (i = 0; i < EXEC_MAP_MAX; i++) {
++        if (!exec_maps[i].ibus) {
++            exec_maps[i].ibus = ibus;
++            exec_maps[i].dbus = dbus;
++            exec_maps[i].size = map_size;
++            break;
++        }
++    }
++    portEXIT_CRITICAL(&s_spinlock);
++
++    if (i == EXEC_MAP_MAX) {
++        os_printf("os_mmap: more than %d AOT code blocks are mapped\n",
++                  EXEC_MAP_MAX);
++        esp_mmu_unmap(ibus);
++        heap_caps_free(dbus);
++        return NULL;
++    }
++
++    memset(dbus, 0, map_size);
++    return ibus;
++}
++
++static bool
++exec_munmap(void *ibus)
++{
++    uint8 *dbus = NULL;
++    int i;
++
++    portENTER_CRITICAL(&s_spinlock);
++    for (i = 0; i < EXEC_MAP_MAX; i++) {
++        if (exec_maps[i].ibus == ibus) {
++            dbus = exec_maps[i].dbus;
++            exec_maps[i].ibus = NULL;
++            break;
++        }
++    }
++    portEXIT_CRITICAL(&s_spinlock);
++
++    if (!dbus) {
++        return false;
++    }
++    esp_mmu_unmap(ibus);
++    heap_caps_free(dbus);
++    return true;
++}
+ #endif
+ 
+ void *
+@@ -22,10 +118,9 @@ os_mmap(void *hint, size_t size, int prot, int flags, os_file_handle file)
+ {
+     if (prot & MMAP_PROT_EXEC) {
+ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-        uint32_t mem_caps = MALLOC_CAP_SPIRAM;
++        return exec_mmap(size);
+ #else
+         uint32_t mem_caps = MALLOC_CAP_EXEC;
+-#endif
+ 
+         // Memory allocation with MALLOC_CAP_EXEC will return 4-byte aligned
+         // Reserve extra 4 byte to fixup alignment and size for the pointer to
+@@ -42,10 +137,6 @@ os_mmap(void *hint, size_t size, int prot, int flags, os_file_handle file)
+ 
+         uintptr_t *addr_field = buf_fixed - sizeof(uintptr_t);
+         *addr_field = (uintptr_t)buf_origin;
+-#if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-        memset(buf_fixed + MEM_DUAL_BUS_OFFSET, 0, size);
+-        return buf_fixed + MEM_DUAL_BUS_OFFSET;
+-#else
+         memset(buf_fixed, 0, size);
+         return buf_fixed;
+ #endif
+@@ -90,8 +181,8 @@ os_munmap(void *addr, size_t size)
+     char *ptr = (char *)addr;
+ 
+ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-    if (in_ibus_ext(ptr)) {
+-        ptr -= MEM_DUAL_BUS_OFFSET;
++    if (exec_munmap(ptr)) {
++        return;
+     }
+ #endif
+     // We don't need special handling of the executable allocations
+@@ -134,11 +225,18 @@ os_icache_flush(void *start, size_t len)
+ void *
+ os_get_dbus_mirror(void *ibus)
+ {
+-    if (in_ibus_ext(ibus)) {
+-        return (void *)((char *)ibus - MEM_DUAL_BUS_OFFSET);
+-    }
+-    else {
+-        return ibus;
++    void *dbus = ibus;
++    int i;
++
++    portENTER_CRITICAL(&s_spinlock);
++    for (i = 0; i < EXEC_MAP_MAX; i++) {
++        if (exec_maps[i].ibus && (uint8 *)ibus >= exec_maps[i].ibus
++            && (uint8 *)ibus < exec_maps[i].ibus + exec_maps[i].size) {
++            dbus = exec_maps[i].dbus + ((uint8 *)ibus - exec_maps[i].ibus);
++            break;
++        }
+     }
++    portEXIT_CRITICAL(&s_spinlock);
++    return dbus;
+ }
+ #endif
+-- 
+2.53.0
+
