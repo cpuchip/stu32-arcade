@@ -64,21 +64,23 @@ size reports with the option off and on main). On, the device images get the WAM
 ## 5. Decision 68's table
 
 Measured on casim's XIAO S3 in the probe bench (WAMR main ea5dd88 + patches 1-3, Babal's default-level .aot),
-and still to measure in the firmware images:
+and in the firmware images (the right column: the S3 stand-in at abacus-firmware ab51544, 2026-10-09, struck
+figures corrected in place):
 
-| cost | measured (bench) | to measure in the firmware |
+| cost | measured (bench) | measured in the firmware (stand-in) |
 |---|---|---|
 | flash, WAMR | 35,706 B code + 136 B data | with the bridge, option on vs off |
 | flash, per game | Babal: 110,960 B .aot (the .wasm 143,832 B is not stored) | |
-| internal RAM, static | 1,944 B | option on vs off |
-| internal RAM, run time | 5,236 B while Babal is loaded, 0 after stop (destroyed) | free after boot, Rev A and stand-in |
+| internal RAM, static | ~~1,944 B~~ (counted, but most of it was writable tables in DRAM) | +2,100 B D/IRAM, which stopped the stand-in at boot; +324 B with patch 4 and `WAMR_BUILD_QUICK_AOT_ENTRY=0` |
+| internal RAM, run time | ~~5,236 B while Babal is loaded~~ (the bench called WAMR directly) | 13,904 B while BABLW ran (WAMR's allocations under the 16 KB always-internal malloc threshold); 152 B with the bridge's PSRAM allocator (aeb8fca): 104 B once, at the first `wasm_runtime_full_init`, flat over 20 cycles, and 48 B that unload returns |
 | IRAM | 0 B | option on vs off (Rev A has 1 B free at be3617e) |
-| stack | 2,568 B of the caller's | under the calc task |
+| stack | 2,568 B of the caller's | calc task: BABLW never below boot's mark (29,060 B free); runaway recursion traps with 964 B left (2 KB guard) |
 | PSRAM, run time | 539,412 B for Babal: 256 KB linear memory, 128 KB code mapping (64 KB pages), the module copy | whether the .aot can be loaded from flash without the 111 KB copy |
-| S3 time | Babal draw 2.535 ms (native 1.527), tick 607 us (native 91) | plus the frame copy |
+| S3 time | Babal draw 2.535 ms (native 1.527), tick 607 us (native 91) | FRAMEBENCH (draw and blit, 50 frames): BABAL 665 a second, BABLW 381.0 (381.7 with quick entries on) |
 
 Per patch: 1 and 3 change only the PSRAM mapping path (counted in the WAMR row above); 2 changes one function
-(no size change measurable at the bench); 4 is not written.
+(no size change measurable at the bench); 4 makes the target symbol maps const, 1,008 B less static internal RAM
+on the stand-in (probes/wasm/wamr-local-const-symbol-map.patch).
 
 ## 6. The oracle
 
