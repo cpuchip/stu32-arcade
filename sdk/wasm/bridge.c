@@ -67,7 +67,7 @@ static int runtimes; /* games loaded; WAMR is up while this is non-zero */
 static void fail(wasm_bridge_ctx *c, const char *what, const char *why)
 {
     c->dead = true;
-    snprintf(c->error, sizeof c->error, "%s: %s", what, why ? why : "?");
+    snprintf(c->error, sizeof c->error, "%.40s: %.50s", what, why ? why : "?"); /* both bounded: 93 of 96 */
     printf("wasm %s: %s\n", c->game ? c->game->name : "?", c->error);
 }
 
