@@ -1,0 +1,51 @@
+WAMR's ESP-IDF port: os_self_thread() returns the FreeRTOS task handle (our local patch, soroban's ruling #5413)
+
+Applies to: WAMR main ea5dd88 (github.com/wasm-micro-runtime/wasm-micro-runtime) with #5146 and #5148, the
+pinned series of docs/wasm-integration.md. A modification of WAMR, so under Apache-2.0 WITH LLVM-exception, NOT
+this repository's MIT. Applied by no build until the firmware unit.
+
+Why: the framework calls apps from the calc task, a plain FreeRTOS task; WAMR's os_self_thread() was
+pthread_self(), which asserts there ("Failed to find current thread ID!"), on the first wasm call.
+
+Audit, the AOT-only ESP-IDF build (AOT on; interpreter, libc-builtin, libc-wasi, lib-pthread, thread manager
+off), from the undefined symbols of each object in the built libwamr.a (nm -u), 2026-10-09:
+- os_self_thread() is referenced by three objects:
+  - wasm_exec_env.c: wasm_exec_env_set_thread_info() stores it in exec_env->handle; with the thread
+    manager off nothing compares or joins on it.
+  - bh_log.c: printed in log lines.
+  - wasm_c_api.c: keys the wasm-c-api's per-thread store count; the bridge uses wasm_export.h, not the
+    c-api, so none of it runs.
+- os_thread_get_stack_boundary(): wasm_exec_env.c only, for the native stack guard, and only when the
+  embedder has not set the boundary. Without CONFIG_FREERTOS_USE_TRACE_FACILITY (the firmware has it off) it
+  returns NULL and the guard is off, so the bridge sets the boundary itself (pxTaskGetStackStart + guard,
+  wasm_runtime_set_native_stack_boundary).
+- Every pthread_* reference is in espidf_thread.c, behind os_* wrappers. pthread_mutex_* (os_mutex_*,
+  runtime and loader locks) and pthread_cond_* work from any FreeRTOS task in ESP-IDF. pthread_create,
+  _join, _detach, _exit, _attr_*, _rwlock_* and pthread_self belong to wrappers the AOT-only path never calls.
+  No thread-local storage is used outside the c-api.
+
+Proof on casim's XIAO (ESP-IDF 5.4.2, 2026-10-09), a FreeRTOS task with a 16 KB stack, not a pthread:
+- with this patch and the boundary set: add(2, 3) = 5; deep(1000000) traps "Exception: native stack
+  overflow"; add(2, 3) = 5 afterwards; 212 B of the stack never used (the trap path runs inside WAMR's
+  1 KB guard, so the firmware should use 2 KB);
+- with this patch and no boundary: double exception (the recursion runs off the stack);
+- without this patch: the pthread_self assert at the first call.
+
+diff --git a/core/shared/platform/esp-idf/espidf_thread.c b/core/shared/platform/esp-idf/espidf_thread.c
+index cb68df8..f7e622d 100644
+--- a/core/shared/platform/esp-idf/espidf_thread.c
++++ b/core/shared/platform/esp-idf/espidf_thread.c
+@@ -33,9 +33,10 @@ os_thread_wrapper(void *arg)
+ korp_tid
+ os_self_thread(void)
+ {
+-    /* only allowed if this is a thread, xTaskCreate is not enough look at
+-     * product_mini for how to use this*/
+-    return pthread_self();
++    /* The FreeRTOS task handle, so a plain task (not a pthread) can call into
++     * AOT code; pthread_self() asserts on one. In the AOT-only build the handle
++     * is only stored in the exec env and printed by the logger. */
++    return (korp_tid)xTaskGetCurrentTaskHandle();
+ }
+ 
+ int

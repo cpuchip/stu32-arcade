@@ -89,6 +89,17 @@ For a game whose rules have a reference (Babal's are babalcore), compare against
 with the host's (device/appbench, scripts/device_app.sh; a generic template is still to come).
 Determinism makes all of this possible: draw only from `ctx`, and take time only from `tick` and `key`.
 
+## A WebAssembly game: sdk/wasm
+
+The same game source builds as a .wasm (decision 67: WAMR, one .wasm a game, an .aot a target from our
+pinned wamrc). `sdk/wasm/guest.c` wraps the game's `app_def` as a reactor module: the ctx and the frame
+live in its linear memory, and the four framework calls it uses become imports from `env`. On the
+calculator, `sdk/wasm/bridge.c` runs the .aot through WAMR as an ordinary `app_def` (`WASM_GAME(...)`),
+holding WAMR only between the game's load and stop and setting the calling task's native stack boundary.
+`make wasmcheck` (with WASI_SDK, WAMRC and WAMR_TREE set) builds Babal both ways and requires identical
+frames, save and counts over every app script, with planted bridge faults red. How it enters the
+firmware: docs/wasm-integration.md.
+
 ## Still to come
 
 A generic S3 bench template.

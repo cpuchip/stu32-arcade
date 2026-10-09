@@ -48,6 +48,10 @@ appcheck: $(BUILD)/apphost ref
 sdkcheck: $(FW)/.pin
 	oracle/sdk_check.sh
 
+# Babal as a WebAssembly game against Babal native (needs WASI_SDK, WAMRC and WAMR_TREE; oracle/wasm_check.sh)
+wasmcheck: $(FW)/.pin
+	oracle/wasm_check.sh
+
 # A struggling player's drift, the app's storage against storage that holds everything.
 driftcheck: $(FW)/.pin
 	oracle/drift_check.sh
