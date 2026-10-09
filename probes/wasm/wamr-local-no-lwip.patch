@@ -1,0 +1,139 @@
+WAMR's ESP-IDF component: a project without libc-wasi may leave lwip out (our local patch 0005, decision 68)
+
+Applies to: the pinned series (WAMR main ea5dd88 with #5146, #5148, the os_self_thread patch and patch 0004,
+tree 690282c7). A modification of WAMR, so under Apache-2.0 WITH LLVM-exception, NOT this repository's MIT.
+
+Why: resources.py static (abacus-firmware ab51544 against the unit, STU_WASM=1, no wasm game listed) showed
+Rev A at +18,736 B flash, +1,932 B static DIRAM and +1,300 B IRAM code. None of it is WAMR: the component
+REQUIRES lwip, which brings VFS, the UART driver and the VFS console into Rev A's minimal component set
+(the stand-in already had VFS and paid nothing). CONFIG_VFS_SUPPORT_IO=n in the defaults came back =y.
+
+Requirements are resolved before sdkconfig is read (ESP-IDF's component_get_requirements.cmake sees only
+build properties), so a REQUIRES on CONFIG_WAMR_ENABLE_LIBC_WASI cannot work; the first version of this patch
+tried it and lost lwip with WASI on. The choice is therefore a build property, WAMR_NO_LWIP, set by the
+project before project(); the default keeps lwip. Without libc-wasi, espidf_socket.c and espidf_file.c are
+left out (the Zephyr port does the same) and the socket headers and readv/writev are guarded (struct iovec
+comes from lwip/sockets.h).
+
+Matrix, Rev A (STU_WASM=1, no game) on ab51544 plus the unit, ESP-IDF v5.4.2:
+- A, property, WASI off: builds, 3,951,616 B (main's size), no lwip file compiled.
+- B, no property, WASI on: fails, in libc-wasi's locking.h (pthread_cond_timedwait and its timespec).
+- control, the unpatched series, WASI on: fails with the same 27 distinct diagnostics in the same 13 objects,
+  so B's failure predates this patch: WASI on does not build in this configuration either way.
+- C, no property, WASI off: builds with lwip, 3,970,352 B (today's behaviour).
+- D, property, WASI on: stops with "WAMR_NO_LWIP is set, but libc-wasi needs lwip" (the planted mismatch).
+- E, the stand-in, property, WASI off: builds, 4,013,072 B (main's size), no lwip file compiled.
+With BABLW listed (WAMR, the bridge and one game linked), property on: Rev A +192,848 B flash and +372 B
+static D/IRAM over main; the stand-in +192,864 B and +288 B. The .aot is 143,096 B of that, embedded as
+143,100; libwamr is 34,281 B.
+
+Console (abacus #5530): Rev A's sdkconfig has the console on UART0 at main already (ESP_CONSOLE_UART_DEFAULT,
+UART_NUM 0, USB-Serial/JTAG secondary), identical in all three builds (main, C, A). VFS only adds the
+driver-based console with RX. In docs/hw/circuit.py (abacus-firmware, c35df1e) TXD0 and RXD0 go to their own
+test pads and nothing else; draftsman's own netlist is not on this box. With 0005 and the property, VFS is out
+and Rev A's image is main's size.
+
+From 7b5e63645589d9055731ca7401aff710ee3029db Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 17:09:20 +0000
+Subject: [PATCH] esp-idf: let a project without libc-wasi leave lwip out
+
+The ESP-IDF component always requires lwip, and lwip brings VFS, the UART
+driver and the VFS console into the build. Only libc-wasi uses sockets.
+Without libc-wasi, espidf_socket.c and espidf_file.c are left out (as
+the Zephyr port does), the socket headers and readv/writev (whose struct
+iovec comes from lwip) are guarded, and a project can drop lwip with
+idf_build_set_property(WAMR_NO_LWIP 1) before project(). Requirements
+are resolved before sdkconfig is read, so the choice is a build property;
+the default keeps lwip, and the property with libc-wasi on is an error.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ build-scripts/esp-idf/wamr/CMakeLists.txt          | 14 +++++++++++++-
+ core/shared/platform/esp-idf/espidf_platform.c     |  3 +++
+ core/shared/platform/esp-idf/platform_internal.h   |  2 ++
+ core/shared/platform/esp-idf/shared_platform.cmake |  5 +++++
+ 4 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/build-scripts/esp-idf/wamr/CMakeLists.txt b/build-scripts/esp-idf/wamr/CMakeLists.txt
+index f89e075..a635ad6 100644
+--- a/build-scripts/esp-idf/wamr/CMakeLists.txt
++++ b/build-scripts/esp-idf/wamr/CMakeLists.txt
+@@ -89,9 +89,21 @@ if (NOT CMAKE_BUILD_EARLY_EXPANSION)
+                     "${IWASM_COMMON_DIR}")
+ endif ()
+ 
++# lwip is needed only for the sockets of libc-wasi. Requirements are resolved
++# before sdkconfig is read, so a project built without libc-wasi that does not
++# want lwip (and the VFS and console drivers it brings) says so with a build
++# property set before project():  idf_build_set_property(WAMR_NO_LWIP 1)
++idf_build_get_property (wamr_no_lwip WAMR_NO_LWIP)
++set (requires pthread esp_timer esp_mm)
++if (NOT wamr_no_lwip)
++  list (APPEND requires lwip)
++elseif (CONFIG_WAMR_ENABLE_LIBC_WASI)
++  message (FATAL_ERROR "WAMR_NO_LWIP is set, but libc-wasi needs lwip")
++endif ()
++
+ idf_component_register(SRCS ${srcs}
+                        INCLUDE_DIRS ${include_dirs}
+-                       REQUIRES pthread lwip esp_timer esp_mm
++                       REQUIRES ${requires}
+                        KCONFIG ${CMAKE_CURRENT_LIST_DIR}/Kconfig)
+ 
+ # ESP-IDF enables -Wformat-security by default.  It must be disabled together
+diff --git a/core/shared/platform/esp-idf/espidf_platform.c b/core/shared/platform/esp-idf/espidf_platform.c
+index a9b3d4d..0db6075 100644
+--- a/core/shared/platform/esp-idf/espidf_platform.c
++++ b/core/shared/platform/esp-idf/espidf_platform.c
+@@ -96,6 +96,8 @@ os_usleep(uint32 usec)
+     return usleep(usec);
+ }
+ 
++/* struct iovec comes from lwip, which only libc-wasi requires */
++#if defined(WASM_ENABLE_LIBC_WASI) && WASM_ENABLE_LIBC_WASI != 0
+ /* Below parts of readv & writev are ported from Nuttx, under Apache License
+  * v2.0 */
+ 
+@@ -194,6 +196,7 @@ writev(int fildes, const struct iovec *iov, int iovcnt)
+ 
+     return ntotal;
+ }
++#endif /* end of WASM_ENABLE_LIBC_WASI != 0 */
+ 
+ #if OPENAT_SUPPORT
+ int
+diff --git a/core/shared/platform/esp-idf/platform_internal.h b/core/shared/platform/esp-idf/platform_internal.h
+index a704bb0..6f14dcf 100644
+--- a/core/shared/platform/esp-idf/platform_internal.h
++++ b/core/shared/platform/esp-idf/platform_internal.h
+@@ -17,8 +17,10 @@
+ #include <math.h>
+ #include <unistd.h>
+ #include <pthread.h>
++#if defined(WASM_ENABLE_LIBC_WASI) && WASM_ENABLE_LIBC_WASI != 0
+ #include <arpa/inet.h>
+ #include <sys/socket.h>
++#endif
+ #include <sys/uio.h>
+ #include <dirent.h>
+ 
+diff --git a/core/shared/platform/esp-idf/shared_platform.cmake b/core/shared/platform/esp-idf/shared_platform.cmake
+index d254b08..1705514 100644
+--- a/core/shared/platform/esp-idf/shared_platform.cmake
++++ b/core/shared/platform/esp-idf/shared_platform.cmake
+@@ -13,6 +13,11 @@ file (GLOB_RECURSE source_all ${PLATFORM_SHARED_DIR}/*.c)
+ include (${CMAKE_CURRENT_LIST_DIR}/../common/libc-util/platform_common_libc_util.cmake)
+ set (source_all ${source_all} ${PLATFORM_COMMON_LIBC_UTIL_SOURCE})
+ 
++if (NOT WAMR_BUILD_LIBC_WASI EQUAL 1)
++    list(REMOVE_ITEM source_all ${PLATFORM_SHARED_DIR}/espidf_socket.c)
++    list(REMOVE_ITEM source_all ${PLATFORM_SHARED_DIR}/espidf_file.c)
++endif ()
++
+ set (PLATFORM_SHARED_SOURCE ${source_all} ${PLATFORM_COMMON_MATH_SOURCE})
+ 
+ # If enable PSRAM of ESP32-S3, it had better to put AOT into PSRAM, so that
+-- 
+2.53.0
+
