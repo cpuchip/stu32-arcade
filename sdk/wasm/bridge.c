@@ -14,6 +14,35 @@
 #include "freertos/idf_additions.h"
 #include "freertos/task.h"
 #define BRIDGE_STACK_GUARD 2048 /* WAMR's 1 KB default left 212 B after a trap on the S3; 2 KB (abacus #5450) */
+#include "esp_heap_caps.h"
+/* WAMR's allocations and the module's copy in PSRAM: the calculator's internal heap is the tight one, and none
+   of WAMR runs with the cache off (soroban #5501) */
+#define BRIDGE_CAPS (MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)
+static void *bridge_malloc(unsigned int n)
+{
+    return heap_caps_malloc(n, BRIDGE_CAPS);
+}
+static void *bridge_realloc(void *p, unsigned int n)
+{
+    return heap_caps_realloc(p, n, BRIDGE_CAPS);
+}
+static void bridge_free(void *p)
+{
+    heap_caps_free(p);
+}
+#else
+static void *bridge_malloc(unsigned int n)
+{
+    return malloc(n);
+}
+static void *bridge_realloc(void *p, unsigned int n)
+{
+    return realloc(p, n);
+}
+static void bridge_free(void *p)
+{
+    free(p);
+}
 #endif
 
 #define WASM_STACK 8192 /* WAMR's operand stack for the instance (AOT barely uses it) */
@@ -105,7 +134,10 @@ void wasm_bridge_load(const wasm_game *g, void *ctx, const uint8_t *save, uint32
         RuntimeInitArgs init;
         fill_imports();
         memset(&init, 0, sizeof init);
-        init.mem_alloc_type = Alloc_With_System_Allocator;
+        init.mem_alloc_type = Alloc_With_Allocator;
+        init.mem_alloc_option.allocator.malloc_func = fn((void (*)(void))bridge_malloc);
+        init.mem_alloc_option.allocator.realloc_func = fn((void (*)(void))bridge_realloc);
+        init.mem_alloc_option.allocator.free_func = fn((void (*)(void))bridge_free);
         init.native_module_name = "env";
         init.native_symbols = imports;
         init.n_native_symbols = sizeof imports / sizeof imports[0];
@@ -117,7 +149,7 @@ void wasm_bridge_load(const wasm_game *g, void *ctx, const uint8_t *save, uint32
     runtimes++;
     c->counted = true;
     uint32_t aot_size = (uint32_t)(g->aot_end - g->aot);
-    c->aot_copy = malloc(aot_size);
+    c->aot_copy = bridge_malloc(aot_size);
     if (!c->aot_copy) {
         fail(c, "load", "no memory for the module");
         return;
@@ -201,7 +233,7 @@ void wasm_bridge_stop(void *ctx)
         wasm_runtime_deinstantiate(c->inst);
     if (c->module)
         wasm_runtime_unload(c->module);
-    free(c->aot_copy);
+    bridge_free(c->aot_copy);
     if (c->counted && --runtimes == 0)
         wasm_runtime_destroy();
     c->counted = false;

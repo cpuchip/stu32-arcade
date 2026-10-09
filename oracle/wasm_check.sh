@@ -86,6 +86,7 @@ PLANTS=(
     "s/    uint32_t argv\[3\] = {(uint32_t)key, down, ms};/    uint32_t argv[3] = {(uint32_t)key + 1, down, ms};/|a key off by one"
     "s/    memcpy(save, io, cap);/    memset(save, 0, cap * (io != NULL));/|the save not copied out"
     "s/    return (int32_t)app_seed();/    return 42;/|the seed import fixed"
+    "s/^    return malloc(n);/    return n > 4096 ? NULL : malloc(n);/|WAMR's allocations refused over 4 KB (the allocator hook in use)"
 )
 for p in "${PLANTS[@]}"; do
     IFS='|' read -r expr what <<< "$p"
