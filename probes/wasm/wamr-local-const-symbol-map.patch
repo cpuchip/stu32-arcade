@@ -1,0 +1,296 @@
+WAMR's AOT loader: the target symbol maps const (our local patch 0004, for decision 68)
+
+Applies to: WAMR main ea5dd88 (github.com/wasm-micro-runtime/wasm-micro-runtime) with #5146, #5148 and the
+os_self_thread patch, the pinned series of docs/wasm-integration.md; the result is tree 690282c7. A
+modification of WAMR, so under Apache-2.0 WITH LLVM-exception, NOT this repository's MIT.
+
+Why: with STU_WASM on, the stand-in stopped at boot with "standin: out of memory" (S3, 2026-10-09). keys_img
+needs 96,000 B of contiguous internal RAM, and the off image's largest block there is 98,304 (heap_caps,
+which reports in 4,096 B steps). Most of WAMR's internal DRAM was two writable tables: target_sym_map (1,000 B,
+the Xtensa symbol map) and quick_aot_entries (768 B). Boots, largest internal block before keys_img:
+off 98,304 (boots); on 94,208 (fails); on with WAMR_BUILD_QUICK_AOT_ENTRY=0 94,208 (fails); on with that and
+this patch 98,304 (boots, and the S3 gate script passes; #5500).
+
+Audit: get_target_symbol_map() has two callers, both in aot_loader.c (get_native_symbol_by_name and
+resolve_target_sym), and both only read symbol_name and symbol_addr. x86_64's init_plt_table() copies
+symbol_addr into its PLT. Nothing else names target_sym_map. Declared const, any write would not compile.
+quick_aot_entries is qsorted at init, so it cannot be const; the firmware turns it off instead
+(WAMR_BUILD_QUICK_AOT_ENTRY=0).
+
+Measured, with this patch and quick entries off: the stand-in's static D/IRAM with the option on goes from
+219,343 + 2,100 to 219,343 + 324 B (off is 219,343);
+target_sym_map is at 0x3c120688 (flash rodata). Built for xtensa (the firmware) and x86_64 (oracle/wasm_check.sh,
+green); the other architectures' files were changed the same way and not built.
+
+From ce4b135434e9c7b3dfb9bac62a0bfec87c12edf5 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Fri, 9 Oct 2026 16:26:33 +0000
+Subject: [PATCH] aot: keep the target symbol maps const
+
+Nothing writes target_sym_map: the loader only looks symbols up in it,
+and x86_64 copies addresses out of it into its PLT. Declared const, it
+goes to flash rodata on a microcontroller instead of internal RAM. On the
+ESP32-S3 that is 1,000 bytes of DRAM for the Xtensa map.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ core/iwasm/aot/aot_loader.c             | 4 ++--
+ core/iwasm/aot/aot_reloc.h              | 2 +-
+ core/iwasm/aot/arch/aot_reloc_aarch64.c | 4 ++--
+ core/iwasm/aot/arch/aot_reloc_arc.c     | 4 ++--
+ core/iwasm/aot/arch/aot_reloc_arm.c     | 4 ++--
+ core/iwasm/aot/arch/aot_reloc_dummy.c   | 2 +-
+ core/iwasm/aot/arch/aot_reloc_mips.c    | 4 ++--
+ core/iwasm/aot/arch/aot_reloc_riscv.c   | 4 ++--
+ core/iwasm/aot/arch/aot_reloc_thumb.c   | 4 ++--
+ core/iwasm/aot/arch/aot_reloc_x86_32.c  | 4 ++--
+ core/iwasm/aot/arch/aot_reloc_x86_64.c  | 4 ++--
+ core/iwasm/aot/arch/aot_reloc_xtensa.c  | 4 ++--
+ 12 files changed, 22 insertions(+), 22 deletions(-)
+
+diff --git a/core/iwasm/aot/aot_loader.c b/core/iwasm/aot/aot_loader.c
+index 121708d..b8dc48e 100644
+--- a/core/iwasm/aot/aot_loader.c
++++ b/core/iwasm/aot/aot_loader.c
+@@ -621,7 +621,7 @@ get_native_symbol_by_name(const char *name)
+ {
+     void *func = NULL;
+     uint32 symnum = 0;
+-    SymbolMap *sym = NULL;
++    const SymbolMap *sym = NULL;
+ 
+     sym = get_target_symbol_map(&symnum);
+ 
+@@ -3097,7 +3097,7 @@ static void *
+ resolve_target_sym(const char *symbol, int32 *p_index)
+ {
+     uint32 i, num = 0;
+-    SymbolMap *target_sym_map;
++    const SymbolMap *target_sym_map;
+ 
+     if (!(target_sym_map = get_target_symbol_map(&num)))
+         return NULL;
+diff --git a/core/iwasm/aot/aot_reloc.h b/core/iwasm/aot/aot_reloc.h
+index ed225b5..a1606fb 100644
+--- a/core/iwasm/aot/aot_reloc.h
++++ b/core/iwasm/aot/aot_reloc.h
+@@ -234,7 +234,7 @@ typedef struct {
+         return false;                                   \
+   } while (0)
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num);
+ 
+ uint32
+diff --git a/core/iwasm/aot/arch/aot_reloc_aarch64.c b/core/iwasm/aot/arch/aot_reloc_aarch64.c
+index e42d2cd..afd4258 100644
+--- a/core/iwasm/aot/arch/aot_reloc_aarch64.c
++++ b/core/iwasm/aot/arch/aot_reloc_aarch64.c
+@@ -34,7 +34,7 @@
+ #define R_AARCH64_CALL26 283
+ 
+ /* clang-format off */
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     REG_COMMON_SYMBOLS
+ };
+ /* clang-format on */
+@@ -46,7 +46,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
+         snprintf(error_buf, error_buf_size, "%s", string);
+ }
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+diff --git a/core/iwasm/aot/arch/aot_reloc_arc.c b/core/iwasm/aot/arch/aot_reloc_arc.c
+index 2ce1154..c8c91f8 100644
+--- a/core/iwasm/aot/arch/aot_reloc_arc.c
++++ b/core/iwasm/aot/arch/aot_reloc_arc.c
+@@ -130,7 +130,7 @@ void __lesf2();
+ void __unorddf2();
+ /* clang-format on */
+ 
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     /* clang-format off */
+     REG_COMMON_SYMBOLS
+ #ifndef __CCAC__
+@@ -258,7 +258,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
+         snprintf(error_buf, error_buf_size, "%s", string);
+ }
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+diff --git a/core/iwasm/aot/arch/aot_reloc_arm.c b/core/iwasm/aot/arch/aot_reloc_arm.c
+index 0be17ef..cc01c6d 100644
+--- a/core/iwasm/aot/arch/aot_reloc_arm.c
++++ b/core/iwasm/aot/arch/aot_reloc_arm.c
+@@ -110,7 +110,7 @@ void __unorddf2(void);
+ void __unordsf2(void);
+ /* clang-format on */
+ 
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     /* clang-format off */
+     REG_COMMON_SYMBOLS
+     /* compiler-rt symbols that come from compiler(e.g. gcc) */
+@@ -220,7 +220,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
+         snprintf(error_buf, error_buf_size, "%s", string);
+ }
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+diff --git a/core/iwasm/aot/arch/aot_reloc_dummy.c b/core/iwasm/aot/arch/aot_reloc_dummy.c
+index bc05d7b..922f643 100644
+--- a/core/iwasm/aot/arch/aot_reloc_dummy.c
++++ b/core/iwasm/aot/arch/aot_reloc_dummy.c
+@@ -5,7 +5,7 @@
+ 
+ #include "aot_reloc.h"
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     abort();
+diff --git a/core/iwasm/aot/arch/aot_reloc_mips.c b/core/iwasm/aot/arch/aot_reloc_mips.c
+index 4b85611..d9de7a4 100644
+--- a/core/iwasm/aot/arch/aot_reloc_mips.c
++++ b/core/iwasm/aot/arch/aot_reloc_mips.c
+@@ -9,12 +9,12 @@
+ #define R_MIPS_26 4 /* Direct 26 bit shifted */
+ 
+ /* clang-format off */
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     REG_COMMON_SYMBOLS
+ };
+ /* clang-format on */
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+diff --git a/core/iwasm/aot/arch/aot_reloc_riscv.c b/core/iwasm/aot/arch/aot_reloc_riscv.c
+index d05ed0d..426eed4 100644
+--- a/core/iwasm/aot/arch/aot_reloc_riscv.c
++++ b/core/iwasm/aot/arch/aot_reloc_riscv.c
+@@ -111,7 +111,7 @@ bool __atomic_compare_exchange_4(volatile void *, void *, unsigned int,
+ void __atomic_store_4(volatile void *, unsigned int, int);
+ /* clang-format on */
+ 
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     /* clang-format off */
+     REG_COMMON_SYMBOLS
+ #ifdef NEED_SOFT_FP
+@@ -216,7 +216,7 @@ get_plt_item_size(void)
+ #endif
+ }
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+diff --git a/core/iwasm/aot/arch/aot_reloc_thumb.c b/core/iwasm/aot/arch/aot_reloc_thumb.c
+index a5414f8..cbbb996 100644
+--- a/core/iwasm/aot/arch/aot_reloc_thumb.c
++++ b/core/iwasm/aot/arch/aot_reloc_thumb.c
+@@ -116,7 +116,7 @@ void __unorddf2(void);
+ void __unordsf2(void);
+ /* clang-format on */
+ 
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     /* clang-format off */
+     REG_COMMON_SYMBOLS
+     /* compiler-rt symbols that come from compiler(e.g. gcc) */
+@@ -232,7 +232,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
+         snprintf(error_buf, error_buf_size, "%s", string);
+ }
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+diff --git a/core/iwasm/aot/arch/aot_reloc_x86_32.c b/core/iwasm/aot/arch/aot_reloc_x86_32.c
+index 9776f3f..194dea4 100644
+--- a/core/iwasm/aot/arch/aot_reloc_x86_32.c
++++ b/core/iwasm/aot/arch/aot_reloc_x86_32.c
+@@ -72,7 +72,7 @@ __allrem(int64 a, int64 b)
+ #endif /* !defined(_WIN32) && !defined(_WIN32_) */
+ 
+ /* clang-format off */
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     REG_COMMON_SYMBOLS
+     /* compiler-rt symbols that come from compiler(e.g. gcc) */
+     REG_SYM(__divdi3),
+@@ -94,7 +94,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
+         snprintf(error_buf, error_buf_size, "%s", string);
+ }
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+diff --git a/core/iwasm/aot/arch/aot_reloc_x86_64.c b/core/iwasm/aot/arch/aot_reloc_x86_64.c
+index d2c2080..520c307 100644
+--- a/core/iwasm/aot/arch/aot_reloc_x86_64.c
++++ b/core/iwasm/aot/arch/aot_reloc_x86_64.c
+@@ -34,7 +34,7 @@
+ #endif
+ 
+ /* clang-format off */
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     REG_COMMON_SYMBOLS
+ };
+ /* clang-format on */
+@@ -46,7 +46,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
+         snprintf(error_buf, error_buf_size, "%s", string);
+ }
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+diff --git a/core/iwasm/aot/arch/aot_reloc_xtensa.c b/core/iwasm/aot/arch/aot_reloc_xtensa.c
+index 625422f..1623940 100644
+--- a/core/iwasm/aot/arch/aot_reloc_xtensa.c
++++ b/core/iwasm/aot/arch/aot_reloc_xtensa.c
+@@ -50,7 +50,7 @@ void __floatdisf(void);
+ void __floatundisf(void);
+ 
+ 
+-static SymbolMap target_sym_map[] = {
++static const SymbolMap target_sym_map[] = {
+     REG_COMMON_SYMBOLS
+ 
+     /* API's for soft-float */
+@@ -105,7 +105,7 @@ set_error_buf(char *error_buf, uint32 error_buf_size, const char *string)
+         snprintf(error_buf, error_buf_size, "%s", string);
+ }
+ 
+-SymbolMap *
++const SymbolMap *
+ get_target_symbol_map(uint32 *sym_num)
+ {
+     *sym_num = sizeof(target_sym_map) / sizeof(SymbolMap);
+-- 
+2.53.0
+
