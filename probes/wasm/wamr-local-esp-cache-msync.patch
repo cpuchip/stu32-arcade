@@ -1,0 +1,74 @@
+WAMR's ESP-IDF port: AOT code cache sync through ESP-IDF's esp_cache_msync, no IRAM (our local patch, decision 68)
+
+Applies on top of WAMR PR #5146 (github.com/wasm-micro-runtime/wasm-micro-runtime, commit 5f03e40 locally,
+6eea0b3 on the fork) and works beside PR #5148. A modification of WAMR, so under Apache-2.0 WITH
+LLVM-exception, NOT this repository's MIT. Applied by no build until abacus's integration unit.
+
+os_dcache_flush() wrote back the whole data cache and toggled the instruction cache itself, so it had to run
+from IRAM (IRAM_ATTR, 39 of WAMR's 51 bytes of IRAM). It now writes back each mapped AOT block through the data
+cache and invalidates its instruction-cache lines with esp_cache_msync, ESP-IDF's own code. Measured on
+casim's XIAO (2026-10-09): WAMR's IRAM 51 -> 0 B, flash +95 B; Babal's default-level .aot runs with hash
+bd0df19696198fe3, draw 2.535 ms; the 41-byte add returns 5 with the code in PSRAM and in internal RAM.
+
+diff --git a/core/shared/platform/esp-idf/espidf_memmap.c b/core/shared/platform/esp-idf/espidf_memmap.c
+index 027a645..e02f5bd 100644
+--- a/core/shared/platform/esp-idf/espidf_memmap.c
++++ b/core/shared/platform/esp-idf/espidf_memmap.c
+@@ -6,8 +6,7 @@
+ #include "platform_api_vmcore.h"
+ #include "platform_api_extension.h"
+ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-#include "soc/mmu.h"
+-#include "rom/cache.h"
++#include "esp_cache.h"
+ #include "esp_mmu_map.h"
+ 
+ static portMUX_TYPE s_spinlock = portMUX_INITIALIZER_UNLOCKED;
+@@ -197,22 +196,36 @@ os_mprotect(void *addr, size_t size, int prot)
+ }
+ 
+ void
+-#if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-    IRAM_ATTR
+-#endif
+-    os_dcache_flush()
++os_dcache_flush()
+ {
+ #if (WASM_MEM_DUAL_BUS_MIRROR != 0)
+-    uint32_t preload;
+-    extern void Cache_WriteBack_All(void);
++    /* Write the code back through the data cache, then drop any stale lines
++     * of it from the instruction cache, one mapped block at a time */
++    ExecMap maps[EXEC_MAP_MAX];
++    esp_err_t err;
++    int i;
+ 
+     portENTER_CRITICAL(&s_spinlock);
+-
+-    Cache_WriteBack_All();
+-    preload = Cache_Disable_ICache();
+-    Cache_Enable_ICache(preload);
+-
++    memcpy(maps, exec_maps, sizeof(maps));
+     portEXIT_CRITICAL(&s_spinlock);
++
++    for (i = 0; i < EXEC_MAP_MAX; i++) {
++        if (!maps[i].ibus) {
++            continue;
++        }
++        err = esp_cache_msync(maps[i].dbus, maps[i].size,
++                              ESP_CACHE_MSYNC_FLAG_DIR_C2M);
++        if (err == ESP_OK) {
++            err = esp_cache_msync(maps[i].ibus, maps[i].size,
++                                  ESP_CACHE_MSYNC_FLAG_DIR_M2C
++                                      | ESP_CACHE_MSYNC_FLAG_TYPE_INST);
++        }
++        if (err != ESP_OK) {
++            os_printf("os_dcache_flush: esp_cache_msync of AOT code failed: "
++                      "%s\n",
++                      esp_err_to_name(err));
++        }
++    }
+ #endif
+ }
+ 
