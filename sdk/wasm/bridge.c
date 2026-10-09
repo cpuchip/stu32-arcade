@@ -13,7 +13,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/idf_additions.h"
 #include "freertos/task.h"
-#define BRIDGE_STACK_GUARD 1024 /* WAMR's own WASM_STACK_GUARD_SIZE on this target */
+#define BRIDGE_STACK_GUARD 2048 /* WAMR's 1 KB default left 212 B after a trap on the S3; 2 KB (abacus #5450) */
 #endif
 
 #define WASM_STACK 8192 /* WAMR's operand stack for the instance (AOT barely uses it) */
