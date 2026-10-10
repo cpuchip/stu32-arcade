@@ -2,8 +2,9 @@
 /* MINES on the S3: each app script played through apps.h's calls as the framework makes them, with app_seed() and the
  * loaded save as the SDK runner's -seed and -load give them, the ctx in PSRAM as the framework gives it, the frame in
  * internal RAM. For each script: the hash of its frames' hashes (scripts/device_mines.sh compares it with the
- * runner's with -keyframes, so the frames drawn on keys count too), and key, tick and draw times apart. Then dealing alone, as the first open does it: each listed seed's
- * attempts and time. The report repeats, so a reader that attaches late still gets a whole one. */
+ * runner's with -keyframes, so the frames drawn on keys count too), and key, tick and draw times apart. Then
+ * dealing alone, as the first open does it: each listed seed's attempts and time. The report repeats, so a reader
+ * that attaches late still gets a whole one. */
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
