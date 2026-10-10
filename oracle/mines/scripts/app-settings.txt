@@ -1,0 +1,157 @@
+# appscript.py settings: seed 4, every row of the settings page
+tick 100
+key 43 1 107
+key 43 0 107
+tick 100
+key 26 1 207
+key 26 0 207
+tick 100
+# 8: row 0, board medium
+key 31 1 307
+key 31 0 307
+tick 100
+# 4: row 0, board easy
+key 31 1 407
+key 31 0 407
+tick 100
+# 4: row 0, board easy
+key 33 1 507
+key 33 0 507
+tick 100
+# 6: row 0, board medium
+key 33 1 607
+key 33 0 607
+tick 100
+# 6: row 0, board hard
+key 33 1 707
+key 33 0 707
+tick 100
+# 6: row 0, board hard
+key 32 1 807
+key 32 0 807
+tick 100
+# 5: row 0, board easy
+key 32 1 907
+key 32 0 907
+tick 100
+# 5: row 0, board medium
+key 38 1 1007
+key 38 0 1007
+tick 100
+# 2: row 1, classic False, quiet False
+key 32 1 1107
+key 32 0 1107
+tick 100
+# 5: row 1, classic True, quiet False
+key 31 1 1207
+key 31 0 1207
+tick 100
+# 4: row 1, classic False, quiet False
+key 33 1 1307
+key 33 0 1307
+tick 100
+# 6: row 1, classic True, quiet False
+key 38 1 1407
+key 38 0 1407
+tick 100
+# 2: row 2, classic True, quiet False
+key 38 1 1507
+key 38 0 1507
+tick 100
+# 2: row 2, classic True, quiet False
+key 32 1 1607
+key 32 0 1607
+tick 100
+# 5: row 2, classic True, quiet True
+key 18 1 1707
+key 18 0 1707
+tick 100
+key 18 1 1807
+key 18 0 1807
+tick 20
+key 32 1 1827
+key 32 0 1827
+tick 20
+# a classic deal: 1 attempt
+key 31 1 1847
+key 31 0 1847
+tick 20
+key 31 1 1867
+key 31 0 1867
+tick 20
+key 26 1 1887
+key 26 0 1887
+tick 20
+key 26 1 1907
+key 26 0 1907
+tick 20
+key 26 1 1927
+key 26 0 1927
+tick 20
+key 26 1 1947
+key 26 0 1947
+tick 20
+key 26 1 1967
+key 26 0 1967
+tick 20
+key 26 1 1987
+key 26 0 1987
+tick 20
+key 26 1 2007
+key 26 0 2007
+tick 20
+key 26 1 2027
+key 26 0 2027
+tick 20
+key 32 1 2047
+key 32 0 2047
+tick 20
+# lost on 6, with no tune: the sound is off
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 43 1 2267
+key 43 0 2267
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 43 1 2667
+key 43 0 2667
+tick 100
+key 38 1 2767
+key 38 0 2767
+tick 100
+key 38 1 2867
+key 38 0 2867
+tick 100
+key 32 1 2967
+key 32 0 2967
+tick 100
+key 18 1 3067
+key 18 0 3067
+tick 100
+# expect save 4d02050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000 tunes 0 tones 0

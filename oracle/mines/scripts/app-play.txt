@@ -58,35 +58,35 @@ tick 20
 key 31 1 947
 key 31 0 947
 tick 20
-key 26 1 967
-key 26 0 967
+key 31 1 967
+key 31 0 967
 tick 20
-key 32 1 987
-key 32 0 987
+key 31 1 987
+key 31 0 987
 tick 20
-key 32 1 1007
-key 32 0 1007
+key 31 1 1007
+key 31 0 1007
 tick 20
 key 31 1 1027
 key 31 0 1027
 tick 20
-key 26 1 1047
-key 26 0 1047
+key 32 1 1047
+key 32 0 1047
 tick 20
-key 26 1 1067
-key 26 0 1067
+key 32 1 1067
+key 32 0 1067
 tick 20
-key 26 1 1087
-key 26 0 1087
+key 33 1 1087
+key 33 0 1087
 tick 20
-key 26 1 1107
-key 26 0 1107
+key 33 1 1107
+key 33 0 1107
 tick 20
-key 26 1 1127
-key 26 0 1127
+key 33 1 1127
+key 33 0 1127
 tick 20
-key 43 1 1147
-key 43 0 1147
+key 33 1 1147
+key 33 0 1147
 tick 20
 key 33 1 1167
 key 33 0 1167
@@ -94,32 +94,32 @@ tick 20
 key 33 1 1187
 key 33 0 1187
 tick 20
-key 43 1 1207
-key 43 0 1207
+key 26 1 1207
+key 26 0 1207
 tick 20
-key 33 1 1227
-key 33 0 1227
+key 26 1 1227
+key 26 0 1227
 tick 20
-key 33 1 1247
-key 33 0 1247
+key 26 1 1247
+key 26 0 1247
 tick 20
-key 33 1 1267
-key 33 0 1267
+key 26 1 1267
+key 26 0 1267
 tick 20
-key 33 1 1287
-key 33 0 1287
+key 26 1 1287
+key 26 0 1287
 tick 20
-key 43 1 1307
-key 43 0 1307
+key 26 1 1307
+key 26 0 1307
 tick 20
-key 33 1 1327
-key 33 0 1327
+key 26 1 1327
+key 26 0 1327
 tick 20
-key 38 1 1347
-key 38 0 1347
+key 43 1 1347
+key 43 0 1347
 tick 20
-key 43 1 1367
-key 43 0 1367
+key 31 1 1367
+key 31 0 1367
 tick 20
 key 31 1 1387
 key 31 0 1387
@@ -133,86 +133,86 @@ tick 20
 key 31 1 1447
 key 31 0 1447
 tick 20
-key 31 1 1467
-key 31 0 1467
+key 38 1 1467
+key 38 0 1467
 tick 20
-key 31 1 1487
-key 31 0 1487
+key 43 1 1487
+key 43 0 1487
 tick 20
 key 31 1 1507
 key 31 0 1507
 tick 20
-key 31 1 1527
-key 31 0 1527
+key 38 1 1527
+key 38 0 1527
 tick 20
-key 31 1 1547
-key 31 0 1547
+key 43 1 1547
+key 43 0 1547
 tick 20
-key 31 1 1567
-key 31 0 1567
+key 33 1 1567
+key 33 0 1567
 tick 20
-key 31 1 1587
-key 31 0 1587
+key 33 1 1587
+key 33 0 1587
 tick 20
-key 38 1 1607
-key 38 0 1607
+key 43 1 1607
+key 43 0 1607
 tick 20
-key 43 1 1627
-key 43 0 1627
+key 33 1 1627
+key 33 0 1627
 tick 20
-key 31 1 1647
-key 31 0 1647
+key 33 1 1647
+key 33 0 1647
 tick 20
-key 31 1 1667
-key 31 0 1667
+key 33 1 1667
+key 33 0 1667
 tick 20
-key 31 1 1687
-key 31 0 1687
+key 33 1 1687
+key 33 0 1687
 tick 20
-key 38 1 1707
-key 38 0 1707
+key 43 1 1707
+key 43 0 1707
 tick 20
-key 43 1 1727
-key 43 0 1727
+key 38 1 1727
+key 38 0 1727
 tick 20
-key 33 1 1747
-key 33 0 1747
+key 43 1 1747
+key 43 0 1747
 tick 20
-key 33 1 1767
-key 33 0 1767
+key 31 1 1767
+key 31 0 1767
 tick 20
-key 33 1 1787
-key 33 0 1787
+key 31 1 1787
+key 31 0 1787
 tick 20
-key 33 1 1807
-key 33 0 1807
+key 31 1 1807
+key 31 0 1807
 tick 20
-key 43 1 1827
-key 43 0 1827
+key 31 1 1827
+key 31 0 1827
 tick 20
-key 33 1 1847
-key 33 0 1847
+key 31 1 1847
+key 31 0 1847
 tick 20
-key 33 1 1867
-key 33 0 1867
+key 31 1 1867
+key 31 0 1867
 tick 20
-key 33 1 1887
-key 33 0 1887
+key 31 1 1887
+key 31 0 1887
 tick 20
-key 33 1 1907
-key 33 0 1907
+key 31 1 1907
+key 31 0 1907
 tick 20
-key 33 1 1927
-key 33 0 1927
+key 38 1 1927
+key 38 0 1927
 tick 20
 key 43 1 1947
 key 43 0 1947
 tick 20
-key 33 1 1967
-key 33 0 1967
+key 38 1 1967
+key 38 0 1967
 tick 20
-key 33 1 1987
-key 33 0 1987
+key 43 1 1987
+key 43 0 1987
 tick 20
 key 33 1 2007
 key 33 0 2007
@@ -223,35 +223,35 @@ tick 20
 key 33 1 2047
 key 33 0 2047
 tick 20
-key 43 1 2067
-key 43 0 2067
+key 33 1 2067
+key 33 0 2067
 tick 20
-key 38 1 2087
-key 38 0 2087
+key 33 1 2087
+key 33 0 2087
 tick 20
-key 43 1 2107
-key 43 0 2107
+key 33 1 2107
+key 33 0 2107
 tick 20
-key 38 1 2127
-key 38 0 2127
+key 33 1 2127
+key 33 0 2127
 tick 20
 key 43 1 2147
 key 43 0 2147
 tick 20
-key 31 1 2167
-key 31 0 2167
+key 33 1 2167
+key 33 0 2167
 tick 20
-key 31 1 2187
-key 31 0 2187
+key 33 1 2187
+key 33 0 2187
 tick 20
-key 31 1 2207
-key 31 0 2207
+key 43 1 2207
+key 43 0 2207
 tick 20
-key 31 1 2227
-key 31 0 2227
+key 38 1 2227
+key 38 0 2227
 tick 20
-key 31 1 2247
-key 31 0 2247
+key 43 1 2247
+key 43 0 2247
 tick 20
 key 31 1 2267
 key 31 0 2267
@@ -274,14 +274,14 @@ tick 20
 key 38 1 2387
 key 38 0 2387
 tick 20
-key 43 1 2407
-key 43 0 2407
+key 38 1 2407
+key 38 0 2407
 tick 20
-key 33 1 2427
-key 33 0 2427
+key 38 1 2427
+key 38 0 2427
 tick 20
-key 33 1 2447
-key 33 0 2447
+key 43 1 2447
+key 43 0 2447
 tick 20
 key 33 1 2467
 key 33 0 2467
@@ -298,32 +298,32 @@ tick 20
 key 33 1 2547
 key 33 0 2547
 tick 20
-key 33 1 2567
-key 33 0 2567
+key 43 1 2567
+key 43 0 2567
 tick 20
-key 33 1 2587
-key 33 0 2587
+key 31 1 2587
+key 31 0 2587
 tick 20
-key 33 1 2607
-key 33 0 2607
+key 31 1 2607
+key 31 0 2607
 tick 20
-key 33 1 2627
-key 33 0 2627
+key 31 1 2627
+key 31 0 2627
 tick 20
-key 43 1 2647
-key 43 0 2647
+key 38 1 2647
+key 38 0 2647
 tick 20
-key 33 1 2667
-key 33 0 2667
+key 43 1 2667
+key 43 0 2667
 tick 20
-key 33 1 2687
-key 33 0 2687
+key 31 1 2687
+key 31 0 2687
 tick 20
-key 33 1 2707
-key 33 0 2707
+key 31 1 2707
+key 31 0 2707
 tick 20
-key 43 1 2727
-key 43 0 2727
+key 31 1 2727
+key 31 0 2727
 tick 20
 key 31 1 2747
 key 31 0 2747
@@ -331,44 +331,44 @@ tick 20
 key 31 1 2767
 key 31 0 2767
 tick 20
-key 31 1 2787
-key 31 0 2787
+key 38 1 2787
+key 38 0 2787
 tick 20
-key 31 1 2807
-key 31 0 2807
+key 38 1 2807
+key 38 0 2807
 tick 20
-key 31 1 2827
-key 31 0 2827
+key 43 1 2827
+key 43 0 2827
 tick 20
-key 31 1 2847
-key 31 0 2847
+key 33 1 2847
+key 33 0 2847
 tick 20
-key 31 1 2867
-key 31 0 2867
+key 33 1 2867
+key 33 0 2867
 tick 20
-key 31 1 2887
-key 31 0 2887
+key 33 1 2887
+key 33 0 2887
 tick 20
-key 31 1 2907
-key 31 0 2907
+key 33 1 2907
+key 33 0 2907
 tick 20
-key 31 1 2927
-key 31 0 2927
+key 33 1 2927
+key 33 0 2927
 tick 20
-key 31 1 2947
-key 31 0 2947
+key 43 1 2947
+key 43 0 2947
 tick 20
-key 38 1 2967
-key 38 0 2967
+key 31 1 2967
+key 31 0 2967
 tick 20
-key 43 1 2987
-key 43 0 2987
+key 31 1 2987
+key 31 0 2987
 tick 20
-key 33 1 3007
-key 33 0 3007
+key 38 1 3007
+key 38 0 3007
 tick 20
-key 33 1 3027
-key 33 0 3027
+key 43 1 3027
+key 43 0 3027
 tick 20
 key 33 1 3047
 key 33 0 3047
@@ -376,59 +376,59 @@ tick 20
 key 33 1 3067
 key 33 0 3067
 tick 20
-key 43 1 3087
-key 43 0 3087
+key 33 1 3087
+key 33 0 3087
 tick 20
-key 38 1 3107
-key 38 0 3107
+key 33 1 3107
+key 33 0 3107
 tick 20
-key 43 1 3127
-key 43 0 3127
+key 33 1 3127
+key 33 0 3127
 tick 20
-key 33 1 3147
-key 33 0 3147
+key 26 1 3147
+key 26 0 3147
 tick 20
-key 33 1 3167
-key 33 0 3167
+key 26 1 3167
+key 26 0 3167
 tick 20
-key 33 1 3187
-key 33 0 3187
+key 26 1 3187
+key 26 0 3187
 tick 20
-key 33 1 3207
-key 33 0 3207
+key 26 1 3207
+key 26 0 3207
 tick 20
-key 33 1 3227
-key 33 0 3227
+key 26 1 3227
+key 26 0 3227
 tick 20
-key 33 1 3247
-key 33 0 3247
+key 26 1 3247
+key 26 0 3247
 tick 20
-key 33 1 3267
-key 33 0 3267
+key 26 1 3267
+key 26 0 3267
 tick 20
-key 33 1 3287
-key 33 0 3287
+key 26 1 3287
+key 26 0 3287
 tick 20
-key 33 1 3307
-key 33 0 3307
+key 26 1 3307
+key 26 0 3307
 tick 20
-key 43 1 3327
-key 43 0 3327
+key 26 1 3327
+key 26 0 3327
 tick 20
-key 31 1 3347
-key 31 0 3347
+key 26 1 3347
+key 26 0 3347
 tick 20
-key 31 1 3367
-key 31 0 3367
+key 26 1 3367
+key 26 0 3367
 tick 20
-key 31 1 3387
-key 31 0 3387
+key 26 1 3387
+key 26 0 3387
 tick 20
-key 31 1 3407
-key 31 0 3407
+key 26 1 3407
+key 26 0 3407
 tick 20
-key 31 1 3427
-key 31 0 3427
+key 32 1 3427
+key 32 0 3427
 tick 20
 key 31 1 3447
 key 31 0 3447
@@ -448,20 +448,20 @@ tick 20
 key 31 1 3547
 key 31 0 3547
 tick 20
-key 31 1 3567
-key 31 0 3567
+key 38 1 3567
+key 38 0 3567
 tick 20
-key 31 1 3587
-key 31 0 3587
+key 38 1 3587
+key 38 0 3587
 tick 20
-key 38 1 3607
-key 38 0 3607
+key 32 1 3607
+key 32 0 3607
 tick 20
-key 38 1 3627
-key 38 0 3627
+key 33 1 3627
+key 33 0 3627
 tick 20
-key 43 1 3647
-key 43 0 3647
+key 33 1 3647
+key 33 0 3647
 tick 20
 key 33 1 3667
 key 33 0 3667
@@ -469,227 +469,227 @@ tick 20
 key 33 1 3687
 key 33 0 3687
 tick 20
-key 43 1 3707
-key 43 0 3707
+key 33 1 3707
+key 33 0 3707
 tick 20
 key 33 1 3727
 key 33 0 3727
 tick 20
-key 33 1 3747
-key 33 0 3747
+key 32 1 3747
+key 32 0 3747
 tick 20
-key 33 1 3767
-key 33 0 3767
+key 31 1 3767
+key 31 0 3767
 tick 20
-key 33 1 3787
-key 33 0 3787
+key 31 1 3787
+key 31 0 3787
 tick 20
-key 33 1 3807
-key 33 0 3807
+key 31 1 3807
+key 31 0 3807
 tick 20
-key 33 1 3827
-key 33 0 3827
+key 31 1 3827
+key 31 0 3827
 tick 20
-key 33 1 3847
-key 33 0 3847
+key 31 1 3847
+key 31 0 3847
 tick 20
-key 33 1 3867
-key 33 0 3867
+key 31 1 3867
+key 31 0 3867
 tick 20
-key 33 1 3887
-key 33 0 3887
+key 31 1 3887
+key 31 0 3887
 tick 20
-key 33 1 3907
-key 33 0 3907
+key 31 1 3907
+key 31 0 3907
 tick 20
-key 33 1 3927
-key 33 0 3927
+key 38 1 3927
+key 38 0 3927
 tick 20
-key 33 1 3947
-key 33 0 3947
+key 32 1 3947
+key 32 0 3947
 tick 20
-key 43 1 3967
-key 43 0 3967
+key 33 1 3967
+key 33 0 3967
 tick 20
-key 31 1 3987
-key 31 0 3987
+key 32 1 3987
+key 32 0 3987
 tick 20
-key 31 1 4007
-key 31 0 4007
+key 33 1 4007
+key 33 0 4007
 tick 20
-key 31 1 4027
-key 31 0 4027
+key 33 1 4027
+key 33 0 4027
 tick 20
-key 31 1 4047
-key 31 0 4047
+key 32 1 4047
+key 32 0 4047
 tick 20
-key 38 1 4067
-key 38 0 4067
+key 31 1 4067
+key 31 0 4067
 tick 20
-key 43 1 4087
-key 43 0 4087
+key 31 1 4087
+key 31 0 4087
 tick 20
-key 33 1 4107
-key 33 0 4107
+key 31 1 4107
+key 31 0 4107
 tick 20
-key 33 1 4127
-key 33 0 4127
+key 38 1 4127
+key 38 0 4127
 tick 20
-key 33 1 4147
-key 33 0 4147
+key 32 1 4147
+key 32 0 4147
 tick 20
 key 33 1 4167
 key 33 0 4167
 tick 20
-key 43 1 4187
-key 43 0 4187
+key 33 1 4187
+key 33 0 4187
 tick 20
-key 31 1 4207
-key 31 0 4207
+key 33 1 4207
+key 33 0 4207
 tick 20
-key 31 1 4227
-key 31 0 4227
+key 33 1 4227
+key 33 0 4227
 tick 20
-key 31 1 4247
-key 31 0 4247
+key 33 1 4247
+key 33 0 4247
 tick 20
-key 31 1 4267
-key 31 0 4267
+key 33 1 4267
+key 33 0 4267
 tick 20
-key 31 1 4287
-key 31 0 4287
+key 33 1 4287
+key 33 0 4287
 tick 20
-key 31 1 4307
-key 31 0 4307
+key 33 1 4307
+key 33 0 4307
 tick 20
-key 31 1 4327
-key 31 0 4327
+key 38 1 4327
+key 38 0 4327
 tick 20
-key 31 1 4347
-key 31 0 4347
+key 32 1 4347
+key 32 0 4347
 tick 20
-key 31 1 4367
-key 31 0 4367
+key 38 1 4367
+key 38 0 4367
 tick 20
-key 31 1 4387
-key 31 0 4387
+key 32 1 4387
+key 32 0 4387
 tick 20
-key 31 1 4407
-key 31 0 4407
+key 33 1 4407
+key 33 0 4407
 tick 20
 key 38 1 4427
 key 38 0 4427
 tick 20
-key 43 1 4447
-key 43 0 4447
+key 38 1 4447
+key 38 0 4447
 tick 20
-key 33 1 4467
-key 33 0 4467
+key 32 1 4467
+key 32 0 4467
 tick 20
-key 33 1 4487
-key 33 0 4487
+key 38 1 4487
+key 38 0 4487
 tick 20
-key 43 1 4507
-key 43 0 4507
+key 32 1 4507
+key 32 0 4507
 tick 20
-key 31 1 4527
-key 31 0 4527
+key 38 1 4527
+key 38 0 4527
 tick 20
-key 31 1 4547
-key 31 0 4547
+key 32 1 4547
+key 32 0 4547
 tick 20
 key 31 1 4567
 key 31 0 4567
 tick 20
-key 26 1 4587
-key 26 0 4587
+key 31 1 4587
+key 31 0 4587
 tick 20
-key 26 1 4607
-key 26 0 4607
+key 31 1 4607
+key 31 0 4607
 tick 20
-key 26 1 4627
-key 26 0 4627
+key 38 1 4627
+key 38 0 4627
 tick 20
-key 26 1 4647
-key 26 0 4647
+key 32 1 4647
+key 32 0 4647
 tick 20
-key 26 1 4667
-key 26 0 4667
+key 33 1 4667
+key 33 0 4667
 tick 20
-key 26 1 4687
-key 26 0 4687
+key 32 1 4687
+key 32 0 4687
 tick 20
-key 26 1 4707
-key 26 0 4707
+key 33 1 4707
+key 33 0 4707
 tick 20
-key 26 1 4727
-key 26 0 4727
+key 32 1 4727
+key 32 0 4727
 tick 20
-key 26 1 4747
-key 26 0 4747
+key 31 1 4747
+key 31 0 4747
 tick 20
-key 26 1 4767
-key 26 0 4767
+key 31 1 4767
+key 31 0 4767
 tick 20
-key 26 1 4787
-key 26 0 4787
+key 31 1 4787
+key 31 0 4787
 tick 20
-key 26 1 4807
-key 26 0 4807
+key 38 1 4807
+key 38 0 4807
 tick 20
 key 32 1 4827
 key 32 0 4827
 tick 20
-key 33 1 4847
-key 33 0 4847
+key 31 1 4847
+key 31 0 4847
 tick 20
-key 33 1 4867
-key 33 0 4867
+key 31 1 4867
+key 31 0 4867
 tick 20
-key 33 1 4887
-key 33 0 4887
+key 31 1 4887
+key 31 0 4887
 tick 20
-key 33 1 4907
-key 33 0 4907
+key 31 1 4907
+key 31 0 4907
 tick 20
-key 33 1 4927
-key 33 0 4927
+key 31 1 4927
+key 31 0 4927
 tick 20
-key 33 1 4947
-key 33 0 4947
+key 38 1 4947
+key 38 0 4947
 tick 20
-key 32 1 4967
-key 32 0 4967
+key 38 1 4967
+key 38 0 4967
 tick 20
-key 31 1 4987
-key 31 0 4987
+key 32 1 4987
+key 32 0 4987
 tick 20
-key 31 1 5007
-key 31 0 5007
+key 33 1 5007
+key 33 0 5007
 tick 20
-key 31 1 5027
-key 31 0 5027
+key 32 1 5027
+key 32 0 5027
 tick 20
-key 31 1 5047
-key 31 0 5047
+key 33 1 5047
+key 33 0 5047
 tick 20
-key 31 1 5067
-key 31 0 5067
+key 32 1 5067
+key 32 0 5067
 tick 20
-key 38 1 5087
-key 38 0 5087
+key 33 1 5087
+key 33 0 5087
 tick 20
-key 32 1 5107
-key 32 0 5107
+key 33 1 5107
+key 33 0 5107
 tick 20
-key 31 1 5127
-key 31 0 5127
+key 32 1 5127
+key 32 0 5127
 tick 20
-key 31 1 5147
-key 31 0 5147
+key 33 1 5147
+key 33 0 5147
 tick 20
-key 31 1 5167
-key 31 0 5167
+key 32 1 5167
+key 32 0 5167
 tick 20
 key 31 1 5187
 key 31 0 5187
@@ -700,65 +700,65 @@ tick 20
 key 31 1 5227
 key 31 0 5227
 tick 20
-key 31 1 5247
-key 31 0 5247
+key 26 1 5247
+key 26 0 5247
 tick 20
-key 31 1 5267
-key 31 0 5267
+key 26 1 5267
+key 26 0 5267
 tick 20
-key 31 1 5287
-key 31 0 5287
+key 26 1 5287
+key 26 0 5287
 tick 20
-key 31 1 5307
-key 31 0 5307
+key 26 1 5307
+key 26 0 5307
 tick 20
-key 38 1 5327
-key 38 0 5327
+key 26 1 5327
+key 26 0 5327
 tick 20
-key 32 1 5347
-key 32 0 5347
+key 26 1 5347
+key 26 0 5347
 tick 20
-key 33 1 5367
-key 33 0 5367
+key 26 1 5367
+key 26 0 5367
 tick 20
-key 33 1 5387
-key 33 0 5387
+key 26 1 5387
+key 26 0 5387
 tick 20
-key 33 1 5407
-key 33 0 5407
+key 26 1 5407
+key 26 0 5407
 tick 20
-key 33 1 5427
-key 33 0 5427
+key 26 1 5427
+key 26 0 5427
 tick 20
-key 33 1 5447
-key 33 0 5447
+key 26 1 5447
+key 26 0 5447
 tick 20
-key 33 1 5467
-key 33 0 5467
+key 26 1 5467
+key 26 0 5467
 tick 20
-key 33 1 5487
-key 33 0 5487
+key 26 1 5487
+key 26 0 5487
 tick 20
-key 33 1 5507
-key 33 0 5507
+key 26 1 5507
+key 26 0 5507
 tick 20
-key 33 1 5527
-key 33 0 5527
+key 43 1 5527
+key 43 0 5527
 tick 20
-key 33 1 5547
-key 33 0 5547
+key 31 1 5547
+key 31 0 5547
 tick 20
-key 32 1 5567
-key 32 0 5567
+key 31 1 5567
+key 31 0 5567
 tick 20
-key 33 1 5587
-key 33 0 5587
+key 38 1 5587
+key 38 0 5587
 tick 20
-key 33 1 5607
-key 33 0 5607
+key 38 1 5607
+key 38 0 5607
 tick 20
-key 33 1 5627
-key 33 0 5627
+key 43 1 5627
+key 43 0 5627
 tick 20
 key 33 1 5647
 key 33 0 5647
@@ -766,125 +766,125 @@ tick 20
 key 33 1 5667
 key 33 0 5667
 tick 20
-key 32 1 5687
-key 32 0 5687
+key 33 1 5687
+key 33 0 5687
 tick 20
-key 31 1 5707
-key 31 0 5707
+key 33 1 5707
+key 33 0 5707
 tick 20
-key 31 1 5727
-key 31 0 5727
+key 33 1 5727
+key 33 0 5727
 tick 20
-key 31 1 5747
-key 31 0 5747
+key 33 1 5747
+key 33 0 5747
 tick 20
-key 31 1 5767
-key 31 0 5767
+key 33 1 5767
+key 33 0 5767
 tick 20
-key 31 1 5787
-key 31 0 5787
+key 33 1 5787
+key 33 0 5787
 tick 20
-key 31 1 5807
-key 31 0 5807
+key 33 1 5807
+key 33 0 5807
 tick 20
-key 31 1 5827
-key 31 0 5827
+key 33 1 5827
+key 33 0 5827
 tick 20
-key 31 1 5847
-key 31 0 5847
+key 38 1 5847
+key 38 0 5847
 tick 20
-key 31 1 5867
-key 31 0 5867
+key 38 1 5867
+key 38 0 5867
 tick 20
-key 31 1 5887
-key 31 0 5887
+key 38 1 5887
+key 38 0 5887
 tick 20
-key 31 1 5907
-key 31 0 5907
+key 38 1 5907
+key 38 0 5907
 tick 20
-key 31 1 5927
-key 31 0 5927
+key 38 1 5927
+key 38 0 5927
 tick 20
-key 31 1 5947
-key 31 0 5947
+key 43 1 5947
+key 43 0 5947
 tick 20
-key 38 1 5967
-key 38 0 5967
+key 31 1 5967
+key 31 0 5967
 tick 20
-key 32 1 5987
-key 32 0 5987
+key 26 1 5987
+key 26 0 5987
 tick 20
-key 33 1 6007
-key 33 0 6007
+key 26 1 6007
+key 26 0 6007
 tick 20
-key 32 1 6027
-key 32 0 6027
+key 26 1 6027
+key 26 0 6027
 tick 20
-key 33 1 6047
-key 33 0 6047
+key 26 1 6047
+key 26 0 6047
 tick 20
-key 32 1 6067
-key 32 0 6067
+key 26 1 6067
+key 26 0 6067
 tick 20
-key 38 1 6087
-key 38 0 6087
+key 26 1 6087
+key 26 0 6087
 tick 20
-key 32 1 6107
-key 32 0 6107
+key 26 1 6107
+key 26 0 6107
 tick 20
-key 38 1 6127
-key 38 0 6127
+key 32 1 6127
+key 32 0 6127
 tick 20
-key 32 1 6147
-key 32 0 6147
+key 31 1 6147
+key 31 0 6147
 tick 20
-key 33 1 6167
-key 33 0 6167
+key 31 1 6167
+key 31 0 6167
 tick 20
-key 33 1 6187
-key 33 0 6187
+key 31 1 6187
+key 31 0 6187
 tick 20
-key 33 1 6207
-key 33 0 6207
+key 31 1 6207
+key 31 0 6207
 tick 20
-key 33 1 6227
-key 33 0 6227
+key 31 1 6227
+key 31 0 6227
 tick 20
-key 33 1 6247
-key 33 0 6247
+key 31 1 6247
+key 31 0 6247
 tick 20
-key 33 1 6267
-key 33 0 6267
+key 31 1 6267
+key 31 0 6267
 tick 20
-key 33 1 6287
-key 33 0 6287
+key 31 1 6287
+key 31 0 6287
 tick 20
-key 33 1 6307
-key 33 0 6307
+key 38 1 6307
+key 38 0 6307
 tick 20
-key 33 1 6327
-key 33 0 6327
+key 32 1 6327
+key 32 0 6327
 tick 20
 key 33 1 6347
 key 33 0 6347
 tick 20
-key 33 1 6367
-key 33 0 6367
+key 32 1 6367
+key 32 0 6367
 tick 20
 key 33 1 6387
 key 33 0 6387
 tick 20
-key 38 1 6407
-key 38 0 6407
+key 33 1 6407
+key 33 0 6407
 tick 20
-key 32 1 6427
-key 32 0 6427
+key 33 1 6427
+key 33 0 6427
 tick 20
 key 33 1 6447
 key 33 0 6447
 tick 20
-key 32 1 6467
-key 32 0 6467
+key 33 1 6467
+key 33 0 6467
 tick 20
 key 33 1 6487
 key 33 0 6487
@@ -895,11 +895,11 @@ tick 20
 key 32 1 6527
 key 32 0 6527
 tick 20
-key 33 1 6547
-key 33 0 6547
+key 31 1 6547
+key 31 0 6547
 tick 20
-key 32 1 6567
-key 32 0 6567
+key 31 1 6567
+key 31 0 6567
 tick 20
 key 31 1 6587
 key 31 0 6587
@@ -919,116 +919,116 @@ tick 20
 key 31 1 6687
 key 31 0 6687
 tick 20
-key 31 1 6707
-key 31 0 6707
+key 38 1 6707
+key 38 0 6707
 tick 20
-key 31 1 6727
-key 31 0 6727
+key 32 1 6727
+key 32 0 6727
 tick 20
-key 31 1 6747
-key 31 0 6747
+key 33 1 6747
+key 33 0 6747
 tick 20
-key 31 1 6767
-key 31 0 6767
+key 33 1 6767
+key 33 0 6767
 tick 20
-key 31 1 6787
-key 31 0 6787
+key 33 1 6787
+key 33 0 6787
 tick 20
-key 31 1 6807
-key 31 0 6807
+key 33 1 6807
+key 33 0 6807
 tick 20
-key 31 1 6827
-key 31 0 6827
+key 33 1 6827
+key 33 0 6827
 tick 20
-key 31 1 6847
-key 31 0 6847
+key 33 1 6847
+key 33 0 6847
 tick 20
-key 31 1 6867
-key 31 0 6867
+key 33 1 6867
+key 33 0 6867
 tick 20
-key 31 1 6887
-key 31 0 6887
+key 33 1 6887
+key 33 0 6887
 tick 20
-key 38 1 6907
-key 38 0 6907
+key 32 1 6907
+key 32 0 6907
 tick 20
-key 32 1 6927
-key 32 0 6927
+key 38 1 6927
+key 38 0 6927
 tick 20
-key 33 1 6947
-key 33 0 6947
+key 32 1 6947
+key 32 0 6947
 tick 20
-key 32 1 6967
-key 32 0 6967
+key 38 1 6967
+key 38 0 6967
 tick 20
-key 33 1 6987
-key 33 0 6987
+key 32 1 6987
+key 32 0 6987
 tick 20
-key 32 1 7007
-key 32 0 7007
+key 38 1 7007
+key 38 0 7007
 tick 20
-key 33 1 7027
-key 33 0 7027
+key 32 1 7027
+key 32 0 7027
 tick 20
 key 33 1 7047
 key 33 0 7047
 tick 20
-key 33 1 7067
-key 33 0 7067
+key 38 1 7067
+key 38 0 7067
 tick 20
-key 33 1 7087
-key 33 0 7087
+key 38 1 7087
+key 38 0 7087
 tick 20
-key 33 1 7107
-key 33 0 7107
+key 38 1 7107
+key 38 0 7107
 tick 20
-key 33 1 7127
-key 33 0 7127
+key 38 1 7127
+key 38 0 7127
 tick 20
-key 33 1 7147
-key 33 0 7147
+key 38 1 7147
+key 38 0 7147
 tick 20
-key 33 1 7167
-key 33 0 7167
+key 32 1 7167
+key 32 0 7167
 tick 20
-key 33 1 7187
-key 33 0 7187
+key 31 1 7187
+key 31 0 7187
 tick 20
-key 33 1 7207
-key 33 0 7207
+key 31 1 7207
+key 31 0 7207
 tick 20
-key 33 1 7227
-key 33 0 7227
+key 31 1 7227
+key 31 0 7227
 tick 20
-key 33 1 7247
-key 33 0 7247
+key 31 1 7247
+key 31 0 7247
 tick 20
-key 33 1 7267
-key 33 0 7267
+key 38 1 7267
+key 38 0 7267
 tick 20
-key 33 1 7287
-key 33 0 7287
+key 38 1 7287
+key 38 0 7287
 tick 20
 key 32 1 7307
 key 32 0 7307
 tick 20
-key 31 1 7327
-key 31 0 7327
+key 33 1 7327
+key 33 0 7327
 tick 20
-key 31 1 7347
-key 31 0 7347
+key 32 1 7347
+key 32 0 7347
 tick 20
 key 31 1 7367
 key 31 0 7367
 tick 20
-key 31 1 7387
-key 31 0 7387
+key 38 1 7387
+key 38 0 7387
 tick 20
-key 31 1 7407
-key 31 0 7407
+key 38 1 7407
+key 38 0 7407
 tick 20
-key 31 1 7427
-key 31 0 7427
+key 32 1 7427
+key 32 0 7427
 tick 20
 key 31 1 7447
 key 31 0 7447
@@ -1048,14 +1048,14 @@ tick 20
 key 31 1 7547
 key 31 0 7547
 tick 20
-key 31 1 7567
-key 31 0 7567
+key 38 1 7567
+key 38 0 7567
 tick 20
-key 38 1 7587
-key 38 0 7587
+key 32 1 7587
+key 32 0 7587
 tick 20
-key 32 1 7607
-key 32 0 7607
+key 33 1 7607
+key 33 0 7607
 tick 20
 key 33 1 7627
 key 33 0 7627
@@ -1063,92 +1063,92 @@ tick 20
 key 33 1 7647
 key 33 0 7647
 tick 20
-key 33 1 7667
-key 33 0 7667
+key 32 1 7667
+key 32 0 7667
 tick 20
 key 33 1 7687
 key 33 0 7687
 tick 20
-key 33 1 7707
-key 33 0 7707
+key 32 1 7707
+key 32 0 7707
 tick 20
 key 33 1 7727
 key 33 0 7727
 tick 20
-key 33 1 7747
-key 33 0 7747
+key 32 1 7747
+key 32 0 7747
 tick 20
-key 33 1 7767
-key 33 0 7767
+key 31 1 7767
+key 31 0 7767
 tick 20
-key 33 1 7787
-key 33 0 7787
+key 31 1 7787
+key 31 0 7787
 tick 20
-key 33 1 7807
-key 33 0 7807
+key 31 1 7807
+key 31 0 7807
 tick 20
-key 33 1 7827
-key 33 0 7827
+key 31 1 7827
+key 31 0 7827
 tick 20
-key 33 1 7847
-key 33 0 7847
+key 31 1 7847
+key 31 0 7847
 tick 20
-key 33 1 7867
-key 33 0 7867
+key 26 1 7867
+key 26 0 7867
 tick 20
-key 33 1 7887
-key 33 0 7887
+key 26 1 7887
+key 26 0 7887
 tick 20
-key 32 1 7907
-key 32 0 7907
+key 26 1 7907
+key 26 0 7907
 tick 20
-key 31 1 7927
-key 31 0 7927
+key 26 1 7927
+key 26 0 7927
 tick 20
-key 31 1 7947
-key 31 0 7947
+key 26 1 7947
+key 26 0 7947
 tick 20
-key 31 1 7967
-key 31 0 7967
+key 26 1 7967
+key 26 0 7967
 tick 20
-key 31 1 7987
-key 31 0 7987
+key 26 1 7987
+key 26 0 7987
 tick 20
-key 31 1 8007
-key 31 0 8007
+key 26 1 8007
+key 26 0 8007
 tick 20
-key 31 1 8027
-key 31 0 8027
+key 26 1 8027
+key 26 0 8027
 tick 20
-key 31 1 8047
-key 31 0 8047
+key 26 1 8047
+key 26 0 8047
 tick 20
-key 31 1 8067
-key 31 0 8067
+key 26 1 8067
+key 26 0 8067
 tick 20
-key 31 1 8087
-key 31 0 8087
+key 26 1 8087
+key 26 0 8087
 tick 20
-key 31 1 8107
-key 31 0 8107
+key 26 1 8107
+key 26 0 8107
 tick 20
-key 31 1 8127
-key 31 0 8127
+key 26 1 8127
+key 26 0 8127
 tick 20
-key 31 1 8147
-key 31 0 8147
+key 26 1 8147
+key 26 0 8147
 tick 20
-key 31 1 8167
-key 31 0 8167
+key 43 1 8167
+key 43 0 8167
 tick 20
-key 31 1 8187
-key 31 0 8187
+key 33 1 8187
+key 33 0 8187
 tick 20
-key 38 1 8207
-key 38 0 8207
+key 33 1 8207
+key 33 0 8207
 tick 20
-key 32 1 8227
-key 32 0 8227
+key 33 1 8227
+key 33 0 8227
 tick 20
 key 33 1 8247
 key 33 0 8247
@@ -1171,209 +1171,209 @@ tick 20
 key 33 1 8367
 key 33 0 8367
 tick 20
-key 33 1 8387
-key 33 0 8387
+key 43 1 8387
+key 43 0 8387
 tick 20
-key 33 1 8407
-key 33 0 8407
+key 31 1 8407
+key 31 0 8407
 tick 20
-key 33 1 8427
-key 33 0 8427
+key 38 1 8427
+key 38 0 8427
 tick 20
-key 33 1 8447
-key 33 0 8447
+key 38 1 8447
+key 38 0 8447
 tick 20
-key 33 1 8467
-key 33 0 8467
+key 38 1 8467
+key 38 0 8467
 tick 20
-key 33 1 8487
-key 33 0 8487
+key 38 1 8487
+key 38 0 8487
 tick 20
-key 33 1 8507
-key 33 0 8507
+key 38 1 8507
+key 38 0 8507
 tick 20
-key 32 1 8527
-key 32 0 8527
+key 38 1 8527
+key 38 0 8527
 tick 20
-key 31 1 8547
-key 31 0 8547
+key 38 1 8547
+key 38 0 8547
 tick 20
-key 31 1 8567
-key 31 0 8567
+key 38 1 8567
+key 38 0 8567
 tick 20
-key 31 1 8587
-key 31 0 8587
+key 38 1 8587
+key 38 0 8587
 tick 20
-key 31 1 8607
-key 31 0 8607
+key 38 1 8607
+key 38 0 8607
 tick 20
-key 31 1 8627
-key 31 0 8627
+key 38 1 8627
+key 38 0 8627
 tick 20
-key 31 1 8647
-key 31 0 8647
+key 43 1 8647
+key 43 0 8647
 tick 20
 key 31 1 8667
 key 31 0 8667
 tick 20
-key 31 1 8687
-key 31 0 8687
+key 38 1 8687
+key 38 0 8687
 tick 20
-key 31 1 8707
-key 31 0 8707
+key 38 1 8707
+key 38 0 8707
 tick 20
-key 31 1 8727
-key 31 0 8727
+key 38 1 8727
+key 38 0 8727
 tick 20
-key 31 1 8747
-key 31 0 8747
+key 43 1 8747
+key 43 0 8747
 tick 20
 key 31 1 8767
 key 31 0 8767
 tick 20
-key 31 1 8787
-key 31 0 8787
+key 38 1 8787
+key 38 0 8787
 tick 20
-key 38 1 8807
-key 38 0 8807
+key 43 1 8807
+key 43 0 8807
 tick 20
-key 32 1 8827
-key 32 0 8827
+key 31 1 8827
+key 31 0 8827
 tick 20
-key 33 1 8847
-key 33 0 8847
+key 31 1 8847
+key 31 0 8847
 tick 20
-key 38 1 8867
-key 38 0 8867
+key 31 1 8867
+key 31 0 8867
 tick 20
-key 32 1 8887
-key 32 0 8887
+key 31 1 8887
+key 31 0 8887
 tick 20
-key 38 1 8907
-key 38 0 8907
+key 31 1 8907
+key 31 0 8907
 tick 20
-key 32 1 8927
-key 32 0 8927
+key 31 1 8927
+key 31 0 8927
 tick 20
-key 33 1 8947
-key 33 0 8947
+key 26 1 8947
+key 26 0 8947
 tick 20
-key 33 1 8967
-key 33 0 8967
+key 26 1 8967
+key 26 0 8967
 tick 20
-key 32 1 8987
-key 32 0 8987
+key 26 1 8987
+key 26 0 8987
 tick 20
-key 33 1 9007
-key 33 0 9007
+key 26 1 9007
+key 26 0 9007
 tick 20
-key 33 1 9027
-key 33 0 9027
+key 26 1 9027
+key 26 0 9027
 tick 20
-key 33 1 9047
-key 33 0 9047
+key 26 1 9047
+key 26 0 9047
 tick 20
-key 33 1 9067
-key 33 0 9067
+key 26 1 9067
+key 26 0 9067
 tick 20
-key 33 1 9087
-key 33 0 9087
+key 26 1 9087
+key 26 0 9087
 tick 20
-key 33 1 9107
-key 33 0 9107
+key 26 1 9107
+key 26 0 9107
 tick 20
-key 32 1 9127
-key 32 0 9127
+key 26 1 9127
+key 26 0 9127
 tick 20
-key 33 1 9147
-key 33 0 9147
+key 26 1 9147
+key 26 0 9147
 tick 20
-key 33 1 9167
-key 33 0 9167
+key 26 1 9167
+key 26 0 9167
 tick 20
-key 33 1 9187
-key 33 0 9187
+key 26 1 9187
+key 26 0 9187
 tick 20
-key 33 1 9207
-key 33 0 9207
+key 26 1 9207
+key 26 0 9207
 tick 20
-key 32 1 9227
-key 32 0 9227
+key 26 1 9227
+key 26 0 9227
 tick 20
-key 31 1 9247
-key 31 0 9247
+key 32 1 9247
+key 32 0 9247
 tick 20
 key 31 1 9267
 key 31 0 9267
 tick 20
-key 31 1 9287
-key 31 0 9287
+key 38 1 9287
+key 38 0 9287
 tick 20
-key 26 1 9307
-key 26 0 9307
+key 32 1 9307
+key 32 0 9307
 tick 20
-key 26 1 9327
-key 26 0 9327
+key 33 1 9327
+key 33 0 9327
 tick 20
-key 26 1 9347
-key 26 0 9347
+key 33 1 9347
+key 33 0 9347
 tick 20
-key 26 1 9367
-key 26 0 9367
+key 33 1 9367
+key 33 0 9367
 tick 20
-key 26 1 9387
-key 26 0 9387
+key 33 1 9387
+key 33 0 9387
 tick 20
-key 26 1 9407
-key 26 0 9407
+key 33 1 9407
+key 33 0 9407
 tick 20
-key 26 1 9427
-key 26 0 9427
+key 33 1 9427
+key 33 0 9427
 tick 20
-key 43 1 9447
-key 43 0 9447
+key 33 1 9447
+key 33 0 9447
 tick 20
-key 31 1 9467
-key 31 0 9467
+key 33 1 9467
+key 33 0 9467
 tick 20
-key 31 1 9487
-key 31 0 9487
+key 33 1 9487
+key 33 0 9487
 tick 20
-key 31 1 9507
-key 31 0 9507
+key 33 1 9507
+key 33 0 9507
 tick 20
-key 31 1 9527
-key 31 0 9527
+key 32 1 9527
+key 32 0 9527
 tick 20
-key 31 1 9547
-key 31 0 9547
+key 38 1 9547
+key 38 0 9547
 tick 20
-key 31 1 9567
-key 31 0 9567
+key 32 1 9567
+key 32 0 9567
 tick 20
-key 31 1 9587
-key 31 0 9587
+key 38 1 9587
+key 38 0 9587
 tick 20
-key 31 1 9607
-key 31 0 9607
+key 32 1 9607
+key 32 0 9607
 tick 20
-key 31 1 9627
-key 31 0 9627
+key 38 1 9627
+key 38 0 9627
 tick 20
-key 31 1 9647
-key 31 0 9647
+key 32 1 9647
+key 32 0 9647
 tick 20
-key 31 1 9667
-key 31 0 9667
+key 38 1 9667
+key 38 0 9667
 tick 20
-key 31 1 9687
-key 31 0 9687
+key 38 1 9687
+key 38 0 9687
 tick 20
-key 31 1 9707
-key 31 0 9707
+key 32 1 9707
+key 32 0 9707
 tick 20
-key 31 1 9727
-key 31 0 9727
+key 33 1 9727
+key 33 0 9727
 tick 20
 key 38 1 9747
 key 38 0 9747
@@ -1384,44 +1384,44 @@ tick 20
 key 38 1 9787
 key 38 0 9787
 tick 20
-key 43 1 9807
-key 43 0 9807
+key 32 1 9807
+key 32 0 9807
 tick 20
-key 33 1 9827
-key 33 0 9827
+key 38 1 9827
+key 38 0 9827
 tick 20
-key 33 1 9847
-key 33 0 9847
+key 32 1 9847
+key 32 0 9847
 tick 20
 key 38 1 9867
 key 38 0 9867
 tick 20
-key 38 1 9887
-key 38 0 9887
+key 32 1 9887
+key 32 0 9887
 tick 20
-key 43 1 9907
-key 43 0 9907
+key 31 1 9907
+key 31 0 9907
 tick 20
-key 33 1 9927
-key 33 0 9927
+key 31 1 9927
+key 31 0 9927
 tick 20
-key 33 1 9947
-key 33 0 9947
+key 31 1 9947
+key 31 0 9947
 tick 20
-key 33 1 9967
-key 33 0 9967
+key 31 1 9967
+key 31 0 9967
 tick 20
-key 33 1 9987
-key 33 0 9987
+key 38 1 9987
+key 38 0 9987
 tick 20
-key 33 1 10007
-key 33 0 10007
+key 38 1 10007
+key 38 0 10007
 tick 20
-key 33 1 10027
-key 33 0 10027
+key 38 1 10027
+key 38 0 10027
 tick 20
-key 33 1 10047
-key 33 0 10047
+key 32 1 10047
+key 32 0 10047
 tick 20
 key 33 1 10067
 key 33 0 10067
@@ -1432,8 +1432,8 @@ tick 20
 key 33 1 10107
 key 33 0 10107
 tick 20
-key 26 1 10127
-key 26 0 10127
+key 33 1 10127
+key 33 0 10127
 tick 20
 key 26 1 10147
 key 26 0 10147
@@ -1462,32 +1462,32 @@ tick 20
 key 26 1 10307
 key 26 0 10307
 tick 20
-key 32 1 10327
-key 32 0 10327
+key 26 1 10327
+key 26 0 10327
 tick 20
-key 38 1 10347
-key 38 0 10347
+key 26 1 10347
+key 26 0 10347
 tick 20
-key 32 1 10367
-key 32 0 10367
+key 26 1 10367
+key 26 0 10367
 tick 20
-key 38 1 10387
-key 38 0 10387
+key 43 1 10387
+key 43 0 10387
 tick 20
-key 32 1 10407
-key 32 0 10407
+key 33 1 10407
+key 33 0 10407
 tick 20
 key 38 1 10427
 key 38 0 10427
 tick 20
-key 32 1 10447
-key 32 0 10447
+key 38 1 10447
+key 38 0 10447
 tick 20
-key 31 1 10467
-key 31 0 10467
+key 38 1 10467
+key 38 0 10467
 tick 20
-key 31 1 10487
-key 31 0 10487
+key 43 1 10487
+key 43 0 10487
 tick 20
 key 31 1 10507
 key 31 0 10507
@@ -1495,110 +1495,110 @@ tick 20
 key 31 1 10527
 key 31 0 10527
 tick 20
-key 31 1 10547
-key 31 0 10547
+key 38 1 10547
+key 38 0 10547
 tick 20
-key 31 1 10567
-key 31 0 10567
+key 38 1 10567
+key 38 0 10567
 tick 20
-key 31 1 10587
-key 31 0 10587
+key 38 1 10587
+key 38 0 10587
 tick 20
-key 31 1 10607
-key 31 0 10607
+key 38 1 10607
+key 38 0 10607
 tick 20
-key 31 1 10627
-key 31 0 10627
+key 43 1 10627
+key 43 0 10627
 tick 20
-key 31 1 10647
-key 31 0 10647
+key 33 1 10647
+key 33 0 10647
 tick 20
-key 31 1 10667
-key 31 0 10667
+key 33 1 10667
+key 33 0 10667
 tick 20
-key 31 1 10687
-key 31 0 10687
+key 43 1 10687
+key 43 0 10687
 tick 20
-key 31 1 10707
-key 31 0 10707
+key 33 1 10707
+key 33 0 10707
 tick 20
-key 31 1 10727
-key 31 0 10727
+key 38 1 10727
+key 38 0 10727
 tick 20
-key 31 1 10747
-key 31 0 10747
+key 43 1 10747
+key 43 0 10747
 tick 20
-key 38 1 10767
-key 38 0 10767
+key 31 1 10767
+key 31 0 10767
 tick 20
-key 32 1 10787
-key 32 0 10787
+key 31 1 10787
+key 31 0 10787
 tick 20
-key 33 1 10807
-key 33 0 10807
+key 38 1 10807
+key 38 0 10807
 tick 20
-key 32 1 10827
-key 32 0 10827
+key 38 1 10827
+key 38 0 10827
 tick 20
-key 33 1 10847
-key 33 0 10847
+key 38 1 10847
+key 38 0 10847
 tick 20
-key 32 1 10867
-key 32 0 10867
+key 38 1 10867
+key 38 0 10867
 tick 20
-key 33 1 10887
-key 33 0 10887
+key 38 1 10887
+key 38 0 10887
 tick 20
-key 33 1 10907
-key 33 0 10907
+key 43 1 10907
+key 43 0 10907
 tick 20
-key 33 1 10927
-key 33 0 10927
+key 26 1 10927
+key 26 0 10927
 tick 20
-key 33 1 10947
-key 33 0 10947
+key 26 1 10947
+key 26 0 10947
 tick 20
-key 33 1 10967
-key 33 0 10967
+key 26 1 10967
+key 26 0 10967
 tick 20
-key 33 1 10987
-key 33 0 10987
+key 26 1 10987
+key 26 0 10987
 tick 20
-key 33 1 11007
-key 33 0 11007
+key 26 1 11007
+key 26 0 11007
 tick 20
-key 33 1 11027
-key 33 0 11027
+key 26 1 11027
+key 26 0 11027
 tick 20
-key 33 1 11047
-key 33 0 11047
+key 26 1 11047
+key 26 0 11047
 tick 20
-key 33 1 11067
-key 33 0 11067
+key 26 1 11067
+key 26 0 11067
 tick 20
-key 33 1 11087
-key 33 0 11087
+key 26 1 11087
+key 26 0 11087
 tick 20
-key 33 1 11107
-key 33 0 11107
+key 26 1 11107
+key 26 0 11107
 tick 20
-key 33 1 11127
-key 33 0 11127
+key 26 1 11127
+key 26 0 11127
 tick 20
-key 33 1 11147
-key 33 0 11147
+key 26 1 11147
+key 26 0 11147
 tick 20
-key 33 1 11167
-key 33 0 11167
+key 26 1 11167
+key 26 0 11167
 tick 20
-key 33 1 11187
-key 33 0 11187
+key 26 1 11187
+key 26 0 11187
 tick 20
-key 33 1 11207
-key 33 0 11207
+key 26 1 11207
+key 26 0 11207
 tick 20
-key 33 1 11227
-key 33 0 11227
+key 32 1 11227
+key 32 0 11227
 tick 20
 key 38 1 11247
 key 38 0 11247
@@ -1606,257 +1606,257 @@ tick 20
 key 32 1 11267
 key 32 0 11267
 tick 20
-key 31 1 11287
-key 31 0 11287
+key 33 1 11287
+key 33 0 11287
 tick 20
-key 31 1 11307
-key 31 0 11307
+key 38 1 11307
+key 38 0 11307
 tick 20
-key 31 1 11327
-key 31 0 11327
+key 32 1 11327
+key 32 0 11327
 tick 20
 key 31 1 11347
 key 31 0 11347
 tick 20
-key 31 1 11367
-key 31 0 11367
+key 38 1 11367
+key 38 0 11367
 tick 20
-key 31 1 11387
-key 31 0 11387
+key 38 1 11387
+key 38 0 11387
 tick 20
-key 31 1 11407
-key 31 0 11407
+key 38 1 11407
+key 38 0 11407
 tick 20
-key 31 1 11427
-key 31 0 11427
+key 38 1 11427
+key 38 0 11427
 tick 20
-key 31 1 11447
-key 31 0 11447
+key 32 1 11447
+key 32 0 11447
 tick 20
-key 31 1 11467
-key 31 0 11467
+key 38 1 11467
+key 38 0 11467
 tick 20
-key 31 1 11487
-key 31 0 11487
+key 32 1 11487
+key 32 0 11487
 tick 20
 key 31 1 11507
 key 31 0 11507
 tick 20
-key 31 1 11527
-key 31 0 11527
+key 38 1 11527
+key 38 0 11527
 tick 20
-key 31 1 11547
-key 31 0 11547
+key 32 1 11547
+key 32 0 11547
 tick 20
-key 31 1 11567
-key 31 0 11567
+key 33 1 11567
+key 33 0 11567
 tick 20
-key 31 1 11587
-key 31 0 11587
+key 32 1 11587
+key 32 0 11587
 tick 20
-key 31 1 11607
-key 31 0 11607
+key 33 1 11607
+key 33 0 11607
 tick 20
-key 31 1 11627
-key 31 0 11627
+key 32 1 11627
+key 32 0 11627
 tick 20
-key 38 1 11647
-key 38 0 11647
+key 33 1 11647
+key 33 0 11647
 tick 20
-key 32 1 11667
-key 32 0 11667
+key 38 1 11667
+key 38 0 11667
 tick 20
-key 33 1 11687
-key 33 0 11687
+key 38 1 11687
+key 38 0 11687
 tick 20
-key 33 1 11707
-key 33 0 11707
+key 38 1 11707
+key 38 0 11707
 tick 20
-key 33 1 11727
-key 33 0 11727
+key 38 1 11727
+key 38 0 11727
 tick 20
-key 33 1 11747
-key 33 0 11747
+key 38 1 11747
+key 38 0 11747
 tick 20
-key 33 1 11767
-key 33 0 11767
+key 32 1 11767
+key 32 0 11767
 tick 20
-key 33 1 11787
-key 33 0 11787
+key 31 1 11787
+key 31 0 11787
 tick 20
-key 33 1 11807
-key 33 0 11807
+key 31 1 11807
+key 31 0 11807
 tick 20
-key 33 1 11827
-key 33 0 11827
+key 31 1 11827
+key 31 0 11827
 tick 20
-key 33 1 11847
-key 33 0 11847
+key 31 1 11847
+key 31 0 11847
 tick 20
-key 33 1 11867
-key 33 0 11867
+key 31 1 11867
+key 31 0 11867
 tick 20
-key 33 1 11887
-key 33 0 11887
+key 38 1 11887
+key 38 0 11887
 tick 20
-key 33 1 11907
-key 33 0 11907
+key 38 1 11907
+key 38 0 11907
 tick 20
-key 33 1 11927
-key 33 0 11927
+key 32 1 11927
+key 32 0 11927
 tick 20
 key 33 1 11947
 key 33 0 11947
 tick 20
-key 33 1 11967
-key 33 0 11967
+key 32 1 11967
+key 32 0 11967
 tick 20
 key 33 1 11987
 key 33 0 11987
 tick 20
-key 33 1 12007
-key 33 0 12007
+key 32 1 12007
+key 32 0 12007
 tick 20
 key 33 1 12027
 key 33 0 12027
 tick 20
-key 32 1 12047
-key 32 0 12047
+key 33 1 12047
+key 33 0 12047
 tick 20
-key 38 1 12067
-key 38 0 12067
+key 32 1 12067
+key 32 0 12067
 tick 20
-key 32 1 12087
-key 32 0 12087
+key 26 1 12087
+key 26 0 12087
 tick 20
-key 33 1 12107
-key 33 0 12107
+key 26 1 12107
+key 26 0 12107
 tick 20
-key 32 1 12127
-key 32 0 12127
+key 26 1 12127
+key 26 0 12127
 tick 20
-key 31 1 12147
-key 31 0 12147
+key 26 1 12147
+key 26 0 12147
 tick 20
-key 31 1 12167
-key 31 0 12167
+key 26 1 12167
+key 26 0 12167
 tick 20
-key 31 1 12187
-key 31 0 12187
+key 26 1 12187
+key 26 0 12187
 tick 20
-key 31 1 12207
-key 31 0 12207
+key 26 1 12207
+key 26 0 12207
 tick 20
-key 31 1 12227
-key 31 0 12227
+key 26 1 12227
+key 26 0 12227
 tick 20
-key 31 1 12247
-key 31 0 12247
+key 26 1 12247
+key 26 0 12247
 tick 20
-key 31 1 12267
-key 31 0 12267
+key 26 1 12267
+key 26 0 12267
 tick 20
-key 31 1 12287
-key 31 0 12287
+key 26 1 12287
+key 26 0 12287
 tick 20
-key 31 1 12307
-key 31 0 12307
+key 43 1 12307
+key 43 0 12307
 tick 20
-key 31 1 12327
-key 31 0 12327
+key 33 1 12327
+key 33 0 12327
 tick 20
-key 31 1 12347
-key 31 0 12347
+key 38 1 12347
+key 38 0 12347
 tick 20
-key 31 1 12367
-key 31 0 12367
+key 38 1 12367
+key 38 0 12367
 tick 20
-key 31 1 12387
-key 31 0 12387
+key 38 1 12387
+key 38 0 12387
 tick 20
-key 31 1 12407
-key 31 0 12407
+key 38 1 12407
+key 38 0 12407
 tick 20
-key 31 1 12427
-key 31 0 12427
+key 38 1 12427
+key 38 0 12427
 tick 20
-key 31 1 12447
-key 31 0 12447
+key 38 1 12447
+key 38 0 12447
 tick 20
-key 31 1 12467
-key 31 0 12467
+key 38 1 12467
+key 38 0 12467
 tick 20
-key 38 1 12487
-key 38 0 12487
+key 43 1 12487
+key 43 0 12487
 tick 20
-key 32 1 12507
-key 32 0 12507
+key 38 1 12507
+key 38 0 12507
 tick 20
-key 33 1 12527
-key 33 0 12527
+key 38 1 12527
+key 38 0 12527
 tick 20
-key 32 1 12547
-key 32 0 12547
+key 38 1 12547
+key 38 0 12547
 tick 20
-key 38 1 12567
-key 38 0 12567
+key 43 1 12567
+key 43 0 12567
 tick 20
-key 32 1 12587
-key 32 0 12587
+key 31 1 12587
+key 31 0 12587
 tick 20
-key 33 1 12607
-key 33 0 12607
+key 26 1 12607
+key 26 0 12607
 tick 20
-key 33 1 12627
-key 33 0 12627
+key 26 1 12627
+key 26 0 12627
 tick 20
-key 33 1 12647
-key 33 0 12647
+key 26 1 12647
+key 26 0 12647
 tick 20
-key 33 1 12667
-key 33 0 12667
+key 26 1 12667
+key 26 0 12667
 tick 20
-key 33 1 12687
-key 33 0 12687
+key 26 1 12687
+key 26 0 12687
 tick 20
-key 33 1 12707
-key 33 0 12707
+key 26 1 12707
+key 26 0 12707
 tick 20
-key 33 1 12727
-key 33 0 12727
+key 26 1 12727
+key 26 0 12727
 tick 20
-key 33 1 12747
-key 33 0 12747
+key 26 1 12747
+key 26 0 12747
 tick 20
-key 33 1 12767
-key 33 0 12767
+key 26 1 12767
+key 26 0 12767
 tick 20
-key 33 1 12787
-key 33 0 12787
+key 26 1 12787
+key 26 0 12787
 tick 20
-key 33 1 12807
-key 33 0 12807
+key 26 1 12807
+key 26 0 12807
 tick 20
-key 33 1 12827
-key 33 0 12827
+key 26 1 12827
+key 26 0 12827
 tick 20
-key 33 1 12847
-key 33 0 12847
+key 26 1 12847
+key 26 0 12847
 tick 20
-key 33 1 12867
-key 33 0 12867
+key 26 1 12867
+key 26 0 12867
 tick 20
-key 33 1 12887
-key 33 0 12887
+key 32 1 12887
+key 32 0 12887
 tick 20
-key 33 1 12907
-key 33 0 12907
+key 38 1 12907
+key 38 0 12907
 tick 20
-key 38 1 12927
-key 38 0 12927
+key 32 1 12927
+key 32 0 12927
 tick 20
-key 32 1 12947
-key 32 0 12947
+key 38 1 12947
+key 38 0 12947
 tick 20
 key 38 1 12967
 key 38 0 12967
@@ -1867,74 +1867,74 @@ tick 20
 key 38 1 13007
 key 38 0 13007
 tick 20
-key 32 1 13027
-key 32 0 13027
+key 38 1 13027
+key 38 0 13027
 tick 20
-key 31 1 13047
-key 31 0 13047
+key 38 1 13047
+key 38 0 13047
 tick 20
-key 31 1 13067
-key 31 0 13067
+key 32 1 13067
+key 32 0 13067
 tick 20
-key 31 1 13087
-key 31 0 13087
+key 38 1 13087
+key 38 0 13087
 tick 20
-key 31 1 13107
-key 31 0 13107
+key 32 1 13107
+key 32 0 13107
 tick 20
-key 31 1 13127
-key 31 0 13127
+key 33 1 13127
+key 33 0 13127
 tick 20
-key 31 1 13147
-key 31 0 13147
+key 38 1 13147
+key 38 0 13147
 tick 20
-key 31 1 13167
-key 31 0 13167
+key 38 1 13167
+key 38 0 13167
 tick 20
-key 31 1 13187
-key 31 0 13187
+key 32 1 13187
+key 32 0 13187
 tick 20
-key 31 1 13207
-key 31 0 13207
+key 38 1 13207
+key 38 0 13207
 tick 20
-key 31 1 13227
-key 31 0 13227
+key 38 1 13227
+key 38 0 13227
 tick 20
-key 31 1 13247
-key 31 0 13247
+key 38 1 13247
+key 38 0 13247
 tick 20
-key 31 1 13267
-key 31 0 13267
+key 32 1 13267
+key 32 0 13267
 tick 20
-key 31 1 13287
-key 31 0 13287
+key 33 1 13287
+key 33 0 13287
 tick 20
-key 31 1 13307
-key 31 0 13307
+key 32 1 13307
+key 32 0 13307
 tick 20
-key 31 1 13327
-key 31 0 13327
+key 38 1 13327
+key 38 0 13327
 tick 20
-key 31 1 13347
-key 31 0 13347
+key 32 1 13347
+key 32 0 13347
 tick 20
-key 31 1 13367
-key 31 0 13367
+key 38 1 13367
+key 38 0 13367
 tick 20
-key 31 1 13387
-key 31 0 13387
+key 32 1 13387
+key 32 0 13387
 tick 20
 key 31 1 13407
 key 31 0 13407
 tick 20
-key 31 1 13427
-key 31 0 13427
+key 38 1 13427
+key 38 0 13427
 tick 20
-key 31 1 13447
-key 31 0 13447
+key 32 1 13447
+key 32 0 13447
 tick 20
-key 31 1 13467
-key 31 0 13467
+key 33 1 13467
+key 33 0 13467
 tick 20
 key 26 1 13487
 key 26 0 13487
@@ -1957,101 +1957,101 @@ tick 20
 key 26 1 13607
 key 26 0 13607
 tick 20
-key 26 1 13627
-key 26 0 13627
+key 43 1 13627
+key 43 0 13627
 tick 20
-key 26 1 13647
-key 26 0 13647
+key 33 1 13647
+key 33 0 13647
 tick 20
-key 26 1 13667
-key 26 0 13667
+key 38 1 13667
+key 38 0 13667
 tick 20
-key 26 1 13687
-key 26 0 13687
+key 38 1 13687
+key 38 0 13687
 tick 20
-key 43 1 13707
-key 43 0 13707
+key 38 1 13707
+key 38 0 13707
 tick 20
-key 33 1 13727
-key 33 0 13727
+key 38 1 13727
+key 38 0 13727
 tick 20
-key 33 1 13747
-key 33 0 13747
+key 38 1 13747
+key 38 0 13747
 tick 20
-key 33 1 13767
-key 33 0 13767
+key 38 1 13767
+key 38 0 13767
 tick 20
-key 33 1 13787
-key 33 0 13787
+key 43 1 13787
+key 43 0 13787
 tick 20
-key 33 1 13807
-key 33 0 13807
+key 31 1 13807
+key 31 0 13807
 tick 20
-key 33 1 13827
-key 33 0 13827
+key 31 1 13827
+key 31 0 13827
 tick 20
-key 33 1 13847
-key 33 0 13847
+key 26 1 13847
+key 26 0 13847
 tick 20
-key 33 1 13867
-key 33 0 13867
+key 26 1 13867
+key 26 0 13867
 tick 20
-key 33 1 13887
-key 33 0 13887
+key 26 1 13887
+key 26 0 13887
 tick 20
-key 33 1 13907
-key 33 0 13907
+key 26 1 13907
+key 26 0 13907
 tick 20
-key 33 1 13927
-key 33 0 13927
+key 26 1 13927
+key 26 0 13927
 tick 20
-key 33 1 13947
-key 33 0 13947
+key 26 1 13947
+key 26 0 13947
 tick 20
-key 33 1 13967
-key 33 0 13967
+key 26 1 13967
+key 26 0 13967
 tick 20
-key 33 1 13987
-key 33 0 13987
+key 26 1 13987
+key 26 0 13987
 tick 20
-key 33 1 14007
-key 33 0 14007
+key 26 1 14007
+key 26 0 14007
 tick 20
-key 33 1 14027
-key 33 0 14027
+key 26 1 14027
+key 26 0 14027
 tick 20
-key 33 1 14047
-key 33 0 14047
+key 26 1 14047
+key 26 0 14047
 tick 20
-key 33 1 14067
-key 33 0 14067
+key 26 1 14067
+key 26 0 14067
 tick 20
-key 33 1 14087
-key 33 0 14087
+key 32 1 14087
+key 32 0 14087
 tick 20
-key 33 1 14107
-key 33 0 14107
+key 38 1 14107
+key 38 0 14107
 tick 20
-key 33 1 14127
-key 33 0 14127
+key 38 1 14127
+key 38 0 14127
 tick 20
 key 38 1 14147
 key 38 0 14147
 tick 20
-key 43 1 14167
-key 43 0 14167
+key 32 1 14167
+key 32 0 14167
 tick 20
 key 33 1 14187
 key 33 0 14187
 tick 20
-key 43 1 14207
-key 43 0 14207
+key 32 1 14207
+key 32 0 14207
 tick 20
-key 31 1 14227
-key 31 0 14227
+key 38 1 14227
+key 38 0 14227
 tick 20
-key 31 1 14247
-key 31 0 14247
+key 38 1 14247
+key 38 0 14247
 tick 20
 key 38 1 14267
 key 38 0 14267
@@ -2059,50 +2059,50 @@ tick 20
 key 38 1 14287
 key 38 0 14287
 tick 20
-key 38 1 14307
-key 38 0 14307
+key 32 1 14307
+key 32 0 14307
 tick 20
-key 43 1 14327
-key 43 0 14327
+key 38 1 14327
+key 38 0 14327
 tick 20
-key 31 1 14347
-key 31 0 14347
+key 32 1 14347
+key 32 0 14347
 tick 20
-key 31 1 14367
-key 31 0 14367
+key 38 1 14367
+key 38 0 14367
 tick 20
-key 31 1 14387
-key 31 0 14387
+key 32 1 14387
+key 32 0 14387
 tick 20
-key 31 1 14407
-key 31 0 14407
+key 33 1 14407
+key 33 0 14407
 tick 20
-key 31 1 14427
-key 31 0 14427
+key 32 1 14427
+key 32 0 14427
 tick 20
 key 31 1 14447
 key 31 0 14447
 tick 20
-key 31 1 14467
-key 31 0 14467
+key 38 1 14467
+key 38 0 14467
 tick 20
-key 31 1 14487
-key 31 0 14487
+key 38 1 14487
+key 38 0 14487
 tick 20
-key 31 1 14507
-key 31 0 14507
+key 38 1 14507
+key 38 0 14507
 tick 20
-key 31 1 14527
-key 31 0 14527
+key 38 1 14527
+key 38 0 14527
 tick 20
-key 31 1 14547
-key 31 0 14547
+key 32 1 14547
+key 32 0 14547
 tick 20
-key 31 1 14567
-key 31 0 14567
+key 33 1 14567
+key 33 0 14567
 tick 20
-key 31 1 14587
-key 31 0 14587
+key 32 1 14587
+key 32 0 14587
 tick 20
 key 31 1 14607
 key 31 0 14607
@@ -2110,275 +2110,230 @@ tick 20
 key 31 1 14627
 key 31 0 14627
 tick 20
-key 31 1 14647
-key 31 0 14647
+key 26 1 14647
+key 26 0 14647
 tick 20
-key 31 1 14667
-key 31 0 14667
+key 26 1 14667
+key 26 0 14667
 tick 20
-key 31 1 14687
-key 31 0 14687
+key 26 1 14687
+key 26 0 14687
 tick 20
-key 31 1 14707
-key 31 0 14707
+key 26 1 14707
+key 26 0 14707
 tick 20
-key 38 1 14727
-key 38 0 14727
+key 26 1 14727
+key 26 0 14727
 tick 20
-key 43 1 14747
-key 43 0 14747
+key 26 1 14747
+key 26 0 14747
 tick 20
-key 33 1 14767
-key 33 0 14767
+key 26 1 14767
+key 26 0 14767
 tick 20
-key 33 1 14787
-key 33 0 14787
+key 26 1 14787
+key 26 0 14787
 tick 20
-key 38 1 14807
-key 38 0 14807
+key 26 1 14807
+key 26 0 14807
 tick 20
-key 38 1 14827
-key 38 0 14827
+key 26 1 14827
+key 26 0 14827
 tick 20
-key 43 1 14847
-key 43 0 14847
+key 26 1 14847
+key 26 0 14847
 tick 20
-key 31 1 14867
-key 31 0 14867
+key 26 1 14867
+key 26 0 14867
 tick 20
-key 31 1 14887
-key 31 0 14887
+key 26 1 14887
+key 26 0 14887
 tick 20
-key 31 1 14907
-key 31 0 14907
+key 26 1 14907
+key 26 0 14907
 tick 20
 key 26 1 14927
 key 26 0 14927
 tick 20
-key 26 1 14947
-key 26 0 14947
+key 43 1 14947
+key 43 0 14947
 tick 20
-key 26 1 14967
-key 26 0 14967
+key 38 1 14967
+key 38 0 14967
 tick 20
-key 26 1 14987
-key 26 0 14987
+key 38 1 14987
+key 38 0 14987
 tick 20
-key 26 1 15007
-key 26 0 15007
+key 38 1 15007
+key 38 0 15007
 tick 20
-key 26 1 15027
-key 26 0 15027
+key 43 1 15027
+key 43 0 15027
 tick 20
-key 26 1 15047
-key 26 0 15047
+key 33 1 15047
+key 33 0 15047
 tick 20
-key 26 1 15067
-key 26 0 15067
+key 33 1 15067
+key 33 0 15067
 tick 20
-key 32 1 15087
-key 32 0 15087
+key 38 1 15087
+key 38 0 15087
 tick 20
-key 33 1 15107
-key 33 0 15107
+key 38 1 15107
+key 38 0 15107
 tick 20
-key 33 1 15127
-key 33 0 15127
+key 38 1 15127
+key 38 0 15127
 tick 20
-key 33 1 15147
-key 33 0 15147
+key 38 1 15147
+key 38 0 15147
 tick 20
-key 33 1 15167
-key 33 0 15167
+key 38 1 15167
+key 38 0 15167
 tick 20
-key 33 1 15187
-key 33 0 15187
+key 38 1 15187
+key 38 0 15187
 tick 20
-key 33 1 15207
-key 33 0 15207
+key 43 1 15207
+key 43 0 15207
 tick 20
-key 33 1 15227
-key 33 0 15227
+key 31 1 15227
+key 31 0 15227
 tick 20
-key 33 1 15247
-key 33 0 15247
+key 31 1 15247
+key 31 0 15247
 tick 20
-key 33 1 15267
-key 33 0 15267
+key 26 1 15267
+key 26 0 15267
 tick 20
-key 33 1 15287
-key 33 0 15287
+key 26 1 15287
+key 26 0 15287
 tick 20
-key 33 1 15307
-key 33 0 15307
+key 26 1 15307
+key 26 0 15307
 tick 20
-key 33 1 15327
-key 33 0 15327
+key 26 1 15327
+key 26 0 15327
 tick 20
-key 33 1 15347
-key 33 0 15347
+key 26 1 15347
+key 26 0 15347
 tick 20
-key 33 1 15367
-key 33 0 15367
+key 26 1 15367
+key 26 0 15367
 tick 20
-key 33 1 15387
-key 33 0 15387
+key 26 1 15387
+key 26 0 15387
 tick 20
-key 33 1 15407
-key 33 0 15407
+key 26 1 15407
+key 26 0 15407
 tick 20
-key 33 1 15427
-key 33 0 15427
+key 32 1 15427
+key 32 0 15427
 tick 20
-key 38 1 15447
-key 38 0 15447
+key 33 1 15447
+key 33 0 15447
 tick 20
-key 38 1 15467
-key 38 0 15467
+key 33 1 15467
+key 33 0 15467
 tick 20
-key 32 1 15487
-key 32 0 15487
+key 38 1 15487
+key 38 0 15487
 tick 20
-key 33 1 15507
-key 33 0 15507
+key 38 1 15507
+key 38 0 15507
 tick 20
-key 33 1 15527
-key 33 0 15527
+key 38 1 15527
+key 38 0 15527
 tick 20
-key 33 1 15547
-key 33 0 15547
+key 38 1 15547
+key 38 0 15547
 tick 20
-key 32 1 15567
-key 32 0 15567
+key 38 1 15567
+key 38 0 15567
 tick 20
-key 31 1 15587
-key 31 0 15587
+key 38 1 15587
+key 38 0 15587
 tick 20
-key 31 1 15607
-key 31 0 15607
+key 38 1 15607
+key 38 0 15607
 tick 20
-key 31 1 15627
-key 31 0 15627
+key 32 1 15627
+key 32 0 15627
 tick 20
 key 31 1 15647
 key 31 0 15647
 tick 20
-key 31 1 15667
-key 31 0 15667
+key 26 1 15667
+key 26 0 15667
 tick 20
-key 31 1 15687
-key 31 0 15687
+key 26 1 15687
+key 26 0 15687
 tick 20
-key 31 1 15707
-key 31 0 15707
+key 26 1 15707
+key 26 0 15707
 tick 20
-key 31 1 15727
-key 31 0 15727
+key 26 1 15727
+key 26 0 15727
 tick 20
-key 31 1 15747
-key 31 0 15747
+key 26 1 15747
+key 26 0 15747
 tick 20
-key 31 1 15767
-key 31 0 15767
+key 26 1 15767
+key 26 0 15767
 tick 20
-key 31 1 15787
-key 31 0 15787
+key 26 1 15787
+key 26 0 15787
 tick 20
-key 31 1 15807
-key 31 0 15807
+key 26 1 15807
+key 26 0 15807
 tick 20
-key 31 1 15827
-key 31 0 15827
+key 43 1 15827
+key 43 0 15827
 tick 20
-key 31 1 15847
-key 31 0 15847
+key 33 1 15847
+key 33 0 15847
 tick 20
-key 31 1 15867
-key 31 0 15867
+key 32 1 15867
+key 32 0 15867
 tick 20
-key 31 1 15887
-key 31 0 15887
+# game 1: won, 14807 ms
 tick 20
-key 31 1 15907
-key 31 0 15907
 tick 20
-key 31 1 15927
-key 31 0 15927
 tick 20
-key 31 1 15947
-key 31 0 15947
 tick 20
-key 31 1 15967
-key 31 0 15967
 tick 20
-key 38 1 15987
-key 38 0 15987
 tick 20
-key 32 1 16007
-key 32 0 16007
 tick 20
-key 33 1 16027
-key 33 0 16027
 tick 20
-key 33 1 16047
-key 33 0 16047
 tick 20
-key 33 1 16067
-key 33 0 16067
 tick 20
-key 33 1 16087
-key 33 0 16087
+key 18 1 16087
+key 18 0 16087
 tick 20
-key 33 1 16107
-key 33 0 16107
 tick 20
-key 33 1 16127
-key 33 0 16127
 tick 20
-key 33 1 16147
-key 33 0 16147
 tick 20
-key 33 1 16167
-key 33 0 16167
 tick 20
-key 33 1 16187
-key 33 0 16187
 tick 20
-key 33 1 16207
-key 33 0 16207
 tick 20
-key 33 1 16227
-key 33 0 16227
 tick 20
-key 33 1 16247
-key 33 0 16247
 tick 20
-key 33 1 16267
-key 33 0 16267
 tick 20
-key 33 1 16287
-key 33 0 16287
 tick 20
-key 33 1 16307
-key 33 0 16307
 tick 20
-key 33 1 16327
-key 33 0 16327
 tick 20
-key 33 1 16347
-key 33 0 16347
 tick 20
-key 33 1 16367
-key 33 0 16367
+key 18 1 16367
+key 18 0 16367
 tick 20
-key 33 1 16387
-key 33 0 16387
+key 31 1 16387
+key 31 0 16387
 tick 20
-key 33 1 16407
-key 33 0 16407
+key 31 1 16407
+key 31 0 16407
 tick 20
-key 32 1 16427
-key 32 0 16427
+key 31 1 16427
+key 31 0 16427
 tick 20
 key 31 1 16447
 key 31 0 16447
@@ -2395,1795 +2350,52 @@ tick 20
 key 31 1 16527
 key 31 0 16527
 tick 20
-key 31 1 16547
-key 31 0 16547
+key 26 1 16547
+key 26 0 16547
 tick 20
-key 31 1 16567
-key 31 0 16567
+key 26 1 16567
+key 26 0 16567
 tick 20
-key 31 1 16587
-key 31 0 16587
+key 26 1 16587
+key 26 0 16587
 tick 20
-key 31 1 16607
-key 31 0 16607
+key 26 1 16607
+key 26 0 16607
 tick 20
-key 31 1 16627
-key 31 0 16627
+key 26 1 16627
+key 26 0 16627
 tick 20
-key 31 1 16647
-key 31 0 16647
+key 26 1 16647
+key 26 0 16647
 tick 20
-key 31 1 16667
-key 31 0 16667
+key 26 1 16667
+key 26 0 16667
 tick 20
-key 31 1 16687
-key 31 0 16687
+key 26 1 16687
+key 26 0 16687
 tick 20
-key 31 1 16707
-key 31 0 16707
+key 32 1 16707
+key 32 0 16707
 tick 20
-key 31 1 16727
-key 31 0 16727
+# a wrong flag: 3
+key 33 1 16727
+key 33 0 16727
 tick 20
-key 31 1 16747
-key 31 0 16747
+key 33 1 16747
+key 33 0 16747
 tick 20
-key 31 1 16767
-key 31 0 16767
+key 33 1 16767
+key 33 0 16767
 tick 20
-key 31 1 16787
-key 31 0 16787
+key 43 1 16787
+key 43 0 16787
 tick 20
-key 31 1 16807
-key 31 0 16807
+# a mine opened: 19
+key 38 1 16807
+key 38 0 16807
 tick 20
-key 31 1 16827
-key 31 0 16827
-tick 20
-key 38 1 16847
-key 38 0 16847
-tick 20
-key 32 1 16867
-key 32 0 16867
-tick 20
-key 33 1 16887
-key 33 0 16887
-tick 20
-key 33 1 16907
-key 33 0 16907
-tick 20
-key 33 1 16927
-key 33 0 16927
-tick 20
-key 33 1 16947
-key 33 0 16947
-tick 20
-key 33 1 16967
-key 33 0 16967
-tick 20
-key 33 1 16987
-key 33 0 16987
-tick 20
-key 33 1 17007
-key 33 0 17007
-tick 20
-key 33 1 17027
-key 33 0 17027
-tick 20
-key 33 1 17047
-key 33 0 17047
-tick 20
-key 33 1 17067
-key 33 0 17067
-tick 20
-key 33 1 17087
-key 33 0 17087
-tick 20
-key 33 1 17107
-key 33 0 17107
-tick 20
-key 33 1 17127
-key 33 0 17127
-tick 20
-key 33 1 17147
-key 33 0 17147
-tick 20
-key 33 1 17167
-key 33 0 17167
-tick 20
-key 33 1 17187
-key 33 0 17187
-tick 20
-key 33 1 17207
-key 33 0 17207
-tick 20
-key 33 1 17227
-key 33 0 17227
-tick 20
-key 33 1 17247
-key 33 0 17247
-tick 20
-key 33 1 17267
-key 33 0 17267
-tick 20
-key 32 1 17287
-key 32 0 17287
-tick 20
-key 31 1 17307
-key 31 0 17307
-tick 20
-key 31 1 17327
-key 31 0 17327
-tick 20
-key 31 1 17347
-key 31 0 17347
-tick 20
-key 31 1 17367
-key 31 0 17367
-tick 20
-key 31 1 17387
-key 31 0 17387
-tick 20
-key 31 1 17407
-key 31 0 17407
-tick 20
-key 31 1 17427
-key 31 0 17427
-tick 20
-key 31 1 17447
-key 31 0 17447
-tick 20
-key 31 1 17467
-key 31 0 17467
-tick 20
-key 31 1 17487
-key 31 0 17487
-tick 20
-key 31 1 17507
-key 31 0 17507
-tick 20
-key 31 1 17527
-key 31 0 17527
-tick 20
-key 31 1 17547
-key 31 0 17547
-tick 20
-key 31 1 17567
-key 31 0 17567
-tick 20
-key 31 1 17587
-key 31 0 17587
-tick 20
-key 31 1 17607
-key 31 0 17607
-tick 20
-key 31 1 17627
-key 31 0 17627
-tick 20
-key 31 1 17647
-key 31 0 17647
-tick 20
-key 31 1 17667
-key 31 0 17667
-tick 20
-key 31 1 17687
-key 31 0 17687
-tick 20
-key 38 1 17707
-key 38 0 17707
-tick 20
-key 32 1 17727
-key 32 0 17727
-tick 20
-key 33 1 17747
-key 33 0 17747
-tick 20
-key 32 1 17767
-key 32 0 17767
-tick 20
-key 33 1 17787
-key 33 0 17787
-tick 20
-key 33 1 17807
-key 33 0 17807
-tick 20
-key 33 1 17827
-key 33 0 17827
-tick 20
-key 33 1 17847
-key 33 0 17847
-tick 20
-key 33 1 17867
-key 33 0 17867
-tick 20
-key 33 1 17887
-key 33 0 17887
-tick 20
-key 33 1 17907
-key 33 0 17907
-tick 20
-key 33 1 17927
-key 33 0 17927
-tick 20
-key 33 1 17947
-key 33 0 17947
-tick 20
-key 33 1 17967
-key 33 0 17967
-tick 20
-key 33 1 17987
-key 33 0 17987
-tick 20
-key 33 1 18007
-key 33 0 18007
-tick 20
-key 33 1 18027
-key 33 0 18027
-tick 20
-key 33 1 18047
-key 33 0 18047
-tick 20
-key 33 1 18067
-key 33 0 18067
-tick 20
-key 33 1 18087
-key 33 0 18087
-tick 20
-key 33 1 18107
-key 33 0 18107
-tick 20
-key 33 1 18127
-key 33 0 18127
-tick 20
-key 32 1 18147
-key 32 0 18147
-tick 20
-key 31 1 18167
-key 31 0 18167
-tick 20
-key 31 1 18187
-key 31 0 18187
-tick 20
-key 31 1 18207
-key 31 0 18207
-tick 20
-key 31 1 18227
-key 31 0 18227
-tick 20
-key 31 1 18247
-key 31 0 18247
-tick 20
-key 31 1 18267
-key 31 0 18267
-tick 20
-key 31 1 18287
-key 31 0 18287
-tick 20
-key 31 1 18307
-key 31 0 18307
-tick 20
-key 31 1 18327
-key 31 0 18327
-tick 20
-key 31 1 18347
-key 31 0 18347
-tick 20
-key 31 1 18367
-key 31 0 18367
-tick 20
-key 31 1 18387
-key 31 0 18387
-tick 20
-key 31 1 18407
-key 31 0 18407
-tick 20
-key 31 1 18427
-key 31 0 18427
-tick 20
-key 31 1 18447
-key 31 0 18447
-tick 20
-key 31 1 18467
-key 31 0 18467
-tick 20
-key 31 1 18487
-key 31 0 18487
-tick 20
-key 38 1 18507
-key 38 0 18507
-tick 20
-key 32 1 18527
-key 32 0 18527
-tick 20
-key 38 1 18547
-key 38 0 18547
-tick 20
-key 32 1 18567
-key 32 0 18567
-tick 20
-key 33 1 18587
-key 33 0 18587
-tick 20
-key 32 1 18607
-key 32 0 18607
-tick 20
-key 33 1 18627
-key 33 0 18627
-tick 20
-key 38 1 18647
-key 38 0 18647
-tick 20
-key 38 1 18667
-key 38 0 18667
-tick 20
-key 32 1 18687
-key 32 0 18687
-tick 20
-key 33 1 18707
-key 33 0 18707
-tick 20
-key 32 1 18727
-key 32 0 18727
-tick 20
-key 38 1 18747
-key 38 0 18747
-tick 20
-key 32 1 18767
-key 32 0 18767
-tick 20
-key 31 1 18787
-key 31 0 18787
-tick 20
-key 31 1 18807
-key 31 0 18807
-tick 20
-key 31 1 18827
-key 31 0 18827
-tick 20
-key 31 1 18847
-key 31 0 18847
-tick 20
-key 31 1 18867
-key 31 0 18867
-tick 20
-key 31 1 18887
-key 31 0 18887
-tick 20
-key 26 1 18907
-key 26 0 18907
-tick 20
-key 26 1 18927
-key 26 0 18927
-tick 20
-key 26 1 18947
-key 26 0 18947
-tick 20
-key 26 1 18967
-key 26 0 18967
-tick 20
-key 26 1 18987
-key 26 0 18987
-tick 20
-key 26 1 19007
-key 26 0 19007
-tick 20
-key 26 1 19027
-key 26 0 19027
-tick 20
-key 26 1 19047
-key 26 0 19047
-tick 20
-key 43 1 19067
-key 43 0 19067
-tick 20
-key 33 1 19087
-key 33 0 19087
-tick 20
-key 33 1 19107
-key 33 0 19107
-tick 20
-key 33 1 19127
-key 33 0 19127
-tick 20
-key 33 1 19147
-key 33 0 19147
-tick 20
-key 33 1 19167
-key 33 0 19167
-tick 20
-key 33 1 19187
-key 33 0 19187
-tick 20
-key 33 1 19207
-key 33 0 19207
-tick 20
-key 33 1 19227
-key 33 0 19227
-tick 20
-key 33 1 19247
-key 33 0 19247
-tick 20
-key 33 1 19267
-key 33 0 19267
-tick 20
-key 33 1 19287
-key 33 0 19287
-tick 20
-key 33 1 19307
-key 33 0 19307
-tick 20
-key 33 1 19327
-key 33 0 19327
-tick 20
-key 33 1 19347
-key 33 0 19347
-tick 20
-key 33 1 19367
-key 33 0 19367
-tick 20
-key 33 1 19387
-key 33 0 19387
-tick 20
-key 33 1 19407
-key 33 0 19407
-tick 20
-key 33 1 19427
-key 33 0 19427
-tick 20
-key 33 1 19447
-key 33 0 19447
-tick 20
-key 33 1 19467
-key 33 0 19467
-tick 20
-key 43 1 19487
-key 43 0 19487
-tick 20
-key 31 1 19507
-key 31 0 19507
-tick 20
-key 31 1 19527
-key 31 0 19527
-tick 20
-key 31 1 19547
-key 31 0 19547
-tick 20
-key 31 1 19567
-key 31 0 19567
-tick 20
-key 31 1 19587
-key 31 0 19587
-tick 20
-key 31 1 19607
-key 31 0 19607
-tick 20
-key 31 1 19627
-key 31 0 19627
-tick 20
-key 31 1 19647
-key 31 0 19647
-tick 20
-key 31 1 19667
-key 31 0 19667
-tick 20
-key 31 1 19687
-key 31 0 19687
-tick 20
-key 31 1 19707
-key 31 0 19707
-tick 20
-key 31 1 19727
-key 31 0 19727
-tick 20
-key 31 1 19747
-key 31 0 19747
-tick 20
-key 31 1 19767
-key 31 0 19767
-tick 20
-key 31 1 19787
-key 31 0 19787
-tick 20
-key 31 1 19807
-key 31 0 19807
-tick 20
-key 31 1 19827
-key 31 0 19827
-tick 20
-key 31 1 19847
-key 31 0 19847
-tick 20
-key 38 1 19867
-key 38 0 19867
-tick 20
-key 38 1 19887
-key 38 0 19887
-tick 20
-key 38 1 19907
-key 38 0 19907
-tick 20
-key 38 1 19927
-key 38 0 19927
-tick 20
-key 38 1 19947
-key 38 0 19947
-tick 20
-key 43 1 19967
-key 43 0 19967
-tick 20
-key 33 1 19987
-key 33 0 19987
-tick 20
-key 38 1 20007
-key 38 0 20007
-tick 20
-key 43 1 20027
-key 43 0 20027
-tick 20
-key 31 1 20047
-key 31 0 20047
-tick 20
-key 31 1 20067
-key 31 0 20067
-tick 20
-key 31 1 20087
-key 31 0 20087
-tick 20
-key 26 1 20107
-key 26 0 20107
-tick 20
-key 26 1 20127
-key 26 0 20127
-tick 20
-key 26 1 20147
-key 26 0 20147
-tick 20
-key 26 1 20167
-key 26 0 20167
-tick 20
-key 26 1 20187
-key 26 0 20187
-tick 20
-key 26 1 20207
-key 26 0 20207
-tick 20
-key 26 1 20227
-key 26 0 20227
-tick 20
-key 26 1 20247
-key 26 0 20247
-tick 20
-key 32 1 20267
-key 32 0 20267
-tick 20
-key 38 1 20287
-key 38 0 20287
-tick 20
-key 32 1 20307
-key 32 0 20307
-tick 20
-key 33 1 20327
-key 33 0 20327
-tick 20
-key 33 1 20347
-key 33 0 20347
-tick 20
-key 33 1 20367
-key 33 0 20367
-tick 20
-key 33 1 20387
-key 33 0 20387
-tick 20
-key 33 1 20407
-key 33 0 20407
-tick 20
-key 33 1 20427
-key 33 0 20427
-tick 20
-key 33 1 20447
-key 33 0 20447
-tick 20
-key 33 1 20467
-key 33 0 20467
-tick 20
-key 33 1 20487
-key 33 0 20487
-tick 20
-key 33 1 20507
-key 33 0 20507
-tick 20
-key 33 1 20527
-key 33 0 20527
-tick 20
-key 33 1 20547
-key 33 0 20547
-tick 20
-key 33 1 20567
-key 33 0 20567
-tick 20
-key 33 1 20587
-key 33 0 20587
-tick 20
-key 33 1 20607
-key 33 0 20607
-tick 20
-key 33 1 20627
-key 33 0 20627
-tick 20
-key 33 1 20647
-key 33 0 20647
-tick 20
-key 33 1 20667
-key 33 0 20667
-tick 20
-key 33 1 20687
-key 33 0 20687
-tick 20
-key 32 1 20707
-key 32 0 20707
-tick 20
-key 33 1 20727
-key 33 0 20727
-tick 20
-key 32 1 20747
-key 32 0 20747
-tick 20
-key 33 1 20767
-key 33 0 20767
-tick 20
-key 32 1 20787
-key 32 0 20787
-tick 20
-key 33 1 20807
-key 33 0 20807
-tick 20
-key 32 1 20827
-key 32 0 20827
-tick 20
-key 31 1 20847
-key 31 0 20847
-tick 20
-key 31 1 20867
-key 31 0 20867
-tick 20
-key 31 1 20887
-key 31 0 20887
-tick 20
-key 38 1 20907
-key 38 0 20907
-tick 20
-key 32 1 20927
-key 32 0 20927
-tick 20
-key 31 1 20947
-key 31 0 20947
-tick 20
-key 31 1 20967
-key 31 0 20967
-tick 20
-key 31 1 20987
-key 31 0 20987
-tick 20
-key 31 1 21007
-key 31 0 21007
-tick 20
-key 31 1 21027
-key 31 0 21027
-tick 20
-key 31 1 21047
-key 31 0 21047
-tick 20
-key 31 1 21067
-key 31 0 21067
-tick 20
-key 31 1 21087
-key 31 0 21087
-tick 20
-key 31 1 21107
-key 31 0 21107
-tick 20
-key 31 1 21127
-key 31 0 21127
-tick 20
-key 31 1 21147
-key 31 0 21147
-tick 20
-key 31 1 21167
-key 31 0 21167
-tick 20
-key 31 1 21187
-key 31 0 21187
-tick 20
-key 31 1 21207
-key 31 0 21207
-tick 20
-key 31 1 21227
-key 31 0 21227
-tick 20
-key 31 1 21247
-key 31 0 21247
-tick 20
-key 31 1 21267
-key 31 0 21267
-tick 20
-key 31 1 21287
-key 31 0 21287
-tick 20
-key 31 1 21307
-key 31 0 21307
-tick 20
-key 38 1 21327
-key 38 0 21327
-tick 20
-key 32 1 21347
-key 32 0 21347
-tick 20
-key 33 1 21367
-key 33 0 21367
-tick 20
-key 33 1 21387
-key 33 0 21387
-tick 20
-key 33 1 21407
-key 33 0 21407
-tick 20
-key 33 1 21427
-key 33 0 21427
-tick 20
-key 33 1 21447
-key 33 0 21447
-tick 20
-key 33 1 21467
-key 33 0 21467
-tick 20
-key 33 1 21487
-key 33 0 21487
-tick 20
-key 33 1 21507
-key 33 0 21507
-tick 20
-key 33 1 21527
-key 33 0 21527
-tick 20
-key 33 1 21547
-key 33 0 21547
-tick 20
-key 33 1 21567
-key 33 0 21567
-tick 20
-key 33 1 21587
-key 33 0 21587
-tick 20
-key 33 1 21607
-key 33 0 21607
-tick 20
-key 33 1 21627
-key 33 0 21627
-tick 20
-key 33 1 21647
-key 33 0 21647
-tick 20
-key 33 1 21667
-key 33 0 21667
-tick 20
-key 33 1 21687
-key 33 0 21687
-tick 20
-key 33 1 21707
-key 33 0 21707
-tick 20
-key 33 1 21727
-key 33 0 21727
-tick 20
-key 32 1 21747
-key 32 0 21747
-tick 20
-key 33 1 21767
-key 33 0 21767
-tick 20
-key 32 1 21787
-key 32 0 21787
-tick 20
-key 31 1 21807
-key 31 0 21807
-tick 20
-key 31 1 21827
-key 31 0 21827
-tick 20
-key 31 1 21847
-key 31 0 21847
-tick 20
-key 31 1 21867
-key 31 0 21867
-tick 20
-key 31 1 21887
-key 31 0 21887
-tick 20
-key 31 1 21907
-key 31 0 21907
-tick 20
-key 31 1 21927
-key 31 0 21927
-tick 20
-key 31 1 21947
-key 31 0 21947
-tick 20
-key 31 1 21967
-key 31 0 21967
-tick 20
-key 31 1 21987
-key 31 0 21987
-tick 20
-key 31 1 22007
-key 31 0 22007
-tick 20
-key 31 1 22027
-key 31 0 22027
-tick 20
-key 31 1 22047
-key 31 0 22047
-tick 20
-key 31 1 22067
-key 31 0 22067
-tick 20
-key 31 1 22087
-key 31 0 22087
-tick 20
-key 31 1 22107
-key 31 0 22107
-tick 20
-key 31 1 22127
-key 31 0 22127
-tick 20
-key 31 1 22147
-key 31 0 22147
-tick 20
-key 31 1 22167
-key 31 0 22167
-tick 20
-key 31 1 22187
-key 31 0 22187
-tick 20
-key 38 1 22207
-key 38 0 22207
-tick 20
-key 32 1 22227
-key 32 0 22227
-tick 20
-key 33 1 22247
-key 33 0 22247
-tick 20
-key 33 1 22267
-key 33 0 22267
-tick 20
-key 33 1 22287
-key 33 0 22287
-tick 20
-key 33 1 22307
-key 33 0 22307
-tick 20
-key 33 1 22327
-key 33 0 22327
-tick 20
-key 33 1 22347
-key 33 0 22347
-tick 20
-key 33 1 22367
-key 33 0 22367
-tick 20
-key 33 1 22387
-key 33 0 22387
-tick 20
-key 33 1 22407
-key 33 0 22407
-tick 20
-key 33 1 22427
-key 33 0 22427
-tick 20
-key 33 1 22447
-key 33 0 22447
-tick 20
-key 33 1 22467
-key 33 0 22467
-tick 20
-key 33 1 22487
-key 33 0 22487
-tick 20
-key 33 1 22507
-key 33 0 22507
-tick 20
-key 33 1 22527
-key 33 0 22527
-tick 20
-key 33 1 22547
-key 33 0 22547
-tick 20
-key 33 1 22567
-key 33 0 22567
-tick 20
-key 33 1 22587
-key 33 0 22587
-tick 20
-key 33 1 22607
-key 33 0 22607
-tick 20
-key 32 1 22627
-key 32 0 22627
-tick 20
-key 33 1 22647
-key 33 0 22647
-tick 20
-key 32 1 22667
-key 32 0 22667
-tick 20
-key 31 1 22687
-key 31 0 22687
-tick 20
-key 31 1 22707
-key 31 0 22707
-tick 20
-key 31 1 22727
-key 31 0 22727
-tick 20
-key 31 1 22747
-key 31 0 22747
-tick 20
-key 31 1 22767
-key 31 0 22767
-tick 20
-key 31 1 22787
-key 31 0 22787
-tick 20
-key 31 1 22807
-key 31 0 22807
-tick 20
-key 31 1 22827
-key 31 0 22827
-tick 20
-key 31 1 22847
-key 31 0 22847
-tick 20
-key 31 1 22867
-key 31 0 22867
-tick 20
-key 31 1 22887
-key 31 0 22887
-tick 20
-key 31 1 22907
-key 31 0 22907
-tick 20
-key 31 1 22927
-key 31 0 22927
-tick 20
-key 31 1 22947
-key 31 0 22947
-tick 20
-key 31 1 22967
-key 31 0 22967
-tick 20
-key 31 1 22987
-key 31 0 22987
-tick 20
-key 31 1 23007
-key 31 0 23007
-tick 20
-key 31 1 23027
-key 31 0 23027
-tick 20
-key 38 1 23047
-key 38 0 23047
-tick 20
-key 38 1 23067
-key 38 0 23067
-tick 20
-key 38 1 23087
-key 38 0 23087
-tick 20
-key 38 1 23107
-key 38 0 23107
-tick 20
-key 32 1 23127
-key 32 0 23127
-tick 20
-key 33 1 23147
-key 33 0 23147
-tick 20
-key 33 1 23167
-key 33 0 23167
-tick 20
-key 38 1 23187
-key 38 0 23187
-tick 20
-key 32 1 23207
-key 32 0 23207
-tick 20
-key 38 1 23227
-key 38 0 23227
-tick 20
-key 32 1 23247
-key 32 0 23247
-tick 20
-key 33 1 23267
-key 33 0 23267
-tick 20
-key 32 1 23287
-key 32 0 23287
-tick 20
-key 33 1 23307
-key 33 0 23307
-tick 20
-key 33 1 23327
-key 33 0 23327
-tick 20
-key 38 1 23347
-key 38 0 23347
-tick 20
-key 32 1 23367
-key 32 0 23367
-tick 20
-key 33 1 23387
-key 33 0 23387
-tick 20
-key 33 1 23407
-key 33 0 23407
-tick 20
-key 33 1 23427
-key 33 0 23427
-tick 20
-key 33 1 23447
-key 33 0 23447
-tick 20
-key 33 1 23467
-key 33 0 23467
-tick 20
-key 33 1 23487
-key 33 0 23487
-tick 20
-key 33 1 23507
-key 33 0 23507
-tick 20
-key 33 1 23527
-key 33 0 23527
-tick 20
-key 33 1 23547
-key 33 0 23547
-tick 20
-key 33 1 23567
-key 33 0 23567
-tick 20
-key 33 1 23587
-key 33 0 23587
-tick 20
-key 33 1 23607
-key 33 0 23607
-tick 20
-key 33 1 23627
-key 33 0 23627
-tick 20
-key 26 1 23647
-key 26 0 23647
-tick 20
-key 26 1 23667
-key 26 0 23667
-tick 20
-key 26 1 23687
-key 26 0 23687
-tick 20
-key 26 1 23707
-key 26 0 23707
-tick 20
-key 26 1 23727
-key 26 0 23727
-tick 20
-key 26 1 23747
-key 26 0 23747
-tick 20
-key 26 1 23767
-key 26 0 23767
-tick 20
-key 26 1 23787
-key 26 0 23787
-tick 20
-key 26 1 23807
-key 26 0 23807
-tick 20
-key 26 1 23827
-key 26 0 23827
-tick 20
-key 26 1 23847
-key 26 0 23847
-tick 20
-key 43 1 23867
-key 43 0 23867
-tick 20
-key 31 1 23887
-key 31 0 23887
-tick 20
-key 31 1 23907
-key 31 0 23907
-tick 20
-key 38 1 23927
-key 38 0 23927
-tick 20
-key 43 1 23947
-key 43 0 23947
-tick 20
-key 31 1 23967
-key 31 0 23967
-tick 20
-key 38 1 23987
-key 38 0 23987
-tick 20
-key 38 1 24007
-key 38 0 24007
-tick 20
-key 38 1 24027
-key 38 0 24027
-tick 20
-key 43 1 24047
-key 43 0 24047
-tick 20
-key 38 1 24067
-key 38 0 24067
-tick 20
-key 43 1 24087
-key 43 0 24087
-tick 20
-key 31 1 24107
-key 31 0 24107
-tick 20
-key 31 1 24127
-key 31 0 24127
-tick 20
-key 31 1 24147
-key 31 0 24147
-tick 20
-key 31 1 24167
-key 31 0 24167
-tick 20
-key 31 1 24187
-key 31 0 24187
-tick 20
-key 31 1 24207
-key 31 0 24207
-tick 20
-key 31 1 24227
-key 31 0 24227
-tick 20
-key 31 1 24247
-key 31 0 24247
-tick 20
-key 31 1 24267
-key 31 0 24267
-tick 20
-key 31 1 24287
-key 31 0 24287
-tick 20
-key 31 1 24307
-key 31 0 24307
-tick 20
-key 31 1 24327
-key 31 0 24327
-tick 20
-key 31 1 24347
-key 31 0 24347
-tick 20
-key 31 1 24367
-key 31 0 24367
-tick 20
-key 38 1 24387
-key 38 0 24387
-tick 20
-key 38 1 24407
-key 38 0 24407
-tick 20
-key 38 1 24427
-key 38 0 24427
-tick 20
-key 38 1 24447
-key 38 0 24447
-tick 20
-key 38 1 24467
-key 38 0 24467
-tick 20
-key 43 1 24487
-key 43 0 24487
-tick 20
-key 38 1 24507
-key 38 0 24507
-tick 20
-key 38 1 24527
-key 38 0 24527
-tick 20
-key 43 1 24547
-key 43 0 24547
-tick 20
-key 33 1 24567
-key 33 0 24567
-tick 20
-key 33 1 24587
-key 33 0 24587
-tick 20
-key 33 1 24607
-key 33 0 24607
-tick 20
-key 33 1 24627
-key 33 0 24627
-tick 20
-key 33 1 24647
-key 33 0 24647
-tick 20
-key 33 1 24667
-key 33 0 24667
-tick 20
-key 33 1 24687
-key 33 0 24687
-tick 20
-key 33 1 24707
-key 33 0 24707
-tick 20
-key 33 1 24727
-key 33 0 24727
-tick 20
-key 33 1 24747
-key 33 0 24747
-tick 20
-key 33 1 24767
-key 33 0 24767
-tick 20
-key 33 1 24787
-key 33 0 24787
-tick 20
-key 33 1 24807
-key 33 0 24807
-tick 20
-key 33 1 24827
-key 33 0 24827
-tick 20
-key 33 1 24847
-key 33 0 24847
-tick 20
-key 26 1 24867
-key 26 0 24867
-tick 20
-key 26 1 24887
-key 26 0 24887
-tick 20
-key 26 1 24907
-key 26 0 24907
-tick 20
-key 26 1 24927
-key 26 0 24927
-tick 20
-key 26 1 24947
-key 26 0 24947
-tick 20
-key 26 1 24967
-key 26 0 24967
-tick 20
-key 26 1 24987
-key 26 0 24987
-tick 20
-key 26 1 25007
-key 26 0 25007
-tick 20
-key 26 1 25027
-key 26 0 25027
-tick 20
-key 26 1 25047
-key 26 0 25047
-tick 20
-key 26 1 25067
-key 26 0 25067
-tick 20
-key 26 1 25087
-key 26 0 25087
-tick 20
-key 32 1 25107
-key 32 0 25107
-tick 20
-key 33 1 25127
-key 33 0 25127
-tick 20
-key 32 1 25147
-key 32 0 25147
-tick 20
-key 33 1 25167
-key 33 0 25167
-tick 20
-key 33 1 25187
-key 33 0 25187
-tick 20
-key 32 1 25207
-key 32 0 25207
-tick 20
-key 33 1 25227
-key 33 0 25227
-tick 20
-key 32 1 25247
-key 32 0 25247
-tick 20
-key 31 1 25267
-key 31 0 25267
-tick 20
-key 31 1 25287
-key 31 0 25287
-tick 20
-key 31 1 25307
-key 31 0 25307
-tick 20
-key 31 1 25327
-key 31 0 25327
-tick 20
-key 38 1 25347
-key 38 0 25347
-tick 20
-key 38 1 25367
-key 38 0 25367
-tick 20
-key 38 1 25387
-key 38 0 25387
-tick 20
-key 32 1 25407
-key 32 0 25407
-tick 20
-key 38 1 25427
-key 38 0 25427
-tick 20
-key 32 1 25447
-key 32 0 25447
-tick 20
-key 38 1 25467
-key 38 0 25467
-tick 20
-key 32 1 25487
-key 32 0 25487
-tick 20
-key 31 1 25507
-key 31 0 25507
-tick 20
-key 31 1 25527
-key 31 0 25527
-tick 20
-key 31 1 25547
-key 31 0 25547
-tick 20
-key 31 1 25567
-key 31 0 25567
-tick 20
-key 31 1 25587
-key 31 0 25587
-tick 20
-key 31 1 25607
-key 31 0 25607
-tick 20
-key 31 1 25627
-key 31 0 25627
-tick 20
-key 31 1 25647
-key 31 0 25647
-tick 20
-key 31 1 25667
-key 31 0 25667
-tick 20
-key 31 1 25687
-key 31 0 25687
-tick 20
-key 31 1 25707
-key 31 0 25707
-tick 20
-key 31 1 25727
-key 31 0 25727
-tick 20
-key 31 1 25747
-key 31 0 25747
-tick 20
-key 31 1 25767
-key 31 0 25767
-tick 20
-key 31 1 25787
-key 31 0 25787
-tick 20
-key 31 1 25807
-key 31 0 25807
-tick 20
-key 38 1 25827
-key 38 0 25827
-tick 20
-key 38 1 25847
-key 38 0 25847
-tick 20
-key 38 1 25867
-key 38 0 25867
-tick 20
-key 38 1 25887
-key 38 0 25887
-tick 20
-key 32 1 25907
-key 32 0 25907
-tick 20
-key 33 1 25927
-key 33 0 25927
-tick 20
-key 32 1 25947
-key 32 0 25947
-tick 20
-key 31 1 25967
-key 31 0 25967
-tick 20
-key 38 1 25987
-key 38 0 25987
-tick 20
-key 32 1 26007
-key 32 0 26007
-tick 20
-key 31 1 26027
-key 31 0 26027
-tick 20
-key 31 1 26047
-key 31 0 26047
-tick 20
-key 38 1 26067
-key 38 0 26067
-tick 20
-key 32 1 26087
-key 32 0 26087
-tick 20
-key 33 1 26107
-key 33 0 26107
-tick 20
-key 32 1 26127
-key 32 0 26127
-tick 20
-key 33 1 26147
-key 33 0 26147
-tick 20
-key 32 1 26167
-key 32 0 26167
-tick 20
-key 33 1 26187
-key 33 0 26187
-tick 20
-key 32 1 26207
-key 32 0 26207
-tick 20
-key 31 1 26227
-key 31 0 26227
-tick 20
-key 31 1 26247
-key 31 0 26247
-tick 20
-key 31 1 26267
-key 31 0 26267
-tick 20
-key 38 1 26287
-key 38 0 26287
-tick 20
-key 32 1 26307
-key 32 0 26307
-tick 20
-key 33 1 26327
-key 33 0 26327
-tick 20
-key 33 1 26347
-key 33 0 26347
-tick 20
-key 33 1 26367
-key 33 0 26367
-tick 20
-key 33 1 26387
-key 33 0 26387
-tick 20
-key 33 1 26407
-key 33 0 26407
-tick 20
-key 33 1 26427
-key 33 0 26427
-tick 20
-key 32 1 26447
-key 32 0 26447
-tick 20
-key 31 1 26467
-key 31 0 26467
-tick 20
-key 31 1 26487
-key 31 0 26487
-tick 20
-key 31 1 26507
-key 31 0 26507
-tick 20
-key 31 1 26527
-key 31 0 26527
-tick 20
-key 31 1 26547
-key 31 0 26547
-tick 20
-key 26 1 26567
-key 26 0 26567
-tick 20
-key 26 1 26587
-key 26 0 26587
-tick 20
-key 43 1 26607
-key 43 0 26607
-tick 20
-key 33 1 26627
-key 33 0 26627
-tick 20
-key 33 1 26647
-key 33 0 26647
-tick 20
-key 33 1 26667
-key 33 0 26667
-tick 20
-key 33 1 26687
-key 33 0 26687
-tick 20
-key 33 1 26707
-key 33 0 26707
-tick 20
-key 33 1 26727
-key 33 0 26727
-tick 20
-key 33 1 26747
-key 33 0 26747
-tick 20
-key 33 1 26767
-key 33 0 26767
-tick 20
-key 38 1 26787
-key 38 0 26787
-tick 20
-key 43 1 26807
-key 43 0 26807
-tick 20
-key 31 1 26827
-key 31 0 26827
-tick 20
-key 31 1 26847
-key 31 0 26847
-tick 20
-key 31 1 26867
-key 31 0 26867
-tick 20
-key 31 1 26887
-key 31 0 26887
-tick 20
-key 31 1 26907
-key 31 0 26907
-tick 20
-key 38 1 26927
-key 38 0 26927
-tick 20
-key 43 1 26947
-key 43 0 26947
-tick 20
-key 33 1 26967
-key 33 0 26967
-tick 20
-key 33 1 26987
-key 33 0 26987
-tick 20
-key 33 1 27007
-key 33 0 27007
-tick 20
-key 43 1 27027
-key 43 0 27027
-tick 20
-key 31 1 27047
-key 31 0 27047
-tick 20
-key 31 1 27067
-key 31 0 27067
-tick 20
-key 31 1 27087
-key 31 0 27087
-tick 20
-key 31 1 27107
-key 31 0 27107
-tick 20
-key 31 1 27127
-key 31 0 27127
-tick 20
-key 31 1 27147
-key 31 0 27147
-tick 20
-key 31 1 27167
-key 31 0 27167
-tick 20
-key 26 1 27187
-key 26 0 27187
-tick 20
-key 26 1 27207
-key 26 0 27207
-tick 20
-key 32 1 27227
-key 32 0 27227
-tick 20
-key 33 1 27247
-key 33 0 27247
-tick 20
-key 33 1 27267
-key 33 0 27267
-tick 20
-key 33 1 27287
-key 33 0 27287
-tick 20
-key 33 1 27307
-key 33 0 27307
-tick 20
-key 33 1 27327
-key 33 0 27327
-tick 20
-key 33 1 27347
-key 33 0 27347
-tick 20
-key 33 1 27367
-key 33 0 27367
-tick 20
-key 33 1 27387
-key 33 0 27387
-tick 20
-key 38 1 27407
-key 38 0 27407
-tick 20
-key 32 1 27427
-key 32 0 27427
-tick 20
-key 31 1 27447
-key 31 0 27447
-tick 20
-key 31 1 27467
-key 31 0 27467
-tick 20
-key 31 1 27487
-key 31 0 27487
-tick 20
-key 38 1 27507
-key 38 0 27507
-tick 20
-key 32 1 27527
-key 32 0 27527
-tick 20
-key 33 1 27547
-key 33 0 27547
-tick 20
-key 33 1 27567
-key 33 0 27567
-tick 20
-key 33 1 27587
-key 33 0 27587
-tick 20
-key 32 1 27607
-key 32 0 27607
-tick 20
-key 33 1 27627
-key 33 0 27627
-tick 20
-key 32 1 27647
-key 32 0 27647
-tick 20
-# game 1: won, 26660 ms
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-key 18 1 27867
-key 18 0 27867
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-key 18 1 28147
-key 18 0 28147
-tick 20
-key 31 1 28167
-key 31 0 28167
-tick 20
-key 31 1 28187
-key 31 0 28187
-tick 20
-key 31 1 28207
-key 31 0 28207
-tick 20
-key 31 1 28227
-key 31 0 28227
-tick 20
-key 31 1 28247
-key 31 0 28247
-tick 20
-key 31 1 28267
-key 31 0 28267
-tick 20
-key 31 1 28287
-key 31 0 28287
-tick 20
-key 31 1 28307
-key 31 0 28307
-tick 20
-key 31 1 28327
-key 31 0 28327
-tick 20
-key 31 1 28347
-key 31 0 28347
-tick 20
-key 31 1 28367
-key 31 0 28367
-tick 20
-key 31 1 28387
-key 31 0 28387
-tick 20
-key 26 1 28407
-key 26 0 28407
-tick 20
-key 26 1 28427
-key 26 0 28427
-tick 20
-key 26 1 28447
-key 26 0 28447
-tick 20
-key 26 1 28467
-key 26 0 28467
-tick 20
-key 26 1 28487
-key 26 0 28487
-tick 20
-key 26 1 28507
-key 26 0 28507
-tick 20
-key 32 1 28527
-key 32 0 28527
-tick 20
-# a wrong flag: 6
-key 33 1 28547
-key 33 0 28547
-tick 20
-key 33 1 28567
-key 33 0 28567
-tick 20
-key 33 1 28587
-key 33 0 28587
-tick 20
-key 33 1 28607
-key 33 0 28607
-tick 20
-key 33 1 28627
-key 33 0 28627
-tick 20
-key 33 1 28647
-key 33 0 28647
-tick 20
-key 43 1 28667
-key 43 0 28667
-tick 20
-# a mine opened: 9
-key 33 1 28687
-key 33 0 28687
-tick 20
-key 33 1 28707
-key 33 0 28707
-tick 20
-key 33 1 28727
-key 33 0 28727
-tick 20
-key 32 1 28747
-key 32 0 28747
+key 32 1 16827
+key 32 0 16827
 tick 20
 # game 2: lost
 tick 20
@@ -4216,109 +2428,92 @@ tick 20
 tick 20
 tick 20
 tick 20
-# sound tone 440 Hz 10 ms at 980 ms
+# sound tone 440 Hz 10 ms at 1060 ms
+# sound tone 440 Hz 10 ms at 3420 ms
+# sound tone 440 Hz 10 ms at 3600 ms
+# sound tone 440 Hz 10 ms at 3740 ms
+# sound tone 440 Hz 10 ms at 3940 ms
+# sound tone 440 Hz 10 ms at 3980 ms
+# sound tone 440 Hz 10 ms at 4040 ms
+# sound tone 440 Hz 10 ms at 4140 ms
+# sound tone 440 Hz 10 ms at 4340 ms
+# sound tone 440 Hz 10 ms at 4380 ms
+# sound tone 440 Hz 10 ms at 4460 ms
+# sound tone 440 Hz 10 ms at 4500 ms
+# sound tone 440 Hz 10 ms at 4540 ms
+# sound tone 440 Hz 10 ms at 4640 ms
+# sound tone 440 Hz 10 ms at 4680 ms
+# sound tone 440 Hz 10 ms at 4720 ms
 # sound tone 440 Hz 10 ms at 4820 ms
-# sound tone 440 Hz 10 ms at 4960 ms
-# sound tone 440 Hz 10 ms at 5100 ms
-# sound tone 440 Hz 10 ms at 5340 ms
-# sound tone 440 Hz 10 ms at 5560 ms
-# sound tone 440 Hz 10 ms at 5680 ms
-# sound tone 440 Hz 10 ms at 5980 ms
-# sound tone 440 Hz 10 ms at 6020 ms
-# sound tone 440 Hz 10 ms at 6060 ms
-# sound tone 440 Hz 10 ms at 6100 ms
-# sound tone 440 Hz 10 ms at 6140 ms
-# sound tone 440 Hz 10 ms at 6420 ms
-# sound tone 440 Hz 10 ms at 6460 ms
+# sound tone 440 Hz 10 ms at 4980 ms
+# sound tone 440 Hz 10 ms at 5020 ms
+# sound tone 440 Hz 10 ms at 5060 ms
+# sound tone 440 Hz 10 ms at 5120 ms
+# sound tone 440 Hz 10 ms at 5160 ms
+# sound tone 440 Hz 10 ms at 6120 ms
+# sound tone 440 Hz 10 ms at 6320 ms
+# sound tone 440 Hz 10 ms at 6360 ms
 # sound tone 440 Hz 10 ms at 6520 ms
-# sound tone 440 Hz 10 ms at 6560 ms
-# sound tone 440 Hz 10 ms at 6920 ms
-# sound tone 440 Hz 10 ms at 6960 ms
-# sound tone 440 Hz 10 ms at 7000 ms
+# sound tone 440 Hz 10 ms at 6720 ms
+# sound tone 440 Hz 10 ms at 6900 ms
+# sound tone 440 Hz 10 ms at 6940 ms
+# sound tone 440 Hz 10 ms at 6980 ms
+# sound tone 440 Hz 10 ms at 7020 ms
+# sound tone 440 Hz 10 ms at 7160 ms
 # sound tone 440 Hz 10 ms at 7300 ms
-# sound tone 440 Hz 10 ms at 7600 ms
-# sound tone 440 Hz 10 ms at 7900 ms
-# sound tone 440 Hz 10 ms at 8220 ms
-# sound tone 440 Hz 10 ms at 8520 ms
-# sound tone 440 Hz 10 ms at 8820 ms
-# sound tone 440 Hz 10 ms at 8880 ms
-# sound tone 440 Hz 10 ms at 8920 ms
-# sound tone 440 Hz 10 ms at 8980 ms
-# sound tone 440 Hz 10 ms at 9120 ms
-# sound tone 440 Hz 10 ms at 9220 ms
-# sound tone 440 Hz 10 ms at 10320 ms
-# sound tone 440 Hz 10 ms at 10360 ms
-# sound tone 440 Hz 10 ms at 10400 ms
-# sound tone 440 Hz 10 ms at 10440 ms
-# sound tone 440 Hz 10 ms at 10780 ms
-# sound tone 440 Hz 10 ms at 10820 ms
-# sound tone 440 Hz 10 ms at 10860 ms
+# sound tone 440 Hz 10 ms at 7340 ms
+# sound tone 440 Hz 10 ms at 7420 ms
+# sound tone 440 Hz 10 ms at 7580 ms
+# sound tone 440 Hz 10 ms at 7660 ms
+# sound tone 440 Hz 10 ms at 7700 ms
+# sound tone 440 Hz 10 ms at 7740 ms
+# sound tone 440 Hz 10 ms at 9240 ms
+# sound tone 440 Hz 10 ms at 9300 ms
+# sound tone 440 Hz 10 ms at 9520 ms
+# sound tone 440 Hz 10 ms at 9560 ms
+# sound tone 440 Hz 10 ms at 9600 ms
+# sound tone 440 Hz 10 ms at 9640 ms
+# sound tone 440 Hz 10 ms at 9700 ms
+# sound tone 440 Hz 10 ms at 9800 ms
+# sound tone 440 Hz 10 ms at 9840 ms
+# sound tone 440 Hz 10 ms at 9880 ms
+# sound tone 440 Hz 10 ms at 10040 ms
+# sound tone 440 Hz 10 ms at 11220 ms
 # sound tone 440 Hz 10 ms at 11260 ms
-# sound tone 440 Hz 10 ms at 11660 ms
-# sound tone 440 Hz 10 ms at 12040 ms
-# sound tone 440 Hz 10 ms at 12080 ms
-# sound tone 440 Hz 10 ms at 12120 ms
-# sound tone 440 Hz 10 ms at 12500 ms
-# sound tone 440 Hz 10 ms at 12540 ms
-# sound tone 440 Hz 10 ms at 12580 ms
-# sound tone 440 Hz 10 ms at 12940 ms
+# sound tone 440 Hz 10 ms at 11320 ms
+# sound tone 440 Hz 10 ms at 11440 ms
+# sound tone 440 Hz 10 ms at 11480 ms
+# sound tone 440 Hz 10 ms at 11540 ms
+# sound tone 440 Hz 10 ms at 11580 ms
+# sound tone 440 Hz 10 ms at 11620 ms
+# sound tone 440 Hz 10 ms at 11760 ms
+# sound tone 440 Hz 10 ms at 11920 ms
+# sound tone 440 Hz 10 ms at 11960 ms
+# sound tone 440 Hz 10 ms at 12000 ms
+# sound tone 440 Hz 10 ms at 12060 ms
+# sound tone 440 Hz 10 ms at 12880 ms
+# sound tone 440 Hz 10 ms at 12920 ms
 # sound tone 440 Hz 10 ms at 12980 ms
-# sound tone 440 Hz 10 ms at 13020 ms
-# sound tone 440 Hz 10 ms at 15080 ms
-# sound tone 440 Hz 10 ms at 15480 ms
-# sound tone 440 Hz 10 ms at 15560 ms
-# sound tone 440 Hz 10 ms at 16000 ms
-# sound tone 440 Hz 10 ms at 16420 ms
-# sound tone 440 Hz 10 ms at 16860 ms
-# sound tone 440 Hz 10 ms at 17280 ms
-# sound tone 440 Hz 10 ms at 17720 ms
-# sound tone 440 Hz 10 ms at 17760 ms
-# sound tone 440 Hz 10 ms at 18140 ms
-# sound tone 440 Hz 10 ms at 18520 ms
-# sound tone 440 Hz 10 ms at 18560 ms
-# sound tone 440 Hz 10 ms at 18600 ms
-# sound tone 440 Hz 10 ms at 18680 ms
-# sound tone 440 Hz 10 ms at 18720 ms
-# sound tone 440 Hz 10 ms at 18760 ms
-# sound tone 440 Hz 10 ms at 20260 ms
-# sound tone 440 Hz 10 ms at 20300 ms
-# sound tone 440 Hz 10 ms at 20700 ms
-# sound tone 440 Hz 10 ms at 20740 ms
-# sound tone 440 Hz 10 ms at 20780 ms
-# sound tone 440 Hz 10 ms at 20820 ms
-# sound tone 440 Hz 10 ms at 20920 ms
-# sound tone 440 Hz 10 ms at 21340 ms
-# sound tone 440 Hz 10 ms at 21740 ms
-# sound tone 440 Hz 10 ms at 21780 ms
-# sound tone 440 Hz 10 ms at 22220 ms
-# sound tone 440 Hz 10 ms at 22620 ms
-# sound tone 440 Hz 10 ms at 22660 ms
-# sound tone 440 Hz 10 ms at 23120 ms
-# sound tone 440 Hz 10 ms at 23200 ms
-# sound tone 440 Hz 10 ms at 23240 ms
-# sound tone 440 Hz 10 ms at 23280 ms
-# sound tone 440 Hz 10 ms at 23360 ms
-# sound tone 440 Hz 10 ms at 25100 ms
-# sound tone 440 Hz 10 ms at 25140 ms
-# sound tone 440 Hz 10 ms at 25200 ms
-# sound tone 440 Hz 10 ms at 25240 ms
-# sound tone 440 Hz 10 ms at 25400 ms
-# sound tone 440 Hz 10 ms at 25440 ms
-# sound tone 440 Hz 10 ms at 25480 ms
-# sound tone 440 Hz 10 ms at 25900 ms
-# sound tone 440 Hz 10 ms at 25940 ms
-# sound tone 440 Hz 10 ms at 26000 ms
-# sound tone 440 Hz 10 ms at 26080 ms
-# sound tone 440 Hz 10 ms at 26120 ms
-# sound tone 440 Hz 10 ms at 26160 ms
-# sound tone 440 Hz 10 ms at 26200 ms
-# sound tone 440 Hz 10 ms at 26300 ms
-# sound tone 440 Hz 10 ms at 26440 ms
-# sound tone 440 Hz 10 ms at 27220 ms
-# sound tone 440 Hz 10 ms at 27420 ms
-# sound tone 440 Hz 10 ms at 27520 ms
-# sound tone 440 Hz 10 ms at 27600 ms
-# sound tune of 4 notes at 27640 ms: 523/100 659/100 784/100 1047/300
-# sound tone 440 Hz 10 ms at 28520 ms
-# sound tune of 5 notes at 28740 ms: 392/120 0/40 330/120 0/40 262/300
-# expect save 4d012468000001000000020000000000 tunes 2 tones 103
+# sound tone 440 Hz 10 ms at 13060 ms
+# sound tone 440 Hz 10 ms at 13100 ms
+# sound tone 440 Hz 10 ms at 13180 ms
+# sound tone 440 Hz 10 ms at 13260 ms
+# sound tone 440 Hz 10 ms at 13300 ms
+# sound tone 440 Hz 10 ms at 13340 ms
+# sound tone 440 Hz 10 ms at 13380 ms
+# sound tone 440 Hz 10 ms at 13440 ms
+# sound tone 440 Hz 10 ms at 14080 ms
+# sound tone 440 Hz 10 ms at 14160 ms
+# sound tone 440 Hz 10 ms at 14200 ms
+# sound tone 440 Hz 10 ms at 14300 ms
+# sound tone 440 Hz 10 ms at 14340 ms
+# sound tone 440 Hz 10 ms at 14380 ms
+# sound tone 440 Hz 10 ms at 14420 ms
+# sound tone 440 Hz 10 ms at 14540 ms
+# sound tone 440 Hz 10 ms at 14580 ms
+# sound tone 440 Hz 10 ms at 15420 ms
+# sound tone 440 Hz 10 ms at 15620 ms
+# sound tune of 4 notes at 15860 ms: 523/100 659/100 784/100 1047/300
+# sound tone 440 Hz 10 ms at 16720 ms
+# sound tune of 5 notes at 16820 ms: 392/120 0/40 330/120 0/40 262/300
+# expect save 4d0201000000000000000000000000000000000000000000000000d739000001000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 tunes 2 tones 86

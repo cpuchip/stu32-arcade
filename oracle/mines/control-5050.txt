@@ -1,6 +1,8 @@
 # The must-fail control for proof.py (abacus #6246): a board that needs a guess. From its first open the complete
-# solver opens every cell it can prove safe and stops with two closed cells left, (15, 11) and (15, 12) (cells 279
-# and 303, on the bottom edge), and one mine between them; a brute-force check found both placements fit every
-# shown number. Found by a random search (random.Random(11), the 17th board).
-mines 8,18,25,30,31,47,55,58,71,82,94,97,100,107,113,120,122,123,129,142,149,152,158,164,166,168,169,173,184,192,206,208,213,215,226,235,243,250,254,255,256,257,269,279,289,290,308,310
-first 85
+# solver opens every cell it can prove safe and stops with two closed cells it cannot tell apart, (14, 12) and
+# (15, 12) (cells 206 and 207), and one mine between them; swapping the mine between the two leaves every shown
+# number the same, so both placements fit. Found by a random search on the medium board (random.Random(11), the
+# first board drawn).
+board medium
+mines 3,10,23,24,36,40,47,48,77,101,114,115,119,121,130,131,135,137,143,150,152,157,159,161,162,166,167,177,189,199,203,205,207,221,222,224,236,241,242,249
+first 231

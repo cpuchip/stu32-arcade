@@ -7,11 +7,14 @@ safe exactly when no placement consistent with everything has a mine there, and 
 empty. It opens only safe cells (with the flood), so a board it clears needs no guess, and one where it finds no
 safe cell before the end needs one.
 
-  proof.py deals SEEDS        the C's dealing for seeds 0..SEEDS-1, game 0, first open at a cell drawn per seed:
+  proof.py deals BOARD SEEDS  the C's dealing for seeds 0..SEEDS-1, game 0, first open at a cell drawn per seed:
                               each must be cleared; prints the attempts, and boards the game's solver gave up on that
                               the complete one clears (fine), and any the game's solver cleared that it cannot (a bug)
-  proof.py control FILE       the board in FILE (mines, first open) must be reported as needing a guess
-  proof.py play SEEDS         trace scripts for the C: games won by opening only the complete solver's safe cells
+  proof.py control FILE       the board in FILE (board, mines, first open) must be reported as needing a guess
+  proof.py same BOARD SEEDS   the two ways of tabling a group (listing every fit, and the sweep) must give the same
+                              safe cells and mines at every step of random boards' proofs, where the listing is
+                              small enough to finish
+  proof.py play BOARD SEEDS   trace scripts for the C: games won by opening only the complete solver's safe cells
                               (with flags on its mines and a chord where one opens something), one per seed
 """
 import multiprocessing
@@ -20,7 +23,6 @@ import sys
 
 import model as M
 
-CELLS, N, NB = M.CELLS, M.MINES, M.NB
 LIMIT = 2_000_000
 
 
@@ -85,6 +87,84 @@ def enumerate_group(group, cons):
     return out
 
 
+def sweep_group(group, cons):
+    """the same table as enumerate_group (its counts left out), without listing the fits: a pass over the group's
+    cells in an order that walks the numbers, keeping at each step only the needs still open (the numbers with
+    cells on both sides of it) and the mine counts that reach them; a pass from the other end gives what the cells
+    beyond each step can supply, and a cell can be a mine (or empty) with m mines exactly when the two meet"""
+    gset = set(group)
+    mine_cons = [(cells, need) for cells, need in cons if cells & gset]
+    # the order: breadth first from the group's first cell in row order, through the numbers they share
+    by = {c: [] for c in group}
+    for k, (cells, _) in enumerate(mine_cons):
+        for c in cells:
+            by[c].append(k)
+    order, seen = [], {min(group)}
+    queue = [min(group)]
+    while queue:
+        c = queue.pop(0)
+        order.append(c)
+        for k in by[c]:
+            for d in sorted(mine_cons[k][0]):
+                if d not in seen:
+                    seen.add(d)
+                    queue.append(d)
+    assert len(order) == len(group)
+    L = len(order)
+
+    def run(seq):
+        """[the states at each boundary of seq]: {((number, need left), ...): {mines so far}}"""
+        pos = {c: i for i, c in enumerate(seq)}
+        first = {k: min(pos[c] for c in cells) for k, (cells, _) in enumerate(mine_cons)}
+        last = {k: max(pos[c] for c in cells) for k, (cells, _) in enumerate(mine_cons)}
+        out = [{(): {0}}]
+        for i, c in enumerate(seq):
+            nxt = {}
+            for state, ms in out[-1].items():
+                for v in (0, 1):
+                    s2 = step(state, i, c, v, first, last, pos)
+                    if s2 is not None:
+                        nxt.setdefault(s2, set()).update(m + v for m in ms)
+            out.append(nxt)
+        return out, first, last, pos
+
+    def step(state, i, c, v, first, last, pos):
+        left = dict(state)
+        for k in by[c]:
+            r = (mine_cons[k][1] if first[k] == i else left[k]) - v
+            after = sum(1 for d in mine_cons[k][0] if pos[d] > i)
+            if r < 0 or r > after:
+                return None
+            if last[k] == i:
+                left.pop(k, None)
+            else:
+                left[k] = r
+        return tuple(sorted(left.items()))
+
+    fwd, first, last, pos = run(order)
+    back, _, _, _ = run(order[::-1])
+    # the pass from the end, keyed as the forward pass keys it: the forward need left is what the far side holds
+    need = {k: n for k, (_, n) in enumerate(mine_cons)}
+    beyond = [None] * (L + 1)
+    for j in range(L + 1):
+        beyond[L - j] = {tuple(sorted((k, need[k] - r) for k, r in st)): ms for st, ms in back[j].items()}
+    out = {}
+    for i, c in enumerate(order):
+        for state, ms in fwd[i].items():
+            for v in (0, 1):
+                s2 = step(state, i, c, v, first, last, pos)
+                if s2 is None or s2 not in beyond[i + 1]:
+                    continue
+                for a in ms:
+                    for b in beyond[i + 1][s2]:
+                        e = out.setdefault(a + v + b, [None, set(), set()])
+                        (e[1] if v else e[2]).add(c)
+    return out
+
+
+GROUP = sweep_group  # how deduce tables a group; enumerate_group is the cross-check's (proof.py same)
+
+
 def sums(sets):
     """every total reachable by taking one count from each set"""
     acc = {0}
@@ -93,20 +173,20 @@ def sums(sets):
     return acc
 
 
-def deduce(opened, known, num):
+def deduce(b, opened, known, num):
     """(safe cells, mine cells) proven from the opened numbers, the known mines and the total"""
-    closed = [c for c in range(CELLS) if c not in opened and c not in known]
+    closed = [c for c in range(b.CELLS) if c not in opened and c not in known]
     cons = []
     for c in opened:
         if num[c]:
-            cells = frozenset(n for n in NB[c] if n not in opened and n not in known)
+            cells = frozenset(n for n in b.NB[c] if n not in opened and n not in known)
             if cells:
-                cons.append((cells, num[c] - sum(n in known for n in NB[c])))
+                cons.append((cells, num[c] - sum(n in known for n in b.NB[c])))
     frontier = set().union(*[cells for cells, _ in cons]) if cons else set()
     interior = [c for c in closed if c not in frontier]
-    R = N - len(known)
+    R = b.N - len(known)
     groups = components(frontier, cons)
-    tables = [enumerate_group(g, cons) for g in groups]
+    tables = [GROUP(g, cons) for g in groups]
     counts = [set(t) for t in tables]
     safe, mine = set(), set()
     for gi, t in enumerate(tables):
@@ -130,14 +210,14 @@ def deduce(opened, known, num):
     return safe, mine
 
 
-def prove(mines, f):
+def prove(b, mines, f):
     """('cleared' | 'guess', the opened cells, the steps): the complete solver from opening f"""
-    num = M.counts(mines)
+    num = M.counts(b, mines)
     opened, known = set(), set()
-    M.flood(opened, known, num, f)
+    M.flood(b, opened, known, num, f)
     steps = []
-    while len(opened) < CELLS - N:
-        safe, mine = deduce(opened, known, num)
+    while len(opened) < b.CELLS - b.N:
+        safe, mine = deduce(b, opened, known, num)
         assert not (safe & mines) and not (mine - mines), 'the complete solver drew a false conclusion'
         known |= mine
         new = [c for c in sorted(safe) if c not in opened]
@@ -145,35 +225,43 @@ def prove(mines, f):
             return 'guess', opened, steps
         for c in new:
             if c not in opened:
-                M.flood(opened, known, num, c)
+                M.flood(b, opened, known, num, c)
         steps.append((sorted(mine), new))
     return 'cleared', opened, steps
 
 
-def first_cell(seed):
-    return random.Random(seed).randrange(CELLS)
+def first_cell(b, seed):
+    return random.Random(seed).randrange(b.CELLS)
 
 
-def deals(n):
-    bad = rescued = 0
+def deals(board, n):
+    b = M.BOARDS[board]
+    bad = rescued = undecided = 0
     attempts = []
     with multiprocessing.Pool() as pool:
-        rows = pool.map(one_deal, range(n), chunksize=4)
+        rows = pool.map(one_deal, [(board, s) for s in range(n)], chunksize=4)
     for seed, att, ok in rows:
         attempts.append(att)
         if ok != 'cleared' and att < M.TRIES:
             bad += 1
             print(f'  BUG: seed {seed}: the game\'s solver cleared it, the complete one needs a guess')
         if ok != 'cleared' and att == M.TRIES:
-            print(f'  seed {seed}: the fallback (100 attempts) dealt a board needing a guess')
+            print(f'  seed {seed}: the fallback ({M.TRIES} attempts) dealt a board needing a guess')
     # the game's solver against the complete one on the attempts it rejected, for the record
     r = random.Random(3)
     for _ in range(200):
-        f = r.randrange(CELLS)
-        banned = set(NB[f]) | {f}
-        mines = set(r.sample([c for c in range(CELLS) if c not in banned], N))
-        g_ok = M.solver(mines, f)[0]
-        c_ok = prove(mines, f)[0] == 'cleared'
+        f = r.randrange(b.CELLS)
+        banned = set(b.NB[f]) | {f}
+        mines = set(r.sample([c for c in range(b.CELLS) if c not in banned], b.N))
+        g_ok = M.solver(b, mines, f)[0]
+        try:
+            c_ok = prove(b, mines, f)[0] == 'cleared'
+        except TooBig:  # too many placements to list: undecided, so a bug only where the game's solver cleared it
+            undecided += 1
+            if g_ok:
+                bad += 1
+                print('  BUG: a random board the game\'s solver clears is too big for the complete one to decide')
+            continue
         if g_ok and not c_ok:
             bad += 1
             print('  BUG: a random board the game\'s solver clears needs a guess')
@@ -182,38 +270,90 @@ def deals(n):
     cleared = sum(1 for _, _, ok in rows if ok == 'cleared')
     print(f'proof: {cleared} of {n} dealt boards cleared without a guess by the complete solver; attempts median '
           f'{sorted(attempts)[n // 2]}, most {worst[1]} (seed {worst[0]}); '
-          f'of 200 random boards, {rescued} the game\'s solver gave up on the complete one cleared')
+          f'of 200 random boards, {rescued} the game\'s solver gave up on the complete one cleared'
+          + (f', {undecided} too big to decide (the game\'s solver gave up on each)' if undecided else ''))
     return 1 if bad else 0
 
 
-def one_deal(seed):
-    g = M.Game(seed << 32, 0)
-    f = first_cell(seed)
+def one_deal(arg):
+    board, seed = arg
+    g = M.Game(seed << 32, 0, board)
+    f = first_cell(g.b, seed)
     g.open(f)
-    return seed, g.attempts, prove(g.mines, f)[0]
+    return seed, g.attempts, prove(g.b, g.mines, f)[0]
 
 
 def control(path):
     rows = dict(l.split(None, 1) for l in open(path).read().splitlines() if l.strip() and not l.startswith('#'))
+    b = M.BOARDS[rows['board'].strip()]
     mines = set(int(c) for c in rows['mines'].split(','))
     f = int(rows['first'])
-    res, opened, _ = prove(mines, f)
-    print(f'control: the complete solver says {res} ({len(opened)} of {CELLS - N} safe cells opened)')
+    res, opened, _ = prove(b, mines, f)
+    print(f'control: the complete solver says {res} ({len(opened)} of {b.CELLS - b.N} safe cells opened)')
     return 0 if res == 'guess' else 1
 
 
-def play(n):
+def same_one(arg):
+    """one random board's proof, the sweep's deductions against the listing's at every step it can list"""
+    global GROUP
+    board, seed = arg
+    b = M.BOARDS[board]
+    r = random.Random(seed)
+    f = r.randrange(b.CELLS)
+    banned = set(b.NB[f]) | {f}
+    mines = set(r.sample([c for c in range(b.CELLS) if c not in banned], b.N))
+    num = M.counts(b, mines)
+    opened, known = set(), set()
+    M.flood(b, opened, known, num, f)
+    steps = listed = 0
+    while len(opened) < b.CELLS - b.N:
+        GROUP = sweep_group
+        sw = deduce(b, opened, known, num)
+        GROUP = enumerate_group
+        try:
+            ls = deduce(b, opened, known, num)
+            listed += 1
+            if sw != ls:
+                return seed, steps, listed, 'differ'
+        except TooBig:
+            pass
+        GROUP = sweep_group
+        steps += 1
+        safe, mine = sw
+        known |= mine
+        new = [c for c in sorted(safe) if c not in opened]
+        if not new:
+            break
+        for c in new:
+            if c not in opened:
+                M.flood(b, opened, known, num, c)
+    return seed, steps, listed, 'same'
+
+
+def same(board, n):
+    with multiprocessing.Pool() as pool:
+        rows = pool.map(same_one, [(board, s) for s in range(n)], chunksize=2)
+    bad = [r for r in rows if r[3] != 'same']
+    for seed, step_, _, _ in bad:
+        print(f'  BUG: seed {seed}, step {step_}: the sweep and the listing deduce different cells')
+    print(f'same: {board}, {n} random boards, {sum(r[1] for r in rows)} proof steps, {sum(r[2] for r in rows)} of them '
+          f'small enough to list, ' + (f'{len(bad)} boards where the sweep and the listing differ' if bad else
+                                       'the sweep and the listing deducing the same cells at each'))
+    return 1 if bad else 0
+
+
+def play(board, n):
     for seed in range(n):
-        g = M.Game(seed << 32, 0)
-        f = first_cell(seed)
-        print(f'game {seed << 32} 0')
+        g = M.Game(seed << 32, 0, board)
+        f = first_cell(g.b, seed)
+        print(f'game {seed << 32} 0 {board} noguess')
         print(f'open {f}')
         g.open(f)
         num = g.num
         known = set()
         chorded = False
         while g.state == 'play':
-            safe, mine = deduce(g.opened, known, num)
+            safe, mine = deduce(g.b, g.opened, known, num)
             for c in sorted(mine - known):
                 print(f'flag {c}')
                 g.flag(c)
@@ -224,7 +364,7 @@ def play(n):
             # one chord a game, where an opened number's flags are all placed and it has a safe closed neighbour
             if not chorded:
                 for c in sorted(g.opened):
-                    if num[c] and sum(n in g.flags for n in NB[c]) == num[c] and any(n in new for n in NB[c]):
+                    if num[c] and sum(n in g.flags for n in g.b.NB[c]) == num[c] and any(n in new for n in g.b.NB[c]):
                         print(f'open {c}')
                         g.open(c)
                         chorded = True
@@ -239,8 +379,10 @@ def play(n):
 if __name__ == '__main__':
     mode = sys.argv[1]
     if mode == 'deals':
-        sys.exit(deals(int(sys.argv[2])))
+        sys.exit(deals(sys.argv[2], int(sys.argv[3])))
     if mode == 'control':
         sys.exit(control(sys.argv[2]))
+    if mode == 'same':
+        sys.exit(same(sys.argv[2], int(sys.argv[3])))
     if mode == 'play':
-        play(int(sys.argv[2]))
+        play(sys.argv[2], int(sys.argv[3]))

@@ -141,7 +141,8 @@ apply to everything, and its key click is the framework's, so it is not affected
 
 The time starts on the tick that deals the board **(rev 2: the first open's key, in revision 1)**, so the deal is
 never on the clock, and stops at the end's key; it shows whole seconds (0 before the deal), and the best is kept in
-ms: a win sets it when it has none or is faster, not when it ties. A cursor key moves the cursor at once on its
+ms: a win sets it when it has none or is faster, not when it ties. A win in 0 ms (a first open that clears the
+field, so the end comes on the dealing tick) is kept as 1 ms, since 0 means none **(rev 2)**. A cursor key moves the cursor at once on its
 down; held 300 ms, it moves again every 80 ms until its up. A second cursor key pressed while one is held takes over,
 and the first one's up then does nothing. The cursor stops at the field's edges. A game starts on ENTER, with the
 cursor at the board's centre.

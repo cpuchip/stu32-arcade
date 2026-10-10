@@ -2,22 +2,32 @@
 
 Nothing here reads the C. tests/mines_trace.c prints the same lines, and oracle/mines_check.sh compares them.
 Script lines:
-  game SEED N         a new game: the seed (as app_seed() << 32 gives it) and the game number; dealt on its first open
-  field C,C,...       a hand-made game: these cells are the mines, already dealt (nothing is safe for free)
+  game SEED N BOARD RULES  a new game: the seed (as app_seed() << 32 gives it), the game number, the board (easy,
+                      medium, hard) and the rules (noguess, classic); dealt on its first open
+  field BOARD C,C,... a hand-made game on BOARD: these cells are the mines, already dealt (nothing is safe for free)
   open C / flag C     the player's open (the chord included) and flag, at cell C
+  deal F / step D     a deal started at F, as the app's first open does it / up to D more attempts of it
   solve F             the game's solver on the current mines from opening F: 'solve F cleared|stuck OPENED'
   cell C / mine C     cell C's state (open, flag, closed) / whether it is a mine
   hit                 the mine shown as opened at a loss, or -1
 """
 import sys
 
-W, H, MINES = 24, 13, 48
-CELLS = W * H
-TRIES = 100
+TRIES = 400
 M64 = (1 << 64) - 1
 ORDER = ((-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1))
-NB = [[(y + dy) * W + x + dx for dx, dy in ORDER if 0 <= x + dx < W and 0 <= y + dy < H]
-      for y in range(H) for x in range(W)]
+
+
+class Board:
+    def __init__(self, name, w, h, n):
+        self.name, self.W, self.H, self.N = name, w, h, n
+        self.CELLS = w * h
+        self.NB = [[(y + dy) * w + x + dx for dx, dy in ORDER if 0 <= x + dx < w and 0 <= y + dy < h]
+                   for y in range(h) for x in range(w)]
+
+
+BOARDS = {name: Board(name, *size) for name, size in
+          (('easy', (9, 9, 10)), ('medium', (16, 16, 40)), ('hard', (30, 16, 99)))}
 
 
 def mix64(z):
@@ -27,11 +37,11 @@ def mix64(z):
     return z ^ (z >> 31)
 
 
-def counts(mines):
-    return [sum(n in mines for n in NB[c]) for c in range(CELLS)]
+def counts(b, mines):
+    return [sum(n in mines for n in b.NB[c]) for c in range(b.CELLS)]
 
 
-def flood(opened, flags, num, c):
+def flood(b, opened, flags, num, c):
     """open c and, from each 0, its closed unflagged neighbours"""
     stack = [c]
     while stack:
@@ -40,51 +50,51 @@ def flood(opened, flags, num, c):
             continue
         opened.add(c)
         if num[c] == 0:
-            for n in reversed(NB[c]):
+            for n in reversed(b.NB[c]):
                 if n not in opened and n not in flags:
                     stack.append(n)
 
 
-def solver(mines, f):
+def solver(b, mines, f):
     """the game's solver (docs/mines.md): (cleared, the cells it opened)"""
-    num = counts(mines)
+    num = counts(b, mines)
     opened, mark = set(), set()
-    flood(opened, mark, num, f)
+    flood(b, opened, mark, num, f)
     while True:
         changed = True
         while changed:                       # A, sweeps in row order on the changing state
             changed = False
-            for c in range(CELLS):
+            for c in range(b.CELLS):
                 if c not in opened or num[c] == 0:
                     continue
-                U = [n for n in NB[c] if n not in opened and n not in mark]
+                U = [n for n in b.NB[c] if n not in opened and n not in mark]
                 if not U:
                     continue
-                k = sum(n in mark for n in NB[c])
+                k = sum(n in mark for n in b.NB[c])
                 if k == num[c]:
                     for n in U:
                         if n not in opened:
-                            flood(opened, mark, num, n)
+                            flood(b, opened, mark, num, n)
                     changed = True
                 elif k + len(U) == num[c]:
                     mark.update(U)
                     changed = True
         done = False                          # B, the first productive pair
         cons = []
-        for c in range(CELLS):
+        for c in range(b.CELLS):
             if c in opened and num[c]:
-                U = frozenset(n for n in NB[c] if n not in opened and n not in mark)
+                U = frozenset(n for n in b.NB[c] if n not in opened and n not in mark)
                 if U:
-                    cons.append((U, num[c] - sum(n in mark for n in NB[c])))
+                    cons.append((U, num[c] - sum(n in mark for n in b.NB[c])))
         for ua, na in cons:
-            for ub, nb in cons:
+            for ub, nbv in cons:
                 if ua < ub:
                     d = sorted(ub - ua)
-                    nd = nb - na
+                    nd = nbv - na
                     if nd == 0:
                         for n in d:
                             if n not in opened:
-                                flood(opened, mark, num, n)
+                                flood(b, opened, mark, num, n)
                         done = True
                     elif nd == len(d):
                         mark.update(d)
@@ -95,18 +105,20 @@ def solver(mines, f):
                 break
         if done:
             continue
-        rest = [c for c in range(CELLS) if c not in opened and c not in mark]   # C, the total
-        if rest and len(mark) == MINES:
+        rest = [c for c in range(b.CELLS) if c not in opened and c not in mark]   # C, the total
+        if rest and len(mark) == b.N:
             for c in rest:
                 if c not in opened:
-                    flood(opened, mark, num, c)
+                    flood(b, opened, mark, num, c)
             continue
         break
-    return len(opened) == CELLS - MINES, opened
+    return len(opened) == b.CELLS - b.N, opened
 
 
 class Game:
-    def __init__(self, seed, game):
+    def __init__(self, seed, game, board, classic=False):
+        self.b = BOARDS[board]
+        self.classic = classic
         self.x = mix64((seed ^ mix64(game)) & M64)
         self.mines = None
         self.num = None
@@ -114,58 +126,73 @@ class Game:
         self.state = 'play'
         self.attempts = 0
         self.hit = None
+        self.deal_f = None
 
     def draw(self, n):
         self.x = mix64(self.x)
         return self.x % n
 
-    def deal(self, f):
-        banned = set(NB[f]) | {f}
-        allowed = [c for c in range(CELLS) if c not in banned]
-        for t in range(1, TRIES + 1):
-            cells = list(allowed)
-            for i in range(MINES):
+    def deal_start(self, f):
+        """the app's first open: True when a deal starts"""
+        if self.mines is not None or self.deal_f is not None or self.state != 'play' or f in self.flags:
+            return False
+        self.deal_f = f
+        self.attempts = 0
+        return True
+
+    def deal_step(self, d):
+        """up to d more attempts: True once dealt"""
+        b = self.b
+        for _ in range(d):
+            if self.mines is not None or self.deal_f is None:
+                break
+            f = self.deal_f
+            banned = set(b.NB[f]) | {f}
+            cells = [c for c in range(b.CELLS) if c not in banned]
+            for i in range(b.N):
                 j = i + self.draw(len(cells) - i)
                 cells[i], cells[j] = cells[j], cells[i]
-            mines = set(cells[:MINES])
-            if solver(mines, f)[0] or t == TRIES:
-                self.attempts = t
-                return mines
+            mines = set(cells[:b.N])
+            self.attempts += 1
+            if self.classic or self.attempts == TRIES or solver(b, mines, f)[0]:
+                self.set_mines(mines)
+                self.deal_f = None
+        return self.mines is not None
 
     def set_mines(self, mines):
         self.mines = set(mines)
-        self.num = counts(self.mines)
+        self.num = counts(self.b, self.mines)
 
     def open_one(self, c):
         """True when c is a mine"""
         if c in self.mines:
             return True
-        flood(self.opened, self.flags, self.num, c)
+        flood(self.b, self.opened, self.flags, self.num, c)
         return False
 
     def open(self, c):
-        if self.state != 'play':
-            return
-        if c in self.flags:
+        if self.state != 'play' or c in self.flags or self.deal_f is not None:
             return
         if self.mines is None:
-            self.set_mines(self.deal(c))
+            self.deal_start(c)
+            while not self.deal_step(1):
+                pass
         if c not in self.opened:
             lost = self.open_one(c)
             self.hit = c if lost else None
         else:
-            if sum(n in self.flags for n in NB[c]) != self.num[c]:
+            if sum(n in self.flags for n in self.b.NB[c]) != self.num[c]:
                 return
             lost = False
             self.hit = None
-            for n in NB[c]:
+            for n in self.b.NB[c]:
                 if n not in self.opened and n not in self.flags:
                     if self.open_one(n):
                         lost = True
                         self.hit = self.hit if self.hit is not None else n
         if lost:
             self.state = 'lost'
-        elif len(self.opened) == CELLS - len(self.mines):
+        elif len(self.opened) == self.b.CELLS - len(self.mines):
             self.state = 'won'
             self.flags = set(self.mines)
 
@@ -183,7 +210,7 @@ class Game:
         mk = ck(self.mines) if self.mines is not None else 0
         return (f"state={self.state} opened={len(self.opened)} open_ck={ck(self.opened)} flags={len(self.flags)} "
                 f"flag_ck={ck(self.flags)} mines_ck={mk} attempts={self.attempts} "
-                f"hit={-1 if self.hit is None else self.hit}")
+                f"dealt={int(self.mines is not None)} hit={-1 if self.hit is None else self.hit}")
 
 
 def run(lines):
@@ -194,12 +221,15 @@ def run(lines):
         if not w or w[0].startswith('#'):
             continue
         if w[0] == 'game':
-            g = Game(int(w[1]), int(w[2]))
+            g = Game(int(w[1]), int(w[2]), w[3], w[4] == 'classic')
             out.append('game ' + g.line())
         elif w[0] == 'field':
-            g = Game(0, 0)
-            g.set_mines(int(c) for c in w[1].split(','))
+            g = Game(0, 0, w[1])
+            g.set_mines(int(c) for c in w[2].split(','))
             out.append('field ' + g.line())
+        elif w[0] in ('deal', 'step'):
+            g.deal_start(int(w[1])) if w[0] == 'deal' else g.deal_step(int(w[1]))
+            out.append(f'{w[0]} {w[1]} ' + g.line())
         elif w[0] in ('open', 'flag'):
             getattr(g, w[0])(int(w[1]))
             out.append(f'{w[0]} {w[1]} ' + g.line())
@@ -211,7 +241,7 @@ def run(lines):
         elif w[0] == 'mine':
             out.append(f"mine {w[1]} {'yes' if int(w[1]) in g.mines else 'no'}")
         elif w[0] == 'solve':
-            ok, opened = solver(g.mines, int(w[1]))
+            ok, opened = solver(g.b, g.mines, int(w[1]))
             out.append(f"solve {w[1]} {'cleared' if ok else 'stuck'} {len(opened)}")
     return out
 

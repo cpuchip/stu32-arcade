@@ -1,9 +1,18 @@
-# appscript.py cursor: seed 3, the cursor held into each edge
+# appscript.py cursor: seed 3, HARD, the cursor held into each edge
 tick 100
-key 18 1 107
-key 18 0 107
+key 43 1 107
+key 43 0 107
+tick 100
+key 33 1 207
+key 33 0 207
+tick 100
+key 18 1 307
+key 18 0 307
+tick 100
+key 18 1 407
+key 18 0 407
 tick 20
-key 26 1 127
+key 26 1 427
 tick 20
 tick 20
 tick 20
@@ -64,10 +73,10 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 26 0 1327
+key 26 0 1627
 tick 20
-# after 8: the cursor at 12,0
-key 31 1 1347
+# after 8: the cursor at 15,0
+key 31 1 1647
 tick 20
 tick 20
 tick 20
@@ -228,10 +237,10 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 31 0 4547
+key 31 0 4847
 tick 20
 # after 4: the cursor at 0,0
-key 38 1 4567
+key 38 1 4867
 tick 20
 tick 20
 tick 20
@@ -352,10 +361,10 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 38 0 6967
+key 38 0 7267
 tick 20
-# after 2: the cursor at 0,12
-key 33 1 6987
+# after 2: the cursor at 0,15
+key 33 1 7287
 tick 20
 tick 20
 tick 20
@@ -606,11 +615,11 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 33 0 11987
+key 33 0 12287
 tick 20
-# after 6: the cursor at 23,12
+# after 6: the cursor at 29,15
 # 4 held, then 8 pressed while it is: 8 takes over; 4 let go first, which does nothing
-key 31 1 12007
+key 31 1 12307
 tick 20
 tick 20
 tick 20
@@ -631,19 +640,13 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 26 1 12407
+key 26 1 12707
 tick 20
 tick 20
 tick 20
 tick 20
 tick 20
-key 31 0 12507
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
+key 31 0 12807
 tick 20
 tick 20
 tick 20
@@ -668,16 +671,28 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 26 0 13107
-tick 20
-# after both: the cursor at 20,6
-key 32 1 13127
-key 32 0 13127
 tick 20
 tick 20
 tick 20
 tick 20
 tick 20
 tick 20
-# sound tone 440 Hz 10 ms at 13120 ms
-# expect save 4d010000000000000000010000000000 tunes 0 tones 1
+key 26 0 13407
+tick 20
+# after both: the cursor at 26,9
+key 32 1 13427
+key 32 0 13427
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+# sound tone 440 Hz 10 ms at 13560 ms
+# expect save 4d02020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000 tunes 0 tones 1

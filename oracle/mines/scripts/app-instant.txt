@@ -1,0 +1,50 @@
+# appscript.py instant: seed 4976, EASY; the first open clears the field
+tick 100
+key 43 1 107
+key 43 0 107
+tick 100
+key 31 1 207
+key 31 0 207
+tick 100
+key 18 1 307
+key 18 0 307
+tick 100
+key 18 1 407
+key 18 0 407
+tick 20
+key 32 1 427
+key 32 0 427
+tick 20
+# won on the dealing tick, 0 ms: the best kept as 1 ms
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+# sound tune of 4 notes at 440 ms: 523/100 659/100 784/100 1047/300
+# expect save 4d02000100000001000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 tunes 1 tones 0
