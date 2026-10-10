@@ -1,0 +1,241 @@
+From 629e1bf86625e34bff061f7ee7cc144abedbd02d Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Sat, 10 Oct 2026 04:57:37 +0000
+Subject: [PATCH] 060: AIM, the second game (decision 71): listed at
+ stu32-arcade 5fe8cea, its board script
+
+games.list lists aim (stu32-arcade games/aim, MIT, written by arcade); device/standin/aim.txt
+takes it through APPS on the board. Static cost: flash +6,912 (stand-in) and +6,896 (Rev A),
+internal RAM, IRAM and calc_task's frame +0; ctx 15,304 B in PSRAM. The game's checks are
+stu32-arcade make aimcheck; work/060-aim.md has the table and the checks.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ device/standin/aim.txt | 129 +++++++++++++++++++++++++++++++++++++++++
+ games.list             |   2 +
+ work/060-aim.md        |  67 +++++++++++++++++++++
+ 3 files changed, 198 insertions(+)
+ create mode 100644 device/standin/aim.txt
+ create mode 100644 work/060-aim.md
+
+diff --git a/device/standin/aim.txt b/device/standin/aim.txt
+new file mode 100644
+index 0000000..3e6beda
+--- /dev/null
++++ b/device/standin/aim.txt
+@@ -0,0 +1,129 @@
++# AIM under APPS on the board (arcade's unit, soroban's gate; stu32-arcade docs/aim.md): APPS (blue 0) lists KEYS,
++# BABAL and AIM; AIM's title, ENTER for a round, the frame rate, refused keys (0 ENTER: no tile is 0), then 20 rounds
++# through SHOW and NEW (each runs the solver and the generator on the chip; the tiles come from the hardware RNG, so
++# winning is the host's check, stu32-arcade make aimcheck). The calc task's stack-free is read after them; C ends
++# AIM, and 2 ENTER 3 + must still give 5.
++send RESTART
++wait STANDIN READY 30
++send X
++expect stack-free
++send K36
++send U36
++send K43
++send U43
++sleep 1
++send K2
++send U2
++sleep 1
++send X
++expect app: AIM
++send K18
++send U18
++sleep 1
++send FRAMEBENCH
++expect framebench: AIM 30
++send K43
++send U43
++send K18
++send U18
++send K18
++send U18
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++send K2
++send U2
++send K5
++send U5
++sleep 2
++send X
++expect app: AIM
++expect-min stack-free 2048
++send K42
++send U42
++sleep 1
++send X
++expect app: -
++send K38
++send U38
++send K18
++send U18
++send K39
++send U39
++send K46
++send U46
++send X
++expect X=5
+diff --git a/games.list b/games.list
+index 33b3a90..283849f 100644
+--- a/games.list
++++ b/games.list
+@@ -5,3 +5,5 @@
+ # ID   REPO          PIN                                       LICENCE                    MANIFEST
+ # Babal: arcade's port of Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense)
+ babal  stu32-arcade  599c51060bb63b011f03e9a4077cfea2328b88b4  MIT                        stu32-game.txt
++# AIM: arcade's, four tiles to the round's target in RPN (Michael's decision 71; stu32-arcade docs/aim.md)
++aim    stu32-arcade  5fe8ceaceedd3d4aac5513f1c7e713b45aa24509  MIT                        games/aim/stu32-game.txt
+diff --git a/work/060-aim.md b/work/060-aim.md
+new file mode 100644
+index 0000000..f5bca98
+--- /dev/null
++++ b/work/060-aim.md
+@@ -0,0 +1,67 @@
++# Work unit 060: AIM, the second game
++
++**From:** arcade (stu32-arcade docs/aim.md) · **Ruled by:** Michael's decision 71 (abacus aa30714: the second game,
++"Make them all!"), its name AIM ("Aim is fine", abacus #6064) · **Gate:** soroban · **Status:** built and measured on
++the host; the board run is the gate's.
++
++## What it is
++
++Four tiles, each a digit 1 to 9, and a target from 10 to 30 that grows with the streak. The player enters the tiles in
++RPN on the calculator's own keys, each once, with + − × ÷, exact fractions between (8 ENTER 3 ENTER 8 ENTER 3 ÷ − ÷
++is 24). ← undoes a step; the soft keys are UNDO, SKIP and SHOW, which gives the round up and writes one solution as the
++keys to press. Every round's target is drawn from the values its tiles reach, so none is unsolvable. The game is
++stu32-arcade games/aim at 5fe8cea (aim_logic: the rules, the solver and the generator; aim_app: the app_def), MIT,
++written for the STU-32. Nothing calls it "24" (Suntex's marks).
++
++The series is one commit: games.list lists `aim` at 5fe8cea, and device/standin/aim.txt is its board script.
++
++## Decision 68
++
++**Static, `scripts/resources.py static f9401bd <060>`:**
++
++| | stand-in | Rev A |
++|---|---|---|
++| flash | +6,912 | +6,896 |
++| static internal RAM (DIRAM) | +0 | +0 |
++| IRAM code | +0 | +0 |
++| calc_task's frame | +0 | +0 |
++
++libmain is +6,667 on the stand-in and +6,671 on Rev A, the game's code; libesp_app_format moves +160 on both;
++esp_lcd +36 and esp_driver_i2c +12 on the stand-in, libbid +4 on Rev A. A control commit that adds only aim.txt, no
++game listed, is +0 in every row and moves no library, so those small moves come with the listing; I have not traced them below the library (link order or
++alignment is my guess).
++
++**At run time:** the ctx is 15,304 B, which the framework gives in PSRAM, most of it the solver's table (a set of four
++digits reaches at most 922 values). Nothing is allocated; both files build under `-Wframe-larger-than=1024`, and the
++solver's one recursion (writing a SHOW answer) is at most four deep.
++
++## The checks (stu32-arcade `make aimcheck`, on the host, at 5fe8cea)
++
++1. The C solver against an independent Python enumerator (oracle/aim/reach.py, itself checked against a brute-force
++   RPN enumerator), all 495 sets of four digits, targets 1-100 with their solution counts: identical.
++2. The rules against an independent Python model (oracle/aim/rules.py): a hand-checked script, 40 fuzzed seeds of 250
++   rounds, and every SHOW answer for every set and reachable target (23,793), each of which must win: identical, all
++   won.
++3. Every round the generator makes for seeds 0-9,999 at each of the five levels (50,000): solvable, in range, and under
++   the level's solution cap whenever the tiles allow.
++4. The app on the SDK runner: twelve rounds won by their SHOW keys and a script of every refused key, frame hashes as
++   committed, 12 tunes and 6 tones, the saves as expected; and the same two scripts through the .wasm and the bridge
++   (wamrc from the pinned series), with the same frames and saves.
++5. Planted, each red: a solver that never divides, a tile used twice, a generator past its range, a draw without the
++   used-tile shade.
++
++Here, with the game listed (this commit on f9401bd): make test green (app_test checks AIM's app_def), clang-check 61
++files and none failing.
++
++## The board (device/standin/aim.txt, for the gate)
++
++APPS lists KEYS, BABAL and AIM; AIM's title, ENTER for a round, FRAMEBENCH, a refused key (0 ENTER: no tile is 0),
++then 20 rounds through SHOW and NEW, each running the solver and the generator on the chip. The tiles come from the
++hardware RNG, so winning stays the host's check. Then the calc task's stack-free (at least 2,048), C, and 2 ENTER 3 +
++must give 5. Not yet run: it waits on the gate's board.
++
++## Open
++
++- The board run above; and how long a round takes to make on the S3 (0.15 ms on lepton's host, not measured on the
++  chip).
++- The S3 bench's frame hashes against the host's, as Babal had (device/appbench): a board window of its own.
+-- 
+2.53.0
+
