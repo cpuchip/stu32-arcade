@@ -10,7 +10,7 @@ BABAL_SRC := $(wildcard babal/*.c)
 BABAL_OBJ := $(BABAL_SRC:%.c=$(BUILD)/%.o)
 CARGO ?= $(shell command -v cargo || echo $(HOME)/.cargo/bin/cargo)
 
-.PHONY: all test oracle ref clean frames apphost appcheck driftcheck sdkcheck aimcheck
+.PHONY: all test oracle ref clean frames apphost appcheck driftcheck sdkcheck aimcheck landcheck
 
 # The firmware's font and frame/app headers, read-only at FIRMWARE_PIN, exported with git archive
 # from a local clone (FIRMWARE_REPO), never built in it.
@@ -51,6 +51,10 @@ sdkcheck: $(FW)/.pin
 # AIM's five checks (docs/aim.md); with WASI_SDK, WAMRC and WAMR_TREE set, also as a .wasm through the bridge
 aimcheck: $(FW)/.pin
 	oracle/aim_check.sh
+
+# LAND's checks: the logic against oracle/land, every pad landable, the landing rule's edges, plants
+landcheck: $(FW)/.pin
+	oracle/land_check.sh
 
 # Babal as a WebAssembly game against Babal native (needs WASI_SDK, WAMRC and WAMR_TREE; oracle/wasm_check.sh)
 wasmcheck: $(FW)/.pin

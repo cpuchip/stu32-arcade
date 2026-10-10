@@ -94,8 +94,8 @@ From a round's seed (below), with the draws `x = mix64(x)`, value `x % n` (Aim's
 At most 48 vertices. **The start**, drawn after the terrain in this order: x = `40 + draw(320)` px; the speed
 `19,661 + draw(19,661)` (0.3-0.6 px a step); its sign, leftward when `draw(2)` is 0. y = 28 px, vy = 0, a = 0.
 
-**The round's seed:** `(uint64)app_seed() << 32 ^ (landings + crashes)` over every game played, kept in the save, so
-each round differs and a test with `-seed` repeats.
+**The round's seed:** round n is `seed = (uint64)app_seed() << 32`, `round = n`, where n counts the landings and
+crashes of every game played and is kept in the save, so each round differs and a test with `-seed` repeats.
 
 ## The screen (400 × 240, draw.h only)
 
@@ -125,7 +125,8 @@ LAND, folder GAMES, MIT. `tests/land_trace.c` prints what the oracle prints.
 1. **The model** (`model.py`): the physics, the contact test, the judge and the generator. The C must print the same
    state at every step for fuzzed key scripts over many seeds, and the same terrains.
 2. **Every pad is landable** (`fair.py`): a reference autopilot, flown in the model, lands on every pad of every
-   terrain for a range of seeds within 700 fuel. Its keys, replayed through the C, must land on the same step. The
+   terrain for a range of seeds within 700 fuel (the first of four settings that lands it: clearance over the path,
+   how far out the approach starts, how high it holds while centring). Its keys, replayed through the C, must land on the same step. The
    control: given too little fuel (say 100), it must fail, and the check must report the failure.
 3. **The landing rule at its edges**: |vy| = VY lands and VY + 1 crashes; the same for VX; `a` = 1 and 23 crash; a
    foot exactly at a pad's end lands and one pixel past it crashes; a vertex poking into the outline crashes even
