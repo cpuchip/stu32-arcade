@@ -8,4 +8,4 @@ requires of contributions. The drafts (`issue*.md`, `pr*.md`), the scripts and `
 |---|---|---|
 | 0001-esp-idf-map-PSRAM-AOT-code-on-the-instruction-bus.patch | issue.md, pr.md | #5145, #5146 |
 | 0001-xtensa-fix-L32R-relocation-lost-to-strict-aliasing.patch | issue2.md, pr2.md | #5147, #5148 |
-| 0001-aot-keep-the-target-symbol-maps-const.patch (pr3-syntax.sh reruns its syntax pass) | issue3.md, pr3.md | not posted |
+| 0001-aot-keep-the-target-symbol-maps-const.patch (pr3-syntax.sh reruns its syntax pass) | issue3.md, pr3.md | #5149, #5150 |
