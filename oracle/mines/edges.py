@@ -2,7 +2,7 @@
 must give written here by hand from the blueprint, not computed.
 
   edges.py script     the cases as one trace script
-  edges.py expect     the lines they must give: each 'cell', 'mine' and the 'state=' of each move
+  edges.py expect     the lines they must give: each 'cell', 'mine', 'hit' and the 'state=' of each move
 """
 import sys
 
@@ -26,6 +26,12 @@ CASES = [
     ('the mine opened: a loss', ['field 0', 'open 0', 'cell 1'], ['lost', 'cell 1 closed']),
     ('moves after the end do nothing', ['field 0', 'open 0', 'open 300', 'flag 5', 'cell 300', 'cell 5'],
      ['lost', 'lost', 'lost', 'cell 300 closed', 'cell 5 closed']),
+    ('a chord on an opened 0 with no flags around: its closed neighbours open (here the last safe cell, a win)',
+     ['field 300', 'flag 1', 'open 50', 'cell 1', 'flag 1', 'open 0', 'cell 1'],
+     ['play', 'play', 'cell 1 flag', 'play', 'won', 'cell 1 open']),
+    ('a chord onto two mines: a loss, the first in neighbour order shown as the one opened',
+     ['field 0,2', 'open 1', 'flag 24', 'flag 26', 'open 1', 'hit', 'cell 25'],
+     ['play', 'play', 'play', 'lost', 'hit 0', 'cell 25 open']),
     # the first open (cell 100 = (4, 4)) and its neighbours are never mines
     ('the first open and its neighbours are safe',
      ['game 4294967296 0', 'open 100'] + [f'mine {c}' for c in (75, 76, 77, 99, 100, 101, 123, 124, 125)],

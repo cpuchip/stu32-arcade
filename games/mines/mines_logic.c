@@ -174,13 +174,6 @@ bool mines_solve(mines_game *g, int f, int *opened_out)
                     opened += flood(g, s, c, MINES_FLAG);
             continue;
         }
-        if (rest && rest == MINES_N - marked) {
-            for (int c = 0; c < MINES_CELLS; c++)
-                if (!(s[c] & (MINES_OPEN | MINES_FLAG)))
-                    s[c] |= MINES_FLAG;
-            marked = MINES_N;
-            continue;
-        }
         break;
     }
     if (opened_out)
@@ -267,7 +260,7 @@ void mines_open(mines_game *g, int c)
         int n = mines_neighbours(c, nb), flags = 0;
         for (int i = 0; i < n; i++)
             flags += !!(g->cell[nb[i]] & MINES_FLAG);
-        if (g->num[c] == 0 || flags != g->num[c])
+        if (flags != g->num[c]) /* an opened 0 with no flags around opens its closed neighbours too */
             return;
         g->hit = -1;
         for (int i = 0; i < n; i++)

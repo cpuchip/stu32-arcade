@@ -179,7 +179,8 @@ def deals(n):
             print('  BUG: a random board the game\'s solver clears needs a guess')
         rescued += (not g_ok) and c_ok
     worst = max(rows, key=lambda r: r[1])
-    print(f'proof: {n - bad} of {n} dealt boards cleared without a guess by the complete solver; attempts median '
+    cleared = sum(1 for _, _, ok in rows if ok == 'cleared')
+    print(f'proof: {cleared} of {n} dealt boards cleared without a guess by the complete solver; attempts median '
           f'{sorted(attempts)[n // 2]}, most {worst[1]} (seed {worst[0]}); '
           f'of 200 random boards, {rescued} the game\'s solver gave up on the complete one cleared')
     return 1 if bad else 0

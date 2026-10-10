@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /* Mines' logic on the host, printing what the oracle prints (oracle/mines/model.py run):
- *   mines_trace SCRIPT    lines 'game SEED N', 'field C,C,...', 'open C', 'flag C', 'solve F', 'cell C', 'mine C'
+ *   mines_trace SCRIPT    lines 'game SEED N', 'field C,C,...', 'open C', 'flag C', 'solve F', 'cell C', 'mine C',
+ *                         'hit'
  */
 #include <inttypes.h>
 #include <stdio.h>
@@ -22,9 +23,9 @@ static void line(const char *head, const mines_game *g)
 {
     static const char *const names[] = {"play", "lost", "won"};
     printf("%sstate=%s opened=%d open_ck=%" PRIu32 " flags=%d flag_ck=%" PRIu32 " mines_ck=%" PRIu32
-           " attempts=%d\n",
+           " attempts=%d hit=%d\n",
            head, names[g->state], g->opened, ck(g, MINES_OPEN), g->flags, ck(g, MINES_FLAG),
-           g->dealt ? ck(g, MINES_MINE) : 0, g->attempts);
+           g->dealt ? ck(g, MINES_MINE) : 0, g->attempts, g->hit);
 }
 
 int main(int argc, char **argv)
@@ -66,6 +67,8 @@ int main(int argc, char **argv)
         } else if (!strcmp(w, "cell")) {
             int c = atoi(strtok(NULL, " \n"));
             printf("cell %d %s\n", c, (g.cell[c] & MINES_OPEN) ? "open" : (g.cell[c] & MINES_FLAG) ? "flag" : "closed");
+        } else if (!strcmp(w, "hit")) {
+            printf("hit %d\n", g.hit);
         } else if (!strcmp(w, "mine")) {
             int c = atoi(strtok(NULL, " \n"));
             printf("mine %d %s\n", c, (g.cell[c] & MINES_MINE) ? "yes" : "no");

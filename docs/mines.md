@@ -34,9 +34,11 @@ first open without a guess.
 - **Opening** a closed, unflagged cell: a mine loses. Otherwise it opens, and if it shows 0 its closed, unflagged
   neighbours open in turn, and so on (a flood; a flagged cell is never opened by it). Opening a flagged cell, or an
   opened cell that is not a number, does nothing.
-- **The chord.** Opening an opened number n with exactly n flags among its neighbours opens each of its closed,
-  unflagged neighbours in neighbour order, as above; a mine among them loses (the rest are still opened first, so
-  the loss shows them). With any other count of flags, nothing.
+- **The chord.** Opening an opened cell showing n (0 included) with exactly n flags among its neighbours opens each
+  of its closed, unflagged neighbours in neighbour order, as above; a mine among them loses (the rest are still
+  opened first, so the loss shows them), and the first such mine in neighbour order is the one shown as opened. With
+  any other count of flags, nothing. (An opened 0 can have closed neighbours when a flag stopped a flood and was
+  then taken off.)
 - **Flags** go on and off closed cells only, without limit; the count shown is 48 minus the flags, and can go below
   0.
 - **The end.** A loss shows every mine. A win, when every cell that is not a mine is open, flags every mine.
@@ -66,26 +68,30 @@ flags) and opens cells it proves safe, by these rules, in this order, until none
   strict subset of U_b: the cells of U_b not in U_a hold (n_b − k_b) − (n_a − k_a) mines. If that is 0, open them
   all; if it is their count, mark them all. The first pair that opens or marks anything ends B, and A runs again.
 - **C, the total.** When A and B change nothing: if every one of the 48 mines is marked, open every closed cell
-  left; if the closed, unmarked cells left number exactly the unmarked mines, mark them all. Then A runs again.
+  left, and A runs again. (Its mirror, marking every closed cell when they number the mines left, can never change
+  the result: by then every safe cell is open.)
 
 These rules only ever draw true conclusions, so a board it clears is one a player can clear without a guess.
 
 ## The screen (400 × 240, draw.h only)
 
 - The top line, 20 px: the mines left (48 minus the flags), the time in seconds, and BEST.
-- The field: cells of 16 × 16 px from (8, 24). A closed cell is a raised square (an outline on a half shade); an
+- The field: cells of 16 × 16 px from (8, 22). A closed cell is a raised square (an outline on a half shade); an
   opened one is light, with its number in the 5 × 7 font at scale 2 (nothing for 0); a flag is a small pennant on a
   closed cell; a mine is a dark dot. The cursor is a 2 px frame around its cell.
-- A loss shows every mine, the one opened inverted, and a cross on each wrong flag; BOOM, the time and the best. A
-  win: CLEAR, the time, and the best, with NEW BEST when it is. ENTER (after 0.5 s) plays again.
+- A loss shows every mine, the one opened inverted, and a cross on each wrong flag; the top line then reads BOOM,
+  the time and the best. A win: CLEAR, the time, and the best, with NEW BEST when it is. Nothing covers the field.
+  ENTER at least 0.5 s after the end (by the keys' own times) plays again, and ENTER PLAYS shows under the field.
 - The title: MINES, the keys, and the best once there is one.
 - Sound: a tick for each open (440 Hz, 10 ms), a falling tune at a loss, a rising one at a win.
 
 ## The clock and the keys
 
-The time starts at the first open and stops at the end; it shows whole seconds, and the best is kept in ms. A
-cursor key moves the cursor at once on its down; held 300 ms, it moves again every 80 ms until its up. The cursor
-stops at the field's edges. A game starts on ENTER, with the cursor at (12, 6).
+The time starts at the first open's key and stops at the end's; it shows whole seconds (0 on a frame drawn before
+the clock reaches the first open's key), and the best is kept in ms: a win sets it when it has none or is faster,
+not when it ties. A cursor key moves the cursor at once on its down; held 300 ms, it moves again every 80 ms until
+its up. A second cursor key pressed while one is held takes over, and the first one's up then does nothing. The
+cursor stops at the field's edges. A game starts on ENTER, with the cursor at (12, 6).
 
 ## What it saves
 
@@ -116,7 +122,10 @@ or framework calls. `games/mines/mines_app.c`: the app_def, the cursor, the cloc
 3. **The rules at their edges**, by hand: the chord with the right flags, too few, too many, and a wrong one (a
    loss); a flagged cell opened (nothing); a flag on an opened cell (nothing); a flood stopping at numbers and at
    flags; the first open's neighbours never mines; a win with mines left unflagged.
-4. **The app on the SDK runner**: scripted games with frame hashes committed (checked by eye), the save and every
-   tone and tune the rules give: the cursor's repeat and its edges, a loss, a win and its time against the best,
-   ENTER partway through a title tick, damaged saves refused; the same through the .wasm and the bridge.
-5. **Plants**, each of which must go red, and a plant that does not build is red too.
+4. **The app on the SDK runner**: scripted games with frame hashes committed (checked by eye), the frames drawn on
+   keys included (keys come 7 ms after a tick, as on a calculator), the save and every tone and tune the rules
+   give: the cursor's repeat, its edges and a second key, a loss, a win and its time against the best (none, a tie,
+   a slower one), ENTER partway through a title tick and at exactly 0.5 s, damaged saves refused (each by its own
+   rule); the same through the .wasm and the bridge.
+5. **Plants**, each of which must go red, and a plant that does not build, or matches nothing, or runs forever, is
+   red too.

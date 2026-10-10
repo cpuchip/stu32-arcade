@@ -3,10 +3,14 @@ docs/mines.md's rules (the cursor and its repeat, the clock, the best time, the 
 
   appscript.py play      seed 5, no save: ENTER partway through a title tick; the complete solver's game played by
                          moving the cursor key by key (a held key's repeat on the way), a win and the first best;
-                         ENTER refused before 0.5 s, taken after; a second game with a wrong flag, lost on a mine
-  appscript.py refuse    seed 9, a save (best 1,000 ms, 2 wins, 5 games): keys the title refuses, a win slower than
-                         the best, which stays
-  appscript.py cursor    seed 3: the cursor held into each edge, where it stops, then left alive
+                         ENTER refused 0.2 s into the end and taken at exactly 0.5 s; a second game with a wrong
+                         flag, lost on a mine
+  appscript.py refuse    seed 9, a save whose best is exactly the first win's time (2 wins, 5 games): keys the title
+                         refuses, a win that ties the best (no new best), and a slower one (the best stays)
+  appscript.py cursor    seed 3: the cursor held into each edge, where it stops; a second key pressed while one is
+                         held takes over, and the first one's up does nothing; then left alive
+Every key comes 7 ms after the last tick, so the frames drawn on keys (hashed with the runner's -keyframes) are
+not the tick's.
   appscript.py badload   seed 9: a first open, then left alive; oracle/mines_check.sh runs it with four damaged saves
   appscript.py loadfile  the refuse script's save, as hex
 Each script ends with its sound, '# sound LINE' as the runner's -v prints each tone and tune, then
@@ -19,6 +23,7 @@ import proof as P
 
 KEY = {'8': 26, '2': 38, '4': 31, '6': 33, '5': 32, '0': 43, 'ENTER': 18, '1': 37}
 REPEAT_FIRST, REPEAT_NEXT, AGAIN_MS = 300, 80, 500
+LATE = 7   # keys come this long after the last tick, as on a calculator, so the frames drawn on keys differ
 FALL = '392/120 0/40 330/120 0/40 262/300'
 RISE = '523/100 659/100 784/100 1047/300'
 
@@ -51,10 +56,10 @@ class App:
             self.cy += dy
 
     def down(self, k, at=None):
-        at = self.clock if at is None else at
+        at = self.clock + LATE if at is None else at
         self.out.append(f'key {KEY[k]} 1 {at}')
         if self.state == 'play':
-            if k in '8246':
+            if k in '8246':                   # a second key takes over from a held one
                 self.move(k)
                 self.held, self.repeat_at = k, at + REPEAT_FIRST
             elif k in ('5', 'ENTER'):
@@ -68,7 +73,7 @@ class App:
             self.state = 'play'
 
     def up(self, k, at=None):
-        at = self.clock if at is None else at
+        at = self.clock + LATE if at is None else at
         self.out.append(f'key {KEY[k]} 0 {at}')
         if self.state == 'play' and k == self.held:
             self.held = None
@@ -111,13 +116,14 @@ class App:
         self.press(k)
         self.tick()
 
-    def solve_and_play(self, first, again=False):
+    def solve_and_play(self, first, again=False, pause=0):
         """the complete solver's game: flags on its mines, opens on its safe cells (again: 5 once more on the first
-        cell, an open that opens nothing and so makes no tick)"""
+        cell, an open that opens nothing and so makes no tick; pause: ticks after the first open)"""
         self.act('5', first)
         if again:
             self.press('5')
             self.tick()
+        self.tick(20, pause)
         known = set()
         while self.g.state == 'play':
             safe, mine = P.deduce(self.g.opened, known, self.g.num)
@@ -157,8 +163,9 @@ def play():
     a.out.append(f'# game 1: {a.g.state}, {a.t_end - a.t0} ms')
     a.tick(20, 10)                            # 0.2 s into the end: ENTER refused
     a.press('ENTER')
-    a.tick(20, 20)
-    a.press('ENTER')                          # 0.6 s: taken
+    a.tick(20, 14)
+    assert a.clock + LATE - a.t_end == AGAIN_MS
+    a.press('ENTER')                          # exactly 0.5 s: taken
     a.tick()
     a.act('5', 0)                             # deals with (0, 0) safe
     wrong = min(c for c in range(M.CELLS) if c not in a.g.mines and c not in a.g.opened)
@@ -172,11 +179,9 @@ def play():
     return a
 
 
-REFUSE_SAVE = (1000, 2, 5)
-
-
-def refuse():
-    a = App(9, *REFUSE_SAVE)
+def refuse(best=None):
+    """best None: a dry run with no best, to learn the first win's time"""
+    a = App(9, best or 0, 2, 5)
     a.out.append('# appscript.py refuse: seed 9, loads the save from appscript.py loadfile')
     a.tick(100)
     for k in ('5', '0', '8'):                 # the title takes only ENTER
@@ -185,9 +190,21 @@ def refuse():
     a.press('ENTER')
     a.tick()
     a.solve_and_play(P.first_cell(9))
-    a.out.append(f'# game: {a.g.state}, {a.t_end - a.t0} ms against the best 1000')
+    t1 = a.t_end - a.t0
+    if best is None:
+        return t1
+    a.out.append(f'# game 1: {a.g.state}, {t1} ms against the best {best}: a tie, no new best')
+    a.tick(20, 30)
+    a.press('ENTER')
+    a.tick()
+    a.solve_and_play(P.first_cell(9 + 1000), pause=1000)  # 20 s still after the first open: slower
+    a.out.append(f'# game 2: {a.g.state}, {a.t_end - a.t0} ms: slower, the best stays')
     a.tick(20, 30)
     return a
+
+
+def refuse_save():
+    return (refuse(), 2, 5)
 
 
 def cursor():
@@ -202,6 +219,16 @@ def cursor():
         a.up(k)
         a.tick()
         a.out.append(f'# after {k}: the cursor at {a.cx},{a.cy}')
+    a.out.append('# 4 held, then 8 pressed while it is: 8 takes over; 4 let go first, which does nothing')
+    a.down('4')
+    a.tick(20, 20)
+    a.down('8')
+    a.tick(20, 5)
+    a.up('4')
+    a.tick(20, 30)
+    a.up('8')
+    a.tick()
+    a.out.append(f'# after both: the cursor at {a.cx},{a.cy}')
     a.act('5', a.cy * M.W + a.cx)
     a.tick(20, 5)
     return a
@@ -221,9 +248,9 @@ def badload():
 def main():
     which = sys.argv[1]
     if which == 'loadfile':
-        print(App(0, *REFUSE_SAVE).save())
+        print(App(0, *refuse_save()).save())
         return 0
-    a = {'play': play, 'refuse': refuse, 'cursor': cursor, 'badload': badload}[which]()
+    a = {'play': play, 'refuse': lambda: refuse(refuse_save()[0]), 'cursor': cursor, 'badload': badload}[which]()
     print('\n'.join(a.out))
     print(a.expect())
     return 0

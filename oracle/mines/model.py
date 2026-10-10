@@ -7,6 +7,7 @@ Script lines:
   open C / flag C     the player's open (the chord included) and flag, at cell C
   solve F             the game's solver on the current mines from opening F: 'solve F cleared|stuck OPENED'
   cell C / mine C     cell C's state (open, flag, closed) / whether it is a mine
+  hit                 the mine shown as opened at a loss, or -1
 """
 import sys
 
@@ -100,9 +101,6 @@ def solver(mines, f):
                 if c not in opened:
                     flood(opened, mark, num, c)
             continue
-        if rest and len(rest) == MINES - len(mark):
-            mark.update(rest)
-            continue
         break
     return len(opened) == CELLS - MINES, opened
 
@@ -115,6 +113,7 @@ class Game:
         self.opened, self.flags = set(), set()
         self.state = 'play'
         self.attempts = 0
+        self.hit = None
 
     def draw(self, n):
         self.x = mix64(self.x)
@@ -155,7 +154,7 @@ class Game:
             lost = self.open_one(c)
             self.hit = c if lost else None
         else:
-            if self.num[c] == 0 or sum(n in self.flags for n in NB[c]) != self.num[c]:
+            if sum(n in self.flags for n in NB[c]) != self.num[c]:
                 return
             lost = False
             self.hit = None
@@ -183,7 +182,8 @@ class Game:
             return s
         mk = ck(self.mines) if self.mines is not None else 0
         return (f"state={self.state} opened={len(self.opened)} open_ck={ck(self.opened)} flags={len(self.flags)} "
-                f"flag_ck={ck(self.flags)} mines_ck={mk} attempts={self.attempts}")
+                f"flag_ck={ck(self.flags)} mines_ck={mk} attempts={self.attempts} "
+                f"hit={-1 if self.hit is None else self.hit}")
 
 
 def run(lines):
@@ -206,6 +206,8 @@ def run(lines):
         elif w[0] == 'cell':
             c = int(w[1])
             out.append(f"cell {c} {'open' if c in g.opened else 'flag' if c in g.flags else 'closed'}")
+        elif w[0] == 'hit':
+            out.append(f"hit {-1 if g.hit is None else g.hit}")
         elif w[0] == 'mine':
             out.append(f"mine {w[1]} {'yes' if int(w[1]) in g.mines else 'no'}")
         elif w[0] == 'solve':

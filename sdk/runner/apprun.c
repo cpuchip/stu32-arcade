@@ -12,7 +12,9 @@
  *
  * Script: `key K D MS` (key K, row * 6 + column, down 1 or up 0, at MS on the game's clock) and
  * `tick MS` (MS since the last tick); `#` comments.
- * Usage: apprun SCRIPT [-pbm DIR] [-every N] [-hashes FILE] [-load SAVE] [-save SAVE] [-seed N] [-v] */
+ * Usage: apprun SCRIPT [-pbm DIR] [-every N] [-hashes FILE] [-keyframes] [-load SAVE] [-save SAVE] [-seed N] [-v]
+ * -keyframes: -hashes also takes the frames drawn after keys (by default only a tick's), for a game whose key frames
+ * can differ from the next tick's. */
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -100,6 +102,7 @@ int main(int argc, char **argv)
 {
     const char *script = NULL, *pbm_dir = NULL, *hashes = NULL, *load_path = NULL, *save_path = NULL;
     uint64_t every = 1;
+    int keyframes = 0;
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-pbm") && i + 1 < argc)
             pbm_dir = argv[++i];
@@ -115,11 +118,13 @@ int main(int argc, char **argv)
             app_seed_set((uint32_t)strtoul(argv[++i], NULL, 0));
         else if (!strcmp(argv[i], "-v"))
             verbose = 1;
+        else if (!strcmp(argv[i], "-keyframes"))
+            keyframes = 1;
         else
             script = argv[i];
     }
     if (!script || !every) {
-        fprintf(stderr, "usage: apprun SCRIPT [-pbm DIR] [-every N] [-hashes FILE] [-load SAVE] [-save SAVE] [-seed N] [-v]\n");
+        fprintf(stderr, "usage: apprun SCRIPT [-pbm DIR] [-every N] [-hashes FILE] [-keyframes] [-load SAVE] [-save SAVE] [-seed N] [-v]\n");
         return 2;
     }
     const app_def *a = &APP_DEF;
@@ -170,6 +175,8 @@ int main(int argc, char **argv)
             if (a->key(ctx, k, d != 0, ms)) {
                 a->draw(ctx, &frame);
                 frames++;
+                if (hf && keyframes)
+                    fprintf(hf, "%016" PRIx64 "\n", hash());
             }
         } else if (sscanf(line, "tick %u", &ms) == 1) {
             if (stopped) {

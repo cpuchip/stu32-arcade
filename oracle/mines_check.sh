@@ -46,11 +46,12 @@ for s in range(400):
 (cd "$O" && python3 edges.py script) > "$B/edges.txt"
 (cd "$O" && python3 edges.py expect) > "$B/edges.expect"
 (cd "$O" && python3 model.py "$B/edges.txt") > "$B/edges.py.txt"
-filt() { grep -E '^(open|flag|cell|mine) ' | sed -E 's/^(open|flag) [0-9]+ state=([a-z]+).*/\2/'; }
+filt() { grep -E '^(open|flag|cell|mine|hit) ' | sed -E 's/^(open|flag) [0-9]+ state=([a-z]+).*/\2/'; }
 
-check1() { "$1" "$B/fuzz.txt" | cmp -s - "$B/fuzz.py.txt"; }
-check2_deals() { "$1" "$B/deals.txt" | cmp -s - "$B/deals.py.txt"; }
-check3() { "$1" "$B/edges.txt" > "$B/edges.out" && filt < "$B/edges.out" | cmp -s - "$B/edges.expect" && cmp -s "$B/edges.out" "$B/edges.py.txt"; }
+# each run of the C has a time limit, so a plant that loops goes red instead of hanging the check
+check1() { timeout 60 "$1" "$B/fuzz.txt" | cmp -s - "$B/fuzz.py.txt"; }
+check2_deals() { timeout 20 "$1" "$B/deals.txt" | cmp -s - "$B/deals.py.txt"; }
+check3() { timeout 60 "$1" "$B/edges.txt" > "$B/edges.out" && filt < "$B/edges.out" | cmp -s - "$B/edges.expect" && cmp -s "$B/edges.out" "$B/edges.py.txt"; }
 
 check1 "$B/trace" && echo "  1 logic: $(grep -c '^game' "$B/fuzz.txt") games ($(grep -c 'state=won' "$B/fuzz.py.txt") moves in won states, $(grep -c '^open.*state=lost' "$B/fuzz.py.txt") in lost), $(wc -l < "$B/fuzz.py.txt") lines, identical to the model" \
     || red "1 logic: the C and the model differ"
@@ -76,14 +77,14 @@ xxd -r -p "$O/scripts/app-refuse.load.hex" > "$B/refuse.load"
 good=$(cat "$O/scripts/app-refuse.load.hex")
 printf '%s' "58${good:2}" | xxd -r -p > "$B/bad-magic.load"
 printf '%s' "${good:0:2}02${good:4}" | xxd -r -p > "$B/bad-version.load"
-printf '%s' "${good:0:20}" | xxd -r -p > "$B/bad-short.load"
+printf '%s' "${good:0:28}" | xxd -r -p > "$B/bad-short.load"    # 14 bytes: wins and games whole, so only the length refuses it
 printf '%s' "${good:0:12}09000000${good:20}" | xxd -r -p > "$B/bad-wins.load"
 script_of() { case "$1" in badload*) echo "$B/app-badload.txt" ;; *) echo "$O/scripts/app-$1.txt" ;; esac; }
 app_run() { # app_run RUNNER NAME SUFFIX -> $B/NAME.SUFFIX.{hashes,save,out}
     local seed=5 load=()
     case "$1:$2" in *:refuse) seed=9 load=(-load "$B/refuse.load") ;; *:cursor) seed=3 ;; *:badload) seed=9 ;;
         *:badload-*) seed=9 load=(-load "$B/bad-${2#badload-}.load") ;; esac
-    "$1" "$(script_of "$2")" -seed $seed "${load[@]}" -v -hashes "$B/$2.$3.hashes" -save "$B/$2.$3.save" > "$B/$2.$3.out" 2>&1
+    timeout 120 "$1" "$(script_of "$2")" -seed $seed "${load[@]}" -v -keyframes -hashes "$B/$2.$3.hashes" -save "$B/$2.$3.save" > "$B/$2.$3.out" 2>&1
 }
 expect() { # expect NAME: the script's sound lines and its last line, '# expect save HEX tunes N tones N'
     local t s
@@ -157,7 +158,7 @@ plant() { # plant NAME FILE PERL -> $B/plant-NAME holding the games/mines copy
 if plant floodflag mines_logic.c 's/MINES_OPEN \| MINES_QUEUED \| stop/MINES_OPEN | MINES_QUEUED | (stop \& 0)/' && build_trace "$STRICT -O2" "$B/plant-floodflag" "$B/p1"; then
     check3 "$B/p1" && red "5 plant: a flood through flags passes check 3" || echo "  5 plant: a flood that opens flagged cells: check 3 red"
 fi
-if plant chordany mines_logic.c 's/if \(g->num\[c\] == 0 \|\| flags != g->num\[c\]\)/if (g->num[c] == 0 || flags < g->num[c])/' \
+if plant chordany mines_logic.c 's/        if \(flags != g->num\[c\]\) \/\*/        if (flags < g->num[c]) \/*/' \
     && build_trace "$STRICT -O2" "$B/plant-chordany" "$B/p2"; then
     check3 "$B/p2" && red "5 plant: a chord with too many flags passes check 3" || echo "  5 plant: a chord with too many flags: check 3 red"
 fi
@@ -193,6 +194,24 @@ app_plant edge 's/    if \(y >= 0 && y < MINES_H\)\n        c->cy = y;/    if (y
 app_plant bestworse 's/if \(c->best == 0 \|\| t < c->best\)/if (c->best == 0 || t > c->best)/' refuse "a slower time taken as the best"
 app_plant nowrong 's/        if \(over && g->state == MINES_LOST\) \{ \/\* a wrong flag \*\//        if (0) { \/* a wrong flag *\//' play "no cross on a wrong flag"
 app_plant winsgames 's/ \|\| get32\(save \+ 6\) > get32\(save \+ 10\)\)/)/' badload-wins "a save with more wins than games taken"
+if plant chordzero mines_logic.c 's/        if \(flags != g->num\[c\]\)/        if (g->num[c] == 0 || flags != g->num[c])/' \
+    && build_trace "$STRICT -O2" "$B/plant-chordzero" "$B/p7"; then
+    check3 "$B/p7" && red "5 plant: a chord on an opened 0 doing nothing passes check 3" || echo "  5 plant: a chord on an opened 0 that does nothing: check 3 red"
+fi
+if plant hitlast mines_logic.c 's/                if \(g->hit < 0\)\n                    g->hit = nb\[i\];/                g->hit = nb[i];/' \
+    && build_trace "$STRICT -O2" "$B/plant-hitlast" "$B/p8"; then
+    check3 "$B/p8" && red "5 plant: the last mine shown as hit passes check 3" || echo "  5 plant: a chord's last mine shown as the one opened: check 3 red"
+fi
+if plant loops mines_logic.c 's/        if \(done\)\n            continue;/        if (done || 1)\n            continue;/' \
+    && build_trace "$STRICT -O2" "$B/plant-loops" "$B/p9"; then
+    check2_deals "$B/p9" && red "5 plant: a solver that never stops passes check 2" || echo "  5 plant: a solver that never stops: check 2 red (timed out, not hung)"
+fi
+app_plant t0now 's/        c->t0 = ms; \/\* the time starts at the first open \*\//        c->t0 = c->now;/' refuse "the time from the tick, not the key"
+app_plant noguard 's/    return t > 0 \? \(uint32_t\)t \/ 1000 : 0;/    return (uint32_t)t \/ 1000;/' play "a first open's frame with no guard on the time"
+app_plant enterlate 's/ms - c->t_end >= AGAIN_MS/ms - c->t_end > AGAIN_MS/' play "ENTER refused at exactly 0.5 s"
+app_plant besttie 's/if \(c->best == 0 \|\| t < c->best\)/if (c->best == 0 || t <= c->best)/' refuse "a tie taken as a new best"
+app_plant upother 's/        if \(cursor && key == c->held\)\n            c->held = 0;/        if (cursor)\n            c->held = 0;/' cursor "any cursor key's up stopping the repeat"
+app_plant shortlen 's/    if \(n < SAVE_BYTES \|\| /    if (n < 10 || /' badload-short "a 14-byte save taken"
 app_plant noquiet 's/        if \(c->g.opened != opened\)\n            app_beep\(440, 10\);/        if (c->g.opened != opened || 1)\n            app_beep(440, 10);/' play "a tick for every open, even one that opens nothing"
 
 [ "$ok" = 1 ] && echo "minescheck: GREEN" || { echo "minescheck: RED"; exit 1; }

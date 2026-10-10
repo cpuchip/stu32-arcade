@@ -17,7 +17,7 @@ enum { TITLE, PLAY, OVER };
 #define AGAIN_MS 500     /* the end takes ENTER after this */
 #define HUD_H 20
 #define FX 8
-#define FY 24
+#define FY 22
 #define CELL 16
 
 typedef struct {
@@ -202,11 +202,13 @@ static void centred(ls027_frame *f, int y, int scale, const char *s)
     draw_text(f, (LS027_W - draw_text_width(s, scale)) / 2, y, scale, s, 1);
 }
 
+/* the clock is the ticks', the first open's time the key's, so a frame drawn on that key is before t0 */
 static uint32_t seconds(const mines_ctx *c)
 {
     if (!c->g.dealt)
         return 0;
-    return ((c->state == PLAY ? c->now : c->t_end) - c->t0) / 1000;
+    int32_t t = (int32_t)((c->state == PLAY ? c->now : c->t_end) - c->t0);
+    return t > 0 ? (uint32_t)t / 1000 : 0;
 }
 
 static void pennant(ls027_frame *f, int x, int y)
@@ -252,12 +254,17 @@ static void draw_cell(ls027_frame *f, const mines_ctx *c, int cell)
 static void draw_play(ls027_frame *f, const mines_ctx *c)
 {
     char t[24];
-    label(t, "MINES ", (int32_t)MINES_N - c->g.flags);
-    draw_text(f, 4, 3, 2, t, 1);
+    bool over = c->state == OVER;
+    if (over)
+        draw_text(f, 4, 3, 2, c->g.state == MINES_WON ? "CLEAR" : "BOOM", 1);
+    else {
+        label(t, "MINES ", (int32_t)MINES_N - c->g.flags);
+        draw_text(f, 4, 3, 2, t, 1);
+    }
     label(t, "TIME ", (int32_t)seconds(c));
     centred(f, 3, 2, t);
     if (c->best) {
-        label(t, "BEST ", (int32_t)(c->best / 1000));
+        label(t, over && c->new_best ? "NEW BEST " : "BEST ", (int32_t)(c->best / 1000));
         draw_text(f, LS027_W - 4 - draw_text_width(t, 2), 3, 2, t, 1);
     }
     for (int cell = 0; cell < MINES_CELLS; cell++)
@@ -285,21 +292,9 @@ static void app_draw_cb(void *ctx, ls027_frame *f)
         }
         return;
     }
-    draw_play(f, c);
-    if (c->state == OVER) {
-        bool won = c->g.state == MINES_WON;
-        draw_fill(f, 80, 72, 240, 100, DRAW_LIGHT);
-        draw_frame_rect(f, 80, 72, 240, 100, 1);
-        centred(f, 82, 3, won ? "CLEAR" : "BOOM");
-        label(t, "TIME ", (int32_t)seconds(c));
-        centred(f, 110, 2, t);
-        if (c->best) {
-            label(t, c->new_best ? "NEW BEST " : "BEST ", (int32_t)(c->best / 1000));
-            centred(f, 132, 2, t);
-        }
-        if (c->now - c->t_end >= AGAIN_MS)
-            centred(f, 156, 1, "ENTER PLAYS");
-    }
+    draw_play(f, c); /* the end is told on the top line, so the whole field shows */
+    if (c->state == OVER && (int32_t)(c->now - c->t_end) >= AGAIN_MS)
+        centred(f, FY + MINES_H * CELL + 2, 1, "ENTER PLAYS");
 }
 
 const app_def mines_app = {"MINES", sizeof(mines_ctx), app_load_cb, app_start_cb, app_key_cb, app_tick_cb,
