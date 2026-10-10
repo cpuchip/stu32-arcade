@@ -1,0 +1,2171 @@
+# appscript.py refuse: seed 9, loads the save from appscript.py loadfile
+tick 100
+key 32 1 100
+key 32 0 100
+key 43 1 100
+key 43 0 100
+key 26 1 100
+key 26 0 100
+tick 100
+key 18 1 200
+key 18 0 200
+tick 20
+key 33 1 220
+key 33 0 220
+tick 20
+key 33 1 240
+key 33 0 240
+tick 20
+key 33 1 260
+key 33 0 260
+tick 20
+key 33 1 280
+key 33 0 280
+tick 20
+key 33 1 300
+key 33 0 300
+tick 20
+key 33 1 320
+key 33 0 320
+tick 20
+key 33 1 340
+key 33 0 340
+tick 20
+key 33 1 360
+key 33 0 360
+tick 20
+key 33 1 380
+key 33 0 380
+tick 20
+key 38 1 400
+key 38 0 400
+tick 20
+key 38 1 420
+key 38 0 420
+tick 20
+key 38 1 440
+key 38 0 440
+tick 20
+key 32 1 460
+key 32 0 460
+tick 20
+key 31 1 480
+key 31 0 480
+tick 20
+key 26 1 500
+key 26 0 500
+tick 20
+key 26 1 520
+key 26 0 520
+tick 20
+key 26 1 540
+key 26 0 540
+tick 20
+key 26 1 560
+key 26 0 560
+tick 20
+key 43 1 580
+key 43 0 580
+tick 20
+key 31 1 600
+key 31 0 600
+tick 20
+key 38 1 620
+key 38 0 620
+tick 20
+key 38 1 640
+key 38 0 640
+tick 20
+key 43 1 660
+key 43 0 660
+tick 20
+key 33 1 680
+key 33 0 680
+tick 20
+key 43 1 700
+key 43 0 700
+tick 20
+key 31 1 720
+key 31 0 720
+tick 20
+key 31 1 740
+key 31 0 740
+tick 20
+key 31 1 760
+key 31 0 760
+tick 20
+key 38 1 780
+key 38 0 780
+tick 20
+key 38 1 800
+key 38 0 800
+tick 20
+key 43 1 820
+key 43 0 820
+tick 20
+key 33 1 840
+key 33 0 840
+tick 20
+key 33 1 860
+key 33 0 860
+tick 20
+key 33 1 880
+key 33 0 880
+tick 20
+key 33 1 900
+key 33 0 900
+tick 20
+key 33 1 920
+key 33 0 920
+tick 20
+key 33 1 940
+key 33 0 940
+tick 20
+key 38 1 960
+key 38 0 960
+tick 20
+key 38 1 980
+key 38 0 980
+tick 20
+key 38 1 1000
+key 38 0 1000
+tick 20
+key 43 1 1020
+key 43 0 1020
+tick 20
+key 31 1 1040
+key 31 0 1040
+tick 20
+key 31 1 1060
+key 31 0 1060
+tick 20
+key 31 1 1080
+key 31 0 1080
+tick 20
+key 31 1 1100
+key 31 0 1100
+tick 20
+key 26 1 1120
+key 26 0 1120
+tick 20
+key 26 1 1140
+key 26 0 1140
+tick 20
+key 26 1 1160
+key 26 0 1160
+tick 20
+key 26 1 1180
+key 26 0 1180
+tick 20
+key 26 1 1200
+key 26 0 1200
+tick 20
+key 26 1 1220
+key 26 0 1220
+tick 20
+key 26 1 1240
+key 26 0 1240
+tick 20
+key 26 1 1260
+key 26 0 1260
+tick 20
+key 26 1 1280
+key 26 0 1280
+tick 20
+key 26 1 1300
+key 26 0 1300
+tick 20
+key 32 1 1320
+key 32 0 1320
+tick 20
+key 38 1 1340
+key 38 0 1340
+tick 20
+key 38 1 1360
+key 38 0 1360
+tick 20
+key 38 1 1380
+key 38 0 1380
+tick 20
+key 32 1 1400
+key 32 0 1400
+tick 20
+key 33 1 1420
+key 33 0 1420
+tick 20
+key 38 1 1440
+key 38 0 1440
+tick 20
+key 32 1 1460
+key 32 0 1460
+tick 20
+key 31 1 1480
+key 31 0 1480
+tick 20
+key 31 1 1500
+key 31 0 1500
+tick 20
+key 31 1 1520
+key 31 0 1520
+tick 20
+key 38 1 1540
+key 38 0 1540
+tick 20
+key 32 1 1560
+key 32 0 1560
+tick 20
+key 31 1 1580
+key 31 0 1580
+tick 20
+key 26 1 1600
+key 26 0 1600
+tick 20
+key 26 1 1620
+key 26 0 1620
+tick 20
+key 43 1 1640
+key 43 0 1640
+tick 20
+key 31 1 1660
+key 31 0 1660
+tick 20
+key 31 1 1680
+key 31 0 1680
+tick 20
+key 31 1 1700
+key 31 0 1700
+tick 20
+key 38 1 1720
+key 38 0 1720
+tick 20
+key 43 1 1740
+key 43 0 1740
+tick 20
+key 33 1 1760
+key 33 0 1760
+tick 20
+key 43 1 1780
+key 43 0 1780
+tick 20
+key 31 1 1800
+key 31 0 1800
+tick 20
+key 31 1 1820
+key 31 0 1820
+tick 20
+key 31 1 1840
+key 31 0 1840
+tick 20
+key 31 1 1860
+key 31 0 1860
+tick 20
+key 38 1 1880
+key 38 0 1880
+tick 20
+key 38 1 1900
+key 38 0 1900
+tick 20
+key 43 1 1920
+key 43 0 1920
+tick 20
+key 33 1 1940
+key 33 0 1940
+tick 20
+key 43 1 1960
+key 43 0 1960
+tick 20
+key 33 1 1980
+key 33 0 1980
+tick 20
+key 33 1 2000
+key 33 0 2000
+tick 20
+key 43 1 2020
+key 43 0 2020
+tick 20
+key 33 1 2040
+key 33 0 2040
+tick 20
+key 33 1 2060
+key 33 0 2060
+tick 20
+key 33 1 2080
+key 33 0 2080
+tick 20
+key 38 1 2100
+key 38 0 2100
+tick 20
+key 38 1 2120
+key 38 0 2120
+tick 20
+key 38 1 2140
+key 38 0 2140
+tick 20
+key 43 1 2160
+key 43 0 2160
+tick 20
+key 31 1 2180
+key 31 0 2180
+tick 20
+key 31 1 2200
+key 31 0 2200
+tick 20
+key 31 1 2220
+key 31 0 2220
+tick 20
+key 31 1 2240
+key 31 0 2240
+tick 20
+key 31 1 2260
+key 31 0 2260
+tick 20
+key 31 1 2280
+key 31 0 2280
+tick 20
+key 31 1 2300
+key 31 0 2300
+tick 20
+key 38 1 2320
+key 38 0 2320
+tick 20
+key 43 1 2340
+key 43 0 2340
+tick 20
+key 33 1 2360
+key 33 0 2360
+tick 20
+key 43 1 2380
+key 43 0 2380
+tick 20
+key 33 1 2400
+key 33 0 2400
+tick 20
+key 43 1 2420
+key 43 0 2420
+tick 20
+key 33 1 2440
+key 33 0 2440
+tick 20
+key 43 1 2460
+key 43 0 2460
+tick 20
+key 33 1 2480
+key 33 0 2480
+tick 20
+key 33 1 2500
+key 33 0 2500
+tick 20
+key 33 1 2520
+key 33 0 2520
+tick 20
+key 33 1 2540
+key 33 0 2540
+tick 20
+key 33 1 2560
+key 33 0 2560
+tick 20
+key 33 1 2580
+key 33 0 2580
+tick 20
+key 33 1 2600
+key 33 0 2600
+tick 20
+key 26 1 2620
+key 26 0 2620
+tick 20
+key 26 1 2640
+key 26 0 2640
+tick 20
+key 26 1 2660
+key 26 0 2660
+tick 20
+key 26 1 2680
+key 26 0 2680
+tick 20
+key 26 1 2700
+key 26 0 2700
+tick 20
+key 26 1 2720
+key 26 0 2720
+tick 20
+key 32 1 2740
+key 32 0 2740
+tick 20
+key 31 1 2760
+key 31 0 2760
+tick 20
+key 31 1 2780
+key 31 0 2780
+tick 20
+key 31 1 2800
+key 31 0 2800
+tick 20
+key 31 1 2820
+key 31 0 2820
+tick 20
+key 31 1 2840
+key 31 0 2840
+tick 20
+key 31 1 2860
+key 31 0 2860
+tick 20
+key 38 1 2880
+key 38 0 2880
+tick 20
+key 32 1 2900
+key 32 0 2900
+tick 20
+key 31 1 2920
+key 31 0 2920
+tick 20
+key 38 1 2940
+key 38 0 2940
+tick 20
+key 32 1 2960
+key 32 0 2960
+tick 20
+key 31 1 2980
+key 31 0 2980
+tick 20
+key 31 1 3000
+key 31 0 3000
+tick 20
+key 31 1 3020
+key 31 0 3020
+tick 20
+key 38 1 3040
+key 38 0 3040
+tick 20
+key 32 1 3060
+key 32 0 3060
+tick 20
+key 33 1 3080
+key 33 0 3080
+tick 20
+key 33 1 3100
+key 33 0 3100
+tick 20
+key 33 1 3120
+key 33 0 3120
+tick 20
+key 33 1 3140
+key 33 0 3140
+tick 20
+key 33 1 3160
+key 33 0 3160
+tick 20
+key 33 1 3180
+key 33 0 3180
+tick 20
+key 33 1 3200
+key 33 0 3200
+tick 20
+key 38 1 3220
+key 38 0 3220
+tick 20
+key 38 1 3240
+key 38 0 3240
+tick 20
+key 38 1 3260
+key 38 0 3260
+tick 20
+key 32 1 3280
+key 32 0 3280
+tick 20
+key 31 1 3300
+key 31 0 3300
+tick 20
+key 26 1 3320
+key 26 0 3320
+tick 20
+key 26 1 3340
+key 26 0 3340
+tick 20
+key 26 1 3360
+key 26 0 3360
+tick 20
+key 26 1 3380
+key 26 0 3380
+tick 20
+key 26 1 3400
+key 26 0 3400
+tick 20
+key 26 1 3420
+key 26 0 3420
+tick 20
+key 26 1 3440
+key 26 0 3440
+tick 20
+key 43 1 3460
+key 43 0 3460
+tick 20
+key 33 1 3480
+key 33 0 3480
+tick 20
+key 33 1 3500
+key 33 0 3500
+tick 20
+key 33 1 3520
+key 33 0 3520
+tick 20
+key 43 1 3540
+key 43 0 3540
+tick 20
+key 31 1 3560
+key 31 0 3560
+tick 20
+key 31 1 3580
+key 31 0 3580
+tick 20
+key 31 1 3600
+key 31 0 3600
+tick 20
+key 31 1 3620
+key 31 0 3620
+tick 20
+key 31 1 3640
+key 31 0 3640
+tick 20
+key 31 1 3660
+key 31 0 3660
+tick 20
+key 38 1 3680
+key 38 0 3680
+tick 20
+key 43 1 3700
+key 43 0 3700
+tick 20
+key 33 1 3720
+key 33 0 3720
+tick 20
+key 33 1 3740
+key 33 0 3740
+tick 20
+key 26 1 3760
+key 26 0 3760
+tick 20
+key 32 1 3780
+key 32 0 3780
+tick 20
+key 33 1 3800
+key 33 0 3800
+tick 20
+key 33 1 3820
+key 33 0 3820
+tick 20
+key 33 1 3840
+key 33 0 3840
+tick 20
+key 32 1 3860
+key 32 0 3860
+tick 20
+key 31 1 3880
+key 31 0 3880
+tick 20
+key 31 1 3900
+key 31 0 3900
+tick 20
+key 31 1 3920
+key 31 0 3920
+tick 20
+key 31 1 3940
+key 31 0 3940
+tick 20
+key 31 1 3960
+key 31 0 3960
+tick 20
+key 31 1 3980
+key 31 0 3980
+tick 20
+key 38 1 4000
+key 38 0 4000
+tick 20
+key 38 1 4020
+key 38 0 4020
+tick 20
+key 32 1 4040
+key 32 0 4040
+tick 20
+key 33 1 4060
+key 33 0 4060
+tick 20
+key 32 1 4080
+key 32 0 4080
+tick 20
+key 31 1 4100
+key 31 0 4100
+tick 20
+key 31 1 4120
+key 31 0 4120
+tick 20
+key 31 1 4140
+key 31 0 4140
+tick 20
+key 31 1 4160
+key 31 0 4160
+tick 20
+key 38 1 4180
+key 38 0 4180
+tick 20
+key 32 1 4200
+key 32 0 4200
+tick 20
+key 38 1 4220
+key 38 0 4220
+tick 20
+key 32 1 4240
+key 32 0 4240
+tick 20
+key 38 1 4260
+key 38 0 4260
+tick 20
+key 32 1 4280
+key 32 0 4280
+tick 20
+key 33 1 4300
+key 33 0 4300
+tick 20
+key 33 1 4320
+key 33 0 4320
+tick 20
+key 33 1 4340
+key 33 0 4340
+tick 20
+key 33 1 4360
+key 33 0 4360
+tick 20
+key 33 1 4380
+key 33 0 4380
+tick 20
+key 33 1 4400
+key 33 0 4400
+tick 20
+key 33 1 4420
+key 33 0 4420
+tick 20
+key 33 1 4440
+key 33 0 4440
+tick 20
+key 33 1 4460
+key 33 0 4460
+tick 20
+key 33 1 4480
+key 33 0 4480
+tick 20
+key 33 1 4500
+key 33 0 4500
+tick 20
+key 26 1 4520
+key 26 0 4520
+tick 20
+key 26 1 4540
+key 26 0 4540
+tick 20
+key 26 1 4560
+key 26 0 4560
+tick 20
+key 26 1 4580
+key 26 0 4580
+tick 20
+key 26 1 4600
+key 26 0 4600
+tick 20
+key 26 1 4620
+key 26 0 4620
+tick 20
+key 26 1 4640
+key 26 0 4640
+tick 20
+key 26 1 4660
+key 26 0 4660
+tick 20
+key 26 1 4680
+key 26 0 4680
+tick 20
+key 43 1 4700
+key 43 0 4700
+tick 20
+key 38 1 4720
+key 38 0 4720
+tick 20
+key 38 1 4740
+key 38 0 4740
+tick 20
+key 38 1 4760
+key 38 0 4760
+tick 20
+key 43 1 4780
+key 43 0 4780
+tick 20
+key 26 1 4800
+key 26 0 4800
+tick 20
+key 26 1 4820
+key 26 0 4820
+tick 20
+key 26 1 4840
+key 26 0 4840
+tick 20
+key 26 1 4860
+key 26 0 4860
+tick 20
+key 32 1 4880
+key 32 0 4880
+tick 20
+key 38 1 4900
+key 38 0 4900
+tick 20
+key 38 1 4920
+key 38 0 4920
+tick 20
+key 38 1 4940
+key 38 0 4940
+tick 20
+key 32 1 4960
+key 32 0 4960
+tick 20
+key 31 1 4980
+key 31 0 4980
+tick 20
+key 31 1 5000
+key 31 0 5000
+tick 20
+key 31 1 5020
+key 31 0 5020
+tick 20
+key 31 1 5040
+key 31 0 5040
+tick 20
+key 31 1 5060
+key 31 0 5060
+tick 20
+key 31 1 5080
+key 31 0 5080
+tick 20
+key 38 1 5100
+key 38 0 5100
+tick 20
+key 32 1 5120
+key 32 0 5120
+tick 20
+key 33 1 5140
+key 33 0 5140
+tick 20
+key 32 1 5160
+key 32 0 5160
+tick 20
+key 33 1 5180
+key 33 0 5180
+tick 20
+key 32 1 5200
+key 32 0 5200
+tick 20
+key 33 1 5220
+key 33 0 5220
+tick 20
+key 32 1 5240
+key 32 0 5240
+tick 20
+key 33 1 5260
+key 33 0 5260
+tick 20
+key 32 1 5280
+key 32 0 5280
+tick 20
+key 33 1 5300
+key 33 0 5300
+tick 20
+key 32 1 5320
+key 32 0 5320
+tick 20
+key 31 1 5340
+key 31 0 5340
+tick 20
+key 31 1 5360
+key 31 0 5360
+tick 20
+key 31 1 5380
+key 31 0 5380
+tick 20
+key 31 1 5400
+key 31 0 5400
+tick 20
+key 31 1 5420
+key 31 0 5420
+tick 20
+key 38 1 5440
+key 38 0 5440
+tick 20
+key 32 1 5460
+key 32 0 5460
+tick 20
+key 31 1 5480
+key 31 0 5480
+tick 20
+key 31 1 5500
+key 31 0 5500
+tick 20
+key 31 1 5520
+key 31 0 5520
+tick 20
+key 38 1 5540
+key 38 0 5540
+tick 20
+key 32 1 5560
+key 32 0 5560
+tick 20
+key 33 1 5580
+key 33 0 5580
+tick 20
+key 32 1 5600
+key 32 0 5600
+tick 20
+key 31 1 5620
+key 31 0 5620
+tick 20
+key 38 1 5640
+key 38 0 5640
+tick 20
+key 32 1 5660
+key 32 0 5660
+tick 20
+key 33 1 5680
+key 33 0 5680
+tick 20
+key 33 1 5700
+key 33 0 5700
+tick 20
+key 33 1 5720
+key 33 0 5720
+tick 20
+key 33 1 5740
+key 33 0 5740
+tick 20
+key 26 1 5760
+key 26 0 5760
+tick 20
+key 26 1 5780
+key 26 0 5780
+tick 20
+key 26 1 5800
+key 26 0 5800
+tick 20
+key 26 1 5820
+key 26 0 5820
+tick 20
+key 43 1 5840
+key 43 0 5840
+tick 20
+key 33 1 5860
+key 33 0 5860
+tick 20
+key 33 1 5880
+key 33 0 5880
+tick 20
+key 33 1 5900
+key 33 0 5900
+tick 20
+key 33 1 5920
+key 33 0 5920
+tick 20
+key 43 1 5940
+key 43 0 5940
+tick 20
+key 31 1 5960
+key 31 0 5960
+tick 20
+key 31 1 5980
+key 31 0 5980
+tick 20
+key 31 1 6000
+key 31 0 6000
+tick 20
+key 31 1 6020
+key 31 0 6020
+tick 20
+key 31 1 6040
+key 31 0 6040
+tick 20
+key 31 1 6060
+key 31 0 6060
+tick 20
+key 38 1 6080
+key 38 0 6080
+tick 20
+key 43 1 6100
+key 43 0 6100
+tick 20
+key 31 1 6120
+key 31 0 6120
+tick 20
+key 31 1 6140
+key 31 0 6140
+tick 20
+key 31 1 6160
+key 31 0 6160
+tick 20
+key 38 1 6180
+key 38 0 6180
+tick 20
+key 38 1 6200
+key 38 0 6200
+tick 20
+key 38 1 6220
+key 38 0 6220
+tick 20
+key 38 1 6240
+key 38 0 6240
+tick 20
+key 43 1 6260
+key 43 0 6260
+tick 20
+key 38 1 6280
+key 38 0 6280
+tick 20
+key 38 1 6300
+key 38 0 6300
+tick 20
+key 38 1 6320
+key 38 0 6320
+tick 20
+key 43 1 6340
+key 43 0 6340
+tick 20
+key 33 1 6360
+key 33 0 6360
+tick 20
+key 33 1 6380
+key 33 0 6380
+tick 20
+key 33 1 6400
+key 33 0 6400
+tick 20
+key 33 1 6420
+key 33 0 6420
+tick 20
+key 33 1 6440
+key 33 0 6440
+tick 20
+key 33 1 6460
+key 33 0 6460
+tick 20
+key 33 1 6480
+key 33 0 6480
+tick 20
+key 33 1 6500
+key 33 0 6500
+tick 20
+key 33 1 6520
+key 33 0 6520
+tick 20
+key 26 1 6540
+key 26 0 6540
+tick 20
+key 26 1 6560
+key 26 0 6560
+tick 20
+key 26 1 6580
+key 26 0 6580
+tick 20
+key 26 1 6600
+key 26 0 6600
+tick 20
+key 26 1 6620
+key 26 0 6620
+tick 20
+key 26 1 6640
+key 26 0 6640
+tick 20
+key 26 1 6660
+key 26 0 6660
+tick 20
+key 26 1 6680
+key 26 0 6680
+tick 20
+key 26 1 6700
+key 26 0 6700
+tick 20
+key 26 1 6720
+key 26 0 6720
+tick 20
+key 26 1 6740
+key 26 0 6740
+tick 20
+key 32 1 6760
+key 32 0 6760
+tick 20
+key 38 1 6780
+key 38 0 6780
+tick 20
+key 32 1 6800
+key 32 0 6800
+tick 20
+key 38 1 6820
+key 38 0 6820
+tick 20
+key 32 1 6840
+key 32 0 6840
+tick 20
+key 31 1 6860
+key 31 0 6860
+tick 20
+key 31 1 6880
+key 31 0 6880
+tick 20
+key 31 1 6900
+key 31 0 6900
+tick 20
+key 31 1 6920
+key 31 0 6920
+tick 20
+key 31 1 6940
+key 31 0 6940
+tick 20
+key 31 1 6960
+key 31 0 6960
+tick 20
+key 38 1 6980
+key 38 0 6980
+tick 20
+key 32 1 7000
+key 32 0 7000
+tick 20
+key 33 1 7020
+key 33 0 7020
+tick 20
+key 32 1 7040
+key 32 0 7040
+tick 20
+key 33 1 7060
+key 33 0 7060
+tick 20
+key 33 1 7080
+key 33 0 7080
+tick 20
+key 32 1 7100
+key 32 0 7100
+tick 20
+key 33 1 7120
+key 33 0 7120
+tick 20
+key 32 1 7140
+key 32 0 7140
+tick 20
+key 31 1 7160
+key 31 0 7160
+tick 20
+key 31 1 7180
+key 31 0 7180
+tick 20
+key 31 1 7200
+key 31 0 7200
+tick 20
+key 31 1 7220
+key 31 0 7220
+tick 20
+key 31 1 7240
+key 31 0 7240
+tick 20
+key 31 1 7260
+key 31 0 7260
+tick 20
+key 31 1 7280
+key 31 0 7280
+tick 20
+key 38 1 7300
+key 38 0 7300
+tick 20
+key 38 1 7320
+key 38 0 7320
+tick 20
+key 32 1 7340
+key 32 0 7340
+tick 20
+key 33 1 7360
+key 33 0 7360
+tick 20
+key 32 1 7380
+key 32 0 7380
+tick 20
+key 33 1 7400
+key 33 0 7400
+tick 20
+key 32 1 7420
+key 32 0 7420
+tick 20
+key 33 1 7440
+key 33 0 7440
+tick 20
+key 32 1 7460
+key 32 0 7460
+tick 20
+key 31 1 7480
+key 31 0 7480
+tick 20
+key 31 1 7500
+key 31 0 7500
+tick 20
+key 31 1 7520
+key 31 0 7520
+tick 20
+key 38 1 7540
+key 38 0 7540
+tick 20
+key 38 1 7560
+key 38 0 7560
+tick 20
+key 38 1 7580
+key 38 0 7580
+tick 20
+key 38 1 7600
+key 38 0 7600
+tick 20
+key 38 1 7620
+key 38 0 7620
+tick 20
+key 32 1 7640
+key 32 0 7640
+tick 20
+key 33 1 7660
+key 33 0 7660
+tick 20
+key 33 1 7680
+key 33 0 7680
+tick 20
+key 33 1 7700
+key 33 0 7700
+tick 20
+key 33 1 7720
+key 33 0 7720
+tick 20
+key 33 1 7740
+key 33 0 7740
+tick 20
+key 33 1 7760
+key 33 0 7760
+tick 20
+key 33 1 7780
+key 33 0 7780
+tick 20
+key 26 1 7800
+key 26 0 7800
+tick 20
+key 26 1 7820
+key 26 0 7820
+tick 20
+key 26 1 7840
+key 26 0 7840
+tick 20
+key 26 1 7860
+key 26 0 7860
+tick 20
+key 26 1 7880
+key 26 0 7880
+tick 20
+key 26 1 7900
+key 26 0 7900
+tick 20
+key 26 1 7920
+key 26 0 7920
+tick 20
+key 26 1 7940
+key 26 0 7940
+tick 20
+key 26 1 7960
+key 26 0 7960
+tick 20
+key 43 1 7980
+key 43 0 7980
+tick 20
+key 33 1 8000
+key 33 0 8000
+tick 20
+key 26 1 8020
+key 26 0 8020
+tick 20
+key 32 1 8040
+key 32 0 8040
+tick 20
+key 31 1 8060
+key 31 0 8060
+tick 20
+key 31 1 8080
+key 31 0 8080
+tick 20
+key 31 1 8100
+key 31 0 8100
+tick 20
+key 38 1 8120
+key 38 0 8120
+tick 20
+key 32 1 8140
+key 32 0 8140
+tick 20
+key 33 1 8160
+key 33 0 8160
+tick 20
+key 33 1 8180
+key 33 0 8180
+tick 20
+key 33 1 8200
+key 33 0 8200
+tick 20
+key 32 1 8220
+key 32 0 8220
+tick 20
+key 31 1 8240
+key 31 0 8240
+tick 20
+key 31 1 8260
+key 31 0 8260
+tick 20
+key 31 1 8280
+key 31 0 8280
+tick 20
+key 31 1 8300
+key 31 0 8300
+tick 20
+key 31 1 8320
+key 31 0 8320
+tick 20
+key 31 1 8340
+key 31 0 8340
+tick 20
+key 38 1 8360
+key 38 0 8360
+tick 20
+key 32 1 8380
+key 32 0 8380
+tick 20
+key 38 1 8400
+key 38 0 8400
+tick 20
+key 32 1 8420
+key 32 0 8420
+tick 20
+key 31 1 8440
+key 31 0 8440
+tick 20
+key 31 1 8460
+key 31 0 8460
+tick 20
+key 31 1 8480
+key 31 0 8480
+tick 20
+key 38 1 8500
+key 38 0 8500
+tick 20
+key 32 1 8520
+key 32 0 8520
+tick 20
+key 33 1 8540
+key 33 0 8540
+tick 20
+key 33 1 8560
+key 33 0 8560
+tick 20
+key 32 1 8580
+key 32 0 8580
+tick 20
+key 31 1 8600
+key 31 0 8600
+tick 20
+key 31 1 8620
+key 31 0 8620
+tick 20
+key 38 1 8640
+key 38 0 8640
+tick 20
+key 38 1 8660
+key 38 0 8660
+tick 20
+key 32 1 8680
+key 32 0 8680
+tick 20
+key 38 1 8700
+key 38 0 8700
+tick 20
+key 38 1 8720
+key 38 0 8720
+tick 20
+key 38 1 8740
+key 38 0 8740
+tick 20
+key 38 1 8760
+key 38 0 8760
+tick 20
+key 38 1 8780
+key 38 0 8780
+tick 20
+key 32 1 8800
+key 32 0 8800
+tick 20
+key 31 1 8820
+key 31 0 8820
+tick 20
+key 26 1 8840
+key 26 0 8840
+tick 20
+key 26 1 8860
+key 26 0 8860
+tick 20
+key 26 1 8880
+key 26 0 8880
+tick 20
+key 26 1 8900
+key 26 0 8900
+tick 20
+key 26 1 8920
+key 26 0 8920
+tick 20
+key 26 1 8940
+key 26 0 8940
+tick 20
+key 26 1 8960
+key 26 0 8960
+tick 20
+key 26 1 8980
+key 26 0 8980
+tick 20
+key 26 1 9000
+key 26 0 9000
+tick 20
+key 43 1 9020
+key 43 0 9020
+tick 20
+key 33 1 9040
+key 33 0 9040
+tick 20
+key 33 1 9060
+key 33 0 9060
+tick 20
+key 33 1 9080
+key 33 0 9080
+tick 20
+key 43 1 9100
+key 43 0 9100
+tick 20
+key 33 1 9120
+key 33 0 9120
+tick 20
+key 33 1 9140
+key 33 0 9140
+tick 20
+key 43 1 9160
+key 43 0 9160
+tick 20
+key 31 1 9180
+key 31 0 9180
+tick 20
+key 31 1 9200
+key 31 0 9200
+tick 20
+key 31 1 9220
+key 31 0 9220
+tick 20
+key 31 1 9240
+key 31 0 9240
+tick 20
+key 31 1 9260
+key 31 0 9260
+tick 20
+key 38 1 9280
+key 38 0 9280
+tick 20
+key 43 1 9300
+key 43 0 9300
+tick 20
+key 33 1 9320
+key 33 0 9320
+tick 20
+key 33 1 9340
+key 33 0 9340
+tick 20
+key 38 1 9360
+key 38 0 9360
+tick 20
+key 38 1 9380
+key 38 0 9380
+tick 20
+key 38 1 9400
+key 38 0 9400
+tick 20
+key 43 1 9420
+key 43 0 9420
+tick 20
+key 31 1 9440
+key 31 0 9440
+tick 20
+key 31 1 9460
+key 31 0 9460
+tick 20
+key 38 1 9480
+key 38 0 9480
+tick 20
+key 38 1 9500
+key 38 0 9500
+tick 20
+key 38 1 9520
+key 38 0 9520
+tick 20
+key 43 1 9540
+key 43 0 9540
+tick 20
+key 33 1 9560
+key 33 0 9560
+tick 20
+key 33 1 9580
+key 33 0 9580
+tick 20
+key 33 1 9600
+key 33 0 9600
+tick 20
+key 33 1 9620
+key 33 0 9620
+tick 20
+key 33 1 9640
+key 33 0 9640
+tick 20
+key 33 1 9660
+key 33 0 9660
+tick 20
+key 33 1 9680
+key 33 0 9680
+tick 20
+key 33 1 9700
+key 33 0 9700
+tick 20
+key 33 1 9720
+key 33 0 9720
+tick 20
+key 26 1 9740
+key 26 0 9740
+tick 20
+key 26 1 9760
+key 26 0 9760
+tick 20
+key 26 1 9780
+key 26 0 9780
+tick 20
+key 26 1 9800
+key 26 0 9800
+tick 20
+key 26 1 9820
+key 26 0 9820
+tick 20
+key 26 1 9840
+key 26 0 9840
+tick 20
+key 26 1 9860
+key 26 0 9860
+tick 20
+key 26 1 9880
+key 26 0 9880
+tick 20
+key 26 1 9900
+key 26 0 9900
+tick 20
+key 32 1 9920
+key 32 0 9920
+tick 20
+key 31 1 9940
+key 31 0 9940
+tick 20
+key 31 1 9960
+key 31 0 9960
+tick 20
+key 31 1 9980
+key 31 0 9980
+tick 20
+key 31 1 10000
+key 31 0 10000
+tick 20
+key 31 1 10020
+key 31 0 10020
+tick 20
+key 31 1 10040
+key 31 0 10040
+tick 20
+key 31 1 10060
+key 31 0 10060
+tick 20
+key 31 1 10080
+key 31 0 10080
+tick 20
+key 38 1 10100
+key 38 0 10100
+tick 20
+key 38 1 10120
+key 38 0 10120
+tick 20
+key 32 1 10140
+key 32 0 10140
+tick 20
+key 33 1 10160
+key 33 0 10160
+tick 20
+key 32 1 10180
+key 32 0 10180
+tick 20
+key 31 1 10200
+key 31 0 10200
+tick 20
+key 31 1 10220
+key 31 0 10220
+tick 20
+key 38 1 10240
+key 38 0 10240
+tick 20
+key 38 1 10260
+key 38 0 10260
+tick 20
+key 32 1 10280
+key 32 0 10280
+tick 20
+key 38 1 10300
+key 38 0 10300
+tick 20
+key 32 1 10320
+key 32 0 10320
+tick 20
+key 33 1 10340
+key 33 0 10340
+tick 20
+key 33 1 10360
+key 33 0 10360
+tick 20
+key 38 1 10380
+key 38 0 10380
+tick 20
+key 38 1 10400
+key 38 0 10400
+tick 20
+key 32 1 10420
+key 32 0 10420
+tick 20
+key 31 1 10440
+key 31 0 10440
+tick 20
+key 31 1 10460
+key 31 0 10460
+tick 20
+key 38 1 10480
+key 38 0 10480
+tick 20
+key 38 1 10500
+key 38 0 10500
+tick 20
+key 38 1 10520
+key 38 0 10520
+tick 20
+key 32 1 10540
+key 32 0 10540
+tick 20
+key 38 1 10560
+key 38 0 10560
+tick 20
+key 32 1 10580
+key 32 0 10580
+tick 20
+key 33 1 10600
+key 33 0 10600
+tick 20
+key 33 1 10620
+key 33 0 10620
+tick 20
+key 26 1 10640
+key 26 0 10640
+tick 20
+key 26 1 10660
+key 26 0 10660
+tick 20
+key 26 1 10680
+key 26 0 10680
+tick 20
+key 26 1 10700
+key 26 0 10700
+tick 20
+key 26 1 10720
+key 26 0 10720
+tick 20
+key 26 1 10740
+key 26 0 10740
+tick 20
+key 26 1 10760
+key 26 0 10760
+tick 20
+key 26 1 10780
+key 26 0 10780
+tick 20
+key 26 1 10800
+key 26 0 10800
+tick 20
+key 26 1 10820
+key 26 0 10820
+tick 20
+key 26 1 10840
+key 26 0 10840
+tick 20
+key 43 1 10860
+key 43 0 10860
+tick 20
+key 31 1 10880
+key 31 0 10880
+tick 20
+key 31 1 10900
+key 31 0 10900
+tick 20
+key 31 1 10920
+key 31 0 10920
+tick 20
+key 31 1 10940
+key 31 0 10940
+tick 20
+key 31 1 10960
+key 31 0 10960
+tick 20
+key 31 1 10980
+key 31 0 10980
+tick 20
+key 31 1 11000
+key 31 0 11000
+tick 20
+key 31 1 11020
+key 31 0 11020
+tick 20
+key 31 1 11040
+key 31 0 11040
+tick 20
+key 38 1 11060
+key 38 0 11060
+tick 20
+key 38 1 11080
+key 38 0 11080
+tick 20
+key 43 1 11100
+key 43 0 11100
+tick 20
+key 33 1 11120
+key 33 0 11120
+tick 20
+key 33 1 11140
+key 33 0 11140
+tick 20
+key 33 1 11160
+key 33 0 11160
+tick 20
+key 33 1 11180
+key 33 0 11180
+tick 20
+key 33 1 11200
+key 33 0 11200
+tick 20
+key 33 1 11220
+key 33 0 11220
+tick 20
+key 38 1 11240
+key 38 0 11240
+tick 20
+key 43 1 11260
+key 43 0 11260
+tick 20
+key 31 1 11280
+key 31 0 11280
+tick 20
+key 31 1 11300
+key 31 0 11300
+tick 20
+key 31 1 11320
+key 31 0 11320
+tick 20
+key 38 1 11340
+key 38 0 11340
+tick 20
+key 43 1 11360
+key 43 0 11360
+tick 20
+key 33 1 11380
+key 33 0 11380
+tick 20
+key 33 1 11400
+key 33 0 11400
+tick 20
+key 43 1 11420
+key 43 0 11420
+tick 20
+key 31 1 11440
+key 31 0 11440
+tick 20
+key 31 1 11460
+key 31 0 11460
+tick 20
+key 31 1 11480
+key 31 0 11480
+tick 20
+key 38 1 11500
+key 38 0 11500
+tick 20
+key 38 1 11520
+key 38 0 11520
+tick 20
+key 38 1 11540
+key 38 0 11540
+tick 20
+key 38 1 11560
+key 38 0 11560
+tick 20
+key 43 1 11580
+key 43 0 11580
+tick 20
+key 31 1 11600
+key 31 0 11600
+tick 20
+key 31 1 11620
+key 31 0 11620
+tick 20
+key 38 1 11640
+key 38 0 11640
+tick 20
+key 43 1 11660
+key 43 0 11660
+tick 20
+key 33 1 11680
+key 33 0 11680
+tick 20
+key 33 1 11700
+key 33 0 11700
+tick 20
+key 43 1 11720
+key 43 0 11720
+tick 20
+key 33 1 11740
+key 33 0 11740
+tick 20
+key 33 1 11760
+key 33 0 11760
+tick 20
+key 43 1 11780
+key 43 0 11780
+tick 20
+key 33 1 11800
+key 33 0 11800
+tick 20
+key 33 1 11820
+key 33 0 11820
+tick 20
+key 43 1 11840
+key 43 0 11840
+tick 20
+key 33 1 11860
+key 33 0 11860
+tick 20
+key 26 1 11880
+key 26 0 11880
+tick 20
+key 26 1 11900
+key 26 0 11900
+tick 20
+key 26 1 11920
+key 26 0 11920
+tick 20
+key 26 1 11940
+key 26 0 11940
+tick 20
+key 26 1 11960
+key 26 0 11960
+tick 20
+key 26 1 11980
+key 26 0 11980
+tick 20
+key 26 1 12000
+key 26 0 12000
+tick 20
+key 26 1 12020
+key 26 0 12020
+tick 20
+key 32 1 12040
+key 32 0 12040
+tick 20
+key 33 1 12060
+key 33 0 12060
+tick 20
+key 32 1 12080
+key 32 0 12080
+tick 20
+key 33 1 12100
+key 33 0 12100
+tick 20
+key 32 1 12120
+key 32 0 12120
+tick 20
+key 31 1 12140
+key 31 0 12140
+tick 20
+key 31 1 12160
+key 31 0 12160
+tick 20
+key 31 1 12180
+key 31 0 12180
+tick 20
+key 31 1 12200
+key 31 0 12200
+tick 20
+key 31 1 12220
+key 31 0 12220
+tick 20
+key 31 1 12240
+key 31 0 12240
+tick 20
+key 31 1 12260
+key 31 0 12260
+tick 20
+key 31 1 12280
+key 31 0 12280
+tick 20
+key 38 1 12300
+key 38 0 12300
+tick 20
+key 32 1 12320
+key 32 0 12320
+tick 20
+key 33 1 12340
+key 33 0 12340
+tick 20
+key 32 1 12360
+key 32 0 12360
+tick 20
+key 33 1 12380
+key 33 0 12380
+tick 20
+key 33 1 12400
+key 33 0 12400
+tick 20
+key 33 1 12420
+key 33 0 12420
+tick 20
+key 38 1 12440
+key 38 0 12440
+tick 20
+key 32 1 12460
+key 32 0 12460
+tick 20
+key 31 1 12480
+key 31 0 12480
+tick 20
+key 38 1 12500
+key 38 0 12500
+tick 20
+key 32 1 12520
+key 32 0 12520
+tick 20
+key 31 1 12540
+key 31 0 12540
+tick 20
+key 31 1 12560
+key 31 0 12560
+tick 20
+key 31 1 12580
+key 31 0 12580
+tick 20
+key 38 1 12600
+key 38 0 12600
+tick 20
+key 38 1 12620
+key 38 0 12620
+tick 20
+key 38 1 12640
+key 38 0 12640
+tick 20
+key 38 1 12660
+key 38 0 12660
+tick 20
+key 38 1 12680
+key 38 0 12680
+tick 20
+key 32 1 12700
+key 32 0 12700
+tick 20
+key 33 1 12720
+key 33 0 12720
+tick 20
+key 33 1 12740
+key 33 0 12740
+tick 20
+key 32 1 12760
+key 32 0 12760
+tick 20
+key 33 1 12780
+key 33 0 12780
+tick 20
+key 33 1 12800
+key 33 0 12800
+tick 20
+key 32 1 12820
+key 32 0 12820
+tick 20
+key 31 1 12840
+key 31 0 12840
+tick 20
+key 26 1 12860
+key 26 0 12860
+tick 20
+key 26 1 12880
+key 26 0 12880
+tick 20
+key 26 1 12900
+key 26 0 12900
+tick 20
+key 26 1 12920
+key 26 0 12920
+tick 20
+key 26 1 12940
+key 26 0 12940
+tick 20
+key 26 1 12960
+key 26 0 12960
+tick 20
+key 26 1 12980
+key 26 0 12980
+tick 20
+key 26 1 13000
+key 26 0 13000
+tick 20
+key 26 1 13020
+key 26 0 13020
+tick 20
+key 43 1 13040
+key 43 0 13040
+tick 20
+key 33 1 13060
+key 33 0 13060
+tick 20
+key 33 1 13080
+key 33 0 13080
+tick 20
+key 33 1 13100
+key 33 0 13100
+tick 20
+key 33 1 13120
+key 33 0 13120
+tick 20
+key 43 1 13140
+key 43 0 13140
+tick 20
+key 31 1 13160
+key 31 0 13160
+tick 20
+key 31 1 13180
+key 31 0 13180
+tick 20
+key 31 1 13200
+key 31 0 13200
+tick 20
+key 31 1 13220
+key 31 0 13220
+tick 20
+key 38 1 13240
+key 38 0 13240
+tick 20
+key 43 1 13260
+key 43 0 13260
+tick 20
+key 33 1 13280
+key 33 0 13280
+tick 20
+key 33 1 13300
+key 33 0 13300
+tick 20
+key 33 1 13320
+key 33 0 13320
+tick 20
+key 26 1 13340
+key 26 0 13340
+tick 20
+key 32 1 13360
+key 32 0 13360
+tick 20
+key 31 1 13380
+key 31 0 13380
+tick 20
+key 31 1 13400
+key 31 0 13400
+tick 20
+key 31 1 13420
+key 31 0 13420
+tick 20
+key 38 1 13440
+key 38 0 13440
+tick 20
+key 38 1 13460
+key 38 0 13460
+tick 20
+key 32 1 13480
+key 32 0 13480
+tick 20
+key 33 1 13500
+key 33 0 13500
+tick 20
+key 32 1 13520
+key 32 0 13520
+tick 20
+key 33 1 13540
+key 33 0 13540
+tick 20
+key 32 1 13560
+key 32 0 13560
+tick 20
+key 31 1 13580
+key 31 0 13580
+tick 20
+key 31 1 13600
+key 31 0 13600
+tick 20
+key 38 1 13620
+key 38 0 13620
+tick 20
+key 32 1 13640
+key 32 0 13640
+tick 20
+key 33 1 13660
+key 33 0 13660
+tick 20
+key 26 1 13680
+key 26 0 13680
+tick 20
+key 26 1 13700
+key 26 0 13700
+tick 20
+key 26 1 13720
+key 26 0 13720
+tick 20
+key 43 1 13740
+key 43 0 13740
+tick 20
+key 33 1 13760
+key 33 0 13760
+tick 20
+key 43 1 13780
+key 43 0 13780
+tick 20
+key 31 1 13800
+key 31 0 13800
+tick 20
+key 38 1 13820
+key 38 0 13820
+tick 20
+key 32 1 13840
+key 32 0 13840
+tick 20
+key 33 1 13860
+key 33 0 13860
+tick 20
+key 32 1 13880
+key 32 0 13880
+tick 20
+# game: won, 13420 ms against the best 1000
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+# sound tone 440 Hz 10 ms at 460 ms
+# sound tone 440 Hz 10 ms at 1320 ms
+# sound tone 440 Hz 10 ms at 1400 ms
+# sound tone 440 Hz 10 ms at 1460 ms
+# sound tone 440 Hz 10 ms at 1560 ms
+# sound tone 440 Hz 10 ms at 2740 ms
+# sound tone 440 Hz 10 ms at 2900 ms
+# sound tone 440 Hz 10 ms at 2960 ms
+# sound tone 440 Hz 10 ms at 3060 ms
+# sound tone 440 Hz 10 ms at 3280 ms
+# sound tone 440 Hz 10 ms at 3780 ms
+# sound tone 440 Hz 10 ms at 3860 ms
+# sound tone 440 Hz 10 ms at 4040 ms
+# sound tone 440 Hz 10 ms at 4080 ms
+# sound tone 440 Hz 10 ms at 4200 ms
+# sound tone 440 Hz 10 ms at 4240 ms
+# sound tone 440 Hz 10 ms at 4280 ms
+# sound tone 440 Hz 10 ms at 4880 ms
+# sound tone 440 Hz 10 ms at 4960 ms
+# sound tone 440 Hz 10 ms at 5120 ms
+# sound tone 440 Hz 10 ms at 5160 ms
+# sound tone 440 Hz 10 ms at 5200 ms
+# sound tone 440 Hz 10 ms at 5240 ms
+# sound tone 440 Hz 10 ms at 5280 ms
+# sound tone 440 Hz 10 ms at 5320 ms
+# sound tone 440 Hz 10 ms at 5460 ms
+# sound tone 440 Hz 10 ms at 5560 ms
+# sound tone 440 Hz 10 ms at 5600 ms
+# sound tone 440 Hz 10 ms at 5660 ms
+# sound tone 440 Hz 10 ms at 6760 ms
+# sound tone 440 Hz 10 ms at 6800 ms
+# sound tone 440 Hz 10 ms at 6840 ms
+# sound tone 440 Hz 10 ms at 7000 ms
+# sound tone 440 Hz 10 ms at 7040 ms
+# sound tone 440 Hz 10 ms at 7100 ms
+# sound tone 440 Hz 10 ms at 7140 ms
+# sound tone 440 Hz 10 ms at 7340 ms
+# sound tone 440 Hz 10 ms at 7380 ms
+# sound tone 440 Hz 10 ms at 7420 ms
+# sound tone 440 Hz 10 ms at 7460 ms
+# sound tone 440 Hz 10 ms at 7640 ms
+# sound tone 440 Hz 10 ms at 8040 ms
+# sound tone 440 Hz 10 ms at 8140 ms
+# sound tone 440 Hz 10 ms at 8220 ms
+# sound tone 440 Hz 10 ms at 8380 ms
+# sound tone 440 Hz 10 ms at 8420 ms
+# sound tone 440 Hz 10 ms at 8520 ms
+# sound tone 440 Hz 10 ms at 8580 ms
+# sound tone 440 Hz 10 ms at 8680 ms
+# sound tone 440 Hz 10 ms at 8800 ms
+# sound tone 440 Hz 10 ms at 9920 ms
+# sound tone 440 Hz 10 ms at 10140 ms
+# sound tone 440 Hz 10 ms at 10180 ms
+# sound tone 440 Hz 10 ms at 10280 ms
+# sound tone 440 Hz 10 ms at 10320 ms
+# sound tone 440 Hz 10 ms at 10420 ms
+# sound tone 440 Hz 10 ms at 10540 ms
+# sound tone 440 Hz 10 ms at 10580 ms
+# sound tone 440 Hz 10 ms at 12040 ms
+# sound tone 440 Hz 10 ms at 12080 ms
+# sound tone 440 Hz 10 ms at 12120 ms
+# sound tone 440 Hz 10 ms at 12320 ms
+# sound tone 440 Hz 10 ms at 12360 ms
+# sound tone 440 Hz 10 ms at 12460 ms
+# sound tone 440 Hz 10 ms at 12520 ms
+# sound tone 440 Hz 10 ms at 12700 ms
+# sound tone 440 Hz 10 ms at 12760 ms
+# sound tone 440 Hz 10 ms at 12820 ms
+# sound tone 440 Hz 10 ms at 13360 ms
+# sound tone 440 Hz 10 ms at 13480 ms
+# sound tone 440 Hz 10 ms at 13520 ms
+# sound tone 440 Hz 10 ms at 13560 ms
+# sound tone 440 Hz 10 ms at 13640 ms
+# sound tone 440 Hz 10 ms at 13840 ms
+# sound tune of 4 notes at 13880 ms: 523/100 659/100 784/100 1047/300
+# expect save 4d01e803000003000000060000000000 tunes 1 tones 74

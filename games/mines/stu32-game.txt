@@ -1,0 +1,11 @@
+# MINES for the STU-32's APPS (docs/mines.md; sdk/gamelist/gen_games.py reads this at the pin the games list names)
+name = MINES
+folder = GAMES
+app = mines_app
+sources = games/mines/mines_logic.c games/mines/mines_app.c
+include = games/mines
+flags =
+author = arcade (the games seat)
+# MIT (abacus decision 61)
+licence = MIT
+source = written for the STU-32 by arcade (Michael's decision 71: clear the field, with no guess ever needed)
