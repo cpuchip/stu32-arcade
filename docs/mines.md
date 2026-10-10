@@ -84,9 +84,10 @@ started on any board, the sum of the six records' games in the save **(rev 2)**.
    clock. Keys during the deal do nothing (C is the framework's and still ends the game), and a cursor key held when
    the deal starts stops repeating there. While dealing the game asks for its next tick in 1 ms, in a game (and on
    the tick that deals) in 20 ms, and otherwise in 100 ms. On the S3 one attempt at
-   30 × 16 takes 9.6 ms on average, so a tick of 4 stays near 40 ms; the hard board's worst deal measured (213
-   attempts, 1.95 s of attempts) takes 54 ticks. D is checked on the S3 before the unit ships: the bench reports the
-   longest tick.
+   30 × 16 takes 9.6 ms on average (the size prototype), so a tick of 4 was expected near 40 ms. Measured on the S3
+   (device/minesbench at a47067d, in steps of 4 as the ticks make them): the hard board's worst deal found (seed
+   2441, 213 attempts) took 1.77 s in 54 steps, 33 ms a step on average, and the longest step of any deal timed was
+   83 ms. D = 4 stays: a tick of up to 83 ms only delays the DEALING screen, and keys wait for nothing during it.
 
 ## The game's solver
 
@@ -146,8 +147,8 @@ apply to everything, and its key click is the framework's, so it is not affected
 ## The clock and the keys
 
 The time starts on the tick that deals the board **(rev 2: the first open's key, in revision 1)**, so the earlier
-ticks' attempts are never on the clock (the dealing tick's own, at most 4 attempts, about 40 ms on the hard board,
-are), and stops at the end's key; it shows whole seconds (0 before the deal), and the best is kept in
+ticks' attempts are never on the clock (the dealing tick's own, at most 4 attempts, 33 ms on average on the hard board
+and 83 ms at most as measured, are), and stops at the end's key; it shows whole seconds (0 before the deal), and the best is kept in
 ms: a win sets it when it has none or is faster, not when it ties. A win in 0 ms (a first open that clears the
 field, so the end comes on the dealing tick) is kept as 1 ms, since 0 means none **(rev 2)**. A cursor key moves the cursor at once on its
 down; held 300 ms, it moves again every 80 ms until its up. A second cursor key pressed while one is held takes over,
