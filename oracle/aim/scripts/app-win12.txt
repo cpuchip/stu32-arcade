@@ -1,0 +1,443 @@
+# aim_trace appscript 7 12: the title, then 12 rounds won by their SHOW keys
+tick 20
+key 18 1 25
+key 18 0 30
+tick 20
+# round 0: 4 9 6 2 to 17
+tick 100
+key 38 1 145
+key 38 0 150
+tick 20
+key 18 1 165
+key 18 0 170
+tick 20
+key 33 1 185
+key 33 0 190
+tick 20
+key 34 1 205
+key 34 0 210
+tick 20
+key 27 1 225
+key 27 0 230
+tick 20
+key 46 1 245
+key 46 0 250
+tick 20
+key 31 1 265
+key 31 0 270
+tick 20
+key 40 1 285
+key 40 0 290
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 1005
+key 18 0 1010
+tick 20
+# round 1: 4 8 4 7 to 25
+tick 100
+key 26 1 1125
+key 26 0 1130
+tick 20
+key 18 1 1145
+key 18 0 1150
+tick 20
+key 25 1 1165
+key 25 0 1170
+tick 20
+key 18 1 1185
+key 18 0 1190
+tick 20
+key 31 1 1205
+key 31 0 1210
+tick 20
+key 28 1 1225
+key 28 0 1230
+tick 20
+key 40 1 1245
+key 40 0 1250
+tick 20
+key 31 1 1265
+key 31 0 1270
+tick 20
+key 34 1 1285
+key 34 0 1290
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 2005
+key 18 0 2010
+tick 20
+# round 2: 2 9 8 8 to 21
+tick 100
+key 26 1 2125
+key 26 0 2130
+tick 20
+key 18 1 2145
+key 18 0 2150
+tick 20
+key 38 1 2165
+key 38 0 2170
+tick 20
+key 28 1 2185
+key 28 0 2190
+tick 20
+key 26 1 2205
+key 26 0 2210
+tick 20
+key 46 1 2225
+key 46 0 2230
+tick 20
+key 27 1 2245
+key 27 0 2250
+tick 20
+key 46 1 2265
+key 46 0 2270
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 2985
+key 18 0 2990
+tick 20
+# round 3: 9 1 8 2 to 13
+tick 100
+key 26 1 3105
+key 26 0 3110
+tick 20
+key 18 1 3125
+key 18 0 3130
+tick 20
+key 38 1 3145
+key 38 0 3150
+tick 20
+key 28 1 3165
+key 28 0 3170
+tick 20
+key 37 1 3185
+key 37 0 3190
+tick 20
+key 34 1 3205
+key 34 0 3210
+tick 20
+key 27 1 3225
+key 27 0 3230
+tick 20
+key 46 1 3245
+key 46 0 3250
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 3965
+key 18 0 3970
+tick 20
+# round 4: 7 1 3 1 to 27
+tick 100
+key 37 1 4085
+key 37 0 4090
+tick 20
+key 18 1 4105
+key 18 0 4110
+tick 20
+key 39 1 4125
+key 39 0 4130
+tick 20
+key 46 1 4145
+key 46 0 4150
+tick 20
+key 25 1 4165
+key 25 0 4170
+tick 20
+key 34 1 4185
+key 34 0 4190
+tick 20
+key 37 1 4205
+key 37 0 4210
+tick 20
+key 40 1 4225
+key 40 0 4230
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 4945
+key 18 0 4950
+tick 20
+# round 5: 8 1 2 5 to 31
+tick 100
+key 32 1 5065
+key 32 0 5070
+tick 20
+key 18 1 5085
+key 18 0 5090
+tick 20
+key 26 1 5105
+key 26 0 5110
+tick 20
+key 18 1 5125
+key 18 0 5130
+tick 20
+key 38 1 5145
+key 38 0 5150
+tick 20
+key 40 1 5165
+key 40 0 5170
+tick 20
+key 34 1 5185
+key 34 0 5190
+tick 20
+key 37 1 5205
+key 37 0 5210
+tick 20
+key 46 1 5225
+key 46 0 5230
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 5945
+key 18 0 5950
+tick 20
+# round 6: 7 1 5 3 to 12
+tick 100
+key 39 1 6065
+key 39 0 6070
+tick 20
+key 18 1 6085
+key 18 0 6090
+tick 20
+key 32 1 6105
+key 32 0 6110
+tick 20
+key 40 1 6125
+key 40 0 6130
+tick 20
+key 37 1 6145
+key 37 0 6150
+tick 20
+key 18 1 6165
+key 18 0 6170
+tick 20
+key 25 1 6185
+key 25 0 6190
+tick 20
+key 40 1 6205
+key 40 0 6210
+tick 20
+key 34 1 6225
+key 34 0 6230
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 6945
+key 18 0 6950
+tick 20
+# round 7: 2 6 8 8 to 35
+tick 100
+key 26 1 7065
+key 26 0 7070
+tick 20
+key 18 1 7085
+key 18 0 7090
+tick 20
+key 26 1 7105
+key 26 0 7110
+tick 20
+key 34 1 7125
+key 34 0 7130
+tick 20
+key 33 1 7145
+key 33 0 7150
+tick 20
+key 46 1 7165
+key 46 0 7170
+tick 20
+key 38 1 7185
+key 38 0 7190
+tick 20
+key 28 1 7205
+key 28 0 7210
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 7925
+key 18 0 7930
+tick 20
+# round 8: 5 1 3 5 to 29
+tick 100
+key 32 1 8045
+key 32 0 8050
+tick 20
+key 18 1 8065
+key 18 0 8070
+tick 20
+key 32 1 8085
+key 32 0 8090
+tick 20
+key 46 1 8105
+key 46 0 8110
+tick 20
+key 39 1 8125
+key 39 0 8130
+tick 20
+key 34 1 8145
+key 34 0 8150
+tick 20
+key 37 1 8165
+key 37 0 8170
+tick 20
+key 40 1 8185
+key 40 0 8190
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 8905
+key 18 0 8910
+tick 20
+# round 9: 4 9 8 9 to 31
+tick 100
+key 27 1 9025
+key 27 0 9030
+tick 20
+key 18 1 9045
+key 18 0 9050
+tick 20
+key 31 1 9065
+key 31 0 9070
+tick 20
+key 40 1 9085
+key 40 0 9090
+tick 20
+key 26 1 9105
+key 26 0 9110
+tick 20
+key 34 1 9125
+key 34 0 9130
+tick 20
+key 27 1 9145
+key 27 0 9150
+tick 20
+key 40 1 9165
+key 40 0 9170
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 9885
+key 18 0 9890
+tick 20
+# round 10: 1 9 4 4 to 26
+tick 100
+key 31 1 10005
+key 31 0 10010
+tick 20
+key 18 1 10025
+key 18 0 10030
+tick 20
+key 31 1 10045
+key 31 0 10050
+tick 20
+key 34 1 10065
+key 34 0 10070
+tick 20
+key 27 1 10085
+key 27 0 10090
+tick 20
+key 46 1 10105
+key 46 0 10110
+tick 20
+key 37 1 10125
+key 37 0 10130
+tick 20
+key 46 1 10145
+key 46 0 10150
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+key 18 1 10865
+key 18 0 10870
+tick 20
+# round 11: 5 7 1 6 to 32
+tick 100
+key 33 1 10985
+key 33 0 10990
+tick 20
+key 18 1 11005
+key 18 0 11010
+tick 20
+key 37 1 11025
+key 37 0 11030
+tick 20
+key 40 1 11045
+key 40 0 11050
+tick 20
+key 32 1 11065
+key 32 0 11070
+tick 20
+key 34 1 11085
+key 34 0 11090
+tick 20
+key 25 1 11105
+key 25 0 11110
+tick 20
+key 46 1 11125
+key 46 0 11130
+tick 20
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100
+tick 100

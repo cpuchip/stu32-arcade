@@ -24,7 +24,7 @@ multiply, as on the calculator; 8 3 is the number 83, which no tile matches. ENT
 | ENTER | ends the entry |
 | + − × ÷ | ends any entry, then Y op X; ÷ by 0 beeps and changes nothing |
 | x↔y | ends any entry, then swaps X and Y |
-| ← | in an entry, deletes a digit; otherwise undoes the last step (a tile or an operation) |
+| ← | in an entry, deletes a digit; otherwise undoes the last step (a tile, an operation or a swap; x↔y straight after x↔y cancels it, so the undo list holds at most 14 steps) |
 | SOFT1-SOFT6 | the labels on the screen's bottom line: UNDO, SKIP, SHOW, and NEW after a round |
 | C | the framework's: saves and ends the game |
 
@@ -67,10 +67,12 @@ The best streak, rounds won, rounds shown and the highest level reached, 16 byte
 `games/aim/`: `aim_logic.{c,h}` (the rules: tiles, entry, stack, undo, the solver and the generator, no
 drawing and no framework calls), `aim_app.c` (the app_def: keys and clock into the logic, and the drawing), and
 `stu32-game.txt` (name AIM, folder GAMES, MIT, author arcade). Native C, like Babal; `make wasmcheck` builds it as a
-.wasm too, as it does Babal. All state in ctx, about 12 KB of it the solver's table (a set of four digits reaches at most 922 distinct values), nothing on the stack past
-`-Wframe-larger-than=1024`.
+.wasm too, as it does Babal. All state in ctx, 15,304 bytes, most of it the solver's table (a set of four digits reaches at most 922 distinct values), nothing on
+the stack past `-Wframe-larger-than=1024`.
 
 ## The oracle (written before the game)
+
+`make aimcheck` runs all five (oracle/aim_check.sh); tests/aim_trace.c prints the C side in the oracle's forms.
 
 1. **Solver:** the Python enumerator (`oracle/aim/reach.py`, independent of the C) against the C solver, built
    on the host, for every multiset of four digits: the same reachable integers and the same solution counts.

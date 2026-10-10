@@ -1,0 +1,61 @@
+# Aim rules: cases checked by hand (docs/aim.md). 8 / (3 - 8/3) = 24
+round 3 3 8 8 24
+key 8
+key ENTER
+key 3
+key ENTER
+key 8
+key ENTER
+key 3
+key DIVIDE
+key MINUS
+key DIVIDE
+key 5
+# a two-digit entry no tile matches; ENTER twice; a tile used up; divide by zero; undo
+round 1 2 2 9 10
+key 1
+key 2
+key ENTER
+key 2
+key ENTER
+key ENTER
+key 2
+key MINUS
+key 2
+key ENTER
+key 2
+key ENTER
+key 9
+key SWAP
+key BACK
+key BACK
+key 1
+key DIVIDE
+key PLUS
+key BACK
+key BACK
+key BACK
+key BACK
+key BACK
+key BACK
+# divide by zero: 5 / (2 - 2) beeps and changes nothing; then 5 * (2 - 2) is fine
+round 5 2 2 1 10
+key 5
+key ENTER
+key 2
+key ENTER
+key 2
+key MINUS
+key DIVIDE
+key TIMES
+# swap, swap cancels: one BACK then undoes the tile under them, not a swap
+round 4 6 1 1 24
+key 4
+key ENTER
+key 6
+key SWAP
+key SWAP
+key SWAP
+key BACK
+key BACK
+key BACK

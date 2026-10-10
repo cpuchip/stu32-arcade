@@ -1,0 +1,69 @@
+# Aim on the runner with -seed 7 (aim_trace appscript 7: round 1 is 4 9 6 2 to 17): every refused key once,
+# 6 beeps, then UNDO, SHOW (the answer's keys on the screen), NEW and SKIP
+tick 20
+# title: ENTER plays
+key 18 1 25
+key 18 0 30
+tick 20
+tick 100
+# 0 ENTER: no tile is 0 (beep)
+key 43 1 145
+key 43 0 150
+tick 20
+key 18 1 165
+key 18 0 170
+tick 20
+# ENTER with no entry (beep)
+key 18 1 185
+key 18 0 190
+tick 20
+# + with nothing on the stack (beep)
+key 46 1 205
+key 46 0 210
+tick 20
+# BACK with nothing to undo (beep)
+key 22 1 225
+key 22 0 230
+tick 20
+# 49 ENTER: no tile is 49 (beep)
+key 31 1 245
+key 31 0 250
+tick 20
+key 27 1 265
+key 27 0 270
+tick 20
+key 18 1 285
+key 18 0 290
+tick 20
+# 4 ENTER 4 ENTER: the one 4 is used (beep on the second)
+key 31 1 305
+key 31 0 310
+tick 20
+key 18 1 325
+key 18 0 330
+tick 20
+key 31 1 345
+key 31 0 350
+tick 20
+key 18 1 365
+key 18 0 370
+tick 20
+# UNDO: the 4 comes off the stack
+key 0 1 385
+key 0 0 390
+tick 20
+# SHOW: the round given up, its keys on the screen
+key 2 1 405
+key 2 0 410
+tick 20
+tick 100
+# NEW: round 2
+key 5 1 525
+key 5 0 530
+tick 20
+tick 100
+# SKIP: round 3
+key 1 1 645
+key 1 0 650
+tick 20
+tick 100
