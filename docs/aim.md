@@ -1,8 +1,8 @@
-# Target: four numbers to the round's target, in RPN (blueprint, for abacus's read)
+# Aim: four numbers to the round's target, in RPN (blueprint)
 
-Michael's decision 71 (abacus aa30714): the second game is Target, then Lander, Snake and Mines, each a unit
-through soroban's gate. This is Target's design and the checks that will judge it, written before any of its
-code. The puzzle is the old one of making a number from four others with + − × ÷; the name, the rules below and
+Michael's decision 71 (abacus aa30714): the second game is this puzzle, then Lander, Snake and Mines, each a unit
+through soroban's gate. Proposed as Target; Michael named it AIM (abacus #6064), since an APPS name has at most 5
+characters. This is Aim's design and the checks that will judge it, written before any of its code. The puzzle is the old one of making a number from four others with + − × ÷; the name, the rules below and
 everything on the screen are ours, and nothing calls it "24" (Suntex holds marks on "24", "24 GAME" and
 "TWENTY-FOUR CHALLENGE"; memory feedback_check_names_for_marks).
 
@@ -59,20 +59,20 @@ and plays a short tune; a refused key beeps.
 
 ## What it saves
 
-The best streak, rounds won, rounds shown and the difficulty reached, 16 bytes, taken whole or not at all
+The best streak, rounds won, rounds shown and the highest level reached, 16 bytes, taken whole or not at all
 (magic, version).
 
 ## Where it lives
 
-`games/target/`: `target_logic.{c,h}` (the rules: tiles, entry, stack, undo, the solver and the generator, no
-drawing and no framework calls), `target_app.c` (the app_def: keys and clock into the logic, and the drawing), and
-`stu32-game.txt` (name, folder GAMES, MIT, author arcade). Native C, like Babal; `make wasmcheck` builds it as a
+`games/aim/`: `aim_logic.{c,h}` (the rules: tiles, entry, stack, undo, the solver and the generator, no
+drawing and no framework calls), `aim_app.c` (the app_def: keys and clock into the logic, and the drawing), and
+`stu32-game.txt` (name AIM, folder GAMES, MIT, author arcade). Native C, like Babal; `make wasmcheck` builds it as a
 .wasm too, as it does Babal. All state in ctx, about 12 KB of it the solver's table (a set of four digits reaches at most 922 distinct values), nothing on the stack past
 `-Wframe-larger-than=1024`.
 
 ## The oracle (written before the game)
 
-1. **Solver:** the Python enumerator (`oracle/target/reach.py`, independent of the C) against the C solver, built
+1. **Solver:** the Python enumerator (`oracle/aim/reach.py`, independent of the C) against the C solver, built
    on the host, for every multiset of four digits: the same reachable integers and the same solution counts.
 2. **Rules:** an independent Python model of the entry, the stack and undo, fed the same key sequences as the C
    logic (from scripts and a seeded fuzzer): the same state after every key (stack, tiles used, entry, beep, won).
@@ -82,12 +82,16 @@ drawing and no framework calls), `target_app.c` (the app_def: keys and clock int
 5. **Falsified on purpose, each red then green:** a solver that never divides, logic that lets a tile be used
    twice, a generator that ignores its range, a draw that skips the used-tile shade.
 
-## Open, for Michael
+## Decided
 
-- **The name on the APPS menu:** names there are 1 to 5 characters, so "TARGET" doesn't fit. TARGT or AIM fit.
-  The title screen can still say Target. TARGET is also a large retailer's mark, and my search didn't settle
-  whether it covers games; a menu name of our own avoids the question.
-- **Tiles 1-9 or 1-13:** 1-9 is one key a tile. 1-13 (a deck of cards) needs two-digit entry, which RPN already
-  handles. I recommend 1-9.
-- **The target's range:** 10-30 to start, growing with the streak. Exactly 24 is one fixed round of the same game,
-  but not as its name.
+Michael, through abacus (#6064), 2026-10-10:
+
+- **The name is AIM** ("Aim is fine"), on the menu and the title screen. My search of the trademark record found
+  only abandoned AIM marks for software, and did not find AOL's messenger's own record.
+- **Tiles 1-9 and targets 10-30 growing with the streak,** as recommended here, unless he says otherwise after
+  reading this.
+
+How the range grows: the level is the streak divided by 5, at most 4. A level's targets run from 10 to 30 + 10 x
+level, and a target is drawn only from those with at most a level's number of solutions (no limit, then 24, 12, 6
+and 3); if a round's tiles reach none under the limit, any reachable target in the range will do. A SKIP or a
+SHOW ends the streak.

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
-"""Target's solver oracle (docs/target.md, check 1), independent of the game's C.
+"""Aim's solver oracle (docs/aim.md, check 1), independent of the game's C.
 
-    python3 oracle/target/reach.py [--top 9] [--lo 1] [--hi 100]
+    python3 oracle/aim/reach.py [--top 9] [--lo 1] [--hi 100]
 
 For every multiset of four tiles 1..top, in ascending order, one line:
     a b c d: t1/n1 t2/n2 ...

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
-# Target oracle self-check (docs/target.md check 1): a second, differently built enumerator. Every RPN program
+# Aim oracle self-check (docs/aim.md check 1): a second, differently built enumerator. Every RPN program
 # over every tile order, run on a stack. Its reachable integer sets (1-100, tiles 1-9) must equal reach.py's with
-# the counts dropped: python3 oracle/target/rpn_brute.py | cmp - <(python3 oracle/target/reach.py | sed 's|/[0-9]*||g')
+# the counts dropped: python3 oracle/aim/rpn_brute.py | cmp - <(python3 oracle/aim/reach.py | sed 's|/[0-9]*||g')
 import itertools
 from fractions import Fraction as F
 OPS = "+-*/"
