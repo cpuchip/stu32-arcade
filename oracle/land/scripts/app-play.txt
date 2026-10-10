@@ -1,0 +1,4468 @@
+# appscript.py play: seed 5, no save
+tick 20
+key 18 1 20
+key 18 0 20
+key 31 1 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 360
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 440
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 1 840
+key 26 0 840
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 1040
+key 33 0 1040
+key 26 1 1040
+tick 20
+key 31 0 1060
+key 33 1 1060
+key 26 0 1060
+tick 20
+key 33 0 1080
+key 26 1 1080
+tick 20
+key 33 1 1100
+key 26 0 1100
+tick 20
+tick 20
+key 26 1 1140
+tick 20
+key 26 0 1160
+tick 20
+key 26 1 1180
+tick 20
+key 26 0 1200
+tick 20
+key 33 0 1220
+key 26 1 1220
+tick 20
+key 33 1 1240
+key 26 0 1240
+tick 20
+key 26 1 1260
+tick 20
+key 33 0 1280
+key 26 0 1280
+tick 20
+tick 20
+key 26 1 1320
+tick 20
+key 26 0 1340
+tick 20
+key 26 1 1360
+tick 20
+key 26 0 1380
+tick 20
+key 26 1 1400
+tick 20
+key 26 0 1420
+tick 20
+tick 20
+key 26 1 1460
+tick 20
+key 26 0 1480
+tick 20
+key 26 1 1500
+tick 20
+key 26 0 1520
+tick 20
+key 26 1 1540
+tick 20
+key 26 0 1560
+tick 20
+key 26 1 1580
+tick 20
+key 26 0 1600
+tick 20
+tick 20
+key 26 1 1640
+tick 20
+key 26 0 1660
+tick 20
+key 26 1 1680
+tick 20
+key 26 0 1700
+tick 20
+key 26 1 1720
+tick 20
+key 26 0 1740
+tick 20
+tick 20
+key 26 1 1780
+tick 20
+key 26 0 1800
+tick 20
+key 26 1 1820
+tick 20
+key 26 0 1840
+tick 20
+key 26 1 1860
+tick 20
+key 26 0 1880
+tick 20
+key 26 1 1900
+tick 20
+key 26 0 1920
+tick 20
+tick 20
+key 26 1 1960
+tick 20
+key 26 0 1980
+tick 20
+key 26 1 2000
+tick 20
+key 26 0 2020
+tick 20
+key 26 1 2040
+tick 20
+key 26 0 2060
+tick 20
+tick 20
+key 26 1 2100
+tick 20
+key 26 0 2120
+tick 20
+key 26 1 2140
+tick 20
+key 26 0 2160
+tick 20
+key 26 1 2180
+tick 20
+key 26 0 2200
+tick 20
+key 26 1 2220
+tick 20
+key 26 0 2240
+tick 20
+tick 20
+key 26 1 2280
+tick 20
+key 26 0 2300
+tick 20
+key 26 1 2320
+tick 20
+key 26 0 2340
+tick 20
+key 26 1 2360
+tick 20
+key 26 0 2380
+tick 20
+tick 20
+key 26 1 2420
+tick 20
+key 26 0 2440
+tick 20
+key 26 1 2460
+tick 20
+key 26 0 2480
+tick 20
+key 26 1 2500
+tick 20
+key 26 0 2520
+tick 20
+tick 20
+key 26 1 2560
+tick 20
+key 26 0 2580
+tick 20
+key 26 1 2600
+tick 20
+key 26 0 2620
+tick 20
+key 26 1 2640
+tick 20
+key 26 0 2660
+tick 20
+key 26 1 2680
+tick 20
+key 26 0 2700
+tick 20
+tick 20
+key 26 1 2740
+tick 20
+key 26 0 2760
+tick 20
+key 26 1 2780
+tick 20
+key 26 0 2800
+tick 20
+key 26 1 2820
+tick 20
+key 26 0 2840
+tick 20
+tick 20
+key 26 1 2880
+tick 20
+key 26 0 2900
+tick 20
+key 26 1 2920
+tick 20
+key 26 0 2940
+tick 20
+key 33 1 2960
+tick 20
+key 26 1 2980
+tick 20
+key 26 0 3000
+tick 20
+tick 20
+tick 20
+key 26 1 3060
+tick 20
+tick 20
+key 26 0 3100
+tick 20
+tick 20
+key 26 1 3140
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 0 3220
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 3360
+key 26 0 3360
+tick 20
+key 26 1 3380
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 3460
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 4020
+key 26 0 4020
+tick 20
+key 31 0 4040
+key 33 1 4040
+key 26 1 4040
+tick 20
+key 31 1 4060
+key 33 0 4060
+key 26 0 4060
+tick 20
+key 31 0 4080
+key 33 1 4080
+key 26 1 4080
+tick 20
+key 31 1 4100
+key 33 0 4100
+key 26 0 4100
+tick 20
+key 31 0 4120
+key 33 1 4120
+key 26 1 4120
+tick 20
+key 31 1 4140
+key 33 0 4140
+key 26 0 4140
+tick 20
+key 31 0 4160
+key 26 1 4160
+tick 20
+key 31 1 4180
+key 26 0 4180
+tick 20
+key 31 0 4200
+key 26 1 4200
+tick 20
+key 31 1 4220
+key 26 0 4220
+tick 20
+key 31 0 4240
+key 33 1 4240
+key 26 1 4240
+tick 20
+key 31 1 4260
+key 33 0 4260
+key 26 0 4260
+tick 20
+key 31 0 4280
+key 33 1 4280
+key 26 1 4280
+tick 20
+key 31 1 4300
+key 33 0 4300
+key 26 0 4300
+tick 20
+key 31 0 4320
+key 33 1 4320
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 4400
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 0 4480
+tick 20
+tick 20
+key 31 1 4520
+key 26 0 4520
+tick 20
+key 31 0 4540
+key 26 1 4540
+tick 20
+key 31 1 4560
+key 26 0 4560
+tick 20
+key 31 0 4580
+key 33 1 4580
+key 26 1 4580
+tick 20
+key 31 1 4600
+key 33 0 4600
+key 26 0 4600
+tick 20
+key 31 0 4620
+key 33 1 4620
+key 26 1 4620
+tick 20
+key 31 1 4640
+key 33 0 4640
+key 26 0 4640
+tick 20
+key 31 0 4660
+key 33 1 4660
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 4740
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 0 4820
+tick 20
+key 31 1 4840
+key 26 0 4840
+tick 20
+key 31 0 4860
+key 26 1 4860
+tick 20
+key 31 1 4880
+key 26 0 4880
+tick 20
+key 31 0 4900
+key 33 1 4900
+key 26 1 4900
+tick 20
+key 31 1 4920
+key 33 0 4920
+key 26 0 4920
+tick 20
+key 31 0 4940
+key 33 1 4940
+key 26 1 4940
+tick 20
+key 31 1 4960
+key 33 0 4960
+key 26 0 4960
+tick 20
+key 31 0 4980
+key 33 1 4980
+key 26 1 4980
+tick 20
+key 31 1 5000
+key 33 0 5000
+key 26 0 5000
+tick 20
+key 31 0 5020
+key 26 1 5020
+tick 20
+key 31 1 5040
+key 26 0 5040
+tick 20
+key 31 0 5060
+key 26 1 5060
+tick 20
+key 31 1 5080
+key 26 0 5080
+tick 20
+tick 20
+key 31 0 5120
+key 33 1 5120
+key 26 1 5120
+tick 20
+key 31 1 5140
+key 33 0 5140
+key 26 0 5140
+tick 20
+key 31 0 5160
+key 33 1 5160
+key 26 1 5160
+tick 20
+key 31 1 5180
+key 33 0 5180
+key 26 0 5180
+tick 20
+key 31 0 5200
+key 26 1 5200
+tick 20
+key 31 1 5220
+key 26 0 5220
+tick 20
+key 31 0 5240
+key 26 1 5240
+tick 20
+key 31 1 5260
+key 26 0 5260
+tick 20
+key 31 0 5280
+key 33 1 5280
+key 26 1 5280
+tick 20
+key 31 1 5300
+key 33 0 5300
+key 26 0 5300
+tick 20
+key 31 0 5320
+key 33 1 5320
+key 26 1 5320
+tick 20
+key 31 1 5340
+key 33 0 5340
+key 26 0 5340
+tick 20
+key 31 0 5360
+key 33 1 5360
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 5440
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 5520
+key 33 0 5520
+key 26 0 5520
+tick 20
+key 31 0 5540
+key 26 1 5540
+tick 20
+key 31 1 5560
+key 26 0 5560
+tick 20
+key 31 0 5580
+key 26 1 5580
+tick 20
+key 31 1 5600
+key 26 0 5600
+tick 20
+tick 20
+key 31 0 5640
+key 33 1 5640
+key 26 1 5640
+tick 20
+key 31 1 5660
+key 33 0 5660
+key 26 0 5660
+tick 20
+key 31 0 5680
+key 33 1 5680
+key 26 1 5680
+tick 20
+key 31 1 5700
+key 33 0 5700
+key 26 0 5700
+tick 20
+key 31 0 5720
+key 26 1 5720
+tick 20
+key 31 1 5740
+key 26 0 5740
+tick 20
+tick 20
+key 31 0 5780
+key 33 1 5780
+key 26 1 5780
+tick 20
+key 31 1 5800
+key 33 0 5800
+key 26 0 5800
+tick 20
+key 31 0 5820
+key 33 1 5820
+key 26 1 5820
+tick 20
+key 31 1 5840
+key 33 0 5840
+key 26 0 5840
+tick 20
+key 31 0 5860
+key 33 1 5860
+key 26 1 5860
+tick 20
+key 31 1 5880
+key 33 0 5880
+key 26 0 5880
+tick 20
+key 31 0 5900
+key 26 1 5900
+tick 20
+key 31 1 5920
+key 26 0 5920
+tick 20
+tick 20
+key 31 0 5960
+key 33 1 5960
+key 26 1 5960
+tick 20
+key 31 1 5980
+key 33 0 5980
+key 26 0 5980
+tick 20
+key 31 0 6000
+key 33 1 6000
+key 26 1 6000
+tick 20
+key 31 1 6020
+key 33 0 6020
+key 26 0 6020
+tick 20
+tick 20
+key 31 0 6060
+key 33 1 6060
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 6140
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 6220
+key 33 0 6220
+key 26 0 6220
+tick 20
+key 31 0 6240
+key 26 1 6240
+tick 20
+key 31 1 6260
+key 26 0 6260
+tick 20
+tick 20
+key 31 0 6300
+key 33 1 6300
+key 26 1 6300
+tick 20
+key 31 1 6320
+key 33 0 6320
+key 26 0 6320
+tick 20
+key 31 0 6340
+key 33 1 6340
+key 26 1 6340
+tick 20
+key 31 1 6360
+key 33 0 6360
+key 26 0 6360
+tick 20
+key 31 0 6380
+key 33 1 6380
+key 26 1 6380
+tick 20
+key 31 1 6400
+key 33 0 6400
+key 26 0 6400
+tick 20
+tick 20
+key 31 0 6440
+key 26 1 6440
+tick 20
+key 31 1 6460
+key 26 0 6460
+tick 20
+key 31 0 6480
+key 33 1 6480
+key 26 1 6480
+tick 20
+key 31 1 6500
+key 33 0 6500
+key 26 0 6500
+tick 20
+tick 20
+key 31 0 6540
+key 33 1 6540
+key 26 1 6540
+tick 20
+key 31 1 6560
+key 33 0 6560
+key 26 0 6560
+tick 20
+key 31 0 6580
+key 33 1 6580
+tick 20
+tick 20
+key 26 1 6620
+tick 20
+key 26 0 6640
+tick 20
+key 33 0 6660
+key 26 1 6660
+tick 20
+tick 20
+key 31 1 6700
+key 26 0 6700
+tick 20
+tick 20
+key 31 0 6740
+key 26 1 6740
+tick 20
+key 26 0 6760
+tick 20
+key 26 1 6780
+tick 20
+key 26 0 6800
+tick 20
+key 26 1 6820
+tick 20
+key 26 0 6840
+tick 20
+tick 20
+key 31 1 6880
+key 26 1 6880
+tick 20
+key 31 0 6900
+key 33 1 6900
+key 26 0 6900
+tick 20
+key 33 0 6920
+key 26 1 6920
+tick 20
+key 33 1 6940
+key 26 0 6940
+tick 20
+key 33 0 6960
+key 26 1 6960
+tick 20
+key 26 0 6980
+tick 20
+key 31 1 7000
+key 26 1 7000
+tick 20
+key 31 0 7020
+key 26 0 7020
+tick 20
+tick 20
+key 26 1 7060
+tick 20
+key 33 1 7080
+key 26 0 7080
+tick 20
+key 33 0 7100
+key 26 1 7100
+tick 20
+key 33 1 7120
+key 26 0 7120
+tick 20
+key 31 1 7140
+key 33 0 7140
+key 26 1 7140
+tick 20
+key 31 0 7160
+key 26 0 7160
+tick 20
+key 31 1 7180
+key 26 1 7180
+tick 20
+key 31 0 7200
+key 26 0 7200
+tick 20
+key 31 1 7220
+key 26 1 7220
+tick 20
+key 31 0 7240
+key 33 1 7240
+key 26 0 7240
+tick 20
+tick 20
+key 33 0 7280
+key 26 1 7280
+tick 20
+key 33 1 7300
+key 26 0 7300
+tick 20
+key 31 1 7320
+key 33 0 7320
+key 26 1 7320
+tick 20
+key 31 0 7340
+key 26 0 7340
+tick 20
+key 31 1 7360
+key 26 1 7360
+tick 20
+key 31 0 7380
+key 26 0 7380
+tick 20
+key 31 1 7400
+key 26 1 7400
+tick 20
+key 31 0 7420
+key 33 1 7420
+key 26 0 7420
+tick 20
+tick 20
+key 33 0 7460
+key 26 1 7460
+tick 20
+key 33 1 7480
+key 26 0 7480
+tick 20
+key 31 1 7500
+key 33 0 7500
+key 26 1 7500
+tick 20
+key 31 0 7520
+key 26 0 7520
+tick 20
+key 31 1 7540
+tick 20
+key 26 1 7560
+tick 20
+tick 20
+key 31 0 7600
+key 33 1 7600
+key 26 0 7600
+tick 20
+tick 20
+key 33 0 7640
+key 26 1 7640
+tick 20
+key 26 0 7660
+tick 20
+key 31 1 7680
+key 26 1 7680
+tick 20
+key 31 0 7700
+key 26 0 7700
+tick 20
+key 31 1 7720
+tick 20
+key 31 0 7740
+key 26 1 7740
+tick 20
+tick 20
+key 33 1 7780
+key 26 0 7780
+tick 20
+tick 20
+key 31 1 7820
+key 33 0 7820
+key 26 1 7820
+tick 20
+key 31 0 7840
+key 26 0 7840
+tick 20
+key 31 1 7860
+key 26 1 7860
+tick 20
+key 31 0 7880
+key 26 0 7880
+tick 20
+key 26 1 7900
+tick 20
+key 33 1 7920
+key 26 0 7920
+tick 20
+key 33 0 7940
+key 26 1 7940
+tick 20
+key 33 1 7960
+key 26 0 7960
+tick 20
+key 33 0 7980
+tick 20
+key 31 1 8000
+key 26 1 8000
+tick 20
+key 31 0 8020
+key 26 0 8020
+tick 20
+key 31 1 8040
+key 26 1 8040
+tick 20
+key 31 0 8060
+key 33 1 8060
+key 26 0 8060
+tick 20
+key 33 0 8080
+key 26 1 8080
+tick 20
+key 33 1 8100
+key 26 0 8100
+tick 20
+key 33 0 8120
+key 26 1 8120
+tick 20
+key 26 0 8140
+tick 20
+tick 20
+key 31 1 8180
+key 26 1 8180
+tick 20
+key 31 0 8200
+key 26 0 8200
+tick 20
+key 26 1 8220
+tick 20
+key 33 1 8240
+key 26 0 8240
+tick 20
+key 26 1 8260
+tick 20
+key 26 0 8280
+tick 20
+key 33 0 8300
+tick 20
+key 26 1 8320
+tick 20
+key 26 0 8340
+tick 20
+key 26 1 8360
+tick 20
+key 26 0 8380
+tick 20
+key 26 1 8400
+tick 20
+key 26 0 8420
+tick 20
+key 26 1 8440
+tick 20
+key 26 0 8460
+tick 20
+tick 20
+key 26 1 8500
+tick 20
+key 26 0 8520
+tick 20
+key 26 1 8540
+tick 20
+key 26 0 8560
+tick 20
+key 26 1 8580
+tick 20
+key 26 0 8600
+tick 20
+tick 20
+key 26 1 8640
+tick 20
+key 26 0 8660
+tick 20
+key 26 1 8680
+tick 20
+key 26 0 8700
+tick 20
+key 26 1 8720
+tick 20
+key 26 0 8740
+tick 20
+key 26 1 8760
+tick 20
+key 26 0 8780
+tick 20
+tick 20
+key 26 1 8820
+tick 20
+key 26 0 8840
+tick 20
+key 26 1 8860
+tick 20
+key 26 0 8880
+tick 20
+key 26 1 8900
+tick 20
+key 26 0 8920
+tick 20
+tick 20
+key 26 1 8960
+tick 20
+key 26 0 8980
+tick 20
+key 26 1 9000
+tick 20
+key 26 0 9020
+tick 20
+key 26 1 9040
+tick 20
+key 26 0 9060
+tick 20
+key 26 1 9080
+tick 20
+key 26 0 9100
+tick 20
+tick 20
+key 26 1 9140
+tick 20
+key 26 0 9160
+tick 20
+key 26 1 9180
+tick 20
+key 26 0 9200
+tick 20
+key 26 1 9220
+tick 20
+key 26 0 9240
+tick 20
+tick 20
+key 26 1 9280
+tick 20
+key 26 0 9300
+tick 20
+key 26 1 9320
+tick 20
+key 26 0 9340
+tick 20
+key 26 1 9360
+tick 20
+key 26 0 9380
+tick 20
+key 26 1 9400
+tick 20
+key 26 0 9420
+tick 20
+tick 20
+key 26 1 9460
+tick 20
+key 26 0 9480
+tick 20
+key 26 1 9500
+tick 20
+key 26 0 9520
+tick 20
+key 26 1 9540
+tick 20
+key 26 0 9560
+tick 20
+tick 20
+key 26 1 9600
+tick 20
+key 26 0 9620
+tick 20
+key 26 1 9640
+tick 20
+key 26 0 9660
+tick 20
+key 26 1 9680
+tick 20
+key 26 0 9700
+tick 20
+tick 20
+key 26 1 9740
+tick 20
+key 26 0 9760
+tick 20
+key 26 1 9780
+tick 20
+key 26 0 9800
+tick 20
+key 26 1 9820
+tick 20
+key 26 0 9840
+tick 20
+key 26 1 9860
+tick 20
+key 26 0 9880
+tick 20
+tick 20
+key 26 1 9920
+tick 20
+key 26 0 9940
+tick 20
+key 26 1 9960
+tick 20
+key 26 0 9980
+tick 20
+key 26 1 10000
+tick 20
+key 26 0 10020
+tick 20
+tick 20
+key 26 1 10060
+tick 20
+key 26 0 10080
+tick 20
+key 26 1 10100
+tick 20
+key 26 0 10120
+tick 20
+key 26 1 10140
+tick 20
+key 26 0 10160
+tick 20
+key 26 1 10180
+tick 20
+key 26 0 10200
+tick 20
+tick 20
+key 26 1 10240
+tick 20
+key 26 0 10260
+tick 20
+key 26 1 10280
+tick 20
+key 26 0 10300
+tick 20
+key 26 1 10320
+tick 20
+key 26 0 10340
+tick 20
+tick 20
+key 26 1 10380
+tick 20
+key 26 0 10400
+tick 20
+key 26 1 10420
+tick 20
+key 26 0 10440
+tick 20
+key 26 1 10460
+tick 20
+key 26 0 10480
+tick 20
+key 26 1 10500
+tick 20
+key 26 0 10520
+tick 20
+tick 20
+key 26 1 10560
+tick 20
+key 26 0 10580
+tick 20
+key 26 1 10600
+tick 20
+key 26 0 10620
+tick 20
+key 26 1 10640
+tick 20
+key 26 0 10660
+tick 20
+tick 20
+key 26 1 10700
+tick 20
+key 26 0 10720
+tick 20
+key 26 1 10740
+tick 20
+key 26 0 10760
+tick 20
+key 26 1 10780
+tick 20
+key 26 0 10800
+tick 20
+key 26 1 10820
+tick 20
+key 26 0 10840
+tick 20
+tick 20
+key 26 1 10880
+tick 20
+key 26 0 10900
+tick 20
+key 26 1 10920
+tick 20
+key 26 0 10940
+tick 20
+key 26 1 10960
+tick 20
+key 26 0 10980
+tick 20
+key 26 1 11000
+tick 20
+tick 20
+key 26 0 11040
+tick 20
+key 26 1 11060
+tick 20
+tick 20
+tick 20
+key 26 0 11120
+tick 20
+key 26 1 11140
+tick 20
+tick 20
+key 26 0 11180
+tick 20
+key 26 1 11200
+tick 20
+tick 20
+tick 20
+key 26 0 11260
+tick 20
+key 26 1 11280
+tick 20
+tick 20
+tick 20
+key 26 0 11340
+tick 20
+key 26 1 11360
+tick 20
+tick 20
+tick 20
+key 26 0 11420
+tick 20
+key 26 1 11440
+tick 20
+tick 20
+tick 20
+key 26 0 11500
+tick 20
+key 26 1 11520
+tick 20
+tick 20
+key 26 0 11560
+tick 20
+key 26 1 11580
+tick 20
+tick 20
+key 26 0 11620
+tick 20
+# round 0: land 5, fuel 1709, score 250
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 1 13140
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 13480
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 0 13560
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 14220
+tick 20
+key 31 0 14240
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 14460
+tick 20
+key 31 0 14480
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 14740
+tick 20
+key 31 0 14760
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 14940
+key 26 0 14940
+tick 20
+key 31 0 14960
+key 33 1 14960
+key 26 1 14960
+tick 20
+key 31 1 14980
+key 33 0 14980
+key 26 0 14980
+tick 20
+tick 20
+key 31 0 15020
+key 26 1 15020
+tick 20
+key 31 1 15040
+key 26 0 15040
+tick 20
+key 31 0 15060
+key 26 1 15060
+tick 20
+key 31 1 15080
+key 26 0 15080
+tick 20
+key 31 0 15100
+key 26 1 15100
+tick 20
+key 31 1 15120
+key 26 0 15120
+tick 20
+key 31 0 15140
+key 33 1 15140
+key 26 1 15140
+tick 20
+key 33 0 15160
+key 26 0 15160
+tick 20
+tick 20
+key 33 1 15200
+key 26 1 15200
+tick 20
+key 31 1 15220
+key 33 0 15220
+key 26 0 15220
+tick 20
+key 26 1 15240
+tick 20
+key 26 0 15260
+tick 20
+key 26 1 15280
+tick 20
+key 31 0 15300
+key 26 0 15300
+tick 20
+key 26 1 15320
+tick 20
+key 26 0 15340
+tick 20
+tick 20
+key 26 1 15380
+tick 20
+key 26 0 15400
+tick 20
+key 26 1 15420
+tick 20
+key 26 0 15440
+tick 20
+key 26 1 15460
+tick 20
+key 26 0 15480
+tick 20
+tick 20
+key 26 1 15520
+tick 20
+key 26 0 15540
+tick 20
+key 26 1 15560
+tick 20
+key 26 0 15580
+tick 20
+key 26 1 15600
+tick 20
+key 26 0 15620
+tick 20
+key 26 1 15640
+tick 20
+key 26 0 15660
+tick 20
+tick 20
+key 26 1 15700
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 0 16100
+tick 20
+key 26 1 16120
+tick 20
+tick 20
+key 31 1 16160
+tick 20
+tick 20
+key 26 0 16200
+tick 20
+key 26 1 16220
+tick 20
+key 26 0 16240
+tick 20
+key 26 1 16260
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 16340
+tick 20
+key 31 1 16360
+tick 20
+tick 20
+tick 20
+key 31 0 16420
+key 33 1 16420
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 0 16500
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 1 16600
+tick 20
+key 33 0 16620
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 1 16780
+key 26 0 16780
+tick 20
+key 31 1 16800
+key 33 0 16800
+key 26 1 16800
+tick 20
+key 31 0 16820
+key 33 1 16820
+key 26 0 16820
+tick 20
+key 31 1 16840
+key 33 0 16840
+key 26 1 16840
+tick 20
+key 31 0 16860
+key 33 1 16860
+key 26 0 16860
+tick 20
+key 31 1 16880
+key 33 0 16880
+key 26 1 16880
+tick 20
+key 31 0 16900
+key 33 1 16900
+key 26 0 16900
+tick 20
+key 33 0 16920
+key 26 1 16920
+tick 20
+key 33 1 16940
+key 26 0 16940
+tick 20
+key 33 0 16960
+key 26 1 16960
+tick 20
+key 33 1 16980
+key 26 0 16980
+tick 20
+key 31 1 17000
+key 33 0 17000
+key 26 1 17000
+tick 20
+key 31 0 17020
+key 33 1 17020
+key 26 0 17020
+tick 20
+tick 20
+key 31 1 17060
+key 33 0 17060
+key 26 1 17060
+tick 20
+key 31 0 17080
+key 33 1 17080
+key 26 0 17080
+tick 20
+key 33 0 17100
+key 26 1 17100
+tick 20
+key 33 1 17120
+key 26 0 17120
+tick 20
+key 33 0 17140
+key 26 1 17140
+tick 20
+key 31 1 17160
+tick 20
+key 31 0 17180
+key 33 1 17180
+key 26 0 17180
+tick 20
+key 31 1 17200
+key 33 0 17200
+key 26 1 17200
+tick 20
+key 31 0 17220
+key 33 1 17220
+key 26 0 17220
+tick 20
+key 31 1 17240
+key 33 0 17240
+key 26 1 17240
+tick 20
+key 31 0 17260
+tick 20
+key 33 1 17280
+key 26 0 17280
+tick 20
+key 33 0 17300
+key 26 1 17300
+tick 20
+key 33 1 17320
+key 26 0 17320
+tick 20
+key 31 1 17340
+key 33 0 17340
+key 26 1 17340
+tick 20
+tick 20
+key 31 0 17380
+key 33 1 17380
+key 26 0 17380
+tick 20
+key 31 1 17400
+key 33 0 17400
+key 26 1 17400
+tick 20
+key 31 0 17420
+key 33 1 17420
+key 26 0 17420
+tick 20
+key 31 1 17440
+key 33 0 17440
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 17520
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 17600
+tick 20
+tick 20
+tick 20
+key 33 1 17660
+key 26 0 17660
+tick 20
+key 31 1 17680
+key 33 0 17680
+key 26 1 17680
+tick 20
+key 31 0 17700
+key 33 1 17700
+key 26 0 17700
+tick 20
+key 31 1 17720
+key 33 0 17720
+key 26 1 17720
+tick 20
+key 31 0 17740
+key 33 1 17740
+key 26 0 17740
+tick 20
+key 31 1 17760
+key 33 0 17760
+key 26 1 17760
+tick 20
+key 31 0 17780
+key 33 1 17780
+key 26 0 17780
+tick 20
+key 33 0 17800
+key 26 1 17800
+tick 20
+key 33 1 17820
+key 26 0 17820
+tick 20
+key 33 0 17840
+key 26 1 17840
+tick 20
+key 33 1 17860
+key 26 0 17860
+tick 20
+key 31 1 17880
+key 33 0 17880
+key 26 1 17880
+tick 20
+key 31 0 17900
+key 33 1 17900
+key 26 0 17900
+tick 20
+key 31 1 17920
+key 33 0 17920
+key 26 1 17920
+tick 20
+key 31 0 17940
+key 33 1 17940
+key 26 0 17940
+tick 20
+key 31 1 17960
+key 33 0 17960
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 18040
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 18120
+tick 20
+key 33 1 18140
+key 26 0 18140
+tick 20
+key 33 0 18160
+key 26 1 18160
+tick 20
+key 33 1 18180
+key 26 0 18180
+tick 20
+key 31 1 18200
+key 33 0 18200
+key 26 1 18200
+tick 20
+key 31 0 18220
+key 33 1 18220
+key 26 0 18220
+tick 20
+key 31 1 18240
+key 33 0 18240
+key 26 1 18240
+tick 20
+key 31 0 18260
+key 33 1 18260
+key 26 0 18260
+tick 20
+tick 20
+key 31 1 18300
+key 33 0 18300
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 18380
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 18460
+tick 20
+key 33 1 18480
+key 26 0 18480
+tick 20
+key 33 0 18500
+key 26 1 18500
+tick 20
+key 33 1 18520
+key 26 0 18520
+tick 20
+key 31 1 18540
+key 33 0 18540
+key 26 1 18540
+tick 20
+key 31 0 18560
+key 33 1 18560
+key 26 0 18560
+tick 20
+tick 20
+key 31 1 18600
+key 33 0 18600
+key 26 1 18600
+tick 20
+key 31 0 18620
+key 33 1 18620
+key 26 0 18620
+tick 20
+key 31 1 18640
+key 33 0 18640
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 18720
+tick 20
+tick 20
+tick 20
+key 31 0 18780
+key 33 1 18780
+key 26 0 18780
+tick 20
+key 31 1 18800
+key 33 0 18800
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 18880
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 18960
+key 33 1 18960
+key 26 0 18960
+tick 20
+key 33 0 18980
+key 26 1 18980
+tick 20
+key 33 1 19000
+key 26 0 19000
+tick 20
+key 33 0 19020
+key 26 1 19020
+tick 20
+key 33 1 19040
+key 26 0 19040
+tick 20
+tick 20
+key 31 1 19080
+key 33 0 19080
+key 26 1 19080
+tick 20
+key 31 0 19100
+key 33 1 19100
+key 26 0 19100
+tick 20
+key 31 1 19120
+key 33 0 19120
+key 26 1 19120
+tick 20
+key 31 0 19140
+key 33 1 19140
+key 26 0 19140
+tick 20
+tick 20
+key 33 0 19180
+key 26 1 19180
+tick 20
+key 33 1 19200
+key 26 0 19200
+tick 20
+key 31 1 19220
+key 33 0 19220
+key 26 1 19220
+tick 20
+key 31 0 19240
+key 33 1 19240
+key 26 0 19240
+tick 20
+tick 20
+key 31 1 19280
+key 33 0 19280
+key 26 1 19280
+tick 20
+key 31 0 19300
+key 33 1 19300
+key 26 0 19300
+tick 20
+key 31 1 19320
+key 33 0 19320
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 19400
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 19480
+key 33 1 19480
+key 26 0 19480
+tick 20
+key 33 0 19500
+key 26 1 19500
+tick 20
+key 33 1 19520
+key 26 0 19520
+tick 20
+key 33 0 19540
+key 26 1 19540
+tick 20
+key 33 1 19560
+key 26 0 19560
+tick 20
+key 31 1 19580
+key 33 0 19580
+key 26 1 19580
+tick 20
+key 31 0 19600
+key 33 1 19600
+key 26 0 19600
+tick 20
+key 31 1 19620
+key 33 0 19620
+key 26 1 19620
+tick 20
+key 31 0 19640
+key 33 1 19640
+key 26 0 19640
+tick 20
+key 33 0 19660
+tick 20
+key 31 1 19680
+tick 20
+tick 20
+tick 20
+key 26 1 19740
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 19820
+key 33 1 19820
+key 26 0 19820
+tick 20
+tick 20
+key 33 0 19860
+key 26 1 19860
+tick 20
+key 33 1 19880
+key 26 0 19880
+tick 20
+key 31 1 19900
+key 33 0 19900
+key 26 1 19900
+tick 20
+key 31 0 19920
+key 33 1 19920
+key 26 0 19920
+tick 20
+key 31 1 19940
+key 33 0 19940
+key 26 1 19940
+tick 20
+key 31 0 19960
+key 33 1 19960
+key 26 0 19960
+tick 20
+key 31 1 19980
+key 33 0 19980
+key 26 1 19980
+tick 20
+key 31 0 20000
+key 33 1 20000
+key 26 0 20000
+tick 20
+tick 20
+key 33 0 20040
+key 26 1 20040
+tick 20
+key 33 1 20060
+key 26 0 20060
+tick 20
+key 31 1 20080
+key 33 0 20080
+key 26 1 20080
+tick 20
+key 31 0 20100
+key 33 1 20100
+key 26 0 20100
+tick 20
+key 31 1 20120
+key 33 0 20120
+key 26 1 20120
+tick 20
+key 31 0 20140
+key 33 1 20140
+key 26 0 20140
+tick 20
+key 31 1 20160
+key 33 0 20160
+key 26 1 20160
+tick 20
+key 31 0 20180
+key 33 1 20180
+key 26 0 20180
+tick 20
+key 33 0 20200
+key 26 1 20200
+tick 20
+key 33 1 20220
+key 26 0 20220
+tick 20
+key 33 0 20240
+key 26 1 20240
+tick 20
+key 33 1 20260
+key 26 0 20260
+tick 20
+tick 20
+key 31 1 20300
+key 33 0 20300
+key 26 1 20300
+tick 20
+key 31 0 20320
+key 33 1 20320
+key 26 0 20320
+tick 20
+key 31 1 20340
+key 33 0 20340
+key 26 1 20340
+tick 20
+key 31 0 20360
+key 33 1 20360
+key 26 0 20360
+tick 20
+key 33 0 20380
+key 26 1 20380
+tick 20
+key 33 1 20400
+key 26 0 20400
+tick 20
+key 33 0 20420
+key 26 1 20420
+tick 20
+key 33 1 20440
+key 26 0 20440
+tick 20
+key 31 1 20460
+key 33 0 20460
+key 26 1 20460
+tick 20
+key 31 0 20480
+key 33 1 20480
+key 26 0 20480
+tick 20
+tick 20
+key 31 1 20520
+key 33 0 20520
+key 26 1 20520
+tick 20
+key 31 0 20540
+key 33 1 20540
+key 26 0 20540
+tick 20
+key 33 0 20560
+key 26 1 20560
+tick 20
+key 33 1 20580
+key 26 0 20580
+tick 20
+key 33 0 20600
+key 26 1 20600
+tick 20
+key 33 1 20620
+key 26 0 20620
+tick 20
+key 31 1 20640
+key 33 0 20640
+key 26 1 20640
+tick 20
+key 31 0 20660
+key 33 1 20660
+key 26 0 20660
+tick 20
+key 31 1 20680
+key 33 0 20680
+key 26 1 20680
+tick 20
+key 31 0 20700
+key 33 1 20700
+key 26 0 20700
+tick 20
+key 31 1 20720
+key 33 0 20720
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 20800
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 20880
+key 33 1 20880
+key 26 0 20880
+tick 20
+key 33 0 20900
+key 26 1 20900
+tick 20
+key 33 1 20920
+key 26 0 20920
+tick 20
+key 33 0 20940
+key 26 1 20940
+tick 20
+key 33 1 20960
+key 26 0 20960
+tick 20
+key 31 1 20980
+key 33 0 20980
+key 26 1 20980
+tick 20
+key 31 0 21000
+key 33 1 21000
+key 26 0 21000
+tick 20
+key 31 1 21020
+key 33 0 21020
+key 26 1 21020
+tick 20
+key 31 0 21040
+key 33 1 21040
+key 26 0 21040
+tick 20
+key 31 1 21060
+key 33 0 21060
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 21140
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 21220
+tick 20
+key 33 1 21240
+key 26 0 21240
+tick 20
+tick 20
+key 33 0 21280
+key 26 1 21280
+tick 20
+key 33 1 21300
+key 26 0 21300
+tick 20
+key 31 1 21320
+key 33 0 21320
+key 26 1 21320
+tick 20
+key 31 0 21340
+key 33 1 21340
+key 26 0 21340
+tick 20
+key 31 1 21360
+key 33 0 21360
+key 26 1 21360
+tick 20
+key 31 0 21380
+key 33 1 21380
+key 26 0 21380
+tick 20
+key 33 0 21400
+tick 20
+key 31 1 21420
+tick 20
+key 26 1 21440
+tick 20
+key 31 0 21460
+key 26 0 21460
+tick 20
+key 26 1 21480
+tick 20
+key 33 1 21500
+key 26 0 21500
+tick 20
+key 26 1 21520
+tick 20
+key 26 0 21540
+tick 20
+key 26 1 21560
+tick 20
+key 33 0 21580
+key 26 0 21580
+tick 20
+key 33 1 21600
+key 26 1 21600
+tick 20
+key 26 0 21620
+tick 20
+key 26 1 21640
+tick 20
+tick 20
+key 31 1 21680
+key 33 0 21680
+key 26 0 21680
+tick 20
+key 31 0 21700
+key 33 1 21700
+key 26 1 21700
+tick 20
+key 31 1 21720
+key 33 0 21720
+key 26 0 21720
+tick 20
+key 31 0 21740
+key 33 1 21740
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 21820
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 0 21900
+tick 20
+tick 20
+key 31 1 21940
+key 26 0 21940
+tick 20
+key 31 0 21960
+key 26 1 21960
+tick 20
+key 31 1 21980
+key 26 0 21980
+tick 20
+tick 20
+key 31 0 22020
+key 33 1 22020
+key 26 1 22020
+tick 20
+key 31 1 22040
+key 33 0 22040
+key 26 0 22040
+tick 20
+key 31 0 22060
+key 33 1 22060
+key 26 1 22060
+tick 20
+key 31 1 22080
+key 33 0 22080
+key 26 0 22080
+tick 20
+key 31 0 22100
+key 26 1 22100
+tick 20
+key 31 1 22120
+key 26 0 22120
+tick 20
+key 31 0 22140
+key 26 1 22140
+tick 20
+key 31 1 22160
+key 26 0 22160
+tick 20
+key 31 0 22180
+key 33 1 22180
+key 26 1 22180
+tick 20
+key 31 1 22200
+key 33 0 22200
+key 26 0 22200
+tick 20
+key 31 0 22220
+key 33 1 22220
+key 26 1 22220
+tick 20
+key 31 1 22240
+key 33 0 22240
+key 26 0 22240
+tick 20
+key 31 0 22260
+key 33 1 22260
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 22340
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 22420
+key 33 0 22420
+key 26 0 22420
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 0 22580
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 1 22860
+tick 20
+key 26 1 22880
+tick 20
+tick 20
+key 31 1 22920
+key 33 0 22920
+key 26 0 22920
+tick 20
+key 31 0 22940
+key 33 1 22940
+key 26 1 22940
+tick 20
+key 31 1 22960
+key 33 0 22960
+key 26 0 22960
+tick 20
+key 31 0 22980
+tick 20
+key 33 1 23000
+tick 20
+tick 20
+tick 20
+key 26 1 23060
+tick 20
+tick 20
+tick 20
+tick 20
+key 31 1 23140
+key 33 0 23140
+key 26 0 23140
+tick 20
+key 31 0 23160
+key 26 1 23160
+tick 20
+key 31 1 23180
+key 26 0 23180
+tick 20
+tick 20
+key 31 0 23220
+key 33 1 23220
+key 26 1 23220
+tick 20
+key 31 1 23240
+key 33 0 23240
+key 26 0 23240
+tick 20
+key 31 0 23260
+key 33 1 23260
+key 26 1 23260
+tick 20
+key 31 1 23280
+key 33 0 23280
+key 26 0 23280
+tick 20
+key 31 0 23300
+key 33 1 23300
+key 26 1 23300
+tick 20
+key 31 1 23320
+key 33 0 23320
+key 26 0 23320
+tick 20
+key 31 0 23340
+key 26 1 23340
+tick 20
+key 31 1 23360
+key 26 0 23360
+tick 20
+tick 20
+key 31 0 23400
+key 33 1 23400
+key 26 1 23400
+tick 20
+key 31 1 23420
+key 33 0 23420
+key 26 0 23420
+tick 20
+key 31 0 23440
+key 33 1 23440
+key 26 1 23440
+tick 20
+key 31 1 23460
+key 33 0 23460
+key 26 0 23460
+tick 20
+key 31 0 23480
+key 33 1 23480
+key 26 1 23480
+tick 20
+key 31 1 23500
+key 33 0 23500
+key 26 0 23500
+tick 20
+tick 20
+key 31 0 23540
+key 26 1 23540
+tick 20
+key 31 1 23560
+key 26 0 23560
+tick 20
+key 31 0 23580
+key 33 1 23580
+key 26 1 23580
+tick 20
+key 31 1 23600
+key 33 0 23600
+key 26 0 23600
+tick 20
+key 31 0 23620
+key 33 1 23620
+key 26 1 23620
+tick 20
+key 31 1 23640
+key 33 0 23640
+key 26 0 23640
+tick 20
+tick 20
+key 31 0 23680
+key 33 1 23680
+tick 20
+tick 20
+tick 20
+tick 20
+key 33 0 23760
+key 26 1 23760
+tick 20
+tick 20
+key 33 1 23800
+tick 20
+tick 20
+key 31 1 23840
+key 33 0 23840
+key 26 0 23840
+tick 20
+key 26 1 23860
+tick 20
+key 26 0 23880
+tick 20
+tick 20
+key 26 1 23920
+tick 20
+key 26 0 23940
+tick 20
+key 26 1 23960
+tick 20
+key 26 0 23980
+tick 20
+key 31 0 24000
+key 26 1 24000
+tick 20
+key 26 0 24020
+tick 20
+key 26 1 24040
+tick 20
+key 26 0 24060
+tick 20
+tick 20
+key 26 1 24100
+tick 20
+key 26 0 24120
+tick 20
+key 26 1 24140
+tick 20
+key 26 0 24160
+tick 20
+key 26 1 24180
+tick 20
+key 26 0 24200
+tick 20
+key 26 1 24220
+tick 20
+key 26 0 24240
+tick 20
+tick 20
+key 26 1 24280
+tick 20
+key 26 0 24300
+tick 20
+key 26 1 24320
+tick 20
+key 26 0 24340
+tick 20
+key 26 1 24360
+tick 20
+key 26 0 24380
+tick 20
+tick 20
+key 26 1 24420
+tick 20
+key 26 0 24440
+tick 20
+key 26 1 24460
+tick 20
+key 26 0 24480
+tick 20
+key 26 1 24500
+tick 20
+key 26 0 24520
+tick 20
+key 26 1 24540
+tick 20
+key 26 0 24560
+tick 20
+tick 20
+key 26 1 24600
+tick 20
+key 26 0 24620
+tick 20
+key 26 1 24640
+tick 20
+key 26 0 24660
+tick 20
+key 26 1 24680
+tick 20
+key 26 0 24700
+tick 20
+key 26 1 24720
+tick 20
+tick 20
+key 26 0 24760
+tick 20
+key 26 1 24780
+tick 20
+tick 20
+tick 20
+key 26 0 24840
+tick 20
+key 26 1 24860
+tick 20
+tick 20
+key 26 0 24900
+tick 20
+key 26 1 24920
+tick 20
+tick 20
+tick 20
+key 26 0 24980
+tick 20
+key 26 1 25000
+tick 20
+tick 20
+tick 20
+key 26 0 25060
+tick 20
+key 26 1 25080
+tick 20
+tick 20
+key 26 0 25120
+tick 20
+key 26 1 25140
+tick 20
+tick 20
+tick 20
+key 26 0 25200
+tick 20
+key 26 1 25220
+tick 20
+tick 20
+tick 20
+key 26 0 25280
+tick 20
+key 26 1 25300
+tick 20
+tick 20
+key 26 0 25340
+tick 20
+# round 1: land 2, fuel 1371, score 350
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+# round 2: crash 0, fuel 1171, score 350
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 1 32140
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 26 0 60820
+# round 3: crash 0, fuel 0, score 350
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+# expect save 4c015e01000002000000020000000000 tunes 4 tones 1

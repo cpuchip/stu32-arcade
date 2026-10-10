@@ -1,0 +1,11 @@
+# LAND for the STU-32's APPS (docs/land.md; sdk/gamelist/gen_games.py reads this at the pin the games list names)
+name = LAND
+folder = GAMES
+app = land_app
+sources = games/land/land_logic.c games/land/land_app.c
+include = games/land
+flags =
+author = arcade (the games seat)
+# MIT (abacus decision 61)
+licence = MIT
+source = written for the STU-32 by arcade (Michael's decision 71: set the ship down on a pad)
