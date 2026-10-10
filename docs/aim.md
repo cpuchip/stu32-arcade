@@ -84,6 +84,15 @@ the stack past `-Wframe-larger-than=1024`.
 5. **Falsified on purpose, each red then green:** a solver that never divides, logic that lets a tile be used
    twice, a generator that ignores its range, a draw that skips the used-tile shade.
 
+## On the S3 (soroban's board, 2026-10-10, scripts/device_aim.sh)
+
+Both app scripts' frames on the chip hash as the SDK runner's (oracle/aim/frames): win12's 208 and refuse's 22, the
+control red. At 240 MHz with the ctx in PSRAM: a draw takes 1.2 ms (1.4 worst), a tick 1 us, and the slowest key,
+the one that makes a round, 13.4 ms. aim_make_round alone, 100 rounds at each level: 7.8-8.2 ms on average, 24.3 ms at
+worst. The worst are single solves of sets reaching about 900 values (measured on the host: 199 of 200 rounds take one
+solve, and a solve's time grows faster than its table, 27 us for 83-226 values against 207 us for 581-912, the
+duplicate search being linear). A round still appears well within a keypress.
+
 ## Decided
 
 Michael, through abacus (#6064), 2026-10-10:
