@@ -76,8 +76,8 @@ started on any board, the sum of the six records' games in the save **(rev 2)**.
 2. **The test.** With classic rules, the first attempt is dealt **(rev 2)**. Otherwise the game's solver (below)
    plays the board from opening f; if it opens every cell that is not a mine, the attempt is dealt, and if not, the
    next attempt draws from where the last left off.
-3. **The fallback.** After 400 attempts that fail **(rev 2: 100 before)**, the 400th is dealt anyway (the classic
-   rule: only the first open is safe). Measured over 20,000 seeds per board, first open at the centre: the most
+3. **The fallback.** After 400 attempts that fail **(rev 2: 100 before)**, the 400th is dealt anyway: the first
+   open and its neighbours are safe, and the board may need a guess. Measured over 20,000 seeds per board, first open at the centre: the most
    attempts any board needed were 7 (easy), 16 (medium) and 213 (hard), so the fallback never came.
 4. **Across ticks (rev 2).** The first open does not deal inside its key. The key starts the deal (the game shows
    DEALING), and each tick then makes up to D attempts, D = 4, until one is dealt; that tick opens f and starts the
