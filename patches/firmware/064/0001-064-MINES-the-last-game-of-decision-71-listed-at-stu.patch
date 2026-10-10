@@ -1,4 +1,4 @@
-From bbc09f72ae8c58b2aa26a58e507207ef9a65928e Mon Sep 17 00:00:00 2001
+From 61d8b080daf9c7554ee857de031c9b27eccace34 Mon Sep 17 00:00:00 2001
 From: Michael Stufflebeam <cpuchip@gmail.com>
 Date: Sat, 10 Oct 2026 08:57:52 +0000
 Subject: [PATCH] 064: MINES, the last game of decision 71: listed at
@@ -321,7 +321,7 @@ index 82f59d9..f8a5df9 100644
 +mines  stu32-arcade  1def4921a14ff3bb802f5c290de139d089fa71d9  MIT                        games/mines/stu32-game.txt
 diff --git a/work/064-mines.md b/work/064-mines.md
 new file mode 100644
-index 0000000..91617af
+index 0000000..fe67181
 --- /dev/null
 +++ b/work/064-mines.md
 @@ -0,0 +1,82 @@
@@ -405,8 +405,8 @@ index 0000000..91617af
 +open at the cursor (12, 6), which deals the board on the chip from the hardware RNG, FRAMEBENCH, then 80 presses round
 +the field's edge, a move and an open at a time, each followed by 0.2 s. The board cannot see the field; on the host
 +the same keys end the game (a loss, almost always) for 199 of 200 seeds, and the script passes either way. Then the
-+calc task's stack-free (at least 2,048, read before `app:`), C, and 2 ENTER 3 + must give 5. 182 key lines; the longest runs
-+without a sleep are the closing eight and the launch's four. Not yet run: it waits on the gate's board.
++calc task's stack-free (at least 2,048, read before `app:`), C, and 2 ENTER 3 + must give 5. 182 key lines; the
++longest runs without a sleep are the closing eight and the launch's four. Not yet run: it waits on the gate's board.
 -- 
 2.53.0
 
