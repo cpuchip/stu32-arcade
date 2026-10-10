@@ -74,6 +74,7 @@ void land_make_terrain(land_terrain *t, uint64_t seed, uint32_t round)
         if (k < LAND_PADS)
             t->v[t->n++] = (land_vert){t->pad[k].x1, t->pad[k].y};
     }
+    t->v[t->n - 1].y = t->v[0].y; /* the edges meet */
     t->start_x = (40 + draw(&x, 320)) * LAND_Q;
     int32_t speed = 19661 + draw(&x, 19661);
     t->start_vx = draw(&x, 2) == 0 ? -speed : speed;
@@ -180,7 +181,7 @@ enum land_end land_step(land_ship *s, const land_terrain *t, int *mult)
     bool poke = vertex_inside(pts, t);
     if (!under && !poke)
         return LAND_FLYING;
-    if (s->a != 0 || s->vy > LAND_VY || s->vy < -LAND_VY || s->vx > LAND_VX || s->vx < -LAND_VX || poke)
+    if (s->a != 0 || s->vy > LAND_VY || s->vy < -LAND_VY || s->vx > LAND_VX || s->vx < -LAND_VX)
         return LAND_CRASHED;
     for (int k = 0; k < LAND_PADS; k++) {
         const land_pad *p = &t->pad[k];

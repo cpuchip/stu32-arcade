@@ -17,7 +17,7 @@
 #define LAND_FUEL 2000
 #define LAND_CRASH_COST 200
 #define LAND_TURN_STEPS 4
-#define LAND_START_Y 28
+#define LAND_START_Y 32
 #define LAND_VERTS_MAX 48
 #define LAND_PADS 3
 #define LAND_OUTLINE 7

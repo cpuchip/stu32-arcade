@@ -8,7 +8,7 @@
 #   4 the app on the SDK runner: two scripted games (oracle/land/appscript.py) with their frame hashes against
 #     oracle/land/frames/, and the save, tunes and tones the script's rules give; with WASI_SDK, WAMRC and WAMR_TREE
 #     set (as for oracle/wasm_check.sh), the same scripts through the .wasm and the bridge, which must give the same;
-#   5 planted faults, each of which must turn its check red.
+#   5 planted faults, each of which must turn its check red (nine, and a plant that does not build is red too).
 # The logic and the app build under ASan and UBSan and the frame guard. --bless rewrites the frame hashes.
 set -u
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -154,6 +154,16 @@ if plant nowrap land_logic.c 's/s->x = \(s->x \+ s->vx\) % WQ;\n    if \(s->x < 
     check1 "$B/p5" && red "5 plant: no wrap passes check 1" || echo "  5 plant: no wrap at the edges: check 1 red"
 fi
 
+if plant noclamp land_logic.c 's/\n    s->vy = clamp\(s->vy, -VMAX, VMAX\);\n/\n/' && build_trace "$STRICT -O2" "$B/plant-noclamp" "$B/p7"; then
+    check1 "$B/p7" && red "5 plant: no speed clamp passes check 1" || echo "  5 plant: the speed clamp left out: check 1 red (the dives)"
+fi
+if plant floor land_logic.c 's/return y0 \* LAND_Q \+ \(int32_t\)\(\(int64_t\)\(y1 - y0\) \* \(xq - x0 \* LAND_Q\) \/ \(x1 - x0\)\);/int64_t num = (int64_t)(y1 - y0) * (xq - x0 * LAND_Q), q = num \/ (x1 - x0);\n    return y0 * LAND_Q + (int32_t)(q * (x1 - x0) > num ? q - 1 : q);/' \
+    && build_trace "$STRICT -O2" "$B/plant-floor" "$B/p8"; then
+    check3 "$B/p8" && red "5 plant: a floored ground passes check 3" || echo "  5 plant: the ground floored, not rounded toward 0: check 3 red"
+fi
+if plant upward land_logic.c 's/ \|\| s->vy < -LAND_VY//' && build_trace "$STRICT -O2" "$B/plant-upward" "$B/p9"; then
+    check3 "$B/p9" && red "5 plant: no upward speed limit passes check 3" || echo "  5 plant: the upward speed limit left out: check 3 red"
+fi
 if plant thin land_app.c 's/p->x1 - p->x0 \+ 1, 3, DRAW_DARK\)/p->x1 - p->x0 + 1, 1, DRAW_DARK)/' && build_app x "$B/plant-thin" "$B/p6"; then
     app_run "$B/p6" play p6
     cmp -s "$B/play.p6.hashes" "$O/frames/play.hashes" && red "5 plant: thin pads pass check 4" || echo "  5 plant: pads drawn 1 px thick: check 4 red"

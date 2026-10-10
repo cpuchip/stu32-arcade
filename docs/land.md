@@ -47,8 +47,8 @@ default fp-contract lets the Xtensa build fuse a multiply and an add, and a valu
      (C's `/`, rounding toward 0), and the fuel drops by 1;
   3. `vy += G`;
   4. `vx` and `vy` are clamped to ±4 px a step (±262,144);
-  5. `x += vx`, `y += vy`; `x` wraps into 0..400 px (the screen's left and right edges meet), and `y` stops at
-     −200 px, where `vy` becomes 0;
+  5. `x += vx`, `y += vy`; `x` wraps into 0..400 px (the screen's left and right edges meet, and so does the
+     terrain), and when `y` is above −200 px (`y` < −200 px) it is set to −200 px and `vy` to 0;
   6. the contact test below.
 - **The constants.** `G` = 655 (0.01 px a step², 25 px/s²); `A` = 1,500, about 2.3 G; the landing limits
   `VY` = 26,214 (0.4 px a step, 20 px/s, downward) and `VX` = 13,107 (0.2 px a step, 10 px/s, either way).
@@ -71,8 +71,10 @@ ship poking between two of its points.
 At contact the round ends. It is a **landing** when all of these hold, and a **crash** otherwise:
 - the ship is upright (`a` = 0);
 - |vy| ≤ VY and |vx| ≤ VX;
-- both feet are over the same pad: each foot's x is within the pad's ends, inclusive;
-- no terrain vertex is inside the outline.
+- both feet are over the same pad: each foot's x is within the pad's ends, inclusive.
+
+A vertex inside the outline with both feet over one pad cannot happen (a pad is one flat segment, so its only
+vertices are its ends, on the feet's line), so it needs no rule of its own.
 
 A landing sets the ship on the pad (`y` = pad y − 6 px).
 
@@ -87,30 +89,40 @@ From a round's seed (below), with the draws `x = mix64(x)`, value `x % n` (Aim's
    `x0 = 133 k + 12 + draw(133 − 24 − w)` and has y = `130 + draw(80)`.
 3. **The ground between.** It starts with (0, `150 + draw(70)`). Then, walking right toward the next pad's start
    (or to 400 after the last pad): the next x is the current x plus `12 + draw(17)`, but becomes the pad's start
-   (or 400) if it would be past the start less 12 px; the next y is the current y plus `draw(61) − 30`, clamped to
-   130-226, except that a vertex at a pad's start takes the pad's y. A pad adds the vertex at its end, at the same
-   y, and the walk continues from there.
+   (or 400) if it would be past the start less 12 px (greater, not equal); the next y is the current y plus
+   `draw(61) − 30`, clamped to 130-226, drawn for every vertex, except that a vertex at a pad's start takes the
+   pad's y instead. A pad adds the vertex at its end, at the same y, and the walk continues from there.
+4. **The seam.** The last vertex (at 400) takes the first one's y, so the terrain meets itself where the edges do.
 
 At most 48 vertices. **The start**, drawn after the terrain in this order: x = `40 + draw(320)` px; the speed
-`19,661 + draw(19,661)` (0.3-0.6 px a step); its sign, leftward when `draw(2)` is 0. y = 28 px, vy = 0, a = 0.
+`19,661 + draw(19,661)` (0.3-0.6 px a step); its sign, leftward when `draw(2)` is 0. y = 32 px (the nose clears the
+top line), vy = 0, a = 0.
 
 **The round's seed:** round n is `seed = (uint64)app_seed() << 32`, `round = n`, where n counts the landings and
 crashes of every game played and is kept in the save, so each round differs and a test with `-seed` repeats.
 
 ## The screen (400 × 240, draw.h only)
 
-- The top line: SCORE, FUEL, and the two speeds in px/s (H across and V down, signed).
+- The top line: SCORE, FUEL, and the two speeds in px/s (H across and V down, signed), drawn over the ship, which
+  passes under it.
 - The terrain as lines, each pad 3 px thick, and its multiplier (×5, ×3, ×2) under it.
 - The ship as its outline, with a flame behind the engine on every other step that it fires. Near an edge it is
-  drawn twice, wrapped. Above the top, a mark at the top edge shows where it is.
+  drawn twice, wrapped. While it is above the top line, a mark under the line shows where it is.
 - At the end of a round: LANDED with the points, or CRASHED, for 1.5 s, then the next round. After the last
   round: GAME OVER, the score and the best; ENTER (after 0.5 s) plays again.
-- The title: LAND, the keys, and the best score.
-- Sound: a short tune on landing, a falling one on a crash, and one beep when the fuel drops under 200.
+- The title: LAND, the keys, and the best score once there is one.
+- Sound: a short tune on landing, a falling one on a crash, and one beep a game when the fuel first drops under
+  200, by the engine or by a crash's cost.
+
+**The clock and the keys.** A round starts on a key (ENTER) or a tick (the end of LANDED or CRASHED); its first step
+comes on the next tick, which counts only the time since the round started. 4, 6 and 8 go to the ship in every state
+but the title, so a key pressed during LANDED or CRASHED and held is held when the next round starts. The best score
+is updated at each landing, so leaving with C keeps it.
 
 ## What it saves
 
-16 bytes: 'L', version 1, the best score (u32), landings (u32), crashes (u32), then zeros. Taken whole or not at all.
+16 bytes: 'L', version 1, the best score (u32), landings (u32), crashes (u32), little-endian, then zeros. Taken
+whole or not at all.
 
 ## Where it lives
 
@@ -128,10 +140,18 @@ LAND, folder GAMES, MIT. `tests/land_trace.c` prints what the oracle prints.
    terrain for a range of seeds within 700 fuel (the first of four settings that lands it: clearance over the path,
    how far out the approach starts, how high it holds while centring). Its keys, replayed through the C, must land on the same step. The
    control: given too little fuel (say 100), it must fail, and the check must report the failure.
-3. **The landing rule at its edges**: |vy| = VY lands and VY + 1 crashes; the same for VX; `a` = 1 and 23 crash; a
-   foot exactly at a pad's end lands and one pixel past it crashes; a vertex poking into the outline crashes even
-   with every point above the ground. In both the C and the model.
-4. **The app on the SDK runner**: scripted games (the autopilot's keys on the app's clock) with frame hashes
-   committed, and the expected save; and the same scripts through the .wasm and the bridge.
+3. **The landing rule at its edges**: |vy| = VY lands and VY + 1 crashes, falling and rising; the same for VX;
+   `a` = 1 and 23 crash; a foot exactly at a pad's end lands and one pixel past it crashes; a vertex poking into the
+   outline crashes even with every point above the ground; a foot 1/65,536 px above a rising slope flies on, where
+   rounding the ground down instead of toward 0 would touch. In both the C and the model. The fuzz in check 1 adds
+   dives that reach the speed clamp.
+4. **The app on the SDK runner**: scripted games (the autopilot's keys on the app's clock, a key held into the
+   next round, ENTER partway through a title tick, a crash at exactly 200 fuel) with frame hashes committed, and the
+   save, tunes and tones that the rules above give; and the same scripts through the .wasm and the bridge. The
+   hashes were blessed from the C and checked by eye, so they catch a change, not a first mistake; the save, tunes
+   and tones come from the oracle's own reading of the rules.
 5. **Plants**, each of which must go red: gravity left out, the judge ignoring the angle, the vertex test left out,
-   a pad that is not flat, and no wrap at the edges.
+   a pad that is not flat, no wrap at the edges, the speed clamp left out, the ground rounded down, the upward speed
+   limit left out, and pads drawn thin. A plant that does not build is red too. The ceiling test written with ≤ has
+   no plant and no check would catch it: it differs only when a step's motion ends exactly on −200 px, which no
+   script reaches.

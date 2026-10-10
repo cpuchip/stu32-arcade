@@ -1,5 +1,6 @@
 """Fuzzed trace scripts: fuzz.py SEEDS ROUNDS prints, for each seed and round, random key downs and ups between
-runs of steps (taps shorter than a step included), long enough to end most flights."""
+runs of steps (taps shorter than a step included), long enough to end most flights; then five dives (up to the
+ceiling, turned nose down, the engine held), which reach the speed clamp that random keys never do."""
 import random
 import sys
 
@@ -17,6 +18,14 @@ def main():
                 if r.random() < 0.8:
                     print(f'step {r.randrange(0, 12)}')
             print('step 3000')
+    for seed in range(5):
+        print(f'round {seed} 0 2000')
+        print('key 8 1')
+        print(f'step {400 + 20 * seed}')
+        print('key 6 1')
+        print('step 48')
+        print('key 6 0')
+        print('step 3000')
 
 
 if __name__ == '__main__':

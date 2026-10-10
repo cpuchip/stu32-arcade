@@ -68,6 +68,7 @@ def make_terrain(seed, rnd):
             verts.append((nx, ny))
         if pad is not None:
             verts.append((pad[1], pad[2]))
+    verts[-1] = (W, verts[0][1])                # the edges meet
     sx = (40 + d(320)) * Q
     speed = 19661 + d(19661)
     vx = -speed if d(2) == 0 else speed
@@ -110,9 +111,9 @@ def contact(s, verts):
     return under or poke, poke
 
 
-def judge(s, verts, pads, poke):
+def judge(s, verts, pads):
     """('land', the pad's multiplier, its y) or ('crash', 0, 0)."""
-    if s['a'] != 0 or abs(s['vy']) > VY or abs(s['vx']) > VX or poke:
+    if s['a'] != 0 or abs(s['vy']) > VY or abs(s['vx']) > VX:
         return 'crash', 0, 0
     pts = outline(s)
     feet = [pts[f][0] % (W * Q) for f in FEET]
@@ -124,7 +125,7 @@ def judge(s, verts, pads, poke):
 
 def new_ship(start, fuel):
     sx, vx = start
-    return dict(x=sx, y=28 * Q, vx=vx, vy=0, a=0, fuel=fuel, timer=0,
+    return dict(x=sx, y=32 * Q, vx=vx, vy=0, a=0, fuel=fuel, timer=0,
                 held=set(), pressed=set())
 
 
@@ -165,7 +166,7 @@ def step(s, verts, pads):
     hit, poke = contact(s, verts)
     if not hit:
         return None
-    r = judge(s, verts, pads, poke)
+    r = judge(s, verts, pads)
     if r[0] == 'land':
         s['y'] = r[2] * Q - 6 * Q
     return r[:2]

@@ -26,6 +26,7 @@ typedef struct {
     int points;                       /* the last round's: > 0 landed, 0 crashed */
     bool low_beeped;
     uint32_t now, end_at, acc, steps;
+    uint32_t started;                 /* when this round began, on the game's clock */
     land_terrain t;
     land_ship s;
 } land_ctx;
@@ -76,22 +77,32 @@ static void app_stop_cb(void *ctx)
     (void)ctx;
 }
 
-/* the next round, with the fuel left; a key still held stays held */
-static void new_round(land_ctx *c, int32_t fuel)
+/* the next round from `at` ms, with the fuel left; a key still held stays held */
+static void new_round(land_ctx *c, int32_t fuel, uint32_t at)
 {
     uint8_t held = c->s.held;
     land_make_terrain(&c->t, c->seed, c->landings + c->crashes);
     land_ship_init(&c->s, &c->t, fuel);
     c->s.held = held;
     c->acc = 0;
+    c->started = at;
     c->state = FLY;
 }
 
-static void new_game(land_ctx *c)
+static void new_game(land_ctx *c, uint32_t at)
 {
     c->score = 0;
     c->low_beeped = false;
-    new_round(c, LAND_FUEL);
+    new_round(c, LAND_FUEL, at);
+}
+
+/* one beep the first time a game's fuel drops under LOW_FUEL, by the engine or by a crash */
+static void low_fuel(land_ctx *c)
+{
+    if (!c->low_beeped && c->s.fuel < LOW_FUEL) {
+        c->low_beeped = true;
+        app_beep(880, 60);
+    }
 }
 
 static int ship_key(int key)
@@ -102,14 +113,13 @@ static int ship_key(int key)
 static bool app_key_cb(void *ctx, int key, bool down, uint32_t ms)
 {
     land_ctx *c = ctx;
-    (void)ms;
     int k = ship_key(key);
-    if (k && (c->state == FLY || !down)) {
+    if (k && (c->state != TITLE || !down)) { /* held through a round's end, a key stays held into the next */
         land_key(&c->s, k, down);
         return false;
     }
     if (down && key == APP_KEY_ENTER && (c->state == TITLE || (c->state == OVER && c->now - c->end_at >= AGAIN_MS))) {
-        new_game(c);
+        new_game(c, ms);
         return true;
     }
     return false;
@@ -121,12 +131,15 @@ static void round_end(land_ctx *c, enum land_end e, int mult)
         static const uint16_t up[] = {523, 80, 659, 80, 784, 80, 1047, 160};
         c->points = 50 * mult;
         c->score += (uint32_t)c->points;
+        if (c->score > c->best)
+            c->best = c->score;
         c->landings++;
         app_tune(up, 4);
     } else {
         static const uint16_t fall[] = {392, 120, 0, 40, 330, 120, 0, 40, 262, 300};
         c->points = 0;
         c->s.fuel = c->s.fuel > LAND_CRASH_COST ? c->s.fuel - LAND_CRASH_COST : 0;
+        low_fuel(c);
         c->crashes++;
         app_tune(fall, 5);
     }
@@ -143,27 +156,23 @@ static uint32_t app_tick_cb(void *ctx, uint32_t ms)
     if (c->state == ENDED && c->now - c->end_at >= ENDED_MS) {
         /* a round starts on a tick or a key, and its first step is on the next tick */
         if (c->s.fuel > 0) {
-            new_round(c, c->s.fuel);
+            new_round(c, c->s.fuel, c->now);
         } else {
             c->state = OVER;
             c->end_at = c->now;
-            if (c->score > c->best)
-                c->best = c->score;
         }
         return LAND_STEP_MS;
     }
     if (c->state != FLY)
         return LAND_STEP_MS;
-    c->acc += ms > TICK_MAX_MS ? TICK_MAX_MS : ms;
+    uint32_t dt = c->now - c->started < ms ? c->now - c->started : ms; /* not the time before the round began */
+    c->acc += dt > TICK_MAX_MS ? TICK_MAX_MS : dt;
     while (c->acc >= LAND_STEP_MS && c->state == FLY) {
         c->acc -= LAND_STEP_MS;
         c->steps++;
         int mult = 0;
         enum land_end e = land_step(&c->s, &c->t, &mult);
-        if (!c->low_beeped && c->s.fuel < LOW_FUEL) {
-            c->low_beeped = true;
-            app_beep(880, 60);
-        }
+        low_fuel(c);
         if (e != LAND_FLYING)
             round_end(c, e, mult);
     }
@@ -241,7 +250,23 @@ static void draw_ship(ls027_frame *f, const land_ctx *c, int dx)
 
 static void draw_play(ls027_frame *f, const land_ctx *c)
 {
+    const land_terrain *tr = &c->t;
+    for (int i = 1; i < tr->n; i++)
+        draw_line(f, tr->v[i - 1].x, tr->v[i - 1].y, tr->v[i].x, tr->v[i].y, 1);
+    for (int k = 0; k < LAND_PADS; k++) {
+        const land_pad *p = &tr->pad[k];
+        char m[3] = {(char)0xd7, (char)('0' + p->mult), 0}; /* the font's x sign */
+        draw_fill(f, p->x0, p->y, p->x1 - p->x0 + 1, 3, DRAW_DARK);
+        draw_text(f, (p->x0 + p->x1 - draw_text_width(m, 1)) / 2, p->y + 6, 1, m, 1);
+    }
+    int sx = px(c->s.x);
+    for (int dx = -LAND_W; dx <= LAND_W; dx += LAND_W)
+        if (dx == 0 || (dx > 0 ? sx < 12 : sx > LAND_W - 12))
+            draw_ship(f, c, dx);
+
+    /* the top line over the ship, which passes under it; a mark below it while the ship is hidden there */
     char t[24];
+    draw_fill(f, 0, 0, LS027_W, HUD_H, DRAW_LIGHT);
     label(t, "SCORE ", (int32_t)c->score);
     draw_text(f, 4, 4, 2, t, 1);
     label(t, "FUEL ", c->s.fuel);
@@ -254,27 +279,11 @@ static void draw_play(ls027_frame *f, const land_ctx *c)
     number(e, c->s.vy * 50 / LAND_Q);
     draw_text(f, LS027_W - 4 - draw_text_width(t, 2), 4, 2, t, 1);
     draw_fill(f, 0, HUD_H, LS027_W, 1, DRAW_DARK);
-
-    const land_terrain *tr = &c->t;
-    for (int i = 1; i < tr->n; i++)
-        draw_line(f, tr->v[i - 1].x, tr->v[i - 1].y, tr->v[i].x, tr->v[i].y, 1);
-    for (int k = 0; k < LAND_PADS; k++) {
-        const land_pad *p = &tr->pad[k];
-        char m[3] = {(char)0xd7, (char)('0' + p->mult), 0}; /* the font's x sign */
-        draw_fill(f, p->x0, p->y, p->x1 - p->x0 + 1, 3, DRAW_DARK);
-        draw_text(f, (p->x0 + p->x1 - draw_text_width(m, 1)) / 2, p->y + 6, 1, m, 1);
-    }
-
-    int sx = px(c->s.x);
-    draw_ship(f, c, 0);
-    if (sx < 12)
-        draw_ship(f, c, LAND_W);
-    if (sx > LAND_W - 12)
-        draw_ship(f, c, -LAND_W);
-    if (px(c->s.y) < HUD_H - 8) { /* above the top: a mark under the top line */
-        draw_line(f, sx - 4, HUD_H + 6, sx, HUD_H + 2, 1);
-        draw_line(f, sx, HUD_H + 2, sx + 4, HUD_H + 6, 1);
-    }
+    if (px(c->s.y) < HUD_H)
+        for (int dx = -LAND_W; dx <= LAND_W; dx += LAND_W) {
+            draw_line(f, sx + dx - 4, HUD_H + 6, sx + dx, HUD_H + 2, 1);
+            draw_line(f, sx + dx, HUD_H + 2, sx + dx + 4, HUD_H + 6, 1);
+        }
 }
 
 static void box(ls027_frame *f, int y, int h)

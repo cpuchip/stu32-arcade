@@ -13,6 +13,9 @@ VY, VX = 26214, 13107
 PAD = '0,226 100,200 200,200 400,226'
 # a peak 36 px high and 20 px wide, narrower than the ship: at x 150 its tip is 4 px above the ship's reference point
 PEAK = '0,226 140,226 150,190 160,226 400,226'
+# flat at 201 px to x 160, then rising 1 px over 3 px
+SLOPE = '0,201 160,201 163,200 400,200'
+FOOT = 201 * Q - 21846
 
 
 def case(x, y, vx, vy, a, terrain):
@@ -47,6 +50,14 @@ CASES = [
      'crash 0'),
     # the same ship 12 px higher: the tip is below it, so it flies on (a step, then the next is not run)
     ('the same ship clear of the peak', case(150 * Q, 182 * Q - 1000, 0, 1000 - G, 0, PEAK), 'flying'),
+    # rising: the feet 3 px under the pad's line after the step, moving up; |vy| <= VY holds both ways
+    ('rising at exactly VY, the feet under the pad', on_pad(-VY, deeper=3), 'land 5'),
+    ('rising at one over VY, the feet under the pad', on_pad(-VY - 1, deeper=3), 'crash 0'),
+    # the ground's rounding: on SLOPE, at x 161 px the ground is 201 px - 1/3 px, which C's / gives as
+    # 201 Q - 21,845 and a floor would give as 201 Q - 21,846. The right foot (x 161) put at 201 Q - 21,846 is
+    # above the ground as the blueprint has it; the left foot (x 149) is over the flat at 201 px, above it too.
+    ('a foot 1/65,536 px above a rising slope', case(155 * Q, FOOT - 6 * Q - 1000, 0, 1000 - G, 0, SLOPE), 'flying'),
+    ('the same foot exactly on it', case(155 * Q, FOOT + 1 - 6 * Q - 1000, 0, 1000 - G, 0, SLOPE), 'crash 0'),
 ]
 
 
