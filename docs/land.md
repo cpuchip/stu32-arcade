@@ -155,3 +155,12 @@ LAND, folder GAMES, MIT. `tests/land_trace.c` prints what the oracle prints.
    limit left out, and pads drawn thin. A plant that does not build is red too. The ceiling test written with ≤ has
    no plant and no check would catch it: it differs only when a step's motion ends exactly on −200 px, which no
    script reaches.
+
+## On the S3 (soroban's board, 2026-10-10, scripts/device_land.sh)
+
+device/landbench plays both app scripts on the chip through apps.h's calls, with each script's seed and save as the
+runner gives them, and hashes every frame as the runner's `-hashes` does. Both match oracle/land/frames: play 3,092
+frames (aa4f93f14d51a11b), refuse 4,707 (c78733c72258cb0d). The control (play with its first press of 8 made a 0)
+is red against play, and its chip hash is the one the host gives it (af7687087655bc1b). A draw takes 1.5 ms on
+average and 2.3 ms at worst, a tick 0.1 ms on average and 0.4 ms at worst. So the chip draws the host's frames, for
+these two scripts.
