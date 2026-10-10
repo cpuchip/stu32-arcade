@@ -1,27 +1,69 @@
 # stu32-arcade
 
-Games for the STU-32 calculator's APPS menu (working name arcade). First, a port of
-Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense): its rules
-(rust/babalcore) in C.
-Babal's music and fonts are third parties' and are never ported.
+Games for the STU-32, a programmable RPN calculator built on an ESP32-S3 with a 400 × 240 one-bit memory LCD. Each
+game is an app on the calculator's APPS menu, written in C against the firmware's app interface (`apps.h`), and each
+also builds as a WebAssembly module that the firmware can run through WAMR.
 
-## Stage 1: the rules, judged against babalcore
+## The games
 
-    make test     # babalcore's own tests (unit and doc), ported: tests/babal_test.c
-    make oracle   # fetch babal at the pinned commit, build babalcore's reference driver,
-                  # compare pins, levels and games byte for byte, plant faults (each must go red)
+| APPS name | what it is | design |
+|---|---|---|
+| BABAL | a ball on a track of slabs, jump the gaps: a port of Babal by Christian Mauduit (gitlab.com/liberecofr/babal), first an HP 48 game | docs/stage1-rules.md, docs/stage2.md |
+| AIM | four tiles from 1 to 9 and a target: reach it in RPN with + − × ÷, each tile used once | docs/aim.md |
+| LAND | set a lander down on a pad, with fuel, integer physics and a terrain whose left and right edges meet | docs/land.md |
+| SNAKE | the snake on a 40 × 22 grid, faster as it grows | docs/snake.md |
+| MINES | clear a minefield (9 × 9, 16 × 16 or 30 × 16); every board can be cleared without a guess, or play classic rules | docs/mines.md |
 
-`make oracle` needs git, python3, and cargo (for the reference only). The contract, what is not a
-one-to-one translation, and babalcore's quirks kept on purpose: docs/stage1-rules.md.
+Babal's rules (rust/babalcore) are ported module by module to C in `babal/`; the renderer and the app are in `app/`.
+Babal's music and fonts are not included and were never ported. The other games are in `games/<name>/`, each as a
+logic file with no drawing or framework calls and an app file with the screens, keys and sound.
 
-    babal/        the port: one C file per babalcore module, babal.h
-    tests/        babalcore's tests in C
-    oracle/       fetch-babal.sh (pin fa985cd), ref/ (Rust driver), driver.c (C driver),
-                  gen_scripts.py (game scripts), run.sh (the gate)
+## How the games are checked
+
+Each game has a design document written before its code. From that document alone, a separate Python model of the
+rules is written (`oracle/<name>/`), and the C must print the same state as the model after every move of many
+fuzzed and hand-made games. Scripted games are then played through the app on a host runner (`sdk/runner/apprun.c`),
+and every frame's hash, the save and every tone are compared with committed values. Finally, faults are planted in
+copies of the sources, and each must turn its check red.
+
+    make test          Babal's own tests (babalcore's unit and doc tests, ported)
+    make oracle        Babal against the original Rust, byte for byte (needs cargo)
+    make aimcheck      AIM; likewise landcheck, snakecheck, minescheck
+    make appcheck      the Babal app against babalcore, end to end
+    make sdkcheck      the drawing library against a per-pixel reference
+    make wasmcheck     Babal built as WebAssembly against Babal native (needs the variables below)
+
+Each game check also builds the game as WebAssembly and plays the same scripts through the WAMR bridge when
+`WASI_SDK`, `WAMRC` and `WAMR_TREE` are set (a WASI SDK, a `wamrc` and a WAMR source tree).
+
+`device/` holds an ESP32-S3 bench for each game, built with ESP-IDF v5.4.2 in Espressif's Docker image
+(`scripts/device*.sh`): it plays the same scripts on the chip and compares each frame's hash with the host's,
+with a control that must fail.
+
+## Building
+
+You need a C11 compiler, `make`, `git` and `python3`; `cargo` for `make oracle`; Docker for the device benches.
+
+The checks read nine files of the calculator's firmware: the 5 × 7 font, the screen, key and app headers, and the
+drawing library with its test. The Makefile exports them at the commit named in `FIRMWARE_PIN` from a firmware
+checkout (`make FIRMWARE_REPO=path/to/firmware ...`).
+
+## Writing a game
+
+`docs/sdk.md` describes the app interface, the drawing library, the runner and the games list; `sdk/template/` is a
+small game to start from. `sdk/wasm/` is the bridge that runs a game built as WebAssembly; `probes/wasm/` holds the
+measurements behind it and the patches to WAMR it needs on the ESP32-S3.
 
 ## Licence
 
-MIT (LICENSE), for the port, the renderer, the app and the games SDK (abacus decision 61). `babal/` is
-a port of rust/babalcore, which its author dedicated to the public domain: LICENSE-babalcore keeps
-that notice. Babal's music and fonts are not here and never were. The repository is private until
-Michael opens it.
+MIT (LICENSE), for everything here except:
+
+- `babal/` is a port of rust/babalcore, which its author dedicated to the public domain under the Unlicense;
+  LICENSE-babalcore keeps that notice.
+- The patches to WAMR in `probes/wasm/` are modifications of WAMR and are under its licence, Apache-2.0 WITH
+  LLVM-exception (probes/wasm/NOTICE).
+
+## Trademarks
+
+HP is a trademark of HP Development Company, L.P. This project is not affiliated with or endorsed by HP; the HP 48 is
+named only as the calculator Babal was first written for.

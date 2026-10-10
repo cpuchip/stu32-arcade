@@ -1,0 +1,19 @@
+The patches in this directory and in upstream/ modify WAMR (the WebAssembly Micro Runtime,
+github.com/bytecodealliance/wasm-micro-runtime). WAMR is licensed under the Apache License 2.0 with the LLVM
+exception (SPDX: Apache-2.0 WITH LLVM-exception), and these patches are under the same licence, not under this
+repository's MIT licence:
+
+    wamr-2.4.5-psram-exec.patch
+    wamr-local-const-symbol-map.patch
+    wamr-local-esp-cache-msync.patch
+    wamr-local-no-lwip.patch
+    wamr-local-os-self-thread.patch
+    upstream/0001-aot-keep-the-target-symbol-maps-const.patch
+    upstream/0001-esp-idf-map-PSRAM-AOT-code-on-the-instruction-bus.patch
+    upstream/0001-xtensa-fix-L32R-relocation-lost-to-strict-aliasing.patch
+
+The patches in upstream/ were offered to WAMR; their status is WAMR's own issue and pull request tracker. Everything
+else in this directory (the benches, scripts, CMake files and notes) is this repository's own work, under MIT.
+
+No WAMR source file is copied here, and nothing here fetches WAMR: the WebAssembly checks take a WAMR source tree
+from WAMR_TREE, which is meant to be WAMR at its pinned commit with these patches applied.
