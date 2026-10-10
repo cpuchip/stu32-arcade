@@ -45,494 +45,1494 @@ tick 20
 key 32 1 867
 key 32 0 867
 tick 20
-key 33 1 887
-key 33 0 887
-tick 20
-key 33 1 907
-key 33 0 907
-tick 20
-key 33 1 927
-key 33 0 927
-tick 20
-key 26 1 947
-key 26 0 947
-tick 20
-key 26 1 967
-key 26 0 967
-tick 20
-key 26 1 987
-key 26 0 987
-tick 20
-key 43 1 1007
-key 43 0 1007
-tick 20
-key 31 1 1027
-key 31 0 1027
-tick 20
-key 31 1 1047
-key 31 0 1047
-tick 20
-key 31 1 1067
-key 31 0 1067
-tick 20
-key 31 1 1087
-key 31 0 1087
-tick 20
-key 38 1 1107
-key 38 0 1107
-tick 20
-key 43 1 1127
-key 43 0 1127
-tick 20
-key 33 1 1147
-key 33 0 1147
-tick 20
-key 43 1 1167
-key 43 0 1167
-tick 20
-key 33 1 1187
-key 33 0 1187
-tick 20
-key 33 1 1207
-key 33 0 1207
-tick 20
-key 33 1 1227
-key 33 0 1227
-tick 20
-key 33 1 1247
-key 33 0 1247
-tick 20
-key 43 1 1267
-key 43 0 1267
-tick 20
-key 38 1 1287
-key 38 0 1287
-tick 20
-key 38 1 1307
-key 38 0 1307
-tick 20
-key 43 1 1327
-key 43 0 1327
-tick 20
-key 31 1 1347
-key 31 0 1347
-tick 20
-key 31 1 1367
-key 31 0 1367
-tick 20
-key 31 1 1387
-key 31 0 1387
-tick 20
-key 31 1 1407
-key 31 0 1407
-tick 20
-key 26 1 1427
-key 26 0 1427
-tick 20
-key 26 1 1447
-key 26 0 1447
-tick 20
-key 26 1 1467
-key 26 0 1467
-tick 20
-key 32 1 1487
-key 32 0 1487
-tick 20
-key 33 1 1507
-key 33 0 1507
-tick 20
-key 32 1 1527
-key 32 0 1527
-tick 20
-key 33 1 1547
-key 33 0 1547
-tick 20
-key 32 1 1567
-key 32 0 1567
-tick 20
-key 33 1 1587
-key 33 0 1587
-tick 20
-key 33 1 1607
-key 33 0 1607
-tick 20
-key 32 1 1627
-key 32 0 1627
-tick 20
-key 38 1 1647
-key 38 0 1647
-tick 20
-key 38 1 1667
-key 38 0 1667
-tick 20
-key 32 1 1687
-key 32 0 1687
-tick 20
-key 31 1 1707
-key 31 0 1707
-tick 20
-key 31 1 1727
-key 31 0 1727
-tick 20
-key 31 1 1747
-key 31 0 1747
-tick 20
-key 31 1 1767
-key 31 0 1767
-tick 20
-key 31 1 1787
-key 31 0 1787
-tick 20
-key 26 1 1807
-key 26 0 1807
-tick 20
-key 26 1 1827
-key 26 0 1827
-tick 20
-key 26 1 1847
-key 26 0 1847
-tick 20
-key 32 1 1867
-key 32 0 1867
-tick 20
-key 33 1 1887
-key 33 0 1887
-tick 20
-key 33 1 1907
-key 33 0 1907
-tick 20
-key 33 1 1927
-key 33 0 1927
-tick 20
-key 33 1 1947
-key 33 0 1947
-tick 20
-key 32 1 1967
-key 32 0 1967
-tick 20
-key 33 1 1987
-key 33 0 1987
-tick 20
-key 32 1 2007
-key 32 0 2007
-tick 20
-key 33 1 2027
-key 33 0 2027
-tick 20
-key 32 1 2047
-key 32 0 2047
-tick 20
-key 38 1 2067
-key 38 0 2067
-tick 20
-key 32 1 2087
-key 32 0 2087
-tick 20
-key 38 1 2107
-key 38 0 2107
-tick 20
-key 32 1 2127
-key 32 0 2127
-tick 20
-key 38 1 2147
-key 38 0 2147
-tick 20
-key 32 1 2167
-key 32 0 2167
-tick 20
-key 38 1 2187
-key 38 0 2187
-tick 20
-key 32 1 2207
-key 32 0 2207
-tick 20
-key 31 1 2227
-key 31 0 2227
-tick 20
-key 31 1 2247
-key 31 0 2247
-tick 20
-key 31 1 2267
-key 31 0 2267
-tick 20
-key 26 1 2287
-key 26 0 2287
-tick 20
-key 26 1 2307
-key 26 0 2307
-tick 20
-key 26 1 2327
-key 26 0 2327
-tick 20
-key 26 1 2347
-key 26 0 2347
-tick 20
-key 26 1 2367
-key 26 0 2367
-tick 20
-key 26 1 2387
-key 26 0 2387
-tick 20
-key 43 1 2407
-key 43 0 2407
-tick 20
-key 33 1 2427
-key 33 0 2427
-tick 20
-key 33 1 2447
-key 33 0 2447
-tick 20
-key 33 1 2467
-key 33 0 2467
-tick 20
-key 33 1 2487
-key 33 0 2487
-tick 20
-key 38 1 2507
-key 38 0 2507
-tick 20
-key 38 1 2527
-key 38 0 2527
-tick 20
-key 38 1 2547
-key 38 0 2547
-tick 20
-key 43 1 2567
-key 43 0 2567
-tick 20
-key 31 1 2587
-key 31 0 2587
-tick 20
-key 31 1 2607
-key 31 0 2607
-tick 20
-key 31 1 2627
-key 31 0 2627
-tick 20
-key 26 1 2647
-key 26 0 2647
-tick 20
-key 26 1 2667
-key 26 0 2667
-tick 20
-key 26 1 2687
-key 26 0 2687
-tick 20
-key 32 1 2707
-key 32 0 2707
-tick 20
-key 33 1 2727
-key 33 0 2727
-tick 20
-key 32 1 2747
-key 32 0 2747
-tick 20
-key 33 1 2767
-key 33 0 2767
-tick 20
-key 32 1 2787
-key 32 0 2787
-tick 20
-key 31 1 2807
-key 31 0 2807
-tick 20
-key 31 1 2827
-key 31 0 2827
-tick 20
-key 38 1 2847
-key 38 0 2847
-tick 20
-key 32 1 2867
-key 32 0 2867
-tick 20
-key 33 1 2887
-key 33 0 2887
-tick 20
-key 32 1 2907
-key 32 0 2907
-tick 20
-key 33 1 2927
-key 33 0 2927
-tick 20
-key 33 1 2947
-key 33 0 2947
-tick 20
-key 38 1 2967
-key 38 0 2967
-tick 20
-key 38 1 2987
-key 38 0 2987
-tick 20
-key 38 1 3007
-key 38 0 3007
-tick 20
-key 32 1 3027
-key 32 0 3027
-tick 20
-key 38 1 3047
-key 38 0 3047
-tick 20
-key 32 1 3067
-key 32 0 3067
-tick 20
-key 38 1 3087
-key 38 0 3087
-tick 20
-key 32 1 3107
-key 32 0 3107
-tick 20
-key 31 1 3127
-key 31 0 3127
-tick 20
-key 26 1 3147
-key 26 0 3147
-tick 20
-key 26 1 3167
-key 26 0 3167
-tick 20
-key 26 1 3187
-key 26 0 3187
-tick 20
-key 26 1 3207
-key 26 0 3207
-tick 20
-key 26 1 3227
-key 26 0 3227
-tick 20
-key 26 1 3247
-key 26 0 3247
-tick 20
-key 26 1 3267
-key 26 0 3267
-tick 20
-key 43 1 3287
-key 43 0 3287
-tick 20
-key 33 1 3307
-key 33 0 3307
-tick 20
-key 33 1 3327
-key 33 0 3327
-tick 20
-key 38 1 3347
-key 38 0 3347
-tick 20
-key 38 1 3367
-key 38 0 3367
-tick 20
-key 38 1 3387
-key 38 0 3387
-tick 20
-key 38 1 3407
-key 38 0 3407
-tick 20
-key 43 1 3427
-key 43 0 3427
-tick 20
-key 38 1 3447
-key 38 0 3447
-tick 20
-key 38 1 3467
-key 38 0 3467
-tick 20
-key 43 1 3487
-key 43 0 3487
-tick 20
-key 31 1 3507
-key 31 0 3507
-tick 20
-key 31 1 3527
-key 31 0 3527
-tick 20
-key 26 1 3547
-key 26 0 3547
-tick 20
-key 26 1 3567
-key 26 0 3567
-tick 20
-key 26 1 3587
-key 26 0 3587
-tick 20
-key 26 1 3607
-key 26 0 3607
-tick 20
-key 26 1 3627
-key 26 0 3627
-tick 20
-key 26 1 3647
-key 26 0 3647
-tick 20
-key 26 1 3667
-key 26 0 3667
-tick 20
-key 32 1 3687
-key 32 0 3687
-tick 20
-key 33 1 3707
-key 33 0 3707
-tick 20
-key 33 1 3727
-key 33 0 3727
-tick 20
-key 38 1 3747
-key 38 0 3747
-tick 20
-key 38 1 3767
-key 38 0 3767
-tick 20
-key 38 1 3787
-key 38 0 3787
-tick 20
-key 38 1 3807
-key 38 0 3807
-tick 20
-key 38 1 3827
-key 38 0 3827
-tick 20
-key 38 1 3847
-key 38 0 3847
-tick 20
-key 32 1 3867
-key 32 0 3867
-tick 20
-key 38 1 3887
-key 38 0 3887
-tick 20
-key 38 1 3907
-key 38 0 3907
-tick 20
-key 32 1 3927
-key 32 0 3927
-tick 20
-# won in 3047 ms, with no tone or tune
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-# expect save 4d0208e70b000001000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 tunes 0 tones 0
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+tick 1000
+key 33 1 1000887
+key 33 0 1000887
+tick 20
+key 33 1 1000907
+key 33 0 1000907
+tick 20
+key 33 1 1000927
+key 33 0 1000927
+tick 20
+key 26 1 1000947
+key 26 0 1000947
+tick 20
+key 26 1 1000967
+key 26 0 1000967
+tick 20
+key 26 1 1000987
+key 26 0 1000987
+tick 20
+key 43 1 1001007
+key 43 0 1001007
+tick 20
+key 31 1 1001027
+key 31 0 1001027
+tick 20
+key 31 1 1001047
+key 31 0 1001047
+tick 20
+key 31 1 1001067
+key 31 0 1001067
+tick 20
+key 31 1 1001087
+key 31 0 1001087
+tick 20
+key 38 1 1001107
+key 38 0 1001107
+tick 20
+key 43 1 1001127
+key 43 0 1001127
+tick 20
+key 33 1 1001147
+key 33 0 1001147
+tick 20
+key 43 1 1001167
+key 43 0 1001167
+tick 20
+key 33 1 1001187
+key 33 0 1001187
+tick 20
+key 33 1 1001207
+key 33 0 1001207
+tick 20
+key 33 1 1001227
+key 33 0 1001227
+tick 20
+key 33 1 1001247
+key 33 0 1001247
+tick 20
+key 43 1 1001267
+key 43 0 1001267
+tick 20
+key 38 1 1001287
+key 38 0 1001287
+tick 20
+key 38 1 1001307
+key 38 0 1001307
+tick 20
+key 43 1 1001327
+key 43 0 1001327
+tick 20
+key 31 1 1001347
+key 31 0 1001347
+tick 20
+key 31 1 1001367
+key 31 0 1001367
+tick 20
+key 31 1 1001387
+key 31 0 1001387
+tick 20
+key 31 1 1001407
+key 31 0 1001407
+tick 20
+key 26 1 1001427
+key 26 0 1001427
+tick 20
+key 26 1 1001447
+key 26 0 1001447
+tick 20
+key 26 1 1001467
+key 26 0 1001467
+tick 20
+key 32 1 1001487
+key 32 0 1001487
+tick 20
+key 33 1 1001507
+key 33 0 1001507
+tick 20
+key 32 1 1001527
+key 32 0 1001527
+tick 20
+key 33 1 1001547
+key 33 0 1001547
+tick 20
+key 32 1 1001567
+key 32 0 1001567
+tick 20
+key 33 1 1001587
+key 33 0 1001587
+tick 20
+key 33 1 1001607
+key 33 0 1001607
+tick 20
+key 32 1 1001627
+key 32 0 1001627
+tick 20
+key 38 1 1001647
+key 38 0 1001647
+tick 20
+key 38 1 1001667
+key 38 0 1001667
+tick 20
+key 32 1 1001687
+key 32 0 1001687
+tick 20
+key 31 1 1001707
+key 31 0 1001707
+tick 20
+key 31 1 1001727
+key 31 0 1001727
+tick 20
+key 31 1 1001747
+key 31 0 1001747
+tick 20
+key 31 1 1001767
+key 31 0 1001767
+tick 20
+key 31 1 1001787
+key 31 0 1001787
+tick 20
+key 26 1 1001807
+key 26 0 1001807
+tick 20
+key 26 1 1001827
+key 26 0 1001827
+tick 20
+key 26 1 1001847
+key 26 0 1001847
+tick 20
+key 32 1 1001867
+key 32 0 1001867
+tick 20
+key 33 1 1001887
+key 33 0 1001887
+tick 20
+key 33 1 1001907
+key 33 0 1001907
+tick 20
+key 33 1 1001927
+key 33 0 1001927
+tick 20
+key 33 1 1001947
+key 33 0 1001947
+tick 20
+key 32 1 1001967
+key 32 0 1001967
+tick 20
+key 33 1 1001987
+key 33 0 1001987
+tick 20
+key 32 1 1002007
+key 32 0 1002007
+tick 20
+key 33 1 1002027
+key 33 0 1002027
+tick 20
+key 32 1 1002047
+key 32 0 1002047
+tick 20
+key 38 1 1002067
+key 38 0 1002067
+tick 20
+key 32 1 1002087
+key 32 0 1002087
+tick 20
+key 38 1 1002107
+key 38 0 1002107
+tick 20
+key 32 1 1002127
+key 32 0 1002127
+tick 20
+key 38 1 1002147
+key 38 0 1002147
+tick 20
+key 32 1 1002167
+key 32 0 1002167
+tick 20
+key 38 1 1002187
+key 38 0 1002187
+tick 20
+key 32 1 1002207
+key 32 0 1002207
+tick 20
+key 31 1 1002227
+key 31 0 1002227
+tick 20
+key 31 1 1002247
+key 31 0 1002247
+tick 20
+key 31 1 1002267
+key 31 0 1002267
+tick 20
+key 26 1 1002287
+key 26 0 1002287
+tick 20
+key 26 1 1002307
+key 26 0 1002307
+tick 20
+key 26 1 1002327
+key 26 0 1002327
+tick 20
+key 26 1 1002347
+key 26 0 1002347
+tick 20
+key 26 1 1002367
+key 26 0 1002367
+tick 20
+key 26 1 1002387
+key 26 0 1002387
+tick 20
+key 43 1 1002407
+key 43 0 1002407
+tick 20
+key 33 1 1002427
+key 33 0 1002427
+tick 20
+key 33 1 1002447
+key 33 0 1002447
+tick 20
+key 33 1 1002467
+key 33 0 1002467
+tick 20
+key 33 1 1002487
+key 33 0 1002487
+tick 20
+key 38 1 1002507
+key 38 0 1002507
+tick 20
+key 38 1 1002527
+key 38 0 1002527
+tick 20
+key 38 1 1002547
+key 38 0 1002547
+tick 20
+key 43 1 1002567
+key 43 0 1002567
+tick 20
+key 31 1 1002587
+key 31 0 1002587
+tick 20
+key 31 1 1002607
+key 31 0 1002607
+tick 20
+key 31 1 1002627
+key 31 0 1002627
+tick 20
+key 26 1 1002647
+key 26 0 1002647
+tick 20
+key 26 1 1002667
+key 26 0 1002667
+tick 20
+key 26 1 1002687
+key 26 0 1002687
+tick 20
+key 32 1 1002707
+key 32 0 1002707
+tick 20
+key 33 1 1002727
+key 33 0 1002727
+tick 20
+key 32 1 1002747
+key 32 0 1002747
+tick 20
+key 33 1 1002767
+key 33 0 1002767
+tick 20
+key 32 1 1002787
+key 32 0 1002787
+tick 20
+key 31 1 1002807
+key 31 0 1002807
+tick 20
+key 31 1 1002827
+key 31 0 1002827
+tick 20
+key 38 1 1002847
+key 38 0 1002847
+tick 20
+key 32 1 1002867
+key 32 0 1002867
+tick 20
+key 33 1 1002887
+key 33 0 1002887
+tick 20
+key 32 1 1002907
+key 32 0 1002907
+tick 20
+key 33 1 1002927
+key 33 0 1002927
+tick 20
+key 33 1 1002947
+key 33 0 1002947
+tick 20
+key 38 1 1002967
+key 38 0 1002967
+tick 20
+key 38 1 1002987
+key 38 0 1002987
+tick 20
+key 38 1 1003007
+key 38 0 1003007
+tick 20
+key 32 1 1003027
+key 32 0 1003027
+tick 20
+key 38 1 1003047
+key 38 0 1003047
+tick 20
+key 32 1 1003067
+key 32 0 1003067
+tick 20
+key 38 1 1003087
+key 38 0 1003087
+tick 20
+key 32 1 1003107
+key 32 0 1003107
+tick 20
+key 31 1 1003127
+key 31 0 1003127
+tick 20
+key 26 1 1003147
+key 26 0 1003147
+tick 20
+key 26 1 1003167
+key 26 0 1003167
+tick 20
+key 26 1 1003187
+key 26 0 1003187
+tick 20
+key 26 1 1003207
+key 26 0 1003207
+tick 20
+key 26 1 1003227
+key 26 0 1003227
+tick 20
+key 26 1 1003247
+key 26 0 1003247
+tick 20
+key 26 1 1003267
+key 26 0 1003267
+tick 20
+key 43 1 1003287
+key 43 0 1003287
+tick 20
+key 33 1 1003307
+key 33 0 1003307
+tick 20
+key 33 1 1003327
+key 33 0 1003327
+tick 20
+key 38 1 1003347
+key 38 0 1003347
+tick 20
+key 38 1 1003367
+key 38 0 1003367
+tick 20
+key 38 1 1003387
+key 38 0 1003387
+tick 20
+key 38 1 1003407
+key 38 0 1003407
+tick 20
+key 43 1 1003427
+key 43 0 1003427
+tick 20
+key 38 1 1003447
+key 38 0 1003447
+tick 20
+key 38 1 1003467
+key 38 0 1003467
+tick 20
+key 43 1 1003487
+key 43 0 1003487
+tick 20
+key 31 1 1003507
+key 31 0 1003507
+tick 20
+key 31 1 1003527
+key 31 0 1003527
+tick 20
+key 26 1 1003547
+key 26 0 1003547
+tick 20
+key 26 1 1003567
+key 26 0 1003567
+tick 20
+key 26 1 1003587
+key 26 0 1003587
+tick 20
+key 26 1 1003607
+key 26 0 1003607
+tick 20
+key 26 1 1003627
+key 26 0 1003627
+tick 20
+key 26 1 1003647
+key 26 0 1003647
+tick 20
+key 26 1 1003667
+key 26 0 1003667
+tick 20
+key 32 1 1003687
+key 32 0 1003687
+tick 20
+key 33 1 1003707
+key 33 0 1003707
+tick 20
+key 33 1 1003727
+key 33 0 1003727
+tick 20
+key 38 1 1003747
+key 38 0 1003747
+tick 20
+key 38 1 1003767
+key 38 0 1003767
+tick 20
+key 38 1 1003787
+key 38 0 1003787
+tick 20
+key 38 1 1003807
+key 38 0 1003807
+tick 20
+key 38 1 1003827
+key 38 0 1003827
+tick 20
+key 38 1 1003847
+key 38 0 1003847
+tick 20
+key 32 1 1003867
+key 32 0 1003867
+tick 20
+key 38 1 1003887
+key 38 0 1003887
+tick 20
+key 38 1 1003907
+key 38 0 1003907
+tick 20
+key 32 1 1003927
+key 32 0 1003927
+tick 20
+# won in 1003047 ms, with no tone or tune; the top line shows 999 s, not more
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+# expect save 4d0208274e0f0001000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 tunes 0 tones 0

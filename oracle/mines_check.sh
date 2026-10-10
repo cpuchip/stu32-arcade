@@ -6,14 +6,16 @@
 #     on every board and both rules, and 30 games won by opening only the complete solver's safe cells (oracle/mines/
 #     proof.py play), every state line identical;
 #   2 no board needs a guess: the C deals the same boards as the model for 400 seeds a board (their first opens), and
-#     the complete solver clears every one; with classic rules every deal is the first attempt; the complete solver's
+#     the complete solver clears every one; with classic rules every deal is the first attempt; built with the cap at 3
+#     attempts, the C and the model deal the same boards, the fallback among them; the complete solver's
 #     two ways of tabling a group agree; the 50/50 control must be reported as needing a guess; no random board the
 #     game's solver clears may need one;
 #   3 the rules at their edges (oracle/mines/edges.py), in the C and the model, against lines written by hand, and
 #     every state line identical;
 #   4 the app on the SDK runner: scripted games (oracle/mines/appscript.py) with their frame hashes against
-#     oracle/mines/frames/ and the save and the sound (each tone and tune, as -v prints them) the script's rules give,
-#     and a short game with no save and with damaged ones that must all be refused; with WASI_SDK, WAMRC and
+#     oracle/mines/frames/ and the save, the sound (each tone and tune, as -v prints them) and what each tick asks for
+#     (the runner's -nexts) the script's rules give, and a short game with no save and with damaged ones that must all
+#     be refused; with WASI_SDK, WAMRC and
 #     WAMR_TREE set (as for oracle/wasm_check.sh), the same through the .wasm and the bridge, which must give the same;
 #   5 planted faults, each of which must turn its check red; a plant that does not build is red too.
 # The logic and the app build under ASan and UBSan and the frame guard. --bless rewrites the frame hashes.
@@ -71,6 +73,18 @@ read -r classic first < <(paste -d'|' "$B/deals.txt" "$B/deals.py.txt" \
     | awk -F'|' 'prev ~ / classic$/ { n++; if ($2 ~ / attempts=1 dealt=1 /) k++ } { prev = $1 } END { print n + 0, k + 0 }')
 [ "$classic" = 300 ] && [ "$first" = 300 ] && echo "  2 classic: all $classic classic deals are the first attempt" \
     || red "2 classic: $first of $classic classic deals are the first attempt"
+# the fallback: real boards never need 400 attempts, so the C and the model are built with a cap of 3
+cc $STRICT -O2 -DMINES_TRIES=3 -I"$G" -o "$B/trace_cap3" "$ROOT/tests/mines_trace.c" "$G/mines_logic.c" || red "build at a cap of 3"
+(cd "$O" && python3 -c "
+import model, proof
+for s in range(100):
+    print(f'game {s << 32} 0 hard noguess'); print(f'open {proof.first_cell(model.BOARDS[\"hard\"], s)}')") > "$B/cap3.txt"
+(cd "$O" && MINES_TRIES=3 python3 model.py "$B/cap3.txt") > "$B/cap3.py.txt"
+check2_cap() { timeout 60 "$1" "$B/cap3.txt" | cmp -s - "$B/cap3.py.txt"; }
+hits=$(grep -c '^open .* attempts=3 ' "$B/cap3.py.txt")
+check2_cap "$B/trace_cap3" && [ "$hits" -gt 50 ] \
+    && echo "  2 fallback: at a cap of 3, the C deals the model's 100 HARD boards, $hits of them the third attempt" \
+    || red "2 fallback: at a cap of 3 the C and the model differ ($hits deals at the cap)"
 for b in $BOARDS; do
     (cd "$O" && python3 proof.py deals $b 400) > "$B/proof-$b.txt" && sed "s/^/  2 $b /" "$B/proof-$b.txt" \
         || { cat "$B/proof-$b.txt"; red "2 proof $b: a dealt board needs a guess, or the game's solver cleared one that does"; }
@@ -87,28 +101,36 @@ filt < "$B/edges.py.txt" | cmp -s - "$B/edges.expect" || red "3 edges: the model
 
 # 4: the app; each script names its seed and, last, what it must end with
 [ "${1:-}" = --bless ] && BLESS=1
-SCRIPTS="play refuse cursor settings hard quiet instant"
+SCRIPTS="play refuse cursor settings hard quiet instant loadset"
 for s in $SCRIPTS; do
     (cd "$O" && python3 appscript.py "$s") | cmp -s - "$O/scripts/app-$s.txt" || red "4 app: appscript.py $s differs from oracle/mines/scripts/app-$s.txt"
 done
+for s in $SCRIPTS; do (cd "$O" && python3 appscript.py nexts "$s") > "$B/$s.nexts.want"; done
 (cd "$O" && python3 appscript.py badload) > "$B/app-badload.txt"
 xxd -r -p "$O/scripts/app-refuse.load.hex" > "$B/refuse.load"
-good=$(cat "$O/scripts/app-refuse.load.hex")
+xxd -r -p "$O/scripts/app-loadset.load.hex" > "$B/loadset.load"
+# the damaged saves start from loadset's, whose settings are not the defaults, so a load that took its settings
+# before refusing the rest would show
+good=$(cat "$O/scripts/app-loadset.load.hex")
 printf '%s' "58${good:2}" | xxd -r -p > "$B/bad-magic.load"
 printf '%s' "${good:0:2}01${good:4}" | xxd -r -p > "$B/bad-version.load"          # version 1 in a whole 80 bytes
 printf '%s' "4d01d7390000020000000500000000000000" | xxd -r -p > "$B/bad-v1.load"  # a revision 1 save, 16 bytes
 printf '%s' "${good:0:158}" | xxd -r -p > "$B/bad-short.load"                     # 79 bytes, each record whole
-printf '%s' "${good:0:4}03${good:6}" | xxd -r -p > "$B/bad-board.load"
-printf '%s' "${good:0:4}11${good:6}" | xxd -r -p > "$B/bad-bits.load"             # MEDIUM and bit 4
-printf '%s' "${good:0:134}09000000${good:142}" | xxd -r -p > "$B/bad-wins.load"   # the last record: 9 wins, 0 games
-BADS="magic version v1 short board bits wins"
+printf '%s' "${good:0:4}0f${good:6}" | xxd -r -p > "$B/bad-board.load"            # board 3
+printf '%s' "${good:0:4}1e${good:6}" | xxd -r -p > "$B/bad-bits.load"             # HARD, classic, quiet and bit 4
+printf '%s' "${good:0:4}8e${good:6}" | xxd -r -p > "$B/bad-bits7.load"            # and bit 7
+printf '%s' "${good:0:134}09000000${good:142}" | xxd -r -p > "$B/bad-wins.load"   # the last record: 9 wins of 2 games
+printf '%s' "${good:0:14}09000000${good:22}" | xxd -r -p > "$B/bad-wins0.load"    # the first record: 9 wins of 1 game
+BADS="magic version v1 short board bits bits7 wins wins0"
 script_of() { case "$1" in badload*) echo "$B/app-badload.txt" ;; *) echo "$O/scripts/app-$1.txt" ;; esac; }
 app_run() { # app_run RUNNER NAME SUFFIX -> $B/NAME.SUFFIX.{hashes,save,out}
     local seed=5 load=()
     case "$1:$2" in *:refuse) seed=9 load=(-load "$B/refuse.load") ;; *:cursor) seed=3 ;; *:settings) seed=4 ;;
+        *:loadset) seed=8 load=(-load "$B/loadset.load") ;;
         *:hard) seed=2441 ;; *:quiet) seed=6 ;; *:instant) seed=4976 ;; *:badload) seed=9 ;;
         *:badload-*) seed=9 load=(-load "$B/bad-${2#badload-}.load") ;; esac
-    timeout 120 "$1" "$(script_of "$2")" -seed $seed "${load[@]}" -v -keyframes -hashes "$B/$2.$3.hashes" -save "$B/$2.$3.save" > "$B/$2.$3.out" 2>&1
+    timeout 120 "$1" "$(script_of "$2")" -seed $seed "${load[@]}" -v -keyframes -hashes "$B/$2.$3.hashes" \
+        -nexts "$B/$2.$3.nexts" -save "$B/$2.$3.save" > "$B/$2.$3.out" 2>&1
 }
 expect() { # expect NAME: the script's sound lines and its last line, '# expect save HEX tunes N tones N'
     local t s
@@ -120,9 +142,10 @@ expect() { # expect NAME: the script's sound lines and its last line, '# expect 
     cmp -s <(grep -E '^(tone|tune) ' "$B/$1.app.out") <(grep '^# sound ' "$(script_of "$1")" | sed 's/^# sound //') \
         || { red "4 app $1: the sound differs from the script's"; return; }
     case "$1" in badload*) echo "  4 app $1: the save as expected (a fresh one: the damaged save refused)"; return ;; esac
+    cmp -s "$B/$1.app.nexts" "$B/$1.nexts.want" || { red "4 app $1: a tick asks for other ms than the rules give"; return; }
     if [ "${BLESS:-0}" = 1 ]; then cp "$B/$1.app.hashes" "$O/frames/$1.hashes"; fi
     cmp -s "$B/$1.app.hashes" "$O/frames/$1.hashes" || { red "4 app $1: frame hashes differ from oracle/mines/frames"; return; }
-    echo "  4 app $1: $(wc -l < "$B/$1.app.hashes") frames as committed; $tunes tunes, $tones tones, each as the script's; save as expected"
+    echo "  4 app $1: $(wc -l < "$B/$1.app.hashes") frames as committed; $tunes tunes, $tones tones, each as the script's; save and each tick's ask as expected"
 }
 for s in $SCRIPTS badload $(for d in $BADS; do echo badload-$d; done); do
     app_run "$B/app" "$s" app || red "4 app $s: the runner failed ($(tail -1 "$B/$s.app.out"))"
@@ -217,7 +240,7 @@ app_plant repeat 's/#define REPEAT_NEXT 80 /#define REPEAT_NEXT 100 /' cursor "t
 app_plant edge 's/    if \(y >= 0 && y < c->g.h\)\n        c->cy = y;/    if (y >= 0 \&\& y <= c->g.h)\n        c->cy = y;/' cursor "the cursor past the bottom edge"
 app_plant bestworse 's/if \(r->best == 0 \|\| t < r->best\)/if (r->best == 0 || t > r->best)/' refuse "a slower time taken as the best"
 app_plant besttie 's/if \(r->best == 0 \|\| t < r->best\)/if (r->best == 0 || t <= r->best)/' refuse "a tie taken as a new best"
-app_plant nowrong 's/        if \(over && g->state == MINES_LOST\) \{ \/\* a wrong flag \*\//        if (0) { \/* a wrong flag *\//' play "no cross on a wrong flag"
+app_plant nowrong 's/        if \(lost && !\(st & MINES_MINE\)\) \{ \/\* a wrong flag/        if (0) { \/* a wrong flag/' play "no cross on a wrong flag"
 app_plant t0prev 's/        c->t0 = c->now; \/\*/        c->t0 = c->now - ms; \/*/' refuse "the time from the tick before the deal's"
 app_plant enterlate 's/if \(c->state == OVER && ms - c->t_end < AGAIN_MS\)/if (c->state == OVER \&\& ms - c->t_end <= AGAIN_MS)/' play "ENTER refused at exactly 0.5 s"
 app_plant upother 's/        if \(cursor && key == c->held\)\n            c->held = 0;/        if (cursor)\n            c->held = 0;/' cursor "any cursor key's up stopping the repeat"
@@ -234,5 +257,27 @@ app_plant shortlen 's/    if \(n < SAVE_BYTES \|\| /    if (n < 70 || /' badload
 app_plant anyversion 's/ \|\| save\[1\] != SAVE_VERSION//' badload-version "a version 1 save of 80 bytes taken"
 app_plant board3 's/ \|\| \(save\[2\] & 3\) == 3//' badload-board "a save with board 3 taken"
 app_plant highbits 's/ \|\| \(save\[2\] & 0xf0\)\)/)/' badload-bits "a save with a settings bit above bit 3 taken"
+
+# the review's survivors (2026-10-10), each now with a check that sees it
+if plant nocap mines_logic.c 's/ \|\| g->attempts == MINES_TRIES \|\| / || /' && cc $STRICT -O2 -DMINES_TRIES=3 -I"$B/plant-nocap" -o "$B/pl-nocap" "$ROOT/tests/mines_trace.c" "$B/plant-nocap/mines_logic.c"; then
+    check2_cap "$B/pl-nocap" && red "5 plant: no fallback at the cap passes the cap check" || echo "  5 plant: no fallback at the cap: the cap check red"
+fi
+app_plant loadedflag 's/    c->loaded = true;\n//' loadset "a taken save's board reset to MEDIUM"
+app_plant loadclassic 's/    c->classic = save\[2\] & SET_CLASSIC;\n//' loadset "a taken save's classic rules dropped"
+app_plant loadquiet 's/    c->quiet = save\[2\] & SET_QUIET;\n//' loadset "a taken save's sound setting dropped"
+app_plant earlyset 's/    for \(int i = 0; i < RECORDS; i\+\+\)\n        if \(get32/    c->loaded = true;\n    c->board = save[2] \& 3;\n    c->classic = save[2] \& SET_CLASSIC;\n    c->quiet = save[2] \& SET_QUIET;\n    for (int i = 0; i < RECORDS; i++)\n        if (get32/' badload-wins "the settings taken before the records are refused"
+app_plant gamesatdeal 's/    rec\(c\)->games\+\+;\n//; s/            c->state = DEALING;\n/            c->state = DEALING;\n            rec(c)->games++;\n/' loadset "a game counted at its deal, not at ENTER"
+app_plant dealtick 's/        if \(!mines_deal_step\(&c->g, DEAL_STEP\)\)\n            return 1;/        if (!mines_deal_step(\&c->g, DEAL_STEP))\n            return 100;/' hard "100 ms asked for while dealing"
+app_plant playtick 's/        c->repeat_at \+= REPEAT_NEXT;\n    \}\n    return 20;/        c->repeat_at += REPEAT_NEXT;\n    }\n    return 100;/' play "100 ms asked for in a game"
+app_plant easydot 's/        int d = px\(7, s\)/        int d = px(7, 13)/' instant "the mine's dot not scaled to the 22 px cell"
+app_plant drawrec 's/    const record \*r = &c->rec\[c->board \* 2 \+ c->classic\];\n    if \(r->best\) \{\n        if \(over/    const record *r = \&c->rec[c->board * 2];\n    if (r->best) {\n        if (over/' loadset "the game's BEST from the no-guess record under classic rules"
+app_plant titlerec 's/        const record \*r = &c->rec\[c->board \* 2 \+ c->classic\];/        const record *r = \&c->rec[c->board * 2];/' loadset "the title's BEST from the no-guess record under classic rules"
+app_plant bitsmask 's/ \|\| \(save\[2\] & 0xf0\)\)/ || (save[2] \& 0x10))/' badload-bits7 "only bit 4 refused among the high settings bits"
+app_plant winsloop 's/    for \(int i = 0; i < RECORDS; i\+\+\)\n        if \(get32\(save/    for (int i = 1; i < RECORDS; i++)\n        if (get32(save/' badload-wins0 "the first record's wins never checked"
+app_plant setzero 's/        else if \(key == APP_KEY_ENTER\)\n            c->state = TITLE;/        else if (key == APP_KEY_ENTER || key == APP_KEY_0)\n            c->state = TITLE;/' settings "0 leaving the settings page"
+app_plant flagone 's/        \} else if \(key == APP_KEY_0\) \{\n            mines_flag/        } else if (key == APP_KEY_0 || key == APP_KEY_1) {\n            mines_flag/' loadset "1 flagging in a game"
+app_plant dealheld 's/            c->state = DEALING;\n            c->held = 0;/            c->state = DEALING;/' hard "a held key repeating after the deal it was held across"
+app_plant nocap999 's/    return \(int32_t\)\(s < 999 \? s : 999\);/    return (int32_t)s;/' quiet "the top line's time past 999 s"
+app_plant flaggone 's/    if \(lost && \(st & MINES_MINE\) && !\(st & MINES_FLAG\)\) \{/    if (lost \&\& (st \& MINES_MINE)) {/' instant "a flag on a mine hidden at a loss"
 
 [ "$ok" = 1 ] && echo "minescheck: GREEN" || { echo "minescheck: RED"; exit 1; }

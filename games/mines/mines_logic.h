@@ -8,7 +8,9 @@
 #include <stdint.h>
 
 #define MINES_MAX_CELLS 480 /* the largest board's, 30 x 16 */
-#define MINES_TRIES 400
+#ifndef MINES_TRIES
+#define MINES_TRIES 400 /* a check builds it lower, to reach the fallback */
+#endif
 
 enum { MINES_EASY, MINES_MEDIUM, MINES_HARD, MINES_BOARDS };
 typedef struct {

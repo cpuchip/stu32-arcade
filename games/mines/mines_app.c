@@ -272,7 +272,7 @@ static uint32_t app_tick_cb(void *ctx, uint32_t ms)
         int f = c->g.deal_f;
         if (!mines_deal_step(&c->g, DEAL_STEP))
             return 1;
-        c->t0 = c->now; /* the time starts as the board is dealt, so the deal is never on the clock */
+        c->t0 = c->now; /* the clock starts on the dealing tick: the earlier ticks' attempts are never on it */
         c->state = PLAY;
         mines_open(&c->g, f);
         opened(c, 0, c->now);
@@ -333,6 +333,11 @@ static uint32_t seconds(const mines_ctx *c)
     return ((c->state == PLAY ? c->now : c->t_end) - c->t0) / 1000;
 }
 
+static int32_t shown(uint32_t s) /* the top line shows at most 999 s, so its three parts never meet */
+{
+    return (int32_t)(s < 999 ? s : 999);
+}
+
 static int px(int v, int s) /* revision 1's 16 px drawing, scaled to a cell of s */
 {
     return v * s / 16;
@@ -361,7 +366,8 @@ static void draw_cell(ls027_frame *f, const mines_ctx *c, int cell)
         }
         return;
     }
-    if (over && g->state == MINES_LOST && (st & MINES_MINE)) {
+    bool lost = over && g->state == MINES_LOST;
+    if (lost && (st & MINES_MINE) && !(st & MINES_FLAG)) { /* a flag on a mine stays */
         bool hit = cell == g->hit;
         int d = px(7, s), o = (s + 1 - d) / 2;
         if (hit)
@@ -370,10 +376,11 @@ static void draw_cell(ls027_frame *f, const mines_ctx *c, int cell)
         return;
     }
     if (st & MINES_FLAG) {
-        pennant(f, x, y, s);
-        if (over && g->state == MINES_LOST) { /* a wrong flag */
+        if (lost && !(st & MINES_MINE)) { /* a wrong flag: a cross in its place */
             draw_line(f, x + 2, y + 2, x + s - 2, y + s - 2, 1);
             draw_line(f, x + s - 2, y + 2, x + 2, y + s - 2, 1);
+        } else {
+            pennant(f, x, y, s);
         }
         return;
     }
@@ -392,11 +399,14 @@ static void draw_play(ls027_frame *f, const mines_ctx *c)
         label(t, "MINES ", (int32_t)c->g.n - c->g.flags);
         draw_text(f, 4, 3, 2, t, 1);
     }
-    label(t, "TIME ", (int32_t)seconds(c));
+    label(t, "TIME ", shown(seconds(c)));
     centred(f, 3, 2, t);
     const record *r = &c->rec[c->board * 2 + c->classic];
     if (r->best) {
-        label(t, over && c->new_best ? "NEW BEST " : "BEST ", (int32_t)(r->best / 1000));
+        if (over && c->new_best)
+            strcpy(t, "NEW BEST"); /* its time is the one shown beside it */
+        else
+            label(t, "BEST ", shown(r->best / 1000));
         draw_text(f, LS027_W - 4 - draw_text_width(t, 2), 3, 2, t, 1);
     }
     for (int cell = 0; cell < c->g.cells; cell++)
@@ -449,7 +459,7 @@ static void app_draw_cb(void *ctx, ls027_frame *f)
         centred(f, 164, 2, "ENTER PLAYS   0 SETTINGS");
         const record *r = &c->rec[c->board * 2 + c->classic];
         if (r->best) {
-            label(t, "BEST ", (int32_t)(r->best / 1000));
+            label(t, "BEST ", shown(r->best / 1000));
             centred(f, 196, 2, t);
         }
         return;

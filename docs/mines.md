@@ -52,8 +52,8 @@ Each field is centred across the screen's 400 px. The cursor starts at (W / 2, H
   cell's neighbours are the up to 8 around it, in the order (−1,−1), (0,−1), (1,−1), (−1,0), (1,0), (−1,1), (0,1),
   (1,1).
 - **Opening** a closed, unflagged cell: a mine loses. Otherwise it opens, and if it shows 0 its closed, unflagged
-  neighbours open in turn, and so on (a flood; a flagged cell is never opened by it). Opening a flagged cell, or an
-  opened cell that is not a number, does nothing.
+  neighbours open in turn, and so on (a flood; a flagged cell is never opened by it). Opening a flagged cell does
+  nothing; opening an opened cell is the chord, below.
 - **The chord.** Opening an opened cell showing n (0 included) with exactly n flags among its neighbours opens each
   of its closed, unflagged neighbours in neighbour order, as above; a mine among them loses (the rest are still
   opened first, so the loss shows them), and the first such mine in neighbour order is the one shown as opened. With
@@ -81,7 +81,9 @@ started on any board, the sum of the six records' games in the save **(rev 2)**.
    attempts any board needed were 7 (easy), 16 (medium) and 213 (hard), so the fallback never came.
 4. **Across ticks (rev 2).** The first open does not deal inside its key. The key starts the deal (the game shows
    DEALING), and each tick then makes up to D attempts, D = 4, until one is dealt; that tick opens f and starts the
-   clock. Keys during the deal do nothing (C is the framework's and still ends the game). On the S3 one attempt at
+   clock. Keys during the deal do nothing (C is the framework's and still ends the game), and a cursor key held when
+   the deal starts stops repeating there. While dealing the game asks for its next tick in 1 ms, in a game (and on
+   the tick that deals) in 20 ms, and otherwise in 100 ms. On the S3 one attempt at
    30 × 16 takes 9.6 ms on average, so a tick of 4 stays near 40 ms; the hard board's worst deal measured (213
    attempts, 1.95 s of attempts) takes 54 ticks. D is checked on the S3 before the unit ships: the bench reports the
    longest tick.
@@ -105,8 +107,9 @@ These rules only ever draw true conclusions, so a board it clears is one a playe
 
 ## The settings (rev 2)
 
-The title shows MINES, the keys, the board and rules chosen (for example `MEDIUM 16 X 16, 40 MINES, NO GUESS`), the
-best for that board and rule once there is one, `0 SETTINGS` and `ENTER PLAYS`. 0 on the title, or after the end
+The title shows MINES, the keys, the board chosen (for example `MEDIUM 16 X 16, 40 MINES`) and under it the rules
+(`EVERY BOARD NEEDS NO GUESS`, or `CLASSIC RULES: A BOARD MAY NEED A GUESS`), `ENTER PLAYS   0 SETTINGS`, and the best
+for that board and rule once there is one. 0 on the title, or after the end
 (once ENTER would play again), opens the settings page:
 
 | row | values | shown as |
@@ -125,22 +128,26 @@ apply to everything, and its key click is the framework's, so it is not affected
 ## The screen (400 × 240, draw.h only)
 
 - The top line, 20 px: the mines left (N minus the flags), the time in seconds, and BEST (this board and rule's).
-  During the deal, DEALING in place of the mines left **(rev 2)**.
+  During the deal, DEALING in place of the mines left **(rev 2)**. The time and the best show at most 999 s, so the
+  three never meet; the kept best is the whole time in ms **(rev 2)**.
 - The field: cells of the board's size from its origin (the table above). A closed cell is a raised square (an
   outline on a half shade); an opened one is light, with its number centred (nothing for 0); a flag is a small
   pennant on a closed cell; a mine is a dark dot. The cursor is a 2 px frame around its cell. The pennant, the dot and
   the cross scale with the cell **(rev 2)**; revision 1's 16 px drawing is the 22 px one's model, and the frames are
   checked by eye at both sizes.
-- A loss shows every mine, the one opened inverted, and a cross on each wrong flag; the top line then reads BOOM,
-  the time and the best. A win: CLEAR, the time, and the best, with NEW BEST when it is. Nothing covers the field.
+- A loss shows every mine, the one opened inverted; a flag on a mine stays, and a wrong flag shows as a cross in its
+  place **(rev 2: revision 1 drew the cross over the pennant, which merges with it at 13 px, and a dot over a right
+  flag)**; the top line then reads BOOM, the time and the best. A win: CLEAR, the time, and the best, or NEW BEST in
+  its place when it is. Nothing covers the field.
   ENTER at least 0.5 s after the end (by the keys' own times) plays again, and ENTER PLAYS shows under the field
   (with `0 SETTINGS` beside it, **rev 2**).
 - Sound (when on): a tick for each open (440 Hz, 10 ms), a falling tune at a loss, a rising one at a win.
 
 ## The clock and the keys
 
-The time starts on the tick that deals the board **(rev 2: the first open's key, in revision 1)**, so the deal is
-never on the clock, and stops at the end's key; it shows whole seconds (0 before the deal), and the best is kept in
+The time starts on the tick that deals the board **(rev 2: the first open's key, in revision 1)**, so the earlier
+ticks' attempts are never on the clock (the dealing tick's own, at most 4 attempts, about 40 ms on the hard board,
+are), and stops at the end's key; it shows whole seconds (0 before the deal), and the best is kept in
 ms: a win sets it when it has none or is faster, not when it ties. A win in 0 ms (a first open that clears the
 field, so the end comes on the dealing tick) is kept as 1 ms, since 0 means none **(rev 2)**. A cursor key moves the cursor at once on its
 down; held 300 ms, it moves again every 80 ms until its up. A second cursor key pressed while one is held takes over,
@@ -184,7 +191,9 @@ The ctx grows from 2,272 B to about 3.5 KB (seven bytes a cell at 480 cells), al
    with the game's rules, for a range of seeds on each board **(rev 2)**. The control: a board with the classic 50/50
    corner, which it must report as needing a guess. A board the game's solver gives up on and the complete one
    clears is fine; the reverse would be a bug, and is checked. The attempts a board takes are counted, and the worst
-   seed found on each board is timed on the S3. With classic rules, every deal is the first attempt **(rev 2)**.
+   seed found on each board is timed on the S3. With classic rules, every deal is the first attempt **(rev 2)**. No
+   real board needs 400 attempts, so the fallback is checked with the C and the model both built with a cap of 3,
+   which must deal the same boards **(rev 2)**.
 3. **The rules at their edges**, by hand: the chord with the right flags, too few, too many, and a wrong one (a
    loss); a flagged cell opened (nothing); a flag on an opened cell (nothing); a flood stopping at numbers and at
    flags; the first open's neighbours never mines; a win with mines left unflagged; the field's corners and edges on
@@ -197,6 +206,7 @@ The ctx grows from 2,272 B to about 3.5 KB (seven bytes a cell at 480 cells), al
    the settings page (every row, its ends and the wrap, ENTER back, 0 from the end); a deal across many ticks (a
    hard seed of over 100 attempts) with keys pressed during it that do nothing and the clock starting on the
    dealing tick; classic rules dealing the first attempt; sound off giving no tones at all; the settings and the
-   six records kept across a save and a load.
+   six records kept across a save and a load, a save with settings other than the defaults among them; the damaged
+   saves made from it; what each tick asks for (the runner's -nexts).
 5. **Plants**, each of which must go red, and a plant that does not build, or matches nothing, or runs forever, is
    red too.

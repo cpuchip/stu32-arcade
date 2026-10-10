@@ -19,9 +19,15 @@ from the C.
                          during the deal do nothing; the clock starts on the dealing tick; lost on a mine
   appscript.py quiet     seed 6: EASY with the sound off, the complete solver's game won with no tone or tune
   appscript.py instant   seed 4976: EASY, whose first open at the centre clears the field on the dealing tick, a
-                         win in 0 ms kept as a best of 1 ms
+                         win in 0 ms kept as a best of 1 ms; then an EASY game lost, with a flag on a mine (it stays)
+                         and a wrong one (a cross)
+  appscript.py loadset   seed 8, a save with HARD, classic rules, the sound off and a HARD classic best of 400 s:
+                         the title and the game show that best; a classic game lost in silence; a key with no job;
+                         then a game started and left before its first open (it counts as started)
   appscript.py badload   seed 9: a first open, then left alive; oracle/mines_check.sh runs it with damaged saves
-  appscript.py loadfile  the refuse script's save, as hex
+  appscript.py loadfile  the refuse script's save, as hex; loadfile loadset, the loadset script's
+  appscript.py nexts NAME  what each tick of script NAME asks for: 100 ms on the title, the settings and at the end,
+                         1 while the board is dealt, 20 in a game (and on the tick that deals it)
 Every key comes 7 ms after the last tick, so the frames drawn on keys (hashed with the runner's -keyframes) are not
 the tick's. Each script ends with its sound, '# sound LINE' as the runner's -v prints each tone and tune, then
 '# expect save HEX tunes N tones N' (comments, so the runner skips them).
@@ -48,6 +54,7 @@ class App:
             self.board, self.classic, self.quiet, self.rec = save
             self.rec = [list(r) for r in self.rec]
         self.out, self.clock = [], 0
+        self.nexts = []
         self.tunes = self.tones = 0
         self.sound = []
         self.g = None
@@ -69,10 +76,16 @@ class App:
                     f = self.dealing_at
                     self.g.open(f)
                     self.opened(0, self.clock)
-            elif self.state == 'play' and self.held:
-                while self.clock >= self.repeat_at:
+                    self.nexts.append(20)
+                else:
+                    self.nexts.append(1)
+            elif self.state == 'play':
+                while self.held and self.clock >= self.repeat_at:
                     self.move(self.held)
                     self.repeat_at += REPEAT_NEXT
+                self.nexts.append(20)
+            else:
+                self.nexts.append(100)
 
     def move(self, k):
         dx = {'4': -1, '6': 1}.get(k, 0)
@@ -186,14 +199,14 @@ class App:
         while self.state == 'dealing':
             self.tick()
 
-    def solve_and_play(self, first, again=False, pause=0):
+    def solve_and_play(self, first, again=False, pause=0, pause_ms=20):
         """the complete solver's game: flags on its mines, opens on its safe cells (again: 5 once more on the first
-        cell, an open that opens nothing and so makes no tick; pause: ticks after the first open)"""
+        cell, an open that opens nothing and so makes no tick; pause: ticks of pause_ms after the first open)"""
         self.first_open(first)
         if again:
             self.press('5')
             self.tick()
-        self.tick(20, pause)
+        self.tick(pause_ms, pause)
         known = set()
         while self.g.state == 'play':
             safe, mine = P.deduce(self.g.b, self.g.opened, known, self.g.num)
@@ -347,8 +360,8 @@ def settings():
         a.press(k)
         a.tick(100)
         a.out.append(f'# {k}: row {a.row}, board {BOARDS[a.board]}')
-    # CLASSIC RULES: 5 on, 4 off, 6 on; SOUND EFFECTS: 2 at the bottom stays, 5 off
-    for k in ('2', '5', '4', '6', '2', '2', '5'):
+    # CLASSIC RULES: 5 on, 4 off, 6 on, and 0 and 1, which have no job here; SOUND EFFECTS: 2 at the bottom stays, 5 off
+    for k in ('2', '5', '4', '6', '0', '1', '2', '2', '5'):
         a.press(k)
         a.tick(100)
         a.out.append(f'# {k}: row {a.row}, classic {a.classic}, quiet {a.quiet}')
@@ -382,13 +395,24 @@ def hard():
     a.settings_to(board=2)
     a.press('ENTER')
     a.tick()
-    a.act('5', a.cy * a.g.b.W + a.cx)
+    a.out.append('# 4, then 6 held (back at the centre), then the first open: the deal stops the repeat, so the cursor '
+                 'stays though 6 is let go only after the deal')
+    a.press('4')
+    a.tick()
+    a.down('6')
+    a.tick(20, 5)
+    a.press('5')
+    a.tick()
     assert a.state == 'dealing'
-    for k in ('6', '0', '5', 'ENTER', '8'):   # each does nothing while the board is dealt
+    for k in ('0', '5', 'ENTER', '8'):        # each does nothing while the board is dealt
         a.press(k)
         a.tick()
     while a.state == 'dealing':
         a.tick()
+    a.tick(20, 20)
+    a.up('6')
+    a.tick()
+    assert (a.cx, a.cy) == (15, 8)
     assert a.g.attempts == 213, a.g.attempts
     a.out.append(f'# dealt in {a.g.attempts} attempts; the clock started at {a.t0} ms')
     a.tick(20, 60)                            # the clock shows 1 s
@@ -406,9 +430,9 @@ def quiet():
     a.settings_to(board=0, quiet=True)
     a.press('ENTER')
     a.tick()
-    a.solve_and_play(first_cell(a.g.b, 6))
+    a.solve_and_play(first_cell(a.g.b, 6), pause=1000, pause_ms=1000)
     assert a.g.state == 'won'
-    a.out.append(f'# won in {a.t_end - a.t0} ms, with no tone or tune')
+    a.out.append(f'# won in {a.t_end - a.t0} ms, with no tone or tune; the top line shows 999 s, not more')
     a.tick(20, 30)
     return a
 
@@ -424,6 +448,43 @@ def instant():
     assert a.g.state == 'won' and a.t_end == a.t0
     a.out.append(f'# won on the dealing tick, {a.t_end - a.t0} ms: the best kept as {a.r()[0]} ms')
     a.tick(20, 30)
+    a.press('ENTER')
+    a.tick()
+    a.first_open(a.cy * a.g.b.W + a.cx)
+    right = min(a.g.mines)
+    wrong = min(c for c in range(a.g.b.CELLS) if c not in a.g.mines and c not in a.g.opened)
+    mine = max(a.g.mines)
+    a.out.append(f'# EASY: a flag on the mine {right} and a wrong one on {wrong}, then the mine {mine} opened')
+    a.act('0', right)
+    a.act('0', wrong)
+    a.act('5', mine)
+    assert a.g.state == 'lost'
+    a.tick(20, 30)
+    return a
+
+
+LOADSET = (2, True, True, [[0, 0, 1], [0, 0, 0], [90000, 3, 4], [0, 0, 0], [0, 0, 2], [400000, 1, 2]])
+
+
+def loadset():
+    a = App(8, LOADSET)
+    a.out.append('# appscript.py loadset: seed 8, loads HARD, classic rules, the sound off, a HARD classic best of 400 s')
+    a.tick(100)
+    a.press('ENTER')
+    a.tick()
+    a.press('1')                              # no job in a game
+    a.tick()
+    a.first_open(a.cy * a.g.b.W + a.cx)
+    assert a.g.attempts == 1
+    a.tick(20, 10)
+    mine = min(a.g.mines, key=lambda m: abs(m % 30 - a.cx) + abs(m // 30 - a.cy))
+    a.act('5', mine)
+    assert a.g.state == 'lost'
+    a.out.append(f'# lost on {mine} in silence')
+    a.tick(20, 30)
+    a.press('ENTER')
+    a.tick(20, 5)
+    a.out.append('# a game started and left before its first open: it counts as started')
     return a
 
 
@@ -441,11 +502,15 @@ def badload():
 def main():
     which = sys.argv[1]
     if which == 'loadfile':
-        a = App(0, refuse_save(refuse()))
+        a = App(0, LOADSET if sys.argv[2:] == ['loadset'] else refuse_save(refuse()))
         print(a.save())
         return 0
-    a = {'play': play, 'refuse': lambda: refuse(refuse()), 'cursor': cursor, 'settings': settings, 'hard': hard,
-         'quiet': quiet, 'instant': instant, 'badload': badload}[which]()
+    scripts = {'play': play, 'refuse': lambda: refuse(refuse()), 'cursor': cursor, 'settings': settings, 'hard': hard,
+               'quiet': quiet, 'instant': instant, 'loadset': loadset, 'badload': badload}
+    if which == 'nexts':
+        print('\n'.join(str(n) for n in scripts[sys.argv[2]]().nexts))
+        return 0
+    a = scripts[which]()
     print('\n'.join(a.out))
     print(a.expect())
     return 0

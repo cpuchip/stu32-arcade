@@ -11,9 +11,10 @@ Script lines:
   cell C / mine C     cell C's state (open, flag, closed) / whether it is a mine
   hit                 the mine shown as opened at a loss, or -1
 """
+import os
 import sys
 
-TRIES = 400
+TRIES = int(os.environ.get('MINES_TRIES', 400))  # a check sets it lower, to reach the fallback
 M64 = (1 << 64) - 1
 ORDER = ((-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1))
 

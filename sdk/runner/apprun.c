@@ -12,9 +12,11 @@
  *
  * Script: `key K D MS` (key K, row * 6 + column, down 1 or up 0, at MS on the game's clock) and
  * `tick MS` (MS since the last tick); `#` comments.
- * Usage: apprun SCRIPT [-pbm DIR] [-every N] [-hashes FILE] [-keyframes] [-load SAVE] [-save SAVE] [-seed N] [-v]
+ * Usage: apprun SCRIPT [-pbm DIR] [-every N] [-hashes FILE] [-keyframes] [-nexts FILE] [-load SAVE] [-save SAVE]
+ *        [-seed N] [-v]
  * -keyframes: -hashes also takes the frames drawn after keys (by default only a tick's), for a game whose key frames
- * can differ from the next tick's. */
+ * can differ from the next tick's. -nexts: each tick's answer, the ms it asks to the next, a line a tick (the script
+ * sets the ticks here, so a check compares what the game asks for with what its rules give). */
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -100,7 +102,7 @@ static uint64_t hash(void)
 
 int main(int argc, char **argv)
 {
-    const char *script = NULL, *pbm_dir = NULL, *hashes = NULL, *load_path = NULL, *save_path = NULL;
+    const char *script = NULL, *pbm_dir = NULL, *hashes = NULL, *load_path = NULL, *save_path = NULL, *nexts = NULL;
     uint64_t every = 1;
     int keyframes = 0;
     for (int i = 1; i < argc; i++) {
@@ -120,11 +122,14 @@ int main(int argc, char **argv)
             verbose = 1;
         else if (!strcmp(argv[i], "-keyframes"))
             keyframes = 1;
+        else if (!strcmp(argv[i], "-nexts") && i + 1 < argc)
+            nexts = argv[++i];
         else
             script = argv[i];
     }
     if (!script || !every) {
-        fprintf(stderr, "usage: apprun SCRIPT [-pbm DIR] [-every N] [-hashes FILE] [-keyframes] [-load SAVE] [-save SAVE] [-seed N] [-v]\n");
+        fprintf(stderr, "usage: apprun SCRIPT [-pbm DIR] [-every N] [-hashes FILE] [-keyframes] [-nexts FILE] [-load SAVE] "
+                        "[-save SAVE] [-seed N] [-v]\n");
         return 2;
     }
     const app_def *a = &APP_DEF;
@@ -147,8 +152,8 @@ int main(int argc, char **argv)
         n = (uint32_t)fread(save, 1, save_size, s);
         fclose(s);
     }
-    FILE *in = fopen(script, "r"), *hf = hashes ? fopen(hashes, "w") : NULL;
-    if (!in || (hashes && !hf)) {
+    FILE *in = fopen(script, "r"), *hf = hashes ? fopen(hashes, "w") : NULL, *nf = nexts ? fopen(nexts, "w") : NULL;
+    if (!in || (hashes && !hf) || (nexts && !nf)) {
         perror("apprun");
         return 1;
     }
@@ -186,6 +191,8 @@ int main(int argc, char **argv)
             clock_ms += ms;
             uint32_t next = a->tick(ctx, ms);
             stopped = next == 0;
+            if (nf)
+                fprintf(nf, "%u\n", next);
             a->draw(ctx, &frame);
             if (hf)
                 fprintf(hf, "%016" PRIx64 "\n", hash());
@@ -214,6 +221,8 @@ int main(int argc, char **argv)
            stopped ? "; tick asked for no more" : "");
     if (hf)
         fclose(hf);
+    if (nf)
+        fclose(nf);
     fclose(in);
     free(ctx);
     return 0;

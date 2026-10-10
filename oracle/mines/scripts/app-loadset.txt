@@ -1,0 +1,70 @@
+# appscript.py loadset: seed 8, loads HARD, classic rules, the sound off, a HARD classic best of 400 s
+tick 100
+key 18 1 107
+key 18 0 107
+tick 20
+key 37 1 127
+key 37 0 127
+tick 20
+key 32 1 147
+key 32 0 147
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 38 1 367
+key 38 0 367
+tick 20
+key 38 1 387
+key 38 0 387
+tick 20
+key 32 1 407
+key 32 0 407
+tick 20
+# lost on 315 in silence
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+key 18 1 1027
+key 18 0 1027
+tick 20
+tick 20
+tick 20
+tick 20
+tick 20
+# a game started and left before its first open: it counts as started
+# expect save 4d020e000000000000000001000000000000000000000000000000905f01000300000004000000000000000000000000000000000000000000000002000000801a060001000000040000000000000000 tunes 0 tones 0

@@ -51,60 +51,68 @@ key 33 1 1307
 key 33 0 1307
 tick 100
 # 6: row 1, classic True, quiet False
-key 38 1 1407
-key 38 0 1407
+key 43 1 1407
+key 43 0 1407
+tick 100
+# 0: row 1, classic True, quiet False
+key 37 1 1507
+key 37 0 1507
+tick 100
+# 1: row 1, classic True, quiet False
+key 38 1 1607
+key 38 0 1607
 tick 100
 # 2: row 2, classic True, quiet False
-key 38 1 1507
-key 38 0 1507
+key 38 1 1707
+key 38 0 1707
 tick 100
 # 2: row 2, classic True, quiet False
-key 32 1 1607
-key 32 0 1607
+key 32 1 1807
+key 32 0 1807
 tick 100
 # 5: row 2, classic True, quiet True
-key 18 1 1707
-key 18 0 1707
+key 18 1 1907
+key 18 0 1907
 tick 100
-key 18 1 1807
-key 18 0 1807
+key 18 1 2007
+key 18 0 2007
 tick 20
-key 32 1 1827
-key 32 0 1827
+key 32 1 2027
+key 32 0 2027
 tick 20
 # a classic deal: 1 attempt
-key 31 1 1847
-key 31 0 1847
+key 31 1 2047
+key 31 0 2047
 tick 20
-key 31 1 1867
-key 31 0 1867
+key 31 1 2067
+key 31 0 2067
 tick 20
-key 26 1 1887
-key 26 0 1887
+key 26 1 2087
+key 26 0 2087
 tick 20
-key 26 1 1907
-key 26 0 1907
+key 26 1 2107
+key 26 0 2107
 tick 20
-key 26 1 1927
-key 26 0 1927
+key 26 1 2127
+key 26 0 2127
 tick 20
-key 26 1 1947
-key 26 0 1947
+key 26 1 2147
+key 26 0 2147
 tick 20
-key 26 1 1967
-key 26 0 1967
+key 26 1 2167
+key 26 0 2167
 tick 20
-key 26 1 1987
-key 26 0 1987
+key 26 1 2187
+key 26 0 2187
 tick 20
-key 26 1 2007
-key 26 0 2007
+key 26 1 2207
+key 26 0 2207
 tick 20
-key 26 1 2027
-key 26 0 2027
+key 26 1 2227
+key 26 0 2227
 tick 20
-key 32 1 2047
-key 32 0 2047
+key 32 1 2247
+key 32 0 2247
 tick 20
 # lost on 6, with no tune: the sound is off
 tick 20
@@ -117,8 +125,8 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 43 1 2267
-key 43 0 2267
+key 43 1 2467
+key 43 0 2467
 tick 20
 tick 20
 tick 20
@@ -139,19 +147,19 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 43 1 2667
-key 43 0 2667
+key 43 1 2867
+key 43 0 2867
 tick 100
-key 38 1 2767
-key 38 0 2767
+key 38 1 2967
+key 38 0 2967
 tick 100
-key 38 1 2867
-key 38 0 2867
+key 38 1 3067
+key 38 0 3067
 tick 100
-key 32 1 2967
-key 32 0 2967
+key 32 1 3167
+key 32 0 3167
 tick 100
-key 18 1 3067
-key 18 0 3067
+key 18 1 3267
+key 18 0 3267
 tick 100
 # expect save 4d02050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000 tunes 0 tones 0

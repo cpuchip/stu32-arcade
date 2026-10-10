@@ -2,9 +2,10 @@
 /* MINES on the S3: each app script played through apps.h's calls as the framework makes them, with app_seed() and the
  * loaded save as the SDK runner's -seed and -load give them, the ctx in PSRAM as the framework gives it, the frame in
  * internal RAM. For each script: the hash of its frames' hashes (scripts/device_mines.sh compares it with the
- * runner's with -keyframes, so the frames drawn on keys count too), and key, tick and draw times apart. Then
- * dealing alone, as the first open does it: each listed seed's attempts and time. The report repeats, so a reader
- * that attaches late still gets a whole one. */
+ * runner's with -keyframes, so the frames drawn on keys count too), and key, tick and draw times apart (a tick
+ * while dealing included). Then dealing alone, in steps of 4 attempts as the app's ticks make them: each listed
+ * board and seed's attempts, its whole time and its longest step. The report repeats, so a reader that attaches
+ * late still gets a whole one. */
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
@@ -56,7 +57,7 @@ typedef struct {
 } result;
 static result results[APPSCRIPT_COUNT];
 static EXT_RAM_BSS_ATTR mines_game deal_game;
-static int64_t deal_us[DEAL_COUNT];
+static int64_t deal_us[DEAL_COUNT], deal_step_us[DEAL_COUNT];
 static int deal_attempts[DEAL_COUNT];
 
 static void play(const appscript *s, result *r)
@@ -128,10 +129,17 @@ static void bench(void *arg)
         printf("ran %d/%d %s\n", i + 1, APPSCRIPT_COUNT, appscripts[i].name);
     }
     for (int i = 0; i < DEAL_COUNT; i++) {
-        mines_init(&deal_game, (uint64_t)deals[i].seed << 32, 0);
-        int64_t t0 = esp_timer_get_time();
-        mines_open(&deal_game, deals[i].first);
-        deal_us[i] = esp_timer_get_time() - t0;
+        mines_init(&deal_game, (uint64_t)deals[i].seed << 32, 0, deals[i].board, false);
+        mines_deal_start(&deal_game, deals[i].first);
+        bool dealt = false;
+        while (!dealt) {
+            int64_t t0 = esp_timer_get_time();
+            dealt = mines_deal_step(&deal_game, 4);
+            int64_t dt = esp_timer_get_time() - t0;
+            deal_us[i] += dt;
+            if (dt > deal_step_us[i])
+                deal_step_us[i] = dt;
+        }
         deal_attempts[i] = deal_game.attempts;
     }
     for (;;) {
@@ -143,7 +151,8 @@ static void bench(void *arg)
                    r->key_max);
         }
         for (int i = 0; i < DEAL_COUNT; i++)
-            printf("G %" PRIu32 " %d %d %" PRId64 "\n", deals[i].seed, deals[i].first, deal_attempts[i], deal_us[i]);
+            printf("G %d %" PRIu32 " %d %d %" PRId64 " %" PRId64 "\n", deals[i].board, deals[i].seed, deals[i].first,
+                   deal_attempts[i], deal_us[i], deal_step_us[i]);
         printf("BENCH DONE\n");
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
