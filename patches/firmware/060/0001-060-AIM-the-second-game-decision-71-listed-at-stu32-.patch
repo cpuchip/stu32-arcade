@@ -1,4 +1,4 @@
-From 629e1bf86625e34bff061f7ee7cc144abedbd02d Mon Sep 17 00:00:00 2001
+From 47e9f5c78f05f100662e527c32ade382aa51f4a1 Mon Sep 17 00:00:00 2001
 From: Michael Stufflebeam <cpuchip@gmail.com>
 Date: Sat, 10 Oct 2026 04:57:37 +0000
 Subject: [PATCH] 060: AIM, the second game (decision 71): listed at
@@ -11,24 +11,26 @@ stu32-arcade make aimcheck; work/060-aim.md has the table and the checks.
 
 Co-Authored-By: Claude <noreply@anthropic.com>
 ---
- device/standin/aim.txt | 129 +++++++++++++++++++++++++++++++++++++++++
+ device/standin/aim.txt | 151 +++++++++++++++++++++++++++++++++++++++++
  games.list             |   2 +
- work/060-aim.md        |  67 +++++++++++++++++++++
- 3 files changed, 198 insertions(+)
+ work/060-aim.md        |  69 +++++++++++++++++++
+ 3 files changed, 222 insertions(+)
  create mode 100644 device/standin/aim.txt
  create mode 100644 work/060-aim.md
 
 diff --git a/device/standin/aim.txt b/device/standin/aim.txt
 new file mode 100644
-index 0000000..3e6beda
+index 0000000..a34b7a6
 --- /dev/null
 +++ b/device/standin/aim.txt
-@@ -0,0 +1,129 @@
+@@ -0,0 +1,151 @@
 +# AIM under APPS on the board (arcade's unit, soroban's gate; stu32-arcade docs/aim.md): APPS (blue 0) lists KEYS,
 +# BABAL and AIM; AIM's title, ENTER for a round, the frame rate, refused keys (0 ENTER: no tile is 0), then 20 rounds
 +# through SHOW and NEW (each runs the solver and the generator on the chip; the tiles come from the hardware RNG, so
 +# winning is the host's check, stu32-arcade make aimcheck). The calc task's stack-free is read after them; C ends
 +# AIM, and 2 ENTER 3 + must still give 5.
++# The 0.2 s after each NEW keeps the burst short: sent back to back, the console dropped keys while rounds were made
++# (soroban's gate, 2026-10-10). X prints stack-free before app:, so expect-min comes first.
 +send RESTART
 +wait STANDIN READY 30
 +send X
@@ -58,86 +60,106 @@ index 0000000..3e6beda
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +send K2
 +send U2
 +send K5
 +send U5
++sleep 0.2
 +sleep 2
 +send X
-+expect app: AIM
 +expect-min stack-free 2048
++expect app: AIM
 +send K42
 +send U42
 +sleep 1
@@ -165,10 +187,10 @@ index 33b3a90..283849f 100644
 +aim    stu32-arcade  5fe8ceaceedd3d4aac5513f1c7e713b45aa24509  MIT                        games/aim/stu32-game.txt
 diff --git a/work/060-aim.md b/work/060-aim.md
 new file mode 100644
-index 0000000..f5bca98
+index 0000000..ad1aeae
 --- /dev/null
 +++ b/work/060-aim.md
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,69 @@
 +# Work unit 060: AIM, the second game
 +
 +**From:** arcade (stu32-arcade docs/aim.md) · **Ruled by:** Michael's decision 71 (abacus aa30714: the second game,
@@ -229,7 +251,9 @@ index 0000000..f5bca98
 +APPS lists KEYS, BABAL and AIM; AIM's title, ENTER for a round, FRAMEBENCH, a refused key (0 ENTER: no tile is 0),
 +then 20 rounds through SHOW and NEW, each running the solver and the generator on the chip. The tiles come from the
 +hardware RNG, so winning stays the host's check. Then the calc task's stack-free (at least 2,048), C, and 2 ENTER 3 +
-+must give 5. Not yet run: it waits on the gate's board.
++must give 5. The gate's first run (soroban, 2026-10-10) sent the rounds back to back and the console dropped keys
++in the burst; it now pauses 0.2 s after each NEW, as soroban measured, and reads stack-free before `app:`, which X
++prints first.
 +
 +## Open
 +
