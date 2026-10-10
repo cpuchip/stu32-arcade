@@ -5,7 +5,10 @@ rightward); then up column 0. The snake starts on it (row 10, moving right), and
 always fills a stretch of it, so it never meets itself and eats every food until the grid is full.
 
   cycle.py script SEED GAME   the autopilot's keys and steps as a trace script, played in the model as it is made
+  cycle.py grown GAMES        GAMES games that follow the cycle for 5-60 foods, then take random keys until they end:
+                              long snakes, so deaths into the body (check 1's second half)
 """
+import random
 import sys
 
 import model as M
@@ -47,6 +50,35 @@ def script(seed, game):
     return out, s
 
 
+def grown(n):
+    r = random.Random(2)
+    out = []
+    ends = {}
+    for game in range(n):
+        seed, k = r.randrange(1 << 20) << 32, r.randrange(5, 61)
+        s = M.Snake(seed, game)
+        s.place_food()
+        out.append(f'game {seed} {game}')
+        while not s.end:
+            if s.eaten < k:
+                d = next_dir(s.body[-1])
+                keys = [d] if d != s.dir else []
+            else:
+                keys = [r.randrange(4) for _ in range(r.choice((0, 0, 1, 2)))]
+            for d in keys:
+                out.append(f'key {KEY[d]}')
+                s.offer(d)
+            s.step()
+            out.append('step 1')
+        ends[s.end] = ends.get(s.end, 0) + 1
+    return out, ends
+
+
 if __name__ == '__main__':
-    lines, s = script(int(sys.argv[2]), int(sys.argv[3]))
-    print('\n'.join(lines))
+    if sys.argv[1] == 'grown':
+        lines, ends = grown(int(sys.argv[2]))
+        print('\n'.join(lines))
+        print(f'# ends: {ends}')
+    else:
+        lines, s = script(int(sys.argv[2]), int(sys.argv[3]))
+        print('\n'.join(lines))

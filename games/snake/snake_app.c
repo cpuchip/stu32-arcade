@@ -12,8 +12,7 @@ enum { TITLE, PLAY, OVER };
 #define SAVE_MAGIC 'S'
 #define SAVE_VERSION 1
 #define SAVE_BYTES 16    /* magic, version, best (4), games (4), 6 zeros */
-#define TICK_MAX_MS 100  /* a long tick is taken as this, so nothing jumps */
-#define STEPS_MAX 4      /* a tick's most steps */
+#define TICK_MAX_MS 100  /* a long tick is taken as this, so nothing jumps (and gives at most 2 steps) */
 #define AGAIN_MS 500     /* GAME OVER takes ENTER after this */
 #define HUD_H 20
 #define CELL 10
@@ -40,7 +39,7 @@ static void app_load_cb(void *ctx, const uint8_t *save, uint32_t n)
 {
     snake_ctx *c = ctx;
     /* taken whole or not at all */
-    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION)
+    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || get32(save + 2) > SNAKE_CELLS - 4)
         return;
     c->best = get32(save + 2);
     c->games = get32(save + 6);
@@ -91,7 +90,7 @@ static bool app_key_cb(void *ctx, int key, bool down, uint32_t ms)
             snake_offer(&c->g, dir);
         return false; /* the picture changes on the step */
     }
-    if (key == APP_KEY_ENTER && (c->state == TITLE || c->now - c->end_at >= AGAIN_MS)) {
+    if (key == APP_KEY_ENTER && (c->state == TITLE || ms - c->end_at >= AGAIN_MS)) {
         new_game(c, ms);
         return true;
     }
@@ -105,20 +104,18 @@ static uint32_t app_tick_cb(void *ctx, uint32_t ms)
     if (c->state == TITLE)
         return 100;
     if (c->state != PLAY)
-        return 20;
+        return 100;
     uint32_t dt = c->now - c->started < ms ? c->now - c->started : ms; /* not the time before the game began */
     c->acc += dt > TICK_MAX_MS ? TICK_MAX_MS : dt;
-    for (int n = 0; n < STEPS_MAX && c->state == PLAY; n++) {
-        uint32_t step = snake_interval(c->g.eaten);
-        if (c->acc < step)
-            break;
-        c->acc -= step;
+    while (c->state == PLAY && c->acc >= snake_interval(c->g.eaten)) {
+        c->acc -= snake_interval(c->g.eaten);
         uint16_t eaten = c->g.eaten;
         enum snake_end e = snake_step(&c->g);
         if (c->g.eaten != eaten) {
             if (c->g.eaten > c->best)
                 c->best = c->g.eaten;
-            app_beep(660, 30);
+            if (e == SNAKE_ON)
+                app_beep(660, 30); /* the food that fills the grid has the win's tune instead */
         }
         if (e != SNAKE_ON) {
             static const uint16_t fall[] = {392, 120, 0, 40, 330, 120, 0, 40, 262, 300}; /* (hz, ms); 0: a rest */
@@ -183,10 +180,10 @@ static void draw_play(ls027_frame *f, const snake_ctx *c)
     draw_fill(f, hx + 3, hy + 3, 2, 2, DRAW_DARK);
     if (g->food >= 0) {
         int fx = g->food % SNAKE_W * CELL + 5, fy = HUD_H + g->food / SNAKE_W * CELL + 5;
-        draw_line(f, fx, fy - 4, fx + 4, fy, 1);
-        draw_line(f, fx + 4, fy, fx, fy + 4, 1);
-        draw_line(f, fx, fy + 4, fx - 4, fy, 1);
-        draw_line(f, fx - 4, fy, fx, fy - 4, 1);
+        draw_line(f, fx, fy - 3, fx + 3, fy, 1); /* 7 px, inside its cell's 8 */
+        draw_line(f, fx + 3, fy, fx, fy + 3, 1);
+        draw_line(f, fx, fy + 3, fx - 3, fy, 1);
+        draw_line(f, fx - 3, fy, fx, fy - 3, 1);
     }
 }
 

@@ -4301,6 +4301,9 @@ tick 60
 tick 60
 tick 60
 tick 60
+# ENTER during play: nothing
+key 18 1 247760
+key 18 0 247760
 tick 60
 tick 60
 tick 60
@@ -15068,12 +15071,11 @@ tick 60
 tick 60
 tick 60
 tick 60
+# past the 60 ms floor: up into the wall or itself, in 100 ms ticks (two steps in some)
 key 26 1 852980
 key 26 0 852980
-tick 60
-tick 60
-tick 60
-tick 60
+tick 100
+tick 100
 # game 1: dead at 19 eaten
 tick 20
 tick 20
@@ -15085,8 +15087,8 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 18 1 853420
-key 18 0 853420
+key 18 1 853380
+key 18 0 853380
 tick 20
 tick 20
 tick 20
@@ -15107,11 +15109,11 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 18 1 853820
-key 18 0 853820
+key 18 1 853780
+key 18 0 853780
 # a reverse key, dropped
-key 31 1 853820
-key 31 0 853820
+key 31 1 853780
+key 31 0 853780
 tick 20
 tick 20
 tick 20
@@ -15119,8 +15121,8 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 26 1 853960
-key 26 0 853960
+key 26 1 853920
+key 26 0 853920
 tick 20
 tick 20
 tick 20
@@ -15228,4 +15230,25 @@ tick 20
 tick 20
 tick 20
 tick 20
+# sound tone 660 Hz 30 ms at 101420 ms
+# sound tone 660 Hz 30 ms at 105200 ms
+# sound tone 660 Hz 30 ms at 198020 ms
+# sound tone 660 Hz 30 ms at 204620 ms
+# sound tone 660 Hz 30 ms at 247760 ms
+# sound tone 660 Hz 30 ms at 270260 ms
+# sound tone 660 Hz 30 ms at 338180 ms
+# sound tone 660 Hz 30 ms at 369920 ms
+# sound tone 660 Hz 30 ms at 435920 ms
+# sound tone 660 Hz 30 ms at 446120 ms
+# sound tone 660 Hz 30 ms at 486020 ms
+# sound tone 660 Hz 30 ms at 542360 ms
+# sound tone 660 Hz 30 ms at 608120 ms
+# sound tone 660 Hz 30 ms at 624200 ms
+# sound tone 660 Hz 30 ms at 692300 ms
+# sound tone 660 Hz 30 ms at 754100 ms
+# sound tone 660 Hz 30 ms at 805100 ms
+# sound tone 660 Hz 30 ms at 825800 ms
+# sound tone 660 Hz 30 ms at 852980 ms
+# sound tune of 5 notes at 853180 ms: 392/120 0/40 330/120 0/40 262/300
+# sound tune of 5 notes at 855440 ms: 392/120 0/40 330/120 0/40 262/300
 # expect save 53011300000002000000000000000000 tunes 2 tones 19
