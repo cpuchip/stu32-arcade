@@ -6,10 +6,13 @@ On a microcontroller this decides where the table lives. Without `const` it goes
 
 The change makes the tables, the function's return type and the loader's two locals `const` in all ten arch files, `aot_reloc.h` and `aot_loader.c`. A write to a table no longer compiles.
 
+No test is added, since the change adds `const` and nothing else and the compiler now refuses a write to a table. The reads are covered by what CI already runs: on x86_64, aarch64, arm, thumb and riscv every AOT load with code fills its PLT from the table (`init_plt_table()`), and the Ubuntu workflow runs the spec tests in AOT mode on x86_64.
+
 **Validation**
 
 - ESP32-S3 with 8 MB octal PSRAM, ESP-IDF v5.4.2, AOT only, with #5146, #5148 and a local change to `os_self_thread()` applied: `target_sym_map` moves from DRAM to the flash rodata segment, static internal RAM drops by 1,008 bytes, and a 143,096-byte .aot (a small game) loads and runs.
 - x86_64 Linux: the same game's x86_64 .aot, run through our embedder, gives output identical to the game built natively, over 22,641 frames.
-- gcc 15.2 `-fsyntax-only` with `-Werror=discarded-qualifiers -Werror=incompatible-pointer-types` passes on all ten arch files and `aot_loader.c`, and a planted write to the Xtensa table fails with "assignment of member 'symbol_addr' in read-only object". This is a syntax pass on an x86_64 host, so code under another architecture's own `#if`s was not compiled.
+- gcc 15.2 `-fsyntax-only` with `-Werror=discarded-qualifiers -Werror=incompatible-pointer-types` passes on all ten arch files and `aot_loader.c` (aarch64, arm and thumb need `-DBUILD_TARGET`, as on main), and a planted write to the Xtensa table fails with "assignment of member 'symbol_addr' in read-only object". This is a syntax pass on an x86_64 host, so code under another architecture's own `#if`s was not compiled.
+- clang-format with the repo's `.clang-format` (23.1, from wasi-sdk; CI uses 21) reports nothing on the twelve changed files, and a misformatted line planted in `aot_loader.c` is reported.
 
 I wrote this with Claude's help (the commit carries a Co-Authored-By line); the testing above was done on the hardware listed.
