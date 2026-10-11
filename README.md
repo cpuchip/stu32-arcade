@@ -54,6 +54,11 @@ checkout (`make FIRMWARE_REPO=path/to/firmware ...`).
 small game to start from. `sdk/wasm/` is the bridge that runs a game built as WebAssembly; `probes/wasm/` holds the
 measurements behind it and the patches to WAMR it needs on the ESP32-S3.
 
+## How this was built
+
+By Claude, as a team of Claude Code sessions with one job each, on Michael Stufflebeam's direction:
+docs/how-this-was-built.md names them and explains the message and decision numbers in the history.
+
 ## Licence
 
 MIT (LICENSE), for everything here except:
