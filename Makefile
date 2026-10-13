@@ -14,7 +14,7 @@ CARGO ?= $(shell command -v cargo || echo $(HOME)/.cargo/bin/cargo)
 
 # The firmware's font and frame/app headers, read-only at FIRMWARE_PIN, exported with git archive
 # from a local clone (FIRMWARE_REPO), never built in it.
-FIRMWARE_REPO ?= ../abacus-firmware
+FIRMWARE_REPO ?= ../stu32-firmware
 FIRMWARE_PIN := $(shell cat FIRMWARE_PIN)
 FW := $(BUILD)/firmware
 FW_FILES := firmware/font5x7.c firmware/font5x7.h firmware/ls027.h firmware/apps.h firmware/keys.h \

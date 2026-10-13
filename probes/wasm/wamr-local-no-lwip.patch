@@ -3,7 +3,7 @@ WAMR's ESP-IDF component: a project without libc-wasi may leave lwip out (our lo
 Applies to: the pinned series (WAMR main ea5dd88 with #5146, #5148, the os_self_thread patch and patch 0004,
 tree 690282c7). A modification of WAMR, so under Apache-2.0 WITH LLVM-exception, NOT this repository's MIT.
 
-Why: resources.py static (abacus-firmware ab51544 against the unit, STU_WASM=1, no wasm game listed) showed
+Why: resources.py static (stu32-firmware 4927ed1 against the unit, STU_WASM=1, no wasm game listed) showed
 Rev A at +18,736 B flash, +1,932 B static DIRAM and +1,300 B IRAM code. None of it is WAMR: the component
 REQUIRES lwip, which brings VFS, the UART driver and the VFS console into Rev A's minimal component set
 (the stand-in already had VFS and paid nothing). CONFIG_VFS_SUPPORT_IO=n in the defaults came back =y.
@@ -15,7 +15,7 @@ project before project(); the default keeps lwip. Without libc-wasi, espidf_sock
 left out (the Zephyr port does the same) and the socket headers and readv/writev are guarded (struct iovec
 comes from lwip/sockets.h).
 
-Matrix, Rev A (STU_WASM=1, no game) on ab51544 plus the unit, ESP-IDF v5.4.2:
+Matrix, Rev A (STU_WASM=1, no game) on 4927ed1 plus the unit, ESP-IDF v5.4.2:
 - A, property, WASI off: builds, 3,951,616 B (main's size), no lwip file compiled.
 - B, no property, WASI on: fails, in libc-wasi's locking.h (pthread_cond_timedwait and its timespec).
 - control, the unpatched series, WASI on: fails with the same 27 distinct diagnostics in the same 13 objects,
@@ -36,7 +36,7 @@ the configuration a maintainer would ask about; the WASI-on failure in libc-wasi
 
 Console (abacus #5530): Rev A's sdkconfig has the console on UART0 at main already (ESP_CONSOLE_UART_DEFAULT,
 UART_NUM 0, USB-Serial/JTAG secondary), identical in all three builds (main, C, A). VFS only adds the
-driver-based console with RX. In docs/hw/circuit.py (abacus-firmware, c35df1e) TXD0 and RXD0 go to their own
+driver-based console with RX. In the board's circuit file (docs/hw/circuit.py, not in the public firmware) TXD0 and RXD0 go to their own
 test pads and nothing else; draftsman's own netlist is not on this box. With 0005 and the property, VFS is out
 and Rev A's image is main's size.
 

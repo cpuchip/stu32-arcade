@@ -44,9 +44,10 @@ with a control that must fail.
 
 You need a C11 compiler, `make`, `git` and `python3`; `cargo` for `make oracle`; Docker for the device benches.
 
-The checks read nine files of the calculator's firmware: the 5 × 7 font, the screen, key and app headers, and the
-drawing library with its test. The Makefile exports them at the commit named in `FIRMWARE_PIN` from a firmware
-checkout (`make FIRMWARE_REPO=path/to/firmware ...`).
+The checks read nine files of the calculator's firmware (github.com/cpuchip/stu32-firmware): the 5 × 7 font, the
+screen, key and app headers, and the drawing library with its test. The Makefile exports them at the commit named in
+`FIRMWARE_PIN` from a clone of that repository, by default `../stu32-firmware` (`make FIRMWARE_REPO=path/to/clone
+...` for another place).
 
 ## Writing a game
 

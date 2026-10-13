@@ -19,7 +19,7 @@ rows, slabs, events and score in both, with a planted divergence red first.
   for an older calculator) is look and feel only (stage 2), and that folder also ships third
   parties' tools (ASM.lib, PCT.lib, Secrets.lib, StrWrt.lib, credited to others in its README) that
   its Unlicense cannot cover: never opened, used or copied. This repo names no calculator maker or
-  model (the charter's rule; abacus-firmware's too).
+  model (the charter's rule; stu32-firmware's too).
 
 ## The port
 

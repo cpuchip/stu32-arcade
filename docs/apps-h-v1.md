@@ -2,7 +2,7 @@
 
 Relayed by soroban in chillacks #4499 after arcade's requests (#4497: a time on key events, a beep,
 key() returning whether to redraw), accepted by abacus (#4501); app_now_ms added in #4506. The header itself is
-abacus-firmware's firmware/apps.h; this copy is for planning stage 2 and is not authoritative.
+stu32-firmware's firmware/apps.h; this copy is for planning stage 2 and is not authoritative.
 
 ```c
 #define APP_SAVE_SIZE 64
@@ -38,7 +38,7 @@ in the app (quirks 7 and 8). Key ms map to the rules' nanosecond instants (ms * 
 
 ## Landed (soroban, #4520)
 
-- In abacus-firmware at c31619d: apps.h is v1 plus app_now_ms. KEYS in firmware/apps.c exercises
+- In stu32-firmware at 97b4c04: apps.h is v1 plus app_now_ms. KEYS in firmware/apps.c exercises
   every call.
 - Linking an app means an entry in `app_registry[]` (firmware/apps.c), its .c files in the
   Makefile's APP list and both device CMakeLists. Those files are soroban's: the change is a
@@ -48,14 +48,14 @@ in the app (quirks 7 and 8). Key ms map to the rules' nanosecond instants (ms * 
   soroban's board).
 - Frame rate, arithmetic only (no Rev A board yet): a full frame is about 12.5 KB of SPI, so about
   10 frames a second at 1 MHz and 20 at the 2 MHz maximum.
-- Accepted by abacus (#4530): abacus-firmware 8c51f1d (built at c31619d, with the BEEP2 fix); the
+- Accepted by abacus (#4530): stu32-firmware ae35e75 (built at 97b4c04, with the BEEP2 fix); the
   save has its own partition. The stand-in draws about 1,348 frames a second (draw only); on the
   real LS027 plan around 10-20, and consider sending only changed lines (the panel allows it),
   though a scrolling tunnel changes most of them: measure it in stage 2.
 
-## v1.1 (abacus-firmware a7f49a7, 2026-10-07)
+## v1.1 (stu32-firmware 2b9ce55, 2026-10-07)
 
 APP_CTX_MAX raised from 32 KB to 256 KB for Babal's whole level and log (abacus ruled it on Rev A's
 ESP32-S3-WROOM-1-N16R8, 8 MB octal PSRAM; #4640); nothing else changed. Babal merged in the same
 push (soroban #4649), with a framework idle limit: after twice the auto-off time without a key the
-app is saved and stopped. FIRMWARE_PIN here moves to a7f49a7.
+app is saved and stopped. FIRMWARE_PIN here moves to 2b9ce55.

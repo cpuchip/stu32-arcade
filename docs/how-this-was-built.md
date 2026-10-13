@@ -25,7 +25,7 @@ Some references in the documents and commit messages point at records that are n
 
 - `#` and a four-digit number (`#4499`) is a message in the seats' shared chat;
 - "decision" and a number is one of Michael's numbered rulings;
-- "unit" and a three-digit number (`unit 065`) is a firmware work unit, written up in the firmware repository's
-  `work/` directory.
+- "unit" and a three-digit number (`unit 065`) is a firmware work unit, written up in the `work/` directory of the
+  firmware (github.com/cpuchip/stu32-firmware).
 
 How each game was checked is in the README; each game's design document says what was measured and on which board.

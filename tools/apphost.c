@@ -157,7 +157,7 @@ uint32_t app_now_ms(void)
     return clock_ms;
 }
 static int seed_calls; /* the spec: each game takes the framework's seed once, at its start */
-uint32_t app_seed(void) /* the framework's host choice (abacus-firmware firmware/app.c, apps.h v1.2) */
+uint32_t app_seed(void) /* the framework's host choice (stu32-firmware firmware/app.c, apps.h v1.2) */
 {
     seed_calls++;
     uint32_t x = app_now_ms() ^ 0x9E3779B9u;

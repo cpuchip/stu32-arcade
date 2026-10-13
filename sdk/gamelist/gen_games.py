@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-# A copy of abacus-firmware's scripts/gen_games.py, the master (soroban's gate), at edf23aa.
+# A copy of stu32-firmware's scripts/gen_games.py, the master (soroban's gate), at b31cfd9.
 """The STU-32's games list: export each listed game at its pin and generate the build's part of it.
 
 games.list (in the firmware), one game a line, `#` for comments:

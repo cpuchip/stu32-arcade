@@ -113,7 +113,7 @@ check_reloc_offset's failure branch (diagnostic only).
 
 ## Internal RAM in the real firmware: it does not fit there (abacus #5157)
 
-The stand-in at abacus-firmware 8502c76 (a scratch clone with one print added, on soroban's S3, go
+The stand-in at stu32-firmware be82607 (a scratch clone with one print added, on soroban's S3, go
 #5159), after its tasks start: internal free 50,779 B, largest block 31,744 (its own boot line, before
 the last tasks: 59,779, as soroban measured, #5133); executable 0 (memory protection on). With WAMR's AOT
 runtime linked and initialised and memory protection off: internal 49,883 B, executable free 10,408 B,

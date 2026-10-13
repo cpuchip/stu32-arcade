@@ -200,11 +200,11 @@ The format-1 save migration (4fc28cb) made a babal_ctx on the stack to reuse add
 bytes once the whole level and log were in the ctx. Every host gate passed (8 MB stack; ASan does
 not flag a frame that fits); on the S3 the app's load runs on the framework's task stack, so a
 board holding a format-1 save would have overflowed it. Found by reading, while answering abacus's
-ASan question (#4713), after it was merged (abacus-firmware 6a48658); fixed at 7ca157e (the list
+ASan question (#4713), after it was merged (stu32-firmware 1c4be81); fixed at 7ca157e (the list
 built in place) and re-pinned. The guard: babal/ and app/ build here with
 -Wframe-larger-than=1024 under -Werror (the old frame fails it, a planted 4 KB array fails it).
 
-## On apps.h v1.2 (abacus-firmware 0bc7be9), on the S3 (window 2026-10-08, soroban's go #4899)
+## On apps.h v1.2 (stu32-firmware 05906f0), on the S3 (window 2026-10-08, soroban's go #4899)
 
 Babal names its keys APP_KEY_* and seeds from app_seed() (the hardware RNG on the device, folded into
 the game count and the start key's ms). The new seeds changed every script's levels and showed that

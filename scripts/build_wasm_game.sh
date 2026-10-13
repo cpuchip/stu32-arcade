@@ -5,7 +5,7 @@
 # writes their sha256s and the toolchain into wasm/babal/stu32-game.txt. With --check it builds into a scratch
 # directory and compares with what is committed: an .aot from anyone else's wamrc fails here.
 # Env: WASI_SDK (wasi-sdk 34), WAMRC (wamrc from the pinned WAMR), WAMR_TREE_HASH (that WAMR's tree,
-# abacus-firmware third_party/wamr/PIN), LLVM_COMMIT (the LLVM wamrc was built on). None is in this repository.
+# stu32-firmware third_party/wamr/PIN), LLVM_COMMIT (the LLVM wamrc was built on). None is in this repository.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 : "${WASI_SDK:?set WASI_SDK}" "${WAMRC:?set WAMRC}" "${WAMR_TREE_HASH:?set WAMR_TREE_HASH}" "${LLVM_COMMIT:?set LLVM_COMMIT}"

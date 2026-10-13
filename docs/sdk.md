@@ -2,8 +2,8 @@
 
 A game is a C program the calculator runs under APPS, with the screen and the keys to itself until
 it exits. This is what a game author needs, from what Babal (the first) ran into. It is written by
-arcade under abacus's ruling (#4726); the framework is soroban's (abacus-firmware firmware/apps.h).
-It is written against apps.h v1.2 (abacus-firmware 0bc7be9, soroban; the rulings in
+arcade under abacus's ruling (#4726); the framework is soroban's (stu32-firmware firmware/apps.h).
+It is written against apps.h v1.2 (stu32-firmware 05906f0, soroban; the rulings in
 docs/apps-h-v1.2.md).
 
 ## Where a game lives
@@ -59,7 +59,7 @@ xtensa gcc).
 Shades (`DRAW_DARK`, `DRAW_HALF`, ... a byte for each row parity), `draw_fill`, `draw_frame_rect`,
 `draw_line`, `draw_blit` (1-bit sprites: OR, SET, XOR, CLEAR), `draw_text` in the firmware's 5 x 7
 face at any scale, `draw_text_width`. Everything clips to the frame; any int coordinates are safe.
-It is abacus-firmware's firmware/draw.{h,c} since apps.h v1.2: one copy for every game. It began
+It is stu32-firmware's firmware/draw.{h,c} since apps.h v1.2: one copy for every game. It began
 here as sdk/draw; soroban's gate made it 64-bit where the S3's 32-bit `long` lost far lines, and
 made lines exact for any ends. The framework's tests/draw_test.c checks it against a pixel-by-pixel
 reference on the host and the chip; `make sdkcheck` runs that test here on the copy at FIRMWARE_PIN.
