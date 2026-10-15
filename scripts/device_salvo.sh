@@ -15,7 +15,7 @@ rm -rf build/device-salvo && mkdir -p build/device-salvo
 python3 scripts/device_salvo.py pack build/device-salvo
 F="$(readlink -f "$FLASH")"
 C="$(readlink -f "$CONSOLE")"
-docker run --rm -v "$ROOT:/project" -w /project \
+timeout 1200 docker run --rm --name arcade-bench-salvo --memory 4g -v "$ROOT:/project" -w /project \
     --user "$(id -u):$(id -g)" --group-add "$(stat -c %g "$F")" --device "$F" $([ "$C" = "$F" ] || echo --device "$C") \
     -e HOME=/tmp -e F="$F" -e C="$C" "$IMAGE" bash -c '
 set -euo pipefail
