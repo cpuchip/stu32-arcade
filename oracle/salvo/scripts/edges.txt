@@ -1,0 +1,323 @@
+# edges: the rules at their edges by hand (docs/salvo.md, the oracle's item 3). Each case starts a fresh game,
+# puts the formation home (fy 20) and parks the dive counter (dive 1000) unless the case is about dives.
+
+# 1. a shot at the top line: y 30 moves to 18 (bottom 24, kept), then to 6 (bottom 12, gone)
+game 0 0
+set fy 20
+set dive 1000
+shot 50 30
+steps 2
+
+# 2. a third shot refused, then the cooldown at 0 and at 1 (the cooldown counts down before the fire test)
+game 0 0
+set fy 20
+set dive 1000
+shot 50 150
+shot 60 150
+down 8
+steps 1
+clear shots
+set cool 1
+steps 1
+clear shots
+set cool 2
+steps 2
+up 8
+
+# 3. the sway at both turns: 204 -> 208 kept, 208 -> 204 turned; 12 -> 8 kept, 8 -> 12 turned
+game 0 0
+set fy 20
+set dive 1000
+set fx 204
+set sway 3
+steps 4
+steps 4
+set fx 12
+set fdir -1
+set sway 7
+steps 4
+steps 4
+
+# 4. a dive's start with every column but one empty (alien 13, r1 c5, is the only one in its slot)
+game 0 0
+set fy 20
+set dive 1
+alien 0 X
+alien 1 X
+alien 2 X
+alien 3 X
+alien 4 X
+alien 5 X
+alien 6 X
+alien 7 X
+alien 8 X
+alien 9 X
+alien 10 X
+alien 11 X
+alien 12 X
+alien 14 X
+alien 15 X
+alien 16 X
+alien 17 X
+alien 18 X
+alien 19 X
+alien 20 X
+alien 21 X
+alien 22 X
+alien 23 X
+alien 24 X
+alien 25 X
+alien 26 X
+alien 27 X
+alien 28 X
+alien 29 X
+alien 30 X
+alien 31 X
+steps 1
+# the lowest alien of a column: slots 5 (r0) and 29 (r3) left in column 5 -> 29 dives
+game 0 0
+set fy 20
+set dive 1
+alien 0 X
+alien 1 X
+alien 2 X
+alien 3 X
+alien 4 X
+alien 6 X
+alien 7 X
+alien 8 X
+alien 9 X
+alien 10 X
+alien 11 X
+alien 12 X
+alien 13 X
+alien 14 X
+alien 15 X
+alien 16 X
+alien 17 X
+alien 18 X
+alien 19 X
+alien 20 X
+alien 21 X
+alien 22 X
+alien 23 X
+alien 24 X
+alien 25 X
+alien 26 X
+alien 27 X
+alien 28 X
+alien 30 X
+alien 31 X
+steps 1
+
+# 5. a dive's start with none in any slot: alien 0 diving, the rest dead, wave 1's limit 2 not reached.
+# Reading: the column is still drawn; the draw? after shows which draw comes next.
+game 0 0
+set fy 20
+set dive 1
+alien 0 D50,60,1,0,99
+alien 1 X
+alien 2 X
+alien 3 X
+alien 4 X
+alien 5 X
+alien 6 X
+alien 7 X
+alien 8 X
+alien 9 X
+alien 10 X
+alien 11 X
+alien 12 X
+alien 13 X
+alien 14 X
+alien 15 X
+alien 16 X
+alien 17 X
+alien 18 X
+alien 19 X
+alien 20 X
+alien 21 X
+alien 22 X
+alien 23 X
+alien 24 X
+alien 25 X
+alien 26 X
+alien 27 X
+alien 28 X
+alien 29 X
+alien 30 X
+alien 31 X
+steps 1
+draw?
+# and with the limit reached (two diving, wave 1): no draw
+game 0 0
+set fy 20
+set dive 1
+alien 0 D50,60,1,0,99
+alien 1 D90,60,1,0,99
+steps 1
+draw?
+
+# 6. vx rounding toward zero at sx 192: x 206 -> -13/12 = -1 (floor -2); x 180 -> 13/12 = 1;
+# x 228 -> -35/12 = -2 (floor -3); x 241 -> -48/12 = -4 clamped -3; k 1 keeps its vx 2 (not a 4th step)
+game 0 0
+set fy 20
+set dive 1000
+alien 24 D206,100,0,0,99
+alien 25 D180,100,0,0,99
+alien 26 D228,100,4,0,99
+alien 27 D241,100,8,0,99
+alien 28 D10,100,1,2,99
+steps 1
+
+# 7. a diver firing at y 179 and refused at 180 (fire_at 10, k 10: this step is its dive's step 10)
+game 0 0
+set fy 20
+set dive 1000
+alien 24 D20,174,10,0,10
+alien 25 D60,175,10,0,10
+steps 2
+# refused by six enemy shots already flying (they move after the diver)
+game 0 0
+set fy 20
+set dive 1000
+eshot 300 20
+eshot 300 30
+eshot 300 40
+eshot 300 50
+eshot 300 60
+eshot 300 70
+alien 24 D20,100,10,0,10
+steps 1
+
+# 8. a diver leaving at 239 (stays diving) and at 240 (returns to its slot's x, y -10)
+game 0 0
+set fy 20
+set dive 1000
+alien 24 D20,234,30,0,-1
+alien 25 D60,235,30,0,-1
+steps 2
+
+# 9. a return landing exactly on its slot (alien 0, slot y 20: 16 -> 20) and one landing past it (15 -> 19 -> 23 -> 20)
+game 0 0
+set fy 20
+set dive 1000
+alien 0 R0,16
+alien 1 R0,15
+steps 3
+
+# 10. a shot and an enemy shot on the same step as a lost ship: the shot kills first (scores), then the ship is
+# lost, every shot and enemy shot gone, the diver back in its slot
+game 0 0
+set fy 20
+set dive 1000
+shot 120 82
+eshot 199 220
+eshot 30 100
+alien 3 D300,150,5,0,-1
+steps 1
+steps 39
+steps 1
+steps 1
+
+# 11. the last alien shot while diving: doubled (drone 50 -> 100), then the wave's timer (30), the next wave
+game 0 0
+set fy 20
+set dive 1000
+alien 0 X
+alien 1 X
+alien 2 X
+alien 3 X
+alien 4 X
+alien 5 X
+alien 6 X
+alien 7 X
+alien 8 X
+alien 9 X
+alien 10 X
+alien 11 X
+alien 12 X
+alien 13 X
+alien 14 X
+alien 15 X
+alien 16 X
+alien 17 X
+alien 18 X
+alien 19 X
+alien 20 X
+alien 21 X
+alien 22 X
+alien 23 X
+alien 24 X
+alien 25 X
+alien 26 X
+alien 27 X
+alien 28 X
+alien 29 X
+alien 30 X
+alien 31 D100,150,5,0,-1
+shot 105 172
+eshot 10 100
+steps 1
+steps 30
+steps 20
+steps 2
+
+# 12. extra ships: 9950 + 50 reaches 10000 (lives 4, next 20000); at 5 lives no ship but next still moves
+game 0 0
+set fy 20
+set dive 1000
+set score 9950
+shot 280 82
+steps 1
+game 0 0
+set fy 20
+set dive 1000
+set score 19950
+set next 20000
+set lives 5
+shot 280 82
+steps 1
+
+# 13. a diver that rams the ship dies, scoring nothing; the last life lost ends the game 40 steps later
+game 0 0
+set fy 20
+set dive 1000
+set lives 1
+alien 30 D192,222,20,0,-1
+steps 1
+steps 40
+steps 5
+tick 100
+
+# 14. the keys: a tap shorter than a step moves once; both directions held do not move; a latch clears after a step
+game 0 0
+set fy 20
+set dive 1000
+tick 20
+down 4
+up 4
+tick 30
+tick 50
+down 4
+down 6
+steps 1
+up 4
+steps 1
+up 6
+down S1
+down S6
+up S6
+steps 2
+
+# 15. the ship's clamp at 0 and 385
+game 0 0
+set fy 20
+set dive 1000
+set sx 3
+down 4
+steps 2
+up 4
+set sx 382
+down 6
+steps 2

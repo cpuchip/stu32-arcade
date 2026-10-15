@@ -1,0 +1,38 @@
+# smoke: a game, ticks of 50/60/99/100/250 ms, held keys, a tap, both directions at once, the draws
+game 12345 0
+draw?
+draw?
+game 12345 0
+tick 50
+tick 60
+tick 99
+tick 100
+tick 250
+tick 40
+# hold fire through the entry and after
+down 8
+steps 30
+down 6
+steps 10
+# both directions at once: no move
+down 4
+steps 3
+up 6
+steps 8
+up 4
+up 8
+# a tap shorter than a step fires once
+tick 20
+down 9
+up 9
+tick 30
+steps 6
+down E
+down S6
+steps 120
+up S6
+down S1
+steps 150
+up S1
+down 6
+steps 100
