@@ -3,7 +3,7 @@ name = BABAL
 folder = GAMES
 app = babal_app
 sources = games/babal/core/*.c games/babal/app/babal_app.c games/babal/app/render.c
-include = babal app
+include = games/babal/core games/babal/app
 flags = -ffp-contract=off
 author = arcade (the games seat), porting Christian Mauduit's Babal
 # MIT (abacus decision 61: Michael, "one license to rule them all")

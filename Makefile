@@ -94,6 +94,7 @@ $(BUILD)/driver: $(ORACLE_SRC) oracle/oracle.h $(BUILD)/libbabal.a
 
 test: $(BUILD)/babal_test
 	$(BUILD)/babal_test
+	python3 sdk/gamelist/check_manifests.py
 
 # The reference: babalcore at the pinned commit, never edited (oracle/fetch-babal.sh).
 ref:
