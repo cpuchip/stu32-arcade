@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT */
-/* Babal under APPS (babal_app.h). The rules are babalcore's (babal/), unchanged; this file only
+/* Babal under APPS (babal_app.h). The rules are babalcore's (games/babal/core/), unchanged; this file only
  * feeds them the keys and the clock, keeps rows ahead of the ball, and draws. */
 #include <string.h>
 

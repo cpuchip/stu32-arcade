@@ -9,5 +9,5 @@ wasm_sha256 = 9bbcca48abfa9ccf1fef0805a98c0df0f40a042a74e1e06318199b0f9f8b8aa3
 author = arcade (the games seat), porting Christian Mauduit's Babal
 licence = MIT
 original = Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense)
-source = app/ and babal/ through sdk/wasm/guest.c, built by scripts/build_wasm_game.sh
+source = games/babal/app/ and games/babal/core/ through sdk/wasm/guest.c, built by scripts/build_wasm_game.sh
 toolchain = 34.0 clang -mcpu=mvp -O2; wamrc --target=xtensa --cpu=esp32s3, WAMR tree 6f18caa82011141aeb6136f4f482c5e61a9f9699, LLVM 344b928e67bfc1d07cb150609c55548e86a9bf19

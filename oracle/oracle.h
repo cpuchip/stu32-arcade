@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../babal/babal.h"
+#include "../games/babal/core/babal.h"
 
 typedef void (*out_sink)(const char *s, size_t n);
 void out_set_sink(out_sink sink); /* default: stdout */

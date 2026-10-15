@@ -17,9 +17,9 @@ make -s -C "$ROOT" build/firmware/.pin
 mkdir -p "$OUT"
 cd "$ROOT" # relative paths, so nothing of this checkout's location reaches the module
 "$WASI_SDK/bin/clang" --target=wasm32-wasip1 -mcpu=mvp -mexec-model=reactor -O2 -std=c11 -ffp-contract=off \
-    -Wall -Wextra -Werror -Wno-missing-field-initializers -DAPP_DEF=babal_app -Iapp -Ibabal -Ibuild/firmware/firmware \
-    -Wl,--allow-undefined -Wl,-z,stack-size=65536 -o "$OUT/babal.wasm" sdk/wasm/guest.c app/babal_app.c app/render.c \
-    build/firmware/firmware/font5x7.c babal/*.c -lm
+    -Wall -Wextra -Werror -Wno-missing-field-initializers -DAPP_DEF=babal_app -Igames/babal/app -Igames/babal/core -Ibuild/firmware/firmware \
+    -Wl,--allow-undefined -Wl,-z,stack-size=65536 -o "$OUT/babal.wasm" sdk/wasm/guest.c games/babal/app/babal_app.c games/babal/app/render.c \
+    build/firmware/firmware/font5x7.c games/babal/core/*.c -lm
 AOT_FLAGS="--target=xtensa --cpu=esp32s3"
 # shellcheck disable=SC2086
 "$WAMRC" $AOT_FLAGS -o "$OUT/babal.aot" "$OUT/babal.wasm" > /dev/null
@@ -47,7 +47,7 @@ wasm_sha256 = $WASM_SUM
 author = arcade (the games seat), porting Christian Mauduit's Babal
 licence = MIT
 original = Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense)
-source = app/ and babal/ through sdk/wasm/guest.c, built by scripts/build_wasm_game.sh
+source = games/babal/app/ and games/babal/core/ through sdk/wasm/guest.c, built by scripts/build_wasm_game.sh
 toolchain = $(cat "$WASI_SDK/VERSION" | head -1 | tr -d '\n') clang -mcpu=mvp -O2; wamrc $AOT_FLAGS, WAMR tree $WAMR_TREE_HASH, LLVM $LLVM_COMMIT
 EOF
 echo "wasm/babal: .wasm $WASM_SUM, .aot $AOT_SUM"

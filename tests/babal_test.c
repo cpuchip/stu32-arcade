@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../babal/babal.h"
+#include "../games/babal/core/babal.h"
 
 static int checks, failures;
 #define CHECK(cond)                                                          \

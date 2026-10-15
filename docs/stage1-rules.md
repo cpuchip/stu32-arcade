@@ -23,7 +23,7 @@ rows, slabs, events and score in both, with a planted divergence red first.
 
 ## The port
 
-`babal/`: one C file per babalcore module, the same names with a `bb_` prefix, f64 where Rust has
+`games/babal/core/`: one C file per babalcore module, the same names with a `bb_` prefix, f64 where Rust has
 f64 and f32 where it has f32, the same order of operations. Built with `-ffp-contract=off` and
 never `-ffast-math`, so that no multiply-add is fused. What is not a one-to-one translation:
 

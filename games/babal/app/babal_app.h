@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 /* Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense).
- * Babal under APPS (unit 037, apps.h v1): the rules of babal/ played from the STU-32's keys,
+ * Babal under APPS (unit 037, apps.h v1): the rules of games/babal/core/ played from the STU-32's keys,
  * drawn by render.c, a beep on bounces. Keys (proposed, with Michael through basecamp, d15):
  * 4 and 6 steer, 8 and ENTER jump, C ends (the framework's). */
 #ifndef BABAL_APP_H

@@ -97,14 +97,14 @@ plants_ok=1
 for p in "${PLANTS[@]}"; do
     IFS='|' read -r file expr what <<< "$p"
     P=$B/plant
-    rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
-    sed -i "$expr" "$P/babal/$file"
-    if cmp -s "$P/babal/$file" "$ROOT/babal/$file"; then
+    rm -rf "$P" && mkdir -p "$P/oracle" && mkdir -p "$P/games/babal" && cp -r "$ROOT/games/babal/core" "$P/games/babal/core" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
+    sed -i "$expr" "$P/games/babal/core/$file"
+    if cmp -s "$P/games/babal/core/$file" "$ROOT/games/babal/core/$file"; then
         echo "PLANT DID NOT APPLY: $what"; plants_ok=0; continue
     fi
     rm -f "$P/driver"
     # shellcheck disable=SC2086
-    if ! cc $CFLAGS "$P"/oracle/*.c "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then
+    if ! cc $CFLAGS "$P"/oracle/*.c "$P"/games/babal/core/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then
         echo "PLANT DID NOT BUILD: $what"; head -3 "$P/cc.err"; plants_ok=0; continue
     fi
     if suite "$P/driver" stop > "$P/result"; then
@@ -116,12 +116,12 @@ done
 
 # babalcore's own tests (make test) must see a plant too.
 P=$B/plant
-rm -rf "$P" && mkdir -p "$P/tests" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT/tests/babal_test.c" "$P/tests/"
-sed -i 's/buf\[8 + i\] = (uint8_t)(j >> (8 \* i));/buf[8 + i] = (uint8_t)((j + 1) >> (8 * i));/' "$P/babal/row_generator.c"
+rm -rf "$P" && mkdir -p "$P/tests" && mkdir -p "$P/games/babal" && cp -r "$ROOT/games/babal/core" "$P/games/babal/core" && cp "$ROOT/tests/babal_test.c" "$P/tests/"
+sed -i 's/buf\[8 + i\] = (uint8_t)(j >> (8 \* i));/buf[8 + i] = (uint8_t)((j + 1) >> (8 * i));/' "$P/games/babal/core/row_generator.c"
 # shellcheck disable=SC2086
-if cmp -s "$P/babal/row_generator.c" "$ROOT/babal/row_generator.c"; then
+if cmp -s "$P/games/babal/core/row_generator.c" "$ROOT/games/babal/core/row_generator.c"; then
     echo "PLANT DID NOT APPLY: tests, row seed off by one"; plants_ok=0
-elif ! cc $CFLAGS "$P/tests/babal_test.c" "$P"/babal/*.c -lm -o "$P/babal_test" 2> "$P/cc.err"; then
+elif ! cc $CFLAGS "$P/tests/babal_test.c" "$P"/games/babal/core/*.c -lm -o "$P/babal_test" 2> "$P/cc.err"; then
     echo "PLANT DID NOT BUILD: tests, row seed off by one"; plants_ok=0
 elif "$P/babal_test" > "$P/result"; then
     echo "SURVIVED: tests, row seed off by one"; plants_ok=0
@@ -131,8 +131,8 @@ fi
 
 # Not a gate: the same port with fused multiply-adds allowed, to show what the flag holds off.
 P=$B/plant
-rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
-if cc -O2 -std=c11 -D_DEFAULT_SOURCE -march=native -ffp-contract=fast "$P"/oracle/*.c "$P"/babal/*.c -lm -o "$P/driver" 2>/dev/null; then
+rm -rf "$P" && mkdir -p "$P/oracle" && mkdir -p "$P/games/babal" && cp -r "$ROOT/games/babal/core" "$P/games/babal/core" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
+if cc -O2 -std=c11 -D_DEFAULT_SOURCE -march=native -ffp-contract=fast "$P"/oracle/*.c "$P"/games/babal/core/*.c -lm -o "$P/driver" 2>/dev/null; then
     if suite "$P/driver" stop > "$P/result"; then echo "probe: -march=native -ffp-contract=fast stays identical"; else echo "probe: -march=native -ffp-contract=fast goes red ($(sed 's/^  red at //' "$P/result"))"; fi
 fi
 
@@ -172,11 +172,11 @@ for ctl in "150 $SGW|a level window below the deepest read (298)" "$SLW 64|a log
     if wsuite "$ROOT/build/driver" $sizes stop > "$B/result"; then echo "SURVIVED: $what"; plants_ok=0; else echo "red: $what ($(sed 's/^  red at //' "$B/result"))"; fi
 done
 P=$B/plant
-rm -rf "$P" && mkdir -p "$P/oracle" && cp -r "$ROOT/babal" "$P/babal" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
-sed -i 's/            set_present(pc, (size_t)j % pc->log_window, false);/            (void)0;/' "$P/babal/points_counter.c"
+rm -rf "$P" && mkdir -p "$P/oracle" && mkdir -p "$P/games/babal" && cp -r "$ROOT/games/babal/core" "$P/games/babal/core" && cp "$ROOT"/oracle/*.c "$ROOT"/oracle/*.h "$P/oracle/"
+sed -i 's/            set_present(pc, (size_t)j % pc->log_window, false);/            (void)0;/' "$P/games/babal/core/points_counter.c"
 # shellcheck disable=SC2086
-if cmp -s "$P/babal/points_counter.c" "$ROOT/babal/points_counter.c"; then echo "PLANT DID NOT APPLY: skipped rows' slots not cleared"; plants_ok=0
-elif ! cc $CFLAGS "$P"/oracle/*.c "$P"/babal/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then echo "PLANT DID NOT BUILD: skipped rows' slots not cleared"; plants_ok=0
+if cmp -s "$P/games/babal/core/points_counter.c" "$ROOT/games/babal/core/points_counter.c"; then echo "PLANT DID NOT APPLY: skipped rows' slots not cleared"; plants_ok=0
+elif ! cc $CFLAGS "$P"/oracle/*.c "$P"/games/babal/core/*.c -lm -o "$P/driver" 2> "$P/cc.err"; then echo "PLANT DID NOT BUILD: skipped rows' slots not cleared"; plants_ok=0
 elif wsuite "$P/driver" $SLW $SGW stop > "$P/result"; then echo "SURVIVED: skipped rows' slots not cleared (small windows)"; plants_ok=0
 else echo "red: skipped rows' slots not cleared, small windows ($(sed 's/^  red at //' "$P/result"))"; fi
 

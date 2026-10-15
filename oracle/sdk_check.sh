@@ -30,10 +30,10 @@ else echo "RED: the template's demo: $(tail -2 "$B/ball.out")"; ok=0; fi
 APP0=$ROOT/build/appcheck/scripts/app-0.txt
 [ -f "$APP0" ] || python3 "$ROOT/oracle/gen_appscripts.py" "$ROOT/build/appcheck/scripts" 8 > /dev/null
 # shellcheck disable=SC2086
-if cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off -DAPP_DEF=babal_app -I"$ROOT/app" -I"$ROOT/babal" -I"$FW" \
-        "$ROOT/sdk/runner/apprun.c" "$ROOT"/app/babal_app.c "$ROOT"/app/render.c "$FW/font5x7.c" "$ROOT"/babal/*.c -lm -o "$B/apprun-babal" \
-    && cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off -I"$ROOT/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW" \
-        "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$ROOT"/app/*.c "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" "$ROOT"/babal/*.c -lm -o "$B/apphost" \
+if cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off -DAPP_DEF=babal_app -I"$ROOT/games/babal/app" -I"$ROOT/games/babal/core" -I"$FW" \
+        "$ROOT/sdk/runner/apprun.c" "$ROOT"/games/babal/app/babal_app.c "$ROOT"/games/babal/app/render.c "$FW/font5x7.c" "$ROOT"/games/babal/core/*.c -lm -o "$B/apprun-babal" \
+    && cc -std=c11 -O2 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off -I"$ROOT/games/babal/app" -I"$ROOT/games/babal/core" -I"$ROOT/oracle" -I"$FW" \
+        "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$ROOT"/games/babal/app/*.c "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" "$ROOT"/games/babal/core/*.c -lm -o "$B/apphost" \
     && "$B/apprun-babal" "$APP0" -hashes "$B/run.hashes" > /dev/null && "$B/apphost" "$APP0" "$B/host" "$B/host.frames" > /dev/null 2>&1 \
     && cmp -s "$B/run.hashes" "$B/host.frames"; then echo "  runner: apprun and apphost agree on all $(wc -l < "$B/run.hashes") frames of Babal's app-0"
 else echo "RED: apprun and apphost disagree on Babal's app-0"; ok=0; fi

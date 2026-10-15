@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
-/* The wasm probe's guest (arcade, for abacus #5025): Babal's own app (app/babal_app.c, app/render.c,
- * babal/) played as app-far plays it (a noob game, 4 and 6 held in turn every 300 ms, a jump every
+/* The wasm probe's guest (arcade, for abacus #5025): Babal's own app (games/babal/app/babal_app.c, games/babal/app/render.c,
+ * games/babal/core/) played as app-far plays it (a noob game, 4 and 6 held in turn every 300 ms, a jump every
  * 700 ms, 20 ms ticks), plus two small loops. The same file builds native (the S3 bench, the host)
  * and as wasm32, so the frames' hash must agree everywhere. The framework's three calls are stubbed
  * here (no imports), app_seed as the framework's host choice. */

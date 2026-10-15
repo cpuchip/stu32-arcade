@@ -2,7 +2,7 @@ The upstream rules: babalcore
 
 Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense).
 
-babal/ is a C port of its rust/babalcore (https://gitlab.com/liberecofr/babal, commit
+games/babal/core/ is a C port of its rust/babalcore (https://gitlab.com/liberecofr/babal, commit
 fa985cd49111270edade2c7bebdab7ce204be6a8), whose LICENSE, reproduced below as it reads in that
 repository, dedicates it to the public domain. The port, and everything else in this
 repository, is under LICENSE (MIT).

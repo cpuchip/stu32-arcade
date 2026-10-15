@@ -4,10 +4,10 @@ set(WASM $ENV{WASM})
 set(ARCADE $ENV{ARCADE})
 set(B ${WASM}/bench/bench.c ${CMAKE_CURRENT_LIST_DIR}/main.c)
 if(BACKEND STREQUAL "native")
-    file(GLOB RULES ${ARCADE}/babal/*.c)
+    file(GLOB RULES ${ARCADE}/games/babal/core/*.c)
     idf_component_register(SRCS ${B} ${WASM}/guest/drive.c ${ARCADE}/app/babal_app.c ${ARCADE}/app/render.c
                                 ${ARCADE}/build/firmware/firmware/font5x7.c ${RULES}
-                           INCLUDE_DIRS ${ARCADE}/app ${ARCADE}/babal ${ARCADE}/build/firmware/firmware
+                           INCLUDE_DIRS ${ARCADE}/app ${ARCADE}/games/babal/core ${ARCADE}/build/firmware/firmware
                            PRIV_REQUIRES esp_timer esp_psram pthread freertos)
     target_compile_options(${COMPONENT_LIB} PRIVATE -DB_NATIVE -ffp-contract=off -Wno-missing-field-initializers)
 elseif(BACKEND STREQUAL "wasm3" OR BACKEND STREQUAL "wasm3flash")

@@ -22,7 +22,7 @@ name the runtimes' headers. A game built with wasi-libc carries wasi-libc's and 
 
 ## The game file
 
-probes/wasm/drive.c around Babal's app (app/babal_app.c, app/render.c, babal/): a noob game played as
+probes/wasm/drive.c around Babal's app (games/babal/app/babal_app.c, games/babal/app/render.c, games/babal/core/): a noob game played as
 app-far plays it (4 and 6 in turn every 300 ms, a jump every 700 ms, 20 ms ticks), 3,000 ticks, each
 followed by a draw, the frames hashed (FNV-1a 64, chained), plus a 1M-step integer loop and a 1M-step
 f64 loop. Built with wasi-sdk 34's clang as a reactor with no imports: 143,832 bytes, 4 pages

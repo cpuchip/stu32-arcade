@@ -68,7 +68,7 @@ can spread generation over ticks without changing a row. To be measured before i
 
 ## The picture (first cut)
 
-`app/render.c`: the flat track in perspective, as the 1995 original drew it (its screenshot upstream):
+`games/babal/app/render.c`: the flat track in perspective, as the 1995 original drew it (its screenshot upstream):
 floor dark, boost slabs a 50% checker, overdrive 75%, void light, row seams dotted near the
 camera; the ball a dithered disc at the centre column, lifted by its jump; the score, the best
 and a time bar in the firmware's 5 x 7 face (FIRMWARE_PIN, exported read-only). The columns wrap
@@ -79,7 +79,7 @@ tick (the frame oracle for the S3) and write chosen frames as PBM.
 
 ## The app (first cut)
 
-`app/babal_app.c` on apps.h v1 (FIRMWARE_PIN): a title (4 and 6 or a soft key choose the skill,
+`games/babal/app/babal_app.c` on apps.h v1 (FIRMWARE_PIN): a title (4 and 6 or a soft key choose the skill,
 the best shown, ENTER or 8 plays), the game, a finish screen (FINISH or NEW BEST). Keys go to
 babalcore's own InputSteer (4 left as id 1, 6 right as id 2) and InputJump (8 and ENTER on the
 press) at their own ms; a tick's step is clamped to 100 ms (quirks 7 and 8); rows are made a
@@ -201,7 +201,7 @@ bytes once the whole level and log were in the ctx. Every host gate passed (8 MB
 not flag a frame that fits); on the S3 the app's load runs on the framework's task stack, so a
 board holding a format-1 save would have overflowed it. Found by reading, while answering abacus's
 ASan question (#4713), after it was merged (stu32-firmware 1c4be81); fixed at 7ca157e (the list
-built in place) and re-pinned. The guard: babal/ and app/ build here with
+built in place) and re-pinned. The guard: games/babal/core/ and games/babal/app/ build here with
 -Wframe-larger-than=1024 under -Werror (the old frame fails it, a planted 4 KB array fails it).
 
 ## On apps.h v1.2 (stu32-firmware 05906f0), on the S3 (window 2026-10-08, soroban's go #4899)

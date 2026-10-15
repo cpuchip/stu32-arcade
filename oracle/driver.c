@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT */
-/* The C side of the oracle: prints what oracle/ref (babalcore) prints, from babal/.
+/* The C side of the oracle: prints what oracle/ref (babalcore) prints, from games/babal/core/.
  * Usage: driver pins | level SEED SKILL N | game SCRIPT | points SEED | inputs SEED */
 #include <inttypes.h>
 #include <math.h>
@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../babal/babal.h"
-#include "../babal/internal.h"
+#include "../games/babal/core/babal.h"
+#include "../games/babal/core/internal.h"
 #include "oracle.h"
 
 static uint64_t sm_state;

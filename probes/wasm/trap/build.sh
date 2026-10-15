@@ -16,7 +16,7 @@ make -s -C "$ROOT" build/firmware/.pin
 mkdir -p "$OUT"
 cd "$ROOT" # relative paths, so nothing of this checkout's location reaches the module
 "$WASI_SDK/bin/clang" --target=wasm32-wasip1 -mcpu=mvp -mexec-model=reactor -O2 -std=c11 -Wall -Wextra -Werror \
-    -Wno-missing-field-initializers -DAPP_DEF=trap_app -Iapp -Ibuild/firmware/firmware -Wl,--allow-undefined \
+    -Wno-missing-field-initializers -DAPP_DEF=trap_app -Igames/babal/app -Ibuild/firmware/firmware -Wl,--allow-undefined \
     -Wl,-z,stack-size=65536 -o "$OUT/trap.wasm" sdk/wasm/guest.c probes/wasm/trap/trap_app.c
 AOT_FLAGS="--target=xtensa --cpu=esp32s3"
 # shellcheck disable=SC2086

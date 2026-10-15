@@ -21,9 +21,9 @@ ok=1
 
 # the game, built once: guest shim + Babal -> .wasm -> x86-64 .aot -> C array
 "$WASI_SDK/bin/clang" --target=wasm32-wasip1 -mcpu=mvp -mexec-model=reactor -O2 -std=c11 -ffp-contract=off \
-    -Wall -Wextra -Werror -Wno-missing-field-initializers -DAPP_DEF=babal_app -I"$ROOT/app" -I"$ROOT/babal" \
+    -Wall -Wextra -Werror -Wno-missing-field-initializers -DAPP_DEF=babal_app -I"$ROOT/games/babal/app" -I"$ROOT/games/babal/core" \
     -I"$FW" -Wl,--allow-undefined -Wl,-z,stack-size=65536 -o "$B/babal.wasm" "$ROOT/sdk/wasm/guest.c" \
-    "$ROOT/app/babal_app.c" "$ROOT/app/render.c" "$FW/font5x7.c" "$ROOT"/babal/*.c -lm || exit 1
+    "$ROOT/games/babal/app/babal_app.c" "$ROOT/games/babal/app/render.c" "$FW/font5x7.c" "$ROOT"/games/babal/core/*.c -lm || exit 1
 "$WAMRC" --target=x86_64 -o "$B/babal-x86.aot" "$B/babal.wasm" > "$B/wamrc.log" 2>&1 || { cat "$B/wamrc.log"; exit 1; }
 python3 - "$B/babal-x86.aot" "$B/babal_wasm_app.c" <<'PY'
 import sys
@@ -53,8 +53,8 @@ CM
 cmake -S "$B/vmsrc" -B "$B/vm" -DWAMR_ROOT="$WAMR_TREE" -DCMAKE_BUILD_TYPE=Release > "$B/vm.log" 2>&1 \
     && cmake --build "$B/vm" -j 8 >> "$B/vm.log" 2>&1 || { tail -5 "$B/vm.log"; exit 1; }
 
-cc $CFLAGS -DAPP_DEF=babal_app -I"$ROOT/app" -I"$ROOT/babal" -I"$FW" -o "$B/native" "$ROOT/sdk/runner/apprun.c" \
-    "$ROOT/app/babal_app.c" "$ROOT/app/render.c" "$FW/font5x7.c" "$ROOT"/babal/*.c -lm || exit 1
+cc $CFLAGS -DAPP_DEF=babal_app -I"$ROOT/games/babal/app" -I"$ROOT/games/babal/core" -I"$FW" -o "$B/native" "$ROOT/sdk/runner/apprun.c" \
+    "$ROOT/games/babal/app/babal_app.c" "$ROOT/games/babal/app/render.c" "$FW/font5x7.c" "$ROOT"/games/babal/core/*.c -lm || exit 1
 wasm_runner() { # wasm_runner BRIDGE_C OUT
     cc $CFLAGS -DAPP_DEF=babal_wasm_app -I"$ROOT/sdk/wasm" -I"$FW" -I"$WAMR_TREE/core/iwasm/include" -o "$2" \
         "$ROOT/sdk/runner/apprun.c" "$1" "$B/babal_wasm_app.c" "$B/vm/libvmlib.a" -lm -lpthread

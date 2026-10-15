@@ -8,8 +8,8 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 B=$ROOT/build/drift
 CFLAGS="-O2 -std=c11 -Wall -Wextra -Wpedantic -Werror -ffp-contract=off"
 FW=$ROOT/build/firmware/firmware
-SRC=("$ROOT/tools/drift.c" "$ROOT"/app/*.c "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" "$ROOT"/babal/*.c)
-INC=(-I"$ROOT/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW")
+SRC=("$ROOT/tools/drift.c" "$ROOT"/games/babal/app/*.c "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" "$ROOT"/games/babal/core/*.c)
+INC=(-I"$ROOT/games/babal/app" -I"$ROOT/games/babal/core" -I"$ROOT/oracle" -I"$FW")
 rm -rf "$B" && mkdir -p "$B"
 # shellcheck disable=SC2086
 cc $CFLAGS "${INC[@]}" "${SRC[@]}" -lm -o "$B/drift" || exit 1

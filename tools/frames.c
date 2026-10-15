@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: MIT */
-/* Frames tied to the model: plays an oracle game script, draws each tick with app/render.c, and
+/* Frames tied to the model: plays an oracle game script, draws each tick with games/babal/app/render.c, and
  * prints one line per tick, its number and the frame's FNV-1a 64 hash (the S3 must give the same).
  * With TICK... arguments it also writes those frames as PBM files (frame-TICK.pbm).
  * Usage: frames SCRIPT [TICK...] */

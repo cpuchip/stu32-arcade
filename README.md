@@ -14,7 +14,7 @@ also builds as a WebAssembly module that the firmware can run through WAMR.
 | SNAKE | the snake on a 40 × 22 grid, faster as it grows | docs/snake.md |
 | MINES | clear a minefield (9 × 9, 16 × 16 or 30 × 16); every board can be cleared without a guess, or play classic rules | docs/mines.md |
 
-Babal's rules (rust/babalcore) are ported module by module to C in `babal/`; the renderer and the app are in `app/`.
+Babal's rules (rust/babalcore) are ported module by module to C in `games/babal/core/`; the renderer and the app are in `games/babal/app/`.
 Babal's music and fonts are not included and were never ported. The other games are in `games/<name>/`, each as a
 logic file with no drawing or framework calls and an app file with the screens, keys and sound.
 
@@ -64,7 +64,7 @@ docs/how-this-was-built.md names them and explains the message and decision numb
 
 MIT (LICENSE), for everything here except:
 
-- `babal/` is a port of rust/babalcore, which its author dedicated to the public domain under the Unlicense;
+- `games/babal/core/` is a port of rust/babalcore, which its author dedicated to the public domain under the Unlicense;
   LICENSE-babalcore keeps that notice.
 - The patches to WAMR in `probes/wasm/` are modifications of WAMR and are under its licence, Apache-2.0 WITH
   LLVM-exception (probes/wasm/NOTICE).

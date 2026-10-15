@@ -62,9 +62,9 @@ else echo "  RED: no game passes row 110 (furthest ${far:-none}): rows made ahea
 # The same harness under ASan and UBSan (no recovery): undefined behaviour fails the gate.
 echo "== under ASan and UBSan"
 # shellcheck disable=SC2086
-if cc $CFLAGS -fsanitize=address,undefined,float-cast-overflow -fno-sanitize-recover=undefined,float-cast-overflow -I"$ROOT/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW" \
-    "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$ROOT"/app/*.c "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" \
-    "$ROOT"/babal/*.c -lm -o "$B/apphost-san" 2> "$B/san-cc.err"; then
+if cc $CFLAGS -fsanitize=address,undefined,float-cast-overflow -fno-sanitize-recover=undefined,float-cast-overflow -I"$ROOT/games/babal/app" -I"$ROOT/games/babal/core" -I"$ROOT/oracle" -I"$FW" \
+    "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$ROOT"/games/babal/app/*.c "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" \
+    "$ROOT"/games/babal/core/*.c -lm -o "$B/apphost-san" 2> "$B/san-cc.err"; then
     for s in "$B"/scripts/*.txt; do
         if ! timeout 300 "$B/apphost-san" "$s" "$B/san" "$B/san.frames" > /dev/null 2> "$B/san.err"; then
             echo "  SANITIZER: $(basename "$s"): $(grep -m1 -E 'runtime error|ERROR' "$B/san.err" || tail -1 "$B/san.err")"; ok=0
@@ -110,12 +110,12 @@ echo "== plants in the app (each must go red)"
 for p in "${PLANTS[@]}"; do
     IFS='|' read -r file expr what <<< "$p"
     P=$B/plant
-    rm -rf "$P" && mkdir -p "$P" && cp -r "$ROOT/app" "$P/app"
+    rm -rf "$P" && mkdir -p "$P" && cp -r "$ROOT/games/babal/app" "$P/app"
     sed -i "$expr" "$P/app/$file"
-    if cmp -s "$P/app/$file" "$ROOT/app/$file"; then echo "PLANT DID NOT APPLY: $what"; ok=0; continue; fi
+    if cmp -s "$P/app/$file" "$ROOT/games/babal/app/$file"; then echo "PLANT DID NOT APPLY: $what"; ok=0; continue; fi
     # shellcheck disable=SC2086
-    if ! cc $CFLAGS -I"$P/app" -I"$ROOT/babal" -I"$ROOT/oracle" -I"$FW" "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$P"/app/*.c \
-        "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" "$ROOT"/babal/*.c -lm -o "$P/apphost" 2> "$P/cc.err"; then
+    if ! cc $CFLAGS -I"$P/app" -I"$ROOT/games/babal/core" -I"$ROOT/oracle" -I"$FW" "$ROOT/tools/apphost.c" "$ROOT/tools/render_ref.c" "$P"/app/*.c \
+        "$FW/font5x7.c" "$ROOT/oracle/out.c" "$ROOT/oracle/game.c" "$ROOT"/games/babal/core/*.c -lm -o "$P/apphost" 2> "$P/cc.err"; then
         echo "PLANT DID NOT BUILD: $what"; head -3 "$P/cc.err"; ok=0; continue
     fi
     if check "$P/apphost" "$P/run" stop > "$P/result"; then echo "SURVIVED: $what"; ok=0; else echo "red: $what ($(sed 's/^  //' "$P/result"))"; fi
