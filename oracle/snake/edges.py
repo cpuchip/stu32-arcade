@@ -2,7 +2,8 @@
 must give written here by hand from the blueprint, not computed.
 
   edges.py script     the cases as one trace script
-  edges.py expect     the lines they must give: each key's verdict, 'end ...' or 'flying', 'head ...', 'interval ...'
+  edges.py expect     the lines they must give: each key's and turn's verdict, 'end ...' or 'flying', 'head ...',
+                      'interval ...'
 """
 import sys
 
@@ -39,6 +40,15 @@ CASES = [
      ['key 8 taken', 'key 4 taken', 'key 2 dropped', 'head 10,9 dir=0 len=3', 'head 9,9 dir=3 len=3']),
     ('a turn judged against the last queued one, not the current direction',
      [f'case 1 {FAR} ' + body((8, 10), (9, 10), (10, 10)), 'key 8', 'key 2'], ['key 8 taken', 'key 2 dropped']),
+    ('TURN: a left from heading right goes up',
+     [f'case 1 {FAR} ' + body((8, 10), (9, 10), (10, 10)), 'turn L', 'step 1', 'head?'],
+     ['turn L taken', 'head 10,9 dir=0 len=3']),
+    ('TURN: two quick lefts, a U-turn over two steps',
+     [f'case 1 {FAR} ' + body((8, 10), (9, 10), (10, 10)), 'turn L', 'turn L', 'step 1', 'head?', 'step 1', 'head?'],
+     ['turn L taken', 'turn L taken', 'head 10,9 dir=0 len=3', 'head 9,9 dir=3 len=3']),
+    ('TURN: a right from heading up goes right; a third turn dropped',
+     [f'case 0 {FAR} ' + body((10, 12), (10, 11), (10, 10)), 'turn R', 'turn R', 'turn R', 'step 1', 'head?'],
+     ['turn R taken', 'turn R taken', 'turn R dropped', 'head 11,10 dir=1 len=3']),
     ('food ahead: one longer, the tail stays',
      ['case 1 11,10 ' + body((8, 10), (9, 10), (10, 10)), 'step 1', 'end?', 'head?'],
      ['flying', 'head 11,10 dir=1 len=4']),

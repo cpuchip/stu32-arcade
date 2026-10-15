@@ -11,7 +11,8 @@
 enum { TITLE, PLAY, OVER };
 #define SAVE_MAGIC 'S'
 #define SAVE_VERSION 1
-#define SAVE_BYTES 16    /* magic, version, best (4), games (4), 6 zeros */
+#define SAVE_BYTES 16    /* magic, version, best (4), games (4), the mode, 5 zeros */
+enum { TURN, ABSOLUTE }; /* the mode: TURN, the default, or 8 2 4 6 */
 #define TICK_MAX_MS 100  /* a long tick is taken as this, so nothing jumps (and gives at most 2 steps) */
 #define AGAIN_MS 500     /* GAME OVER takes ENTER after this */
 #define HUD_H 20
@@ -21,6 +22,7 @@ typedef struct {
     int state;
     uint64_t seed;
     uint32_t best, games; /* kept */
+    uint8_t mode;         /* kept */
     uint32_t now, started, end_at, acc;
     snake_game g;
 } snake_ctx;
@@ -39,10 +41,12 @@ static void app_load_cb(void *ctx, const uint8_t *save, uint32_t n)
 {
     snake_ctx *c = ctx;
     /* taken whole or not at all */
-    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || get32(save + 2) > SNAKE_CELLS - 4)
+    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || get32(save + 2) > SNAKE_CELLS - 4
+        || save[10] > ABSOLUTE)
         return;
     c->best = get32(save + 2);
     c->games = get32(save + 6);
+    c->mode = save[10];
 }
 
 static void app_save_cb(void *ctx, uint8_t *save, uint32_t cap)
@@ -55,6 +59,7 @@ static void app_save_cb(void *ctx, uint8_t *save, uint32_t cap)
     save[1] = SAVE_VERSION;
     put32(save + 2, c->best);
     put32(save + 6, c->games);
+    save[10] = c->mode;
 }
 
 static void app_start_cb(void *ctx)
@@ -84,11 +89,22 @@ static bool app_key_cb(void *ctx, int key, bool down, uint32_t ms)
     if (!down)
         return false;
     if (c->state == PLAY) {
+        if (c->mode == TURN) {
+            if (key == APP_KEY_4 || key == APP_KEY_SOFT1)
+                snake_turn(&c->g, false);
+            else if (key == APP_KEY_6 || key == APP_KEY_SOFT6)
+                snake_turn(&c->g, true);
+            return false; /* the picture changes on the step */
+        }
         int dir = key == APP_KEY_8 ? SNAKE_UP : key == APP_KEY_6 ? SNAKE_RIGHT : key == APP_KEY_2 ? SNAKE_DOWN
                 : key == APP_KEY_4 ? SNAKE_LEFT : -1;
         if (dir >= 0)
             snake_offer(&c->g, dir);
-        return false; /* the picture changes on the step */
+        return false;
+    }
+    if (c->state == TITLE && (key == APP_KEY_4 || key == APP_KEY_6)) {
+        c->mode = c->mode == TURN ? ABSOLUTE : TURN;
+        return true;
     }
     if (key == APP_KEY_ENTER && (c->state == TITLE || ms - c->end_at >= AGAIN_MS)) {
         new_game(c, ms);
@@ -194,12 +210,15 @@ static void app_draw_cb(void *ctx, ls027_frame *f)
     draw_clear(f);
     if (c->state == TITLE) {
         centred(f, 40, 5, "SNAKE");
-        centred(f, 110, 2, "8 2 4 6 TURN");
-        centred(f, 136, 1, "EAT, GROW, AND KEEP OFF THE WALLS AND YOURSELF");
-        centred(f, 168, 2, "ENTER PLAYS");
+        centred(f, 96, 2, c->mode == TURN ? "< TURN >" : "< 8 2 4 6 >");
+        centred(f, 120, 1, c->mode == TURN ? "4 OR SOFT 1 TURNS LEFT, 6 OR SOFT 6 RIGHT"
+                                           : "8 2 4 6 GO UP, DOWN, LEFT, RIGHT");
+        centred(f, 134, 1, "4 OR 6 HERE CHANGES THE KEYS");
+        centred(f, 156, 1, "EAT, GROW, AND KEEP OFF THE WALLS AND YOURSELF");
+        centred(f, 176, 2, "ENTER PLAYS");
         if (c->best > 0) {
             label(t, "BEST ", c->best);
-            centred(f, 200, 2, t);
+            centred(f, 204, 2, t);
         }
         return;
     }

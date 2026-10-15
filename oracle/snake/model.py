@@ -6,6 +6,7 @@ Script lines:
   case DIR FX,FY X,Y ... a hand-made state: the direction (0 up, 1 right, 2 down, 3 left), the food, then the body
                         from the tail to the head; the food state then draws as game 0 of seed 0
   key K                 a direction key's down (8 up, 6 right, 2 down, 4 left)
+  turn L|R              TURN mode: a quarter turn left or right of the last queued direction
   step N                N steps (they stop at the end)
   interval E            the step interval after E foods
   end?                  'flying' when the game has not ended
@@ -67,6 +68,11 @@ class Snake:
             return True
         return False
 
+    def turn(self, right):
+        """TURN mode: a quarter turn left or right of the last queued direction (or the current one), offered"""
+        last = self.queue[-1] if self.queue else self.dir
+        return self.offer((last + (1 if right else 3)) % 4)
+
     def step(self):
         if self.end:
             return self.end
@@ -125,6 +131,9 @@ def run(lines):
         elif w[0] == 'key':
             taken = s.offer(KEYS[w[1]])
             out.append(f"key {w[1]} {'taken' if taken else 'dropped'} queue={''.join(str(d) for d in s.queue) or '-'}")
+        elif w[0] == 'turn':
+            taken = s.turn(w[1] == 'R')
+            out.append(f"turn {w[1]} {'taken' if taken else 'dropped'} queue={''.join(str(d) for d in s.queue) or '-'}")
         elif w[0] == 'step':
             for _ in range(int(w[1])):
                 if s.end:

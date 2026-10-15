@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /* Snake's logic on the host, printing what the oracle prints (oracle/snake/model.py run):
- *   snake_trace SCRIPT    lines 'game SEED N', 'case DIR FX,FY X,Y ...', 'key 8|6|2|4', 'step N', 'interval E',
- *                         'end?' (flying when the game has not ended), 'head?'
+ *   snake_trace SCRIPT    lines 'game SEED N', 'case DIR FX,FY X,Y ...', 'key 8|6|2|4', 'turn L|R', 'step N',
+ *                         'interval E', 'end?' (flying when the game has not ended), 'head?'
  */
 #include <inttypes.h>
 #include <stdio.h>
@@ -72,6 +72,12 @@ int main(int argc, char **argv)
             char q[SNAKE_QUEUE + 2];
             queue_str(&g, q);
             printf("key %s %s queue=%s\n", k, taken ? "taken" : "dropped", q);
+        } else if (!strcmp(w, "turn")) {
+            char *k = strtok(NULL, " \n");
+            bool taken = snake_turn(&g, k[0] == 'R');
+            char q[SNAKE_QUEUE + 2];
+            queue_str(&g, q);
+            printf("turn %s %s queue=%s\n", k, taken ? "taken" : "dropped", q);
         } else if (!strcmp(w, "step")) {
             int n = atoi(strtok(NULL, " \n"));
             for (int i = 0; i < n && !g.end; i++) {

@@ -45,7 +45,7 @@ for s in $SEEDS; do
 done
 (cd "$O" && python3 edges.py script) > "$B/edges.txt"
 (cd "$O" && python3 edges.py expect) > "$B/edges.expect"
-filt() { grep -E '^(key |end |flying|head |interval )' | sed -E 's/^(key [0-9] [a-z]+) queue=.*/\1/'; }
+filt() { grep -E '^(key |turn |end |flying|head |interval )' | sed -E 's/^((key [0-9]|turn [LR]) [a-z]+) queue=.*/\1/'; }
 
 check1() { "$1" "$B/fuzz.txt" | cmp -s - "$B/fuzz.py.txt"; }
 check2() {
@@ -75,12 +75,13 @@ for s in play refuse; do
 done
 (cd "$O" && python3 appscript.py full) > "$B/app-full.txt"
 (cd "$O" && python3 appscript.py midsave) > "$B/app-midsave.txt"
-# four damaged saves: the wrong magic, the wrong version, 10 bytes, a best of 878 (more than a game can score)
+# five damaged saves: the wrong magic, the wrong version, 10 bytes, a best of 878 (more than a game can score), a mode of 2
 good=$(cat "$O/scripts/app-refuse.load.hex")
 printf '%s' "58${good:2}" | xxd -r -p > "$B/bad-magic.load"
 printf '%s' "${good:0:2}02${good:4}" | xxd -r -p > "$B/bad-version.load"
 printf '%s' "${good:0:20}" | xxd -r -p > "$B/bad-short.load"
 printf '%s' "${good:0:4}6e030000${good:12}" | xxd -r -p > "$B/bad-best.load"
+printf '%s' "${good:0:20}02${good:22}" | xxd -r -p > "$B/bad-mode.load"
 xxd -r -p "$O/scripts/app-refuse.load.hex" > "$B/refuse.load"
 script_of() { case "$1" in full | midsave*) echo "$B/app-${1%%-*}.txt" ;; *) echo "$O/scripts/app-$1.txt" ;; esac; }
 app_run() { # app_run RUNNER NAME SUFFIX -> $B/NAME.SUFFIX.{hashes,save,out}
@@ -111,7 +112,7 @@ expect() { # expect NAME: the script's last line, '# expect save HEX tunes N ton
     cmp -s "$B/$1.app.hashes" "$O/frames/$1.hashes" || { red "4 app $1: frame hashes differ from oracle/snake/frames"; return; }
     echo "  4 app $1: $(wc -l < "$B/$1.app.hashes") frames as committed; $tunes tunes, $tones tones; save as expected"
 }
-for s in play refuse full midsave midsave-magic midsave-version midsave-short midsave-best; do
+for s in play refuse full midsave midsave-magic midsave-version midsave-short midsave-best midsave-mode; do
     app_run "$B/app" "$s" app || red "4 app $s: the runner failed ($(tail -1 "$B/$s.app.out"))"
     expect "$s"
 done
@@ -207,8 +208,20 @@ app_plant() { # app_plant NAME PERL RUN WHAT: a plant in snake_app.c, judged by 
 app_plant nocap 's/c->acc \+= dt > TICK_MAX_MS \? TICK_MAX_MS : dt;/c->acc += dt;/' refuse "no 100 ms cap"
 app_plant tuneswap 's/if \(e == SNAKE_DEAD\)\n                app_tune\(fall, 5\);\n            else\n                app_tune\(rise, 4\);/if (e == SNAKE_DEAD)\n                app_tune(rise, 4);\n            else\n                app_tune(fall, 5);/' refuse "the win's tune at death"
 app_plant nomagic 's/save\[0\] != SAVE_MAGIC \|\| //' midsave-magic "a save with the wrong magic taken"
-app_plant enterplay 's/    if \(c->state == PLAY\) \{\n        int dir/    if (c->state == PLAY \&\& key == APP_KEY_ENTER) {\n        new_game(c, ms);\n        return true;\n    }\n    if (c->state == PLAY) {\n        int dir/' play "ENTER restarting a game in play"
+app_plant enterplay 's/    if \(c->state == PLAY\) \{\n        if \(c->mode == TURN\)/    if (c->state == PLAY \&\& key == APP_KEY_ENTER) {\n        new_game(c, ms);\n        return true;\n    }\n    if (c->state == PLAY) {\n        if (c->mode == TURN)/' play "ENTER restarting a game in play"
 app_plant bestlate 's/            if \(c->g.eaten > c->best\)\n                c->best = c->g.eaten;\n//' midsave "the best not kept at each food"
+if plant turnswap snake_logic.c 's/\(right \? 1 : 3\)/(right ? 3 : 1)/' && build_trace "$STRICT -O2" "$B/plant-turnswap" "$B/p9"; then
+    check3 "$B/p9" && red "5 plant: TURN's left and right swapped passes check 3" || echo "  5 plant: TURN's left and right swapped: check 3 red"
+fi
+if plant turnbase snake_logic.c 's/int last = g->queued \? g->queue\[g->queued - 1\] : g->dir;\n    return snake_offer\(g, \(last/int last = g->dir;\n    return snake_offer(g, (last/' \
+    && build_trace "$STRICT -O2" "$B/plant-turnbase" "$B/p10"; then
+    check3 "$B/p10" && red "5 plant: a turn from the heading, not the last queued, passes check 3" || echo "  5 plant: a turn from the heading, not the last queued: check 3 red"
+fi
+app_plant modeabs 's/enum \{ TURN, ABSOLUTE \};/enum { ABSOLUTE, TURN };/' play "8 2 4 6 the default"
+app_plant modeload 's/\n        \|\| save\[10\] > ABSOLUTE\)/)/' midsave-mode "a save with a mode of 2 taken"
+app_plant modesave 's/    save\[10\] = c->mode;\n//' full "the mode not saved"
+app_plant nosoft 's/if \(key == APP_KEY_4 \|\| key == APP_KEY_SOFT1\)/if (key == APP_KEY_4)/' play "SOFT1 not turning"
+app_plant noswitch 's/if \(c->state == TITLE && \(key == APP_KEY_4 \|\| key == APP_KEY_6\)\) \{/if (c->state == TITLE \&\& key == 99) {/' full "the title not changing the mode"
 if plant nofood snake_app.c 's/if \(g->food >= 0\) \{/if (g->food >= 0 \&\& 0) {/' && build_app x "$B/plant-nofood" "$B/p7"; then
     app_run "$B/p7" play p7
     cmp -s "$B/play.p7.hashes" "$O/frames/play.hashes" && red "5 plant: food not drawn passes check 4" || echo "  5 plant: the food not drawn: check 4 red"

@@ -31,6 +31,7 @@ void snake_init(snake_game *g, uint64_t seed, uint32_t game);
 /* a hand-made state for the edge cases: the body from the tail to the head, the food as given */
 void snake_set(snake_game *g, const uint16_t *body, int n, int dir, int food);
 bool snake_offer(snake_game *g, int dir); /* a direction key's down: true when the queue took it */
+bool snake_turn(snake_game *g, bool right); /* TURN mode: a quarter turn of the last queued direction, offered */
 enum snake_end snake_step(snake_game *g);
 uint32_t snake_interval(uint32_t eaten);  /* ms between steps */
 uint16_t snake_head(const snake_game *g);

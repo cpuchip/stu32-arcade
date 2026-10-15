@@ -84,6 +84,12 @@ bool snake_offer(snake_game *g, int dir)
     return true;
 }
 
+bool snake_turn(snake_game *g, bool right)
+{
+    int last = g->queued ? g->queue[g->queued - 1] : g->dir;
+    return snake_offer(g, (last + (right ? 1 : 3)) % 4);
+}
+
 uint32_t snake_interval(uint32_t eaten)
 {
     return eaten >= 18 ? 60 : 150 - 5 * eaten;
