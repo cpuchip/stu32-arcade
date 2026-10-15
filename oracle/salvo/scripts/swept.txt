@@ -1,0 +1,35 @@
+# swept: a shot that moved this step is tested over its path, the box (x, y, 1, 18) from its new top to its old
+# bottom; a shot that appeared this step is its own 1 x 6 (docs/salvo.md, the hits, 1).
+
+# 1. head-on with a diver. Step 1: shot 127 -> 115, diver 100 -> 105 (y 105-115): the box 115-133 just misses.
+# Step 2: shot 115 -> 103 (its own 103-109), diver -> 110 (110-120): the 1 x 6 shots never overlapped, so the old
+# rule let it pass through; the swept box 103-121 meets the diver and it dies (drone 50, doubled: 100).
+game 1 0
+set fy 20
+set dive 99
+set sway 1
+alien 26 D100,100,1,0,-1
+shot 105 127
+steps 3
+
+# 2. head-on with a returning alien (alien 24, slot (108, 68)): shot 50 -> 38 (38-44), alien 40 -> 44 (44-54).
+# Before, the shot (50-56) was under the alien (40-50); after, it is over it: the swept box 38-56 hits.
+# A returning alien scores its plain 50. Alien 16 (slot y 52-62) is cleared, since the shot is put inside it;
+# the box also covers alien 8 in its slot (y 36-46), and the one lowest on the screen dies: alien 24 (y 44),
+# the one the shot meets first (slot order alone would take alien 8).
+game 1 0
+set fy 20
+set dive 99
+alien 16 X
+alien 24 R108,40
+shot 112 50
+steps 1
+
+# 3. a shot fired this step is only its own 1 x 6: a diver at y 231 (231-241) right under the new shot (222-228)
+# is not hit (a swept box 222-240 would have hit it), and it rams the ship's box (230-236)
+game 1 0
+set fy 20
+set dive 99
+down 8
+alien 30 D193,226,20,0,-1
+steps 1

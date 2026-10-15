@@ -22,8 +22,8 @@ wave dives sooner and in larger numbers. The ship has three lives; the score is 
 | ENTER | starts a game from the title, or a new one after the end |
 | C | the framework's: saves and ends the game |
 
-The keys come from Michael's asks for Babal and Snake (abacus #8558): the soft keys at the top corners for the
-thumbs, and every key near the right hand that is free in play for the trigger. Moving and firing at once needs two
+The keys come from Michael's asks for Babal and Snake (abacus #8558): the soft keys at the top corners for the thumbs,
+and for the trigger 8, 9, × and + by the right hand and ENTER, all free in play. Moving and firing at once needs two
 keys held together, which Rev A's diode matrix allows; the rollover log on board 0001 is the measurement.
 
 ## The rules (all integers)
@@ -41,19 +41,22 @@ step, so a tap shorter than a step still counts once. Left is any left key held 
 any fire key held or latched. The latches clear after each step.
 
 **The draws.** Each game has a state `x = mix64(seed ^ mix64(game))` (SplitMix64's finalizer, the mix64 of Snake and
-Land; `seed = app_seed()`, used as it is, `game` the count of games started, kept in the save), and `draw(n)` is `x =
+Land; `seed = app_seed()`, used as it is, `game` the count of games started before this one, 0 for
+the first, kept in the save), and `draw(n)` is `x =
 mix64(x)` then `x % n`. Every draw comes from this one state, in the order the rules below make them (a dive's column,
 then its fire_at; a column is drawn whenever a dive may start, even if no alien is in a slot to take it), so the model,
 the host and the device draw the same numbers from the same seed and save; nothing else in the game is random.
 
-**The ship.** 15 × 8 at (sx, 228); a game starts with sx = 192. In a step, left and not right moves it 5 px left,
-right and not left 5 px right, clamped to 0-385.
+**The ship.** 15 × 8 at (sx, 228); a game starts with sx = 192. For hits it is the box (sx + 2, 230, 11, 6), its body
+without the nose's first two rows and the wing tips, so a hit is never on blank pixels. In a step, left and not right
+moves it 5 px left, right and not left 5 px right, clamped to 0-385.
 
 **The shots.** At most 2 on the field, each 1 × 6. A cooldown counts down by 1 at the start of each step's shots (never
 below 0), then: when the ship is alive, fire is on, the cooldown is 0 and fewer than 2 shots fly, a shot appears at (sx
-+ 7, 222) and the cooldown becomes 6. A shot moves 12 px up each step and is gone once its bottom (y + 6) is at or above
-12. Shots move before the new one appears, so a shot leaving at the top frees its place that step; a new shot does not
-move on its first step, but it meets that step's hits where it appears.
++ 7, 222) and the cooldown becomes 6. A shot moves 12 px up each step; once its bottom (y + 6) is at or above 12 it
+is gone, but only after that step's hits, so its last path is tested too (and it still counts toward the 2 when the
+fire test comes). A new shot does not move on its first step, but it meets that step's hits where it appears. A shot's
+box can reach into the top line; aliens there, entering or returning, can be hit.
 
 **The formation.** 32 slots, row r 0-3 by column c 0-7, slot (r, c) at `(fx + 24c, fy + 16r)`; an alien is 13 × 10.
 Row 0 is the flagship row, row 1 the escorts, rows 2 and 3 the drones. A wave starts with fx = 108, fy = −60, the
@@ -79,8 +82,8 @@ flying are kept.
   move), the division truncated toward zero; then x += vx (clamped to 0-387) and y += 5. On its dive's step fire_at (its
   moves counted from 0), with y after the move, if y < 180 and fewer than 6 enemy shots fly, it fires one; a refused
   shot is not tried again. (From a slot the formation's lowest row is at y 68 and fire_at is at most 15, so a dive fires
-  by y 148 in play: the limits guard hand-set states.) After its move, at y ≥ 240 it starts returning, from the next
-  step.
+  by y 148 in play, and a diver's x stays within 1-386: these limits guard hand-set states.) After its move, at y ≥ 240
+  it is at once returning, at (its slot's x, −10), and makes its first return move on the next step.
 - **Returning.** It reappears at its slot's x with y = −10. Each step x is its slot's x and y += 4; once y is at
   or below the slot's y (y ≥ slot y) it takes the slot's y and is back in its slot.
 
@@ -93,15 +96,18 @@ included (step 5 comes after step 4); gone at y ≥ 240.
 3. the formation: the entry, or the sway;
 4. the aliens: each returning one, then each diving one, by slot order; then the dive counter;
 5. the enemy shots move;
-6. the hits, below;
+6. the hits, below, then the shots gone at the top are removed;
 7. the timers, below.
 
 **The hits.**
-1. Each shot, oldest first, against the aliens in slot order (in a slot, diving or returning): the first it overlaps
-   dies, and the shot is gone. It scores 150, 80 or 50 (flagship, escort, drone), doubled for a diving one
-   (not a returning one). Extra ships are counted at each kill.
-2. If the ship is alive, each enemy shot against it, then each diving alien by slot order: the first that overlaps it
-   hits the ship (a diver that hits it dies too, scoring nothing), and the rest are not tested.
+1. Each shot, oldest first, against the aliens (in a slot, diving or returning): of those its box overlaps, the one
+   lowest on the screen (the largest y; on a tie, the first in slot order) dies, and the shot is gone. That is the one
+   it meets first. A shot that moved this step is tested over the whole path it moved, the box (x, y, 1, 18)
+   from its new top to its old bottom, so it cannot pass through an alien coming the other way (a diver closes 17 px a
+   step with it, a returning alien 16); a shot that appeared this step is its own 1 × 6. It scores 150, 80 or 50
+   (flagship, escort, drone), doubled for a diving one (not a returning one). Extra ships are counted at each kill.
+2. If the ship is alive, each enemy shot against its box, then each diving alien by slot order: the first that
+   overlaps it hits the ship (a diver that hits it dies too, scoring nothing), and the rest are not tested.
 
 **A lost ship.** Lives (the ships left, the one in play included; 3 at the start) go down by 1. Every shot and
 enemy shot is gone, and every diving or returning alien is back in its slot. For 40 steps the ship shows its
@@ -126,13 +132,15 @@ unless lives are already 5 (that ship is not kept for later).
 - 48 fixed stars on the play field (from mix64 of a constant, the same every game), drawn first, so a star costs a
   row only where a sprite crosses it.
 - Sprites in 1 bit: the ship 15 × 8, three alien kinds 13 × 10 with two wing frames each, a 13 × 10 burst shown for
-  4 steps where an alien dies, and the ship's own burst for its 40 steps.
+  4 steps where an alien dies, and the ship's own burst, blinking (on for 2 steps, off for 2) through its 40 steps.
 - Game over: GAME OVER with the score and the best. ENTER at least 0.5 s after the end (by the key's own time) plays
   again.
 - The title: SALVO, the keys ("4 6 OR SOFT 1 6 MOVE", "8 9 × + ENTER FIRE"), ENTER PLAYS, and the best once there
   is one.
 - Sound: a click for a shot (1,200 Hz, 10 ms), a beep for a kill (880 Hz, 20 ms), a falling tune for a lost ship
-  (392, 330, 262 Hz), a rising one for a cleared wave (523, 659, 784 Hz).
+  (392, 330, 262 Hz, 620 ms in all), a rising one for a cleared wave (523, 659, 784 Hz, 400 ms). In one tick the
+  lost ship's tune comes first, then the wave's, the kill's beep and the shot's click; while a tune plays, no click or
+  beep starts (a new tune does), so the next shot does not cut it short.
 
 **The frame's cost.** Rev A sends only the rows that changed, at 1 MHz: 52 bytes, about 0.42 ms, a row. A throwaway
 model of this layout with random motion (2 to 4 divers, 2 shots, 6 enemy shots, the sway every 4th step) changed
@@ -174,7 +182,9 @@ Budget: at most 10 KB of flash and no internal RAM, as for each game so far; the
 3. **The rules at their edges**, by hand: a shot at the top line, a third shot refused, the cooldown at 0 and 1, the
    sway at both turns, a dive's start with an empty column and with none in any slot, vx at a division that rounds
    toward zero, a diver firing at y 179 and refused at 180, a diver leaving at 239 and 240, a return landing exactly
-   on its slot, a shot and an enemy shot on the same step as a lost ship, the last alien shot while diving.
+   on its slot, a shot and an enemy shot on the same step as a lost ship, the last alien shot while diving,
+   two things on the ship in one step, the enemy shots' cap of 6, a diver's x clamps, a shot crossing a diver and a
+   returning alien, an enemy shot by the ship box's corner.
 4. **The app on the SDK runner**: scripted games with frame hashes and the ticks' asks (`-keyframes`, `-nexts`),
    the save, and every tone and tune; ENTER partway through a title tick; ticks of 100 and 250 ms; damaged saves
    that must be refused. The same through the .wasm and the bridge.

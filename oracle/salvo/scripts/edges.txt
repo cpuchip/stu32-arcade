@@ -207,12 +207,13 @@ alien 1 R0,15
 steps 3
 
 # 10. a shot and an enemy shot on the same step as a lost ship: the shot kills first (scores), then the ship is
-# lost, every shot and enemy shot gone, the diver back in its slot
+# lost, every shot and enemy shot gone, the diver back in its slot (the enemy shot ends at y 232, in the
+# ship's box (sx + 2, 230, 11, 6))
 game 0 0
 set fy 20
 set dive 1000
 shot 120 82
-eshot 199 220
+eshot 199 226
 eshot 30 100
 alien 3 D300,150,5,0,-1
 steps 1
@@ -321,3 +322,58 @@ up 4
 set sx 382
 down 6
 steps 2
+
+# 16. two things on the ship in one step: the enemy shot is tested first and hits; the diver is not tested, so it
+# does not die but goes back to its slot with the rest
+game 0 0
+set fy 20
+set dive 1000
+eshot 199 226
+alien 30 D192,222,20,0,-1
+steps 1
+
+# 17. a diver's x clamps (vx held, k not a 4th step): 1 - 3 -> 0, 386 + 3 -> 387
+game 0 0
+set fy 20
+set dive 1000
+alien 24 D1,100,1,-3,99
+alien 25 D386,100,1,3,99
+steps 1
+
+# 18. a shot leaving at the top is removed only after the hits, so its last path is tested: shot 18 -> 6 (box 6-24)
+# meets a returning alien in the top line (alien 0, R from 0 to 4, y 4-14) and kills it (flagship, plain 150)
+game 0 0
+set fy 20
+set dive 1000
+alien 0 R0,0
+shot 112 18
+steps 1
+
+# 19. a shot leaving at the top still counts toward the 2 at that step's fire test: with fire held, two shots
+# (one at 18 about to leave) refuse a new one; the next step fires
+game 0 0
+set fy 20
+set dive 1000
+shot 50 18
+shot 60 100
+down 8
+steps 2
+
+# 20. of the aliens a box overlaps, the lowest on the screen dies; on a tie the first in slot order. Two divers at
+# the same place (y 100-110 after the move) under the shot's path (shot 115 -> 103, box 103-121): alien 2 (slot
+# order first, flagship, 300) dies, not alien 27; then alien 26 at y 95 after its move and alien 1 at y 90: the
+# lower one dies, alien 26 (a drone diving, 100), though alien 1 comes first in slot order
+game 0 0
+set fy 20
+set dive 1000
+alien 2 D100,95,1,0,-1
+alien 27 D100,95,1,0,-1
+shot 105 115
+steps 1
+game 0 0
+set fy 20
+set dive 1000
+alien 1 D100,85,1,0,-1
+alien 26 D100,90,1,0,-1
+shot 105 115
+steps 1

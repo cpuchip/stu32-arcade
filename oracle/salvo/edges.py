@@ -2,7 +2,8 @@
 out by hand from the doc, not from either implementation.
 
   edges.py script        the trace script, every case after a '# case NAME' line
-  edges.py check OUTPUT  checks a trace's output against the hand-written values; prints one line a case, exit 1 on a miss
+  edges.py check OUTPUT  checks a trace's output against the hand-written values; prints one line a case, and exits 1
+                         on a miss
 
 A slot's place: x 108 + 24 c, y 20 + 16 r at fx 108 and fy 20, slot i = 8 r + c. Each case starts from P: a game,
 the entry over (fy 20), the dive counter far off (99), and the sway's count at 1 (so the step leaves fx alone)."""
@@ -48,7 +49,7 @@ CASES = [
      {1: {'a26': 'D100,239,2,0,-1', 'a27': 'R180,-10'}}),
     ('returns: exactly, past, short', P + ['alien 26 R156,64', 'alien 27 R180,66', 'alien 25 R132,63', 'steps 1'], 1,
      {1: {'a26': 'S', 'a27': 'S', 'a25': 'R132,67'}}),
-    ('a kill and a lost ship on one step', P + ['shot 112 30', 'eshot 199 220', 'steps 1'], 1,
+    ('a kill and a lost ship on one step', P + ['shot 112 30', 'eshot 199 224', 'steps 1'], 1,
      {1: {'a0': 'X', 'score': '150', 'lives': '2', 'ship': '40', 'shots': '-', 'eshots': '-'}}),
     ('the last alien shot while diving', P + dead_but(31) + ['alien 31 D150,100,1,0,-1', 'shot 155 125', 'steps 1'], 1,
      {1: {'a31': 'X', 'score': '100', 'wavet': '30'}}),
@@ -56,9 +57,9 @@ CASES = [
      {1: {'a24': 'X', 'score': '10000', 'lives': '4', 'next': '20000'}}),
     ('no extra ship past 5', P + ['set score 9950', 'set lives 5', 'shot 112 80', 'steps 1'], 1,
      {1: {'score': '10000', 'lives': '5', 'next': '20000'}}),
-    ('a ram', P + ['alien 26 D190,215,1,0,-1', 'steps 1'], 1,
+    ('a ram', P + ['alien 26 D190,216,1,0,-1', 'steps 1'], 1,
      {1: {'a26': 'X', 'lives': '2', 'ship': '40', 'score': '0'}}),
-    ('the last ship', P + ['set lives 1', 'eshot 199 220', 'steps 60'], 41,
+    ('the last ship', P + ['set lives 1', 'eshot 199 224', 'steps 60'], 41,
      {1: {'lives': '0', 'ship': '40'}, 40: {'ship': '1', 'over': '0'}, 41: {'ship': '0', 'over': '1'}}),
     ('the clamps', P + ['set sx 2', 'down 4', 'steps 1', 'up 4', 'set sx 383', 'down 6', 'steps 1'], 2,
      {1: {'sx': '0'}, 2: {'sx': '385'}}),
@@ -66,6 +67,29 @@ CASES = [
      {1: {'sx': '187'}, 2: {'sx': '187'}}),
     ('both directions', P + ['down 4', 'down S6', 'steps 1'], 1,
      {1: {'sx': '192'}}),
+    ('an enemy shot and a diver on the ship', P + ['eshot 199 224', 'alien 26 D190,216,1,0,-1', 'steps 1'], 1,
+     {1: {'lives': '2', 'ship': '40', 'a26': 'S', 'eshots': '-'}}),     # the shot first: the diver goes home, alive
+    ('two divers on the ship', P + ['alien 25 D192,216,1,0,-1', 'alien 26 D195,216,1,0,-1', 'steps 1'], 1,
+     {1: {'lives': '2', 'a25': 'X', 'a26': 'S'}}),
+    ('the sixth enemy shot', P + [f'eshot 10 {y}' for y in (20, 30, 40, 50, 60)]
+     + ['alien 26 D300,100,7,0,7', 'steps 1'], 1,
+     {1: {'eshots': '10,26;10,36;10,46;10,56;10,66;306,121', 'a26': 'D300,105,8,0,-1'}}),
+    ('a seventh refused, not tried again', P + [f'eshot 10 {y}' for y in (20, 30, 40, 50, 60)]
+     + ['eshot 10 234', 'alien 26 D300,100,7,0,7', 'steps 2'], 2,    # the 6th leaves at 240 after the refusal
+     {1: {'a26': 'D300,105,8,0,7', 'eshots': '10,26;10,36;10,46;10,56;10,66'},
+      2: {'a26': 'D297,110,9,-3,7', 'eshots': '10,32;10,42;10,52;10,62;10,72'}}),   # 8th move: vx -107 / 12 -> -3
+    ("a diver's x clamps", P + ['alien 26 D386,100,1,3,-1', 'alien 27 D1,100,1,-3,-1', 'steps 1'], 1,
+     {1: {'a26': 'D387,105,2,3,-1', 'a27': 'D0,105,2,-3,-1'}}),
+    ('a shot meets a diver head-on', P + ['alien 26 D100,100,1,0,-1', 'shot 105 127', 'steps 2'], 2,
+     {1: {'a26': 'D100,105,2,0,-1', 'shots': '105,115'}, 2: {'a26': 'X', 'score': '100', 'shots': '-'}}),
+    ('a shot meets a returning alien', P + dead_but(31) + ['alien 31 R276,30', 'shot 280 56', 'steps 2'], 2,
+     {1: {'a31': 'R276,34', 'shots': '280,44'}, 2: {'a31': 'X', 'score': '50'}}),
+    ('a shot over two aliens hits the lower', P + ['shot 280 40', 'steps 1'], 1,
+     {1: {'a15': 'X', 'a7': 'S', 'score': '80', 'shots': '-'}}),          # its box 28-46 meets rows at 20 and 36
+    ('a shot leaving at the top still hits', P + dead_but(31) + ['alien 31 R276,-7', 'shot 280 18', 'steps 1'], 1,
+     {1: {'a31': 'X', 'score': '50', 'shots': '-'}}),
+    ("an enemy shot by the ship box's corner", P + ['eshot 192 224', 'steps 1'], 1,
+     {1: {'lives': '3', 'ship': '0', 'eshots': '192,230'}}),
     ('the clock', P + ['set acc 49', 'tick 100', 'tick 250', 'tick 0', 'tick 1'], 5,
      {1: {'acc': '99'}, 2: {'acc': '49'}, 3: {'acc': '99'}, 4: {'acc': '49'}, 5: {'acc': '0'}}),
 ]

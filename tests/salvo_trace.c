@@ -22,7 +22,7 @@ static void state(const salvo_game *g, void *arg)
 {
     (void)arg;
     printf("S step=%" PRIu32 " acc=%" PRIu32 " sx=%d lives=%d score=%" PRIu32 " next=%" PRIu32
-           " wave=%d over=%d ship=%d wavet=%d fx=%d fy=%d fdir=%d sway=%d dive=%d cool=%d shots=",
+           " wave=%d over=%d ship=%d wavet=%d fx=%d fy=%d fdir=%d sway=%" PRIu32 " dive=%d cool=%d shots=",
            g->step, g->acc, g->sx, g->lives, g->score, g->next, g->wave, g->over, g->ship_t, g->wave_t, g->fx, g->fy,
            g->fdir, g->sway, g->dive, g->cool);
     list(g->shot, g->nshot);
@@ -75,14 +75,14 @@ static void set(salvo_game *g, const char *name, long v)
     if (!strcmp(name, "sx")) g->sx = (int16_t)v;
     else if (!strcmp(name, "lives")) g->lives = (uint8_t)v;
     else if (!strcmp(name, "score")) g->score = (uint32_t)v;
-    else if (!strcmp(name, "wave")) g->wave = (uint8_t)v;
+    else if (!strcmp(name, "wave")) g->wave = (uint16_t)v;
     else if (!strcmp(name, "over")) g->over = v != 0;
     else if (!strcmp(name, "ship")) g->ship_t = (uint8_t)v;
     else if (!strcmp(name, "wavet")) g->wave_t = (uint8_t)v;
     else if (!strcmp(name, "fx")) g->fx = (int16_t)v;
     else if (!strcmp(name, "fy")) g->fy = (int16_t)v;
     else if (!strcmp(name, "fdir")) g->fdir = (int8_t)v;
-    else if (!strcmp(name, "sway")) g->sway = (uint16_t)v;
+    else if (!strcmp(name, "sway")) g->sway = (uint32_t)v;
     else if (!strcmp(name, "dive")) g->dive = (uint16_t)v;
     else if (!strcmp(name, "cool")) g->cool = (uint8_t)v;
     else if (!strcmp(name, "next")) g->next = (uint32_t)v;

@@ -29,6 +29,7 @@ typedef struct {
     salvo_game g;
     burst b[BURSTS];
     uint8_t sound;       /* the steps of a tick, folded: 1 shot, 2 kill, 4 lost, 8 wave */
+    uint32_t tune_until; /* while a tune plays, no click or beep starts */
 } salvo_ctx;
 
 /* flag0: 13 x 10 */
@@ -192,6 +193,7 @@ static void new_game(salvo_ctx *c, uint32_t at)
 {
     salvo_init(&c->g, c->seed, c->games++);
     memset(c->b, 0, sizeof c->b);
+    c->tune_until = 0;
     c->started = at;
     c->state = PLAY;
 }
@@ -256,14 +258,18 @@ static uint32_t app_tick_cb(void *ctx, uint32_t ms)
     salvo_tick(&c->g, dt, each_step, c);
     static const uint16_t fall[] = {392, 120, 0, 40, 330, 120, 0, 40, 262, 300}; /* (hz, ms); 0: a rest */
     static const uint16_t rise[] = {523, 100, 659, 100, 784, 200};
-    if (c->sound & 4)
+    if (c->sound & 4) {
         app_tune(fall, 5);
-    else if (c->sound & 8)
+        c->tune_until = c->now + 620;
+    } else if (c->sound & 8) {
         app_tune(rise, 3);
-    else if (c->sound & 2)
-        app_beep(880, 20);
-    else if (c->sound & 1)
-        app_beep(1200, 10);
+        c->tune_until = c->now + 400;
+    } else if (c->now >= c->tune_until) {
+        if (c->sound & 2)
+            app_beep(880, 20);
+        else if (c->sound & 1)
+            app_beep(1200, 10);
+    }
     if (c->g.over) {
         c->state = OVER;
         c->end_at = c->now;
@@ -345,7 +351,7 @@ static void draw_play(ls027_frame *f, const salvo_ctx *c)
         draw_fill(f, g->eshot[s].x, g->eshot[s].y, 2, 4, DRAW_DARK);
     if (salvo_ship_alive(g))
         draw_blit(f, g->sx, SALVO_SHIP_Y, SHIP, SALVO_SHIP_W, SALVO_SHIP_H, DRAW_OR);
-    else if (g->ship_t > 20 && g->ship_t % 4 < 2)
+    else if (g->ship_t > 0 && g->ship_t % 4 < 2)            /* the burst blinks through the 40 steps */
         draw_blit(f, g->sx + 1, SALVO_SHIP_Y - 2, BURST, SALVO_ALIEN_W, SALVO_ALIEN_H, DRAW_OR);
 
     /* the top line, over anything that flew into it */

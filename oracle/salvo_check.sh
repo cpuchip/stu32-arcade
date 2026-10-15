@@ -9,7 +9,7 @@
 #     every state line of the C against the model's;
 #   4 the app on the SDK runner: scripts from oracle/salvo/appscript.py with their frame hashes (key frames too)
 #     against oracle/salvo/frames/, each tick's ask (-nexts), the save and the sound the rules give; a game left
-#     running with no save and with four damaged ones that must be refused; with WASI_SDK, WAMRC and WAMR_TREE set (as
+#     running with no save and with five damaged ones that must be refused; with WASI_SDK, WAMRC and WAMR_TREE set (as
 #     for oracle/wasm_check.sh), the same through the .wasm and the bridge, which must give the same;
 #   5 planted faults, each of which must turn its check red; a plant that does not build or changes nothing is red.
 # The logic and the app build under ASan and UBSan and the frame guard. --bless rewrites the frame hashes.
@@ -38,7 +38,7 @@ build_trace "$SAN" "$G" "$B/trace" && build_trace "$STRICT -O2" "$G" "$B/trace_f
 # the model's outputs, once
 (cd "$O" && python3 fuzz.py 20 15) > "$B/fuzz.txt"
 (cd "$O" && python3 model.py "$B/fuzz.txt") > "$B/fuzz.py.txt"
-OWN="smoke sweep sweep-long edges"
+OWN="smoke sweep sweep-long edges swept corner"
 for s in $OWN; do (cd "$O" && python3 model.py "scripts/$s.txt") > "$B/own-$s.py.txt"; done
 SEEDS="3141592653 2718281828 0"
 for s in $SEEDS; do
@@ -64,7 +64,7 @@ check2() {
 check3() { "$1" "$B/edges.txt" > "$B/edges.out" && (cd "$O" && python3 edges.py check "$B/edges.out") > /dev/null \
     && cmp -s "$B/edges.out" "$B/edges.py.txt"; }
 
-check1 "$B/trace" && echo "  1 logic: $(grep -c '^game' "$B/fuzz.txt") fuzzed games ($(grep -c ' over=1 ' "$B/fuzz.py.txt") ended) and the model's 4 scripts, $(cat "$B/fuzz.py.txt" "$B"/own-*.py.txt | wc -l) state lines, identical to the model" \
+check1 "$B/trace" && echo "  1 logic: $(grep -c '^game' "$B/fuzz.txt") fuzzed games ($(grep -c ' over=1 ' "$B/fuzz.py.txt") ended) and the model's 6 scripts, $(cat "$B/fuzz.py.txt" "$B"/own-*.py.txt | wc -l) state lines, identical to the model" \
     || red "1 logic: the C and the model differ"
 if check2 "$B/trace_fast"; then
     echo "  2 long games: 3 seeds, $(cat "$B"/pilot-*.py.txt | wc -l) steps, the C and the model identical; waves $(for s in $SEEDS; do grep -oE ' wave=[0-9]+' "$B/pilot-$s.py.txt" | cut -d= -f2 | sort -n | tail -1; done | tr '\n' ' ')reached, 5 ships held, each game over"
@@ -86,11 +86,12 @@ for s in play refuse midsave; do
 done
 good=$(cd "$O" && python3 appscript.py loadfile)
 printf '%s' "$good" | xxd -r -p > "$B/refuse.load"
-# four damaged saves: the wrong magic, the wrong version, 10 bytes, a non-zero byte in the last six
+# five damaged saves: the wrong magic, the wrong version, 15 bytes, a non-zero byte first and last in the last six
 printf '%s' "58${good:2}" | xxd -r -p > "$B/bad-magic.load"
 printf '%s' "${good:0:2}02${good:4}" | xxd -r -p > "$B/bad-version.load"
-printf '%s' "${good:0:20}" | xxd -r -p > "$B/bad-short.load"
+printf '%s' "${good:0:30}" | xxd -r -p > "$B/bad-short.load"
 printf '%s' "${good:0:30}01" | xxd -r -p > "$B/bad-tail.load"
+printf '%s' "${good:0:20}05${good:22}" | xxd -r -p > "$B/bad-tail10.load"
 script_of() { echo "$B/app-${1%%-*}.txt"; }
 app_run() { # app_run RUNNER NAME SUFFIX -> $B/NAME.SUFFIX.{hashes,save,out,nexts}
     local seed=5 load=()
@@ -117,7 +118,7 @@ expect() { # expect NAME SUFFIX: the script's last line, '# expect save HEX tune
     cmp -s "$B/$1.$sfx.hashes" "$O/frames/$1.hashes" || { red "4 app $1: frame hashes differ from oracle/salvo/frames"; return; }
     echo "  4 app $1: $(wc -l < "$B/$1.$sfx.hashes") frames as committed, $(wc -l < "$B/$1.$sfx.nexts") ticks' asks; $tunes tunes, $tones tones; save as expected"
 }
-for s in play refuse midsave midsave-magic midsave-version midsave-short midsave-tail; do
+for s in play refuse midsave midsave-magic midsave-version midsave-short midsave-tail midsave-tail10; do
     app_run "$B/app" "$s" app || red "4 app $s: the runner failed ($(tail -1 "$B/$s.app.out"))"
     expect "$s"
 done
@@ -190,6 +191,14 @@ logic_plant leftout salvo_logic.c 's/            g->a\[i\].state = SALVO_SLOT;\n
 logic_plant cap6 salvo_logic.c 's/if \(g->lives < 5\)/if (g->lives < 6)/' check3 "a sixth ship"
 logic_plant nocap salvo_logic.c 's/g->acc \+= ms > 100 \? 100 : ms;/g->acc += ms;/' check3 "no 100 ms cap on a tick"
 logic_plant eshotlate salvo_logic.c 's/p.y = \(int16_t\)\(p.y \+ 6\);\n        if \(p.y < 240\)/p.y = (int16_t)(p.y + 6);\n        if (p.y < 239)/' check1 "an enemy shot gone a row early"
+logic_plant swept salvo_logic.c 's/s == fresh \? 6 : 6 \+ 12/s == fresh ? 6 : 6/' check3 "a moving shot tested only where it ends"
+logic_plant hitbox salvo_logic.h 's/#define SALVO_HIT_DX 2/#define SALVO_HIT_DX 0/; s/#define SALVO_HIT_W 11/#define SALVO_HIT_W 15/' check3 "the ship's box as wide as its sprite"
+logic_plant ramall salvo_logic.c 's/for \(int i = 0; i < SALVO_ALIENS && !lost; i\+\+\) \{\n            salvo_alien \*a = &g->a\[i\];\n            if \(a->state == SALVO_DIVING/for (int i = 0; i < SALVO_ALIENS; i++) {\n            salvo_alien *a = \&g->a[i];\n            if (a->state == SALVO_DIVING/' check3 "every diver on the ship dying"
+logic_plant ecap5 salvo_logic.c 's/g->neshot < SALVO_ESHOTS\) \{/g->neshot < 5) {/' check3 "a cap of 5 enemy shots"
+logic_plant refire salvo_logic.c 's/if \(a->k == a->fire_at &&/if (a->fire_at >= 0 \&\& a->k >= a->fire_at \&\&/' check3 "a refused enemy shot tried again"
+logic_plant xclamp salvo_logic.c 's/x > 387 \? 387 : x/x > 380 ? 380 : x/' check3 "a diver's x clamped at 380"
+logic_plant slotfirst salvo_logic.c 's/&& \(hit < 0 \|\| ay > hit_y\)\) \{/\&\& (hit < 0 || ay > hit_y + 1000)) {/' check3 "a shot over two aliens taking the first in slot order"
+logic_plant topearly salvo_logic.c 's/        g->shot\[s\].y = \(int16_t\)\(g->shot\[s\].y - 12\);/        if ((g->shot[s].y -= 12) + 6 <= SALVO_TOP) g->shot[s].x = -100;/' check3 "a shot leaving at the top gone before the hits"
 logic_plant drawskip salvo_logic.c 's/int c = \(int\)salvo_draw\(g, SALVO_COLS\);/int c = any_alien(g) ? (int)salvo_draw(g, SALVO_COLS) : 0;/' check2 "the column drawn only while an alien is left"
 app_plant() { # app_plant NAME PERL RUN WHAT: a plant in salvo_app.c, judged by check 4's run RUN
     if plant "$1" salvo_app.c "$2" && build_app x "$B/plant-$1" "$B/pa-$1"; then
@@ -203,6 +212,8 @@ app_plant() { # app_plant NAME PERL RUN WHAT: a plant in salvo_app.c, judged by 
     fi
 }
 app_plant tailok 's/        if \(save\[i\]\)\n            return;/        if (save[i] \&\& 0)\n            return;/' midsave-tail "a save with a non-zero tail taken"
+app_plant tail11 's/for \(int i = 10; i < SAVE_BYTES; i\+\+\)/for (int i = 11; i < SAVE_BYTES; i++)/' midsave-tail10 "a save with byte 10 set taken"
+app_plant short11 's/if \(n < SAVE_BYTES \|\|/if (n < 11 ||/' midsave-short "a 15-byte save taken"
 app_plant nomagic 's/save\[0\] != SAVE_MAGIC \|\| //' midsave-magic "a save with the wrong magic taken"
 app_plant ask50 's/return SALVO_STEP_MS - c->g.acc;/return SALVO_STEP_MS;/' play "a tick asking 50 ms whatever is held"
 app_plant early 's/uint32_t dt = c->now - c->started < ms \? c->now - c->started : ms;/uint32_t dt = ms;/' play "the first tick counting time before ENTER"
@@ -210,6 +221,10 @@ app_plant bestlate 's/    if \(g->score > c->best\)\n        c->best = g->score;
 app_plant softkey 's/    case APP_KEY_SOFT6: return SALVO_KS6;\n//' play "SOFT6 not steering"
 app_plant killtone 's/app_beep\(880, 20\);/app_beep(880, 30);/' play "the kill's beep 30 ms"
 app_plant nostars 's/    stars\(f\);/    (void)stars;/' play "the stars not drawn"
+app_plant tunecut 's/\} else if \(c->now >= c->tune_until\) \{/} else if (c->tune_until \|\| 1) {/' play "a click cutting a tune short"
+app_plant again300 's/#define AGAIN_MS 500/#define AGAIN_MS 300/' play "GAME OVER taking ENTER at 0.3 s"
+app_plant enternow 's/new_game\(c, ms\);\n        return true;\n    \}\n    return false;/new_game(c, c->state == TITLE ? ms : c->now);\n        return true;\n    }\n    return false;/' play "a game from GAME OVER counting time before its ENTER"
+app_plant blink20 's/else if \(g->ship_t > 0 && g->ship_t % 4 < 2\)/else if (g->ship_t > 20 \&\& g->ship_t % 4 < 2)/' play "the ship's burst shown only for 20 steps"
 app_plant enterplay 's/    if \(c->state == PLAY\) \{\n        salvo_key/    if (c->state == PLAY \&\& down \&\& key == APP_KEY_ENTER) {\n        new_game(c, ms);\n        return true;\n    }\n    if (c->state == PLAY) {\n        salvo_key/' play "ENTER restarting a game in play"
 
 [ "$ok" = 1 ] && echo "salvocheck: GREEN" || { echo "salvocheck: RED"; exit 1; }

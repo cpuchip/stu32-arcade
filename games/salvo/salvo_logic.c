@@ -165,17 +165,13 @@ void salvo_step(salvo_game *g)
     }
 
     /* 2. the shots move, then one may be fired */
-    int n = 0;
-    for (int s = 0; s < g->nshot; s++) {
-        salvo_pt p = g->shot[s];
-        p.y = (int16_t)(p.y - 12);
-        if (p.y + 6 > SALVO_TOP)
-            g->shot[n++] = p;
-    }
-    g->nshot = (uint8_t)n;
+    for (int s = 0; s < g->nshot; s++)
+        g->shot[s].y = (int16_t)(g->shot[s].y - 12);   /* one gone at the top goes after the hits */
     if (g->cool > 0)
         g->cool--;
+    int fresh = -1;                             /* the shot that appeared this step, which has not moved */
     if (alive && fire && g->cool == 0 && g->nshot < SALVO_SHOTS) {
+        fresh = g->nshot;
         g->shot[g->nshot++] = (salvo_pt){(int16_t)(g->sx + 7), 222};
         g->cool = 6;
         g->ev_shots = 1;
@@ -245,7 +241,7 @@ void salvo_step(salvo_game *g)
     }
 
     /* 5. the enemy shots move */
-    n = 0;
+    int n = 0;
     for (int s = 0; s < g->neshot; s++) {
         salvo_pt p = g->eshot[s];
         p.y = (int16_t)(p.y + 6);
@@ -258,18 +254,23 @@ void salvo_step(salvo_game *g)
     n = 0;
     for (int s = 0; s < g->nshot; s++) {
         salvo_pt p = g->shot[s];
-        int hit = -1;
-        for (int i = 0; i < SALVO_ALIENS && hit < 0; i++) {
+        int hit = -1, hit_y = 0;                /* of the aliens its box overlaps, the lowest: the one it meets first */
+        for (int i = 0; i < SALVO_ALIENS; i++) {
             salvo_alien *a = &g->a[i];
             if (a->state == SALVO_DEAD)
                 continue;
             int ax = a->state == SALVO_SLOT ? salvo_slot_x(g, i) : a->x;
             int ay = a->state == SALVO_SLOT ? salvo_slot_y(g, i) : a->y;
-            if (overlap(p.x, p.y, 1, 6, ax, ay, SALVO_ALIEN_W, SALVO_ALIEN_H))
+            /* a shot that moved is tested over its whole path, so it cannot pass through an alien coming down */
+            if (overlap(p.x, p.y, 1, s == fresh ? 6 : 6 + 12, ax, ay, SALVO_ALIEN_W, SALVO_ALIEN_H)
+                && (hit < 0 || ay > hit_y)) {
                 hit = i;
+                hit_y = ay;
+            }
         }
         if (hit < 0) {
-            g->shot[n++] = p;
+            if (p.y + 6 > SALVO_TOP)
+                g->shot[n++] = p;
         } else {
             const salvo_alien *a = &g->a[hit];
             g->ev_kill_pt[g->ev_kills] = a->state == SALVO_SLOT ? (salvo_pt){salvo_slot_x(g, hit), salvo_slot_y(g, hit)}
@@ -282,11 +283,13 @@ void salvo_step(salvo_game *g)
     bool lost = false;
     if (alive) {
         for (int s = 0; s < g->neshot && !lost; s++)
-            lost = overlap(g->eshot[s].x, g->eshot[s].y, 2, 4, g->sx, SALVO_SHIP_Y, SALVO_SHIP_W, SALVO_SHIP_H);
+            lost = overlap(g->eshot[s].x, g->eshot[s].y, 2, 4, g->sx + SALVO_HIT_DX, SALVO_HIT_Y, SALVO_HIT_W,
+                           SALVO_HIT_H);
         for (int i = 0; i < SALVO_ALIENS && !lost; i++) {
             salvo_alien *a = &g->a[i];
             if (a->state == SALVO_DIVING
-                && overlap(a->x, a->y, SALVO_ALIEN_W, SALVO_ALIEN_H, g->sx, SALVO_SHIP_Y, SALVO_SHIP_W, SALVO_SHIP_H)) {
+                && overlap(a->x, a->y, SALVO_ALIEN_W, SALVO_ALIEN_H, g->sx + SALVO_HIT_DX, SALVO_HIT_Y, SALVO_HIT_W,
+                           SALVO_HIT_H)) {
                 a->state = SALVO_DEAD;          /* rams the ship, scoring nothing */
                 lost = true;
             }

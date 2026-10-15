@@ -3,7 +3,8 @@ the dives, the enemy shots, the hits and the timers.
 
 Nothing here reads the C. tests/salvo_trace.c prints the same lines; the format is oracle/salvo/TRACE.md.
 Script lines (blank lines and lines starting with # are skipped):
-  game SEED GAME        a new game: the draw state is mix64(SEED ^ mix64(GAME)), then the wave's start
+  game SEED GAME        a new game: SEED app_seed(), GAME the games started before it; the draw state is
+                        mix64(SEED ^ mix64(GAME)), then the wave's start
   down K / up K         a key's down or up, K one of 4 S1 6 S6 8 E 9 X P (4, SOFT1, 6, SOFT6, 8, ENTER, 9, x, +)
   tick MS               MS ms (at most 100) into the accumulator; a step runs while it holds 50
   steps N               N steps straight away, the accumulator untouched
@@ -15,7 +16,7 @@ Script lines (blank lines and lines starting with # are skipped):
   draw?                 prints 'draw N', N the next draw(1000), consuming it
 Every step prints its state line. Once the game is over, ticks and steps run nothing and print nothing.
 
-Readings where the doc leaves a choice are marked 'reading:' below.
+Where the doc still leaves a choice, the line says 'reading:'.
 """
 import sys
 
@@ -25,12 +26,14 @@ STEP_MS, TICK_MAX = 50, 100
 TOP, BOTTOM = 12, 240
 
 SHIP_Y, SHIP_W, SHIP_H = 228, 15, 8
+BOX_DX, BOX_Y, BOX_W, BOX_H = 2, 230, 11, 6     # the ship for hits: (sx + 2, 230, 11, 6)
 SX0, SX_MAX, SHIP_DX = 192, 385, 5
 LIVES0, LIVES_MAX, EXTRA = 3, 5, 10000
 SHIP_TIMER = 40
 RETURN_DIVE = 20
 
 SHOT_W, SHOT_H, SHOT_DY = 1, 6, 12
+SWEPT_H = SHOT_H + SHOT_DY      # a moved shot's path, new top to old bottom: (x, y, 1, 18)
 SHOT_DX0, SHOT_Y0 = 7, 222
 MAX_SHOTS, COOL = 2, 6
 
@@ -108,6 +111,7 @@ class Salvo:
         self.held = set()
         self.latched = set()
         self.ship_hit = False
+        self.fired = False              # a shot appeared this step (the newest)
         self.wave_start()
 
     # ---- the draws -------------------------------------------------------------------------------------------
@@ -132,8 +136,8 @@ class Salvo:
         return self.ship == 0 and not self.over
 
     def wave_start(self):
-        """A wave's start: fx 108, fy -60, rightward, every alien in its slot, its entry from the next step.
-        reading: the sway's count and the dive counter go to 0 here too ('both 0 until the entry ends')."""
+        """A wave's start: fx 108, fy -60, rightward, the sway's count and the dive counter 0, every alien in its
+        slot, its entry from the next step. Shots already flying are kept."""
         self.fx, self.fy, self.fdir = FX0, FY0, 1
         self.sway = 0
         self.dive = 0
@@ -154,6 +158,7 @@ class Salvo:
     def step(self):
         self.step_n += 1
         self.ship_hit = False
+        self.fired = False
         left, right, fire = self.on(LEFT_KEYS), self.on(RIGHT_KEYS), self.on(FIRE_KEYS)
         self.the_ship(left, right)
         self.the_shots(fire)
@@ -175,24 +180,21 @@ class Salvo:
 
     # 2. the shots move, then one may be fired
     def the_shots(self, fire):
-        # reading: the cooldown counts down here, before the fire test, so the firing step shows 6
+        # the cooldown counts down at the start of the shots (never below 0), so the firing step shows 6
         if self.cool > 0:
             self.cool -= 1
-        moved = []
-        for (x, y) in self.shots:
-            y -= SHOT_DY
-            if y + SHOT_H > TOP:            # gone once its bottom is at or above 12
-                moved.append((x, y))
-        self.shots = moved
+        # a shot whose bottom reaches the top line stays until after the hits (step 6), so it counts here
+        self.shots = [(x, y - SHOT_DY) for (x, y) in self.shots]
         if self.alive() and fire and self.cool == 0 and len(self.shots) < MAX_SHOTS:
             self.shots.append((self.sx + SHOT_DX0, SHOT_Y0))
             self.cool = COOL
+            self.fired = True
 
     # 3. the formation: the entry, or the sway. Returns True when the sway ran (the entry has ended).
     def the_formation(self):
         if self.fy < FY_HOME:
             self.fy += ENTRY_DY
-            if self.fy >= FY_HOME:          # reading: 'reaches 20' as 'is at least 20' (fy only by set is off 4)
+            if self.fy >= FY_HOME:          # '20 or more' ends the entry
                 self.sway = 0
                 self.dive = dive_gap(self.wave)
             return False
@@ -213,8 +215,8 @@ class Salvo:
         for i, a in enumerate(self.aliens):
             if a[0] == 'D':
                 self.diving(i, a)
-        # reading: the counter runs only once the entry has ended (on steps where the sway ran),
-        # and only while the ship is alive
+        # the counter runs in each later step of the wave after its entry (steps where the sway ran),
+        # while the ship is alive
         if swayed and self.alive():
             self.dive_counter()
 
@@ -230,7 +232,7 @@ class Salvo:
             vx = clamp(tdiv(self.sx + 1 - x, VX_DIV), -VX_MAX, VX_MAX)
         x = clamp(x + vx, 0, DIVER_X_MAX)
         y += DIVE_DY
-        # reading: the fire test uses y after this step's move; a refused fire is not tried again
+        # the fire test uses y after this step's move; a refused shot is not tried again
         if k == f and y < FIRE_Y_MAX and len(self.eshots) < MAX_ESHOTS:
             self.eshots.append((x + ESHOT_DX, y + ESHOT_DYOFF))
             f = -1
@@ -242,13 +244,13 @@ class Salvo:
 
     def dive_counter(self):
         self.dive -= 1
-        if self.dive > 0:                   # reading: 'at 0' as 'at or below 0', so a set 0 cannot stall it
+        if self.dive > 0:                   # reading: 'at 0' as 'at or below 0', so a hand-set 0 cannot stall it
             return
         self.dive = dive_gap(self.wave)
-        diving = sum(1 for a in self.aliens if a[0] == 'D')   # reading: returning aliens are not 'diving'
+        diving = sum(1 for a in self.aliens if a[0] == 'D')   # returning ones do not count
         if diving >= dive_limit(self.wave):
             return
-        c = self.draw(COLS)                 # reading: the column is drawn even when no slot holds an alien
+        c = self.draw(COLS)                 # drawn whenever a dive may start, even with no alien in a slot
         for dc in range(COLS):
             col = (c + dc) % COLS
             for r in range(ROWS - 1, -1, -1):
@@ -260,47 +262,56 @@ class Salvo:
 
     # 5. the enemy shots move
     def the_enemy_shots(self):
-        # reading: a shot fired in this step's phase 4 moves here in the same step
+        # the one just fired in step 4 moves here too
         self.eshots = [(x, y + ESHOT_DY) for (x, y) in self.eshots if y + ESHOT_DY < BOTTOM]
 
-    # 6. the hits
+    # 6. the hits, then the shots gone at the top are removed
     def the_hits(self):
         kept = []
-        for (x, y) in self.shots:
-            if not self.shot_hits(x, y):
+        last = len(self.shots) - 1
+        for n, (x, y) in enumerate(self.shots):
+            h = SHOT_H if (self.fired and n == last) else SWEPT_H   # a new shot is its own 1 x 6
+            if not self.shot_hits(x, y, h):
                 kept.append((x, y))
         self.shots = kept
         if self.alive():
             self.ship_hits()
+        self.shots = [(x, y) for (x, y) in self.shots if y + SHOT_H > TOP]   # gone once its bottom is at or above 12
 
-    def shot_hits(self, x, y):
+    def shot_hits(self, x, y, h):
+        """Of the aliens the box overlaps, the lowest on the screen (largest y; a tie to the first in slot order)."""
+        best = None
         for i, a in enumerate(self.aliens):
             if a[0] == 'X':
                 continue
             ax, ay = self.alien_rect(i)
-            if overlap(x, y, SHOT_W, SHOT_H, ax, ay, ALIEN_W, ALIEN_H):
-                pts = SCORES[i // COLS]
-                if a[0] == 'D':             # reading: doubled for a diver only, not a returning alien
-                    pts *= 2
-                self.aliens[i] = ['X']
-                self.add_score(pts)
-                return True
-        return False
+            if overlap(x, y, SHOT_W, h, ax, ay, ALIEN_W, ALIEN_H) and (best is None or ay > best[0]):
+                best = (ay, i)
+        if best is None:
+            return False
+        i = best[1]
+        pts = SCORES[i // COLS]
+        if self.aliens[i][0] == 'D':        # doubled for a diving one, not a returning one
+            pts *= 2
+        self.aliens[i] = ['X']
+        self.add_score(pts)
+        return True
 
     def add_score(self, pts):
         self.score += pts
-        while self.score >= self.next:      # reading: 'passes' as 'reaches' (TRACE: 'must reach')
+        while self.score >= self.next:      # 'reaches'; at 5 lives the ship is not kept for later
             self.next += EXTRA
             if self.lives < LIVES_MAX:
                 self.lives += 1
 
     def ship_hits(self):
+        bx = self.sx + BOX_DX
         for (x, y) in self.eshots:
-            if overlap(x, y, ESHOT_W, ESHOT_H, self.sx, SHIP_Y, SHIP_W, SHIP_H):
+            if overlap(x, y, ESHOT_W, ESHOT_H, bx, BOX_Y, BOX_W, BOX_H):
                 self.lose_ship()
                 return
         for i, a in enumerate(self.aliens):
-            if a[0] == 'D' and overlap(a[1], a[2], ALIEN_W, ALIEN_H, self.sx, SHIP_Y, SHIP_W, SHIP_H):
+            if a[0] == 'D' and overlap(a[1], a[2], ALIEN_W, ALIEN_H, bx, BOX_Y, BOX_W, BOX_H):
                 self.aliens[i] = ['X']      # dies too, scoring nothing
                 self.lose_ship()
                 return
@@ -386,8 +397,8 @@ def run(lines):
                 continue
             g.acc += min(int(w[1]), TICK_MAX)
             while g.acc >= STEP_MS and not g.over:
+                g.acc -= STEP_MS            # 50 is taken off, then the step runs
                 g.step()
-                g.acc -= STEP_MS            # reading: the line shows acc after this step's 50 is taken off
                 out.append(g.line())
         elif cmd == 'steps':
             for _ in range(int(w[1])):

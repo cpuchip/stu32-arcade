@@ -3,8 +3,9 @@ tones, and each tick's ask for the next, from docs/salvo.md's rules and the mode
 
   appscript.py play      seed 5, no save: ENTER 30 ms into a title tick; the autopilot (pilot.py) with fire held for
                          1,200 steps in ticks of 50 ms, then of 60, 99, 100 and 250 ms (the catch-up, its two steps
-                         and the cap), both soft keys and a fire key besides 8; then hands off until the game ends;
-                         ENTER refused 0.2 s into GAME OVER and taken at 0.6 s; a second game left to end
+                         and the cap), both soft keys and a fire key besides 8, ENTER held as a fire key; then hands
+                         off until the game ends; ENTER refused 0.2 s and 0.499 s into GAME OVER and taken at 0.51 s,
+                         inside a tick; a second game left to end
   appscript.py refuse    seed 9, a save (best 4321, 7 games): keys the title refuses, then a game left to end with
                          nothing pressed, so the best stays 4321
   appscript.py midsave   seed 9: the autopilot until the score passes 1,000, then the script ends with the game
@@ -33,7 +34,7 @@ class Game:
         self.clock = self.tunes = self.tones = 0
         self.g = None
         self.state = 'title'
-        self.started = self.end_at = 0
+        self.started = self.end_at = self.tune_until = 0
 
     def key(self, k, down, at=None):
         at = self.clock if at is None else at
@@ -44,6 +45,7 @@ class Game:
             self.g = M.Salvo(self.seed, self.games)
             self.games += 1
             self.started = at
+            self.tune_until = 0
             self.state = 'play'
 
     def press(self, k, at=None):
@@ -74,14 +76,19 @@ class Game:
                     sound |= 4
                 if wavet == 0 and g.wavet == M.WAVE_TIMER:
                     sound |= 8
+            # docs/salvo.md's sound: the lost ship's tune, then the wave's, the kill's beep, the shot's click; no
+            # click or beep while a tune plays
             if sound & 4:
                 self.tune(FALL)
+                self.tune_until = self.clock + 620
             elif sound & 8:
                 self.tune(RISE)
-            elif sound & 2:
-                self.tone(880, 20)
-            elif sound & 1:
-                self.tone(1200, 10)
+                self.tune_until = self.clock + 400
+            elif self.clock >= self.tune_until:
+                if sound & 2:
+                    self.tone(880, 20)
+                elif sound & 1:
+                    self.tone(1200, 10)
             if g.over:
                 self.state = 'over'
                 self.end_at = self.clock
@@ -155,8 +162,10 @@ def play():
         g.tick(100)
     g.tick(20, 10)                          # 0.2 s into GAME OVER: ENTER refused
     g.press('E')
-    g.tick(20, 20)
-    g.press('E')                            # 0.6 s: taken
+    g.tick(20, 14)
+    g.press('E', g.end_at + 499)            # 0.499 s: refused
+    g.tick(20)
+    g.press('E', g.end_at + 510)            # 0.51 s, 10 ms into a tick: taken, and its first tick counts 10 ms
     while g.state == 'play':
         g.tick(100)
     g.tick(100, 3)

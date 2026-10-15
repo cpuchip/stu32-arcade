@@ -20,6 +20,11 @@
 #define SALVO_ALIEN_W 13
 #define SALVO_ALIEN_H 10
 #define SALVO_TOP 12              /* the play field's top row, under the top line */
+/* the ship's box for hits: its body, without the nose's first two rows and the wing tips */
+#define SALVO_HIT_DX 2
+#define SALVO_HIT_Y 230
+#define SALVO_HIT_W 11
+#define SALVO_HIT_H 6
 
 /* the keys, as the trace names them: 4, SOFT1, 6, SOFT6, then the five that fire: 8, ENTER, 9, ×, + */
 enum salvo_key { SALVO_K4, SALVO_KS1, SALVO_K6, SALVO_KS6, SALVO_K8, SALVO_KE, SALVO_K9, SALVO_KX, SALVO_KP,
@@ -43,12 +48,14 @@ typedef struct {
     uint32_t step, acc;
     uint32_t score, next;         /* next: the multiple of 10,000 the next extra ship waits for */
     int16_t sx;
-    uint8_t lives, wave;
+    uint8_t lives;
+    uint16_t wave;
     bool over;
     uint8_t ship_t, wave_t;       /* the ship's timer (0: in play) and the wave's (0: not running) */
     int16_t fx, fy;
     int8_t fdir;
-    uint16_t sway, dive;
+    uint32_t sway;
+    uint16_t dive;
     uint8_t cool;
     salvo_pt shot[SALVO_SHOTS], eshot[SALVO_ESHOTS];
     uint8_t nshot, neshot;        /* oldest first */

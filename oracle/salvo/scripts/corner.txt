@@ -1,0 +1,28 @@
+# corner: the ship is drawn 15 x 8 at (sx, 228) but hit as the box (sx + 2, 230, 11, 6). With sx 192 the box is
+# x 194-204, y 230-235. Each enemy shot (2 x 4) starts at y 220 and moves 6 a step: 226, 232, 238, then gone.
+
+# 1. x 192 (192-193): over the sprite's left corner, outside the box: it falls past, no ship lost
+game 1 0
+set fy 20
+set dive 99
+eshot 192 220
+steps 4
+# 2. x 193 (193-194): its right pixel is in the box: lost on the second step (y 232)
+game 1 0
+set fy 20
+set dive 99
+eshot 193 220
+steps 2
+# 3. x 205 (205-206): over the sprite's right corner, outside the box: no ship lost
+game 1 0
+set fy 20
+set dive 99
+eshot 205 220
+steps 4
+# 4. x 199, the nose: at y 226 (226-229) it is on the sprite's top rows but above the box; the hit comes a step
+# later at y 232
+game 1 0
+set fy 20
+set dive 99
+eshot 199 220
+steps 2

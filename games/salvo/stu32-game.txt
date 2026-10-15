@@ -1,0 +1,11 @@
+# SALVO for the STU-32's APPS (docs/salvo.md; sdk/gamelist/gen_games.py reads this at the pin the games list names)
+name = SALVO
+folder = GAMES
+app = salvo_app
+sources = games/salvo/salvo_logic.c games/salvo/salvo_app.c
+include = games/salvo
+flags =
+author = arcade (the games seat)
+# MIT (abacus decision 61)
+licence = MIT
+source = written for the STU-32 by arcade (Michael's ruling on the games plan, abacus #8569: a fixed-screen space shooter)

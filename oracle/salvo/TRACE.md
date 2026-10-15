@@ -5,16 +5,18 @@ after every step, so a diff of the two outputs finds the first step where they d
 
 ## Commands
 
-- `game SEED GAME` a new game: SEED is app_seed()'s u32, GAME the count of games started; the draw state is
-  `mix64(SEED ^ mix64(GAME))`. sx 192, lives 3, score 0, wave 1, the accumulator 0, no keys held or latched, and
-  the wave's start (docs/salvo.md).
+- `game SEED GAME` a new game: SEED is app_seed()'s u32, GAME the count of games started before this one; the draw state
+  is `mix64(SEED ^ mix64(GAME))`. sx 192, lives 3, score 0, wave 1, the accumulator 0, no keys held or latched, and the
+  wave's start (docs/salvo.md).
 - `down K`, `up K` a key's down or up. K is one of `4 S1 6 S6 8 E 9 X P` (4, SOFT1, 6, SOFT6, 8, ENTER, 9, ×, +).
 - `tick MS` a tick of MS ms, capped at 100, into the accumulator; each step it runs prints its line.
 - `steps N` N steps straight away (the accumulator untouched), each printing its line.
 - `set NAME VALUE` sets one of the scalars below by its trace name (sx lives score wave over ship wavet fx fy fdir
   sway dive cool next acc).
 - `alien I CODE` sets alien I (slot order, r × 8 + c) to CODE as the state line writes it (below).
-- `shot X Y` and `eshot X Y` add a shot or an enemy shot (as the newest); `clear shots`, `clear eshots` remove all.
+- `shot X Y` and `eshot X Y` add a shot or an enemy shot (as the newest; a shot added this way moves on the next step
+  like any other, so its first swept box reaches 12 px below where it was put); `clear shots`, `clear eshots` remove
+  all.
 - `draw?` prints `draw N` with the next value of draw(1000), consuming it (for checking the generator).
 
 Once the game is over, ticks and steps run nothing and print nothing.
