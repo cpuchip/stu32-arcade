@@ -54,17 +54,19 @@ shot moves 12 px up each step and is gone once its bottom (y + 6) is at or above
 **The formation.** 32 slots, row r 0-3 by column c 0-7, slot (r, c) at `(fx + 24c, fy + 16r)`; an alien is 13 × 10.
 Row 0 is the flagship row, row 1 the escorts, rows 2 and 3 the drones. A wave starts with fx = 108, fy = −60, and
 every alien in its slot.
-- **Entry.** While fy < 20, fy rises by 4 each step (20 steps). Nothing dives or fires until it is in.
-- **Sway.** After the entry, on every 4th step (counting the first step after it as 1, so steps 4, 8, …), fx moves
+- **Entry.** While fy < 20, fy rises by 4 each step (20 steps). The step on which fy reaches 20 ends the entry: the
+  sway's count is set to 0 and the dive counter to the gap (both counted from the next step). Nothing dives or fires
+  until then.
+- **Sway.** After the entry, each step adds 1 to the sway's count, and when the count is a multiple of 4, fx moves
   4 px in its direction, rightward at a wave's start; when that would take it below 8 or above 208, the direction
   turns first and the move is the other way. The aliens' wings flap on each sway move (two frames).
 
 **An alien** is in its slot, diving, returning or dead.
-- **The dive's start.** The dive gap is `max(12, 40 − 4 × (wave − 1))` steps. A dive counter, set to the gap when the
-  entry ends, counts down by 1 each step the ship is alive; at 0 it is set to the gap again and, if fewer than `min(4, 1
-  + wave)` aliens are diving, one starts: c = draw(8), then the first of columns c, c + 1, … (mod 8) that has an alien
-  in its slot, and in it the lowest such alien (the largest r). With none in any slot, nothing starts. A diver also
-  takes `fire_at = 6 + draw(10)`.
+- **The dive's start.** The dive gap is `max(12, 40 − 4 × (wave − 1))` steps. A dive counter (set as the entry ends)
+  counts down by 1 in each later step while the ship is alive; at 0 it is set to the gap again and, if fewer than
+  `min(4, 1 + wave)` aliens are diving, one starts: c = draw(8), then the first of columns c, c + 1, … (mod 8) that has
+  an alien in its slot, and in it the lowest such alien (the largest r). With none in any slot, nothing starts. A diver
+  also takes `fire_at = 6 + draw(10)`.
 - **Diving.** From its slot's position; it first moves on the next step, its dive's step 0. Each step: on its dive's
   step 0 and every 4th step after, `vx = clamp((sx + 1 − x) / 12, −3, 3)`, the division truncated toward zero; then x +=
   vx (clamped to 0-387) and y += 5. On its dive's step fire_at, if y < 180 and fewer than 6 enemy shots fly, it fires
@@ -81,7 +83,7 @@ every alien in its slot.
 4. the aliens: each returning one, then each diving one, by slot order; then the dive counter;
 5. the enemy shots move;
 6. the hits, below;
-7. the wave's and the ship's timers.
+7. the timers, below.
 
 **The hits.**
 1. Each shot, oldest first, against the aliens in slot order (in a slot, diving or returning): the first it overlaps
@@ -96,8 +98,13 @@ none, the game is over.
 
 **Extra ships.** One each time the score passes a multiple of 10,000, unless lives are already 5.
 
-**The wave's end.** When no alien is left and the ship is in play (after a lost ship, from its return), every shot and
-enemy shot is gone, 30 steps pass, and the next wave starts (wave + 1) as above. Waves go on until the ships run out.
+**The timers** (step 7), in this order:
+- **The ship's.** A hit sets it to 40. In each later step it goes down by 1, and on reaching 0 the ship returns as
+  above, or, with no lives left, the game is over and nothing steps again.
+- **The wave's.** When no alien is left, the ship is in play and the wave's timer is not running, every shot and
+  enemy shot is gone and the timer is set to 30. In each later step it goes down by 1, and on reaching 0 the next
+  wave starts (wave + 1): fx 108, fy −60, the sway's direction rightward, every alien in its slot, its entry from
+  the next step. Waves go on until the ships run out.
 
 ## The screen (400 × 240, draw.h only)
 
