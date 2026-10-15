@@ -1,0 +1,164 @@
+# Salvo: hold off the swarm (blueprint)
+
+Michael's ruling on the games plan (abacus #8569): a top-down space shooter in the style of the fixed-screen arcade
+shooters, where a formation of aliens hangs at the top and peels off in dives at the player's ship. SALVO is a
+generic word (a burst of fire) and fits the APPS menu's five cells. The name waits for Michael's word; a web search
+found indie games of that name and no live trademark covering games, which is not a register search. The rules, the
+numbers and every sprite below are ours. This is Salvo's design and the checks that will judge it, written before
+any of its code.
+
+## A game
+
+The ship sits at the bottom of the screen and moves left and right. A formation of 32 aliens slides in at the top,
+sways from side to side, and sends aliens down in dives that fire at the ship and try to ram it. A diver that misses
+flies off the bottom and drops back into its place from the top. Shooting every alien clears the wave, and the next
+wave dives sooner and in larger numbers. The ship has three lives; the score is what the shots earn.
+
+| key | does |
+|---|---|
+| 4 or SOFT1 | move left while held |
+| 6 or SOFT6 | move right while held |
+| 8, ENTER, 9, × or + | fire while held (a shot as often as the rules allow) |
+| ENTER | starts a game from the title, or a new one after the end |
+| C | the framework's: saves and ends the game |
+
+The keys come from Michael's asks for Babal and Snake (abacus #8558): the soft keys at the top corners for the
+thumbs, and every key near the right hand that is free in play for the trigger. Moving and firing at once needs two
+keys held together, which Rev A's diode matrix allows; the rollover log on board 0001 is the measurement.
+
+## The rules (all integers)
+
+**The field.** x 0-399 to the right, y downward; the play field is y 12-239, under a 12 px top line. A thing is a
+rectangle (x, y, w, h); two overlap when `x1 < x2 + w2 and x2 < x1 + w1 and y1 < y2 + h2 and y2 < y1 + h1`.
+
+**The clock.** The game steps every 50 ms. A tick adds its ms, at most 100, to an accumulator; while it holds 50, a
+step runs and 50 is taken off (so a tick gives at most two steps). A game starts on ENTER, and its first tick counts
+only the time since that key.
+
+**The keys in play.** A key's down sets it held, its up clears it, and a down also latches its action for the next
+step, so a tap shorter than a step still counts once. Left is any left key held or latched, right the same, fire
+any fire key held or latched. The latches clear after each step.
+
+**The draws.** Each game has a state `x = mix64(seed ^ mix64(game))` (Aim's mix64; `seed = app_seed()`, `game` the
+count of games started, kept in the save), and `draw(n)` is `x = mix64(x)` then `x % n`. Every draw comes from this
+one state, in the order the rules below make them (a dive's column, then its fire_at), so the model, the host and
+the device draw the same numbers from the same seed and save; nothing else in the game is random.
+
+**The ship.** 15 × 8 at (sx, 228); a game starts with sx = 192. In a step, left and not right moves it 5 px left,
+right and not left 5 px right, clamped to 0-385.
+
+**The shots.** At most 2 on the field, each 1 × 6. A cooldown counts down by 1 each step to 0. When the ship is alive,
+fire is on, the cooldown is 0 and fewer than 2 shots fly, a shot appears at (sx + 7, 222) and the cooldown becomes 6. A
+shot moves 12 px up each step and is gone once its bottom (y + 6) is at or above 12.
+
+**The formation.** 32 slots, row r 0-3 by column c 0-7, slot (r, c) at `(fx + 24c, fy + 16r)`; an alien is 13 × 10.
+Row 0 is the flagship row, row 1 the escorts, rows 2 and 3 the drones. A wave starts with fx = 108, fy = −60, and
+every alien in its slot.
+- **Entry.** While fy < 20, fy rises by 4 each step (20 steps). Nothing dives or fires until it is in.
+- **Sway.** After the entry, on every 4th step (counting the first step after it as 1, so steps 4, 8, …), fx moves
+  4 px in its direction, rightward at a wave's start; when that would take it below 8 or above 208, the direction
+  turns first and the move is the other way. The aliens' wings flap on each sway move (two frames).
+
+**An alien** is in its slot, diving, returning or dead.
+- **The dive's start.** The dive gap is `max(12, 40 − 4 × (wave − 1))` steps. A dive counter, set to the gap when the
+  entry ends, counts down by 1 each step the ship is alive; at 0 it is set to the gap again and, if fewer than `min(4, 1
+  + wave)` aliens are diving, one starts: c = draw(8), then the first of columns c, c + 1, … (mod 8) that has an alien
+  in its slot, and in it the lowest such alien (the largest r). With none in any slot, nothing starts. A diver also
+  takes `fire_at = 6 + draw(10)`.
+- **Diving.** From its slot's position; it first moves on the next step, its dive's step 0. Each step: on its dive's
+  step 0 and every 4th step after, `vx = clamp((sx + 1 − x) / 12, −3, 3)`, the division truncated toward zero; then x +=
+  vx (clamped to 0-387) and y += 5. On its dive's step fire_at, if y < 180 and fewer than 6 enemy shots fly, it fires
+  one. After its move, at y ≥ 240 it starts returning.
+- **Returning.** It reappears at its slot's x with y = −10. Each step x is its slot's x and y += 4; once y is at
+  or below the slot's y (y ≥ slot y) it takes the slot's y and is back in its slot.
+
+**Enemy shots.** 2 × 4, from (x + 6, y + 10) of the alien that fires; 6 px down each step; gone at y ≥ 240.
+
+**One step**, in this order:
+1. the ship moves (if it is alive);
+2. the shots move, then one may be fired;
+3. the formation: the entry, or the sway;
+4. the aliens: each returning one, then each diving one, by slot order; then the dive counter;
+5. the enemy shots move;
+6. the hits, below;
+7. the wave's and the ship's timers.
+
+**The hits.**
+1. Each shot, oldest first, against the aliens in slot order (in a slot, diving or returning): the first it overlaps
+   dies, and the shot is gone. It scores 150, 80 or 50 (flagship, escort, drone), doubled for a diver.
+2. If the ship is alive, each enemy shot against it, then each diver by slot order: the first that overlaps it hits
+   the ship (a diver that hits it dies too, scoring nothing), and the rest are not tested.
+
+**A lost ship.** Lives (the ships left, the one in play included; 3 at the start) go down by 1. Every shot and
+enemy shot is gone, and every diving or returning alien is back in its slot. For 40 steps the ship shows its
+explosion and nothing dives. Then, with lives left, the ship returns at sx = 192 and the dive counter is 20; with
+none, the game is over.
+
+**Extra ships.** One each time the score passes a multiple of 10,000, unless lives are already 5.
+
+**The wave's end.** When no alien is left and the ship is in play (after a lost ship, from its return), every shot and
+enemy shot is gone, 30 steps pass, and the next wave starts (wave + 1) as above. Waves go on until the ships run out.
+
+## The screen (400 × 240, draw.h only)
+
+- The top line, 12 px: SCORE, the wave, and a small ship for each life held beyond the one in play.
+- 48 fixed stars on the play field (from mix64 of a constant, the same every game), drawn first, so a star costs a
+  row only where a sprite crosses it.
+- Sprites in 1 bit: the ship 15 × 8, three alien kinds 13 × 10 with two wing frames each, a 13 × 10 burst shown for
+  4 steps where an alien dies, and the ship's own burst for its 40 steps.
+- Game over: GAME OVER with the score and the best. ENTER at least 0.5 s after the end (by the key's own time) plays
+  again.
+- The title: SALVO, the keys ("4 6 OR SOFT 1 6 MOVE", "8 9 × + ENTER FIRE"), ENTER PLAYS, and the best once there
+  is one.
+- Sound: a click for a shot (1,200 Hz, 10 ms), a beep for a kill (880 Hz, 20 ms), a falling tune for a lost ship
+  (392, 330, 262 Hz), a rising one for a cleared wave (523, 659, 784 Hz).
+
+**The frame's cost.** Rev A sends only the rows that changed, at 1 MHz: 52 bytes, about 0.42 ms, a row. A throwaway
+model of this layout with random motion (2 to 4 divers, 2 shots, 6 enemy shots, the sway every 4th step) changed
+about 71 rows a step on average, 109 at the 95th percentile and 131 at worst over 6,000 steps: about 30, 45 and
+55 ms. So the 50 ms step draws every frame nearly always, and a busy moment drops one. A scrolling background would
+change all 240 rows, about 100 ms, which is why the field is fixed. These are computed; the device bench measures them.
+
+**When a frame overruns.** The steps never slow and the frames skip. The game's state is a function of the ticks'
+ms alone (the clock above). A frame whose transfer takes longer than 50 ms delays the next tick, that tick carries
+the extra ms into the accumulator, and once it holds two steps' worth a tick runs both; the frame drawn after that
+tick shows the state after both, so one step is never seen. Play keeps wall-clock time up to the 100 ms cap. The
+model is driven by the same ticks the scripts give, so it matches by construction, and the scripts include ticks of
+50, 60, 99, 100 and 250 ms to check the catch-up, its two-step limit and the cap.
+
+## What it saves
+
+16 bytes: 'V', version 1, the best score (u32), the games started (u32), little-endian, then six zeros. Taken whole
+or not at all: a save that is short, has the wrong magic or version, or a non-zero byte in the last six is not
+taken. The best is updated in memory at each kill; the framework takes the save only when the app exits (C, the idle
+limit, a soft off or a low battery), and stores it only if it changed, so a kill never writes flash.
+
+## Where it lives
+
+`games/salvo/salvo_logic.{h,c}`: the field, the step and the hits, with no draw or framework calls.
+`games/salvo/salvo_app.c`: the app_def, the keys' held state and latches, the screens and the sound.
+`games/salvo/stu32-game.txt`: name SALVO, folder GAMES, MIT. `tests/salvo_trace.c` prints what the oracle prints.
+Budget: at most 10 KB of flash and no internal RAM, as for each game so far; the state is a few hundred bytes.
+
+## The oracle (written before the game)
+
+`oracle/salvo/`, Python, from this file alone:
+
+1. **The model** (`model.py`): the rules above. The C must print the same state (the ship, each shot, each alien's
+   state and place, the enemy shots, the counters, the score, lives and wave) after every step for fuzzed key
+   scripts over many seeds, with held keys, taps shorter than a step, and both directions at once.
+2. **Long games** (`pilot.py`): an autopilot that steers under the lowest alien and fires, and dodges an enemy shot
+   above it, in the model and the C, for several seeds over many waves: wave changes, extra ships at 10,000 and the
+   cap at 5, the dive limits as the waves grow, and a game played to its end. The two traces must be identical.
+3. **The rules at their edges**, by hand: a shot at the top line, a third shot refused, the cooldown at 0 and 1, the
+   sway at both turns, a dive's start with an empty column and with none in any slot, vx at a division that rounds
+   toward zero, a diver firing at y 179 and refused at 180, a diver leaving at 239 and 240, a return landing exactly
+   on its slot, a shot and an enemy shot on the same step as a lost ship, the last alien shot while diving.
+4. **The app on the SDK runner**: scripted games with frame hashes and the ticks' asks (`-keyframes`, `-nexts`),
+   the save, and every tone and tune; ENTER partway through a title tick; ticks of 100 and 250 ms; damaged saves
+   that must be refused. The same through the .wasm and the bridge.
+5. **Plants**, each of which must go red: among them the latch dropped, the ship's clamp off by one, a third shot,
+   the sway's turn late, the dive's column order, vx rounded the wrong way, the diver's fire limit, a lost ship
+   leaving divers out, the extra-ship cap, the save's zero bytes ignored.
+6. **On the S3**: the scripts' frames against the host's on the stand-in bench, with a control that must fail, and
+   on Rev A the frame time, the changed rows and the time between frames for a scripted busy wave.
