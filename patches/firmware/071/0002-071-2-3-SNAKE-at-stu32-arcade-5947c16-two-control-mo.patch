@@ -1,0 +1,59 @@
+From a79dcb49d7eb81b2d9e16dab784bbf0fa14f43a9 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Thu, 15 Oct 2026 22:21:30 +0000
+Subject: [PATCH 2/3] 071 (2/3): SNAKE at stu32-arcade 5947c16: two control
+ modes, TURN the default
+
+Michael's asks and ruling (abacus #8558, #8610): TURN, where 4 or SOFT1 turns a quarter
+turn left of the heading and 6 or SOFT6 right, is the default; 8 2 4 6 is the other mode,
+changed with 4 or 6 on the title, kept in the save's first spare byte (a save from before
+loads as TURN with its best); one best for both. device/standin/snake.txt's second game now
+turns up with 4, TURN's left, where it used 8.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ device/standin/snake.txt | 10 +++++-----
+ games.list               |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/device/standin/snake.txt b/device/standin/snake.txt
+index b7a4df0..dc65a19 100644
+--- a/device/standin/snake.txt
++++ b/device/standin/snake.txt
+@@ -1,7 +1,7 @@
+ # SNAKE under APPS on the board (arcade's unit, soroban's gate; stu32-arcade docs/snake.md): APPS (blue 0) lists KEYS,
+-# BABAL, AIM, LAND and SNAKE; SNAKE's title, ENTER for a game, the frame rate while it runs right into the wall (the
+-# food comes from the hardware RNG, so eating is the host's check, stu32-arcade make snakecheck), GAME OVER, ENTER
+-# and 8 for a second game that runs up into the top wall. X prints stack-free before app:, so expect-min comes
++# BABAL, AIM, LAND and SNAKE; SNAKE's title in TURN, the default, ENTER for a game, the frame rate while it runs right
++# into the wall (the food comes from the hardware RNG, so eating is the host's check, stu32-arcade make snakecheck),
++# GAME OVER, ENTER and 4 (TURN's quarter turn left) for a second game that runs up into the top wall. X prints stack-free before app:, so expect-min comes
+ # first. C ends SNAKE, and 2 ENTER 3 + must still give 5.
+ send RESTART
+ wait STANDIN READY 30
+@@ -44,8 +44,8 @@ sleep 6
+ send K18
+ send U18
+ sleep 0.2
+-send K26
+-send U26
++send K31
++send U31
+ sleep 3
+ send X
+ expect-min stack-free 2048
+diff --git a/games.list b/games.list
+index 482f9d1..c80d807 100644
+--- a/games.list
++++ b/games.list
+@@ -10,6 +10,6 @@ aim    stu32-arcade  5fe8ceaceedd3d4aac5513f1c7e713b45aa24509  MIT
+ # LAND: arcade's, set the ship down on a pad (Michael's decision 71; stu32-arcade docs/land.md)
+ land   stu32-arcade  e20cd98bed21758b256604011ae11b67a809d671  MIT                        games/land/stu32-game.txt
+ # SNAKE: arcade's, eat, grow, and keep off the walls and yourself (Michael's decision 71; stu32-arcade docs/snake.md)
+-snake  stu32-arcade  a01609b50a074660ff29ba72d7a50a4cca2fc6c5  MIT                        games/snake/stu32-game.txt
++snake  stu32-arcade  5947c16d6b96928b5511129a6024c2ea570d152e  MIT                        games/snake/stu32-game.txt
+ # MINES: arcade's, clear the field with no guess ever needed (Michael's decision 71; stu32-arcade docs/mines.md)
+ mines  stu32-arcade  7344045c918f2818963ab5946aca3f3d3fad644f  MIT                        games/mines/stu32-game.txt
+-- 
+2.53.0
+
