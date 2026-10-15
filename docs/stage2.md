@@ -216,6 +216,10 @@ control red; draw 1.5 ms average, 4.3 ms worst; tick 170 us average, 501 us wors
 ## Next
 
 - Controls (proposed, with Michael through basecamp, d15): 4 and 6 steer, 8 and ENTER jump, C exits.
+- More keys at Michael's ask (abacus #8558, 2026-10-15): in play SOFT1 also steers left and SOFT6 right (thumbs at
+  the screen's top corners), and 9, × and + also jump. A side held by two keys at once steers as one: the app tells
+  babalcore the side went down with its first key and up with its last (babalcore would add the two). On the title
+  the soft keys still pick a skill. Rev A's matrix takes two keys at once (the rollover log on board 0005, #8604).
 - The registry patch is with soroban (patches/firmware/0001-*.patch, #4593), abacus reviewing.
 - Changed-line updates: measured on the host (consecutive frames compared line by line, 63,068
   frames of three oracle games): Babal changes about half the lines a frame, median 131-167 of

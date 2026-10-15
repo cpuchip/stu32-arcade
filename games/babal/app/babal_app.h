@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 /* Babal by Christian Mauduit, gitlab.com/liberecofr/babal (public domain, the Unlicense).
  * Babal under APPS (unit 037, apps.h v1): the rules of games/babal/core/ played from the STU-32's keys,
- * drawn by render.c, a beep on bounces. Keys (proposed, with Michael through basecamp, d15):
- * 4 and 6 steer, 8 and ENTER jump, C ends (the framework's). */
+ * drawn by render.c, a beep on bounces. Keys (proposed, with Michael through basecamp, d15; more at his ask,
+ * abacus #8558): 4 or SOFT1 and 6 or SOFT6 steer, 8, ENTER, 9, x and + jump, C ends (the framework's). */
 #ifndef BABAL_APP_H
 #define BABAL_APP_H
 
@@ -17,6 +17,11 @@
 #define BABAL_KEY_RIGHT APP_KEY_6
 #define BABAL_KEY_JUMP APP_KEY_8
 #define BABAL_KEY_ENTER APP_KEY_ENTER
+#define BABAL_KEY_LEFT2 APP_KEY_SOFT1     /* in play only: on the title the soft keys pick a skill */
+#define BABAL_KEY_RIGHT2 APP_KEY_SOFT6
+#define BABAL_KEY_JUMP2 APP_KEY_9         /* in play only, like ENTER and 8 */
+#define BABAL_KEY_JUMP3 APP_KEY_TIMES
+#define BABAL_KEY_JUMP4 APP_KEY_PLUS
 _Static_assert(APP_KEY_SOFT5 - APP_KEY_SOFT1 == BB_EXPERT - BB_NOOB, "a soft key a skill, in order");
 /* The whole level and the whole scores log (docs/stage2.md: a struggling player drifts back
  * without limit, so a window of recent rows is not enough); tools/drift.c builds bigger ones too. */
@@ -40,6 +45,7 @@ typedef struct {
     bb_player player;
     bb_input_steer steer;
     bb_input_jump jump;
+    uint8_t left_held, right_held; /* a bit a key: a side steers while any of its keys is down */
     int state;
     bb_skill skill;
     uint32_t now_ms;        /* the app's clock: the sum of the ticks' ms */

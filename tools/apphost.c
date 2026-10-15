@@ -5,7 +5,8 @@
  *
  * 1. The rules, against babalcore: every game is written as an oracle/ref script (PREFIX.gN.oracle:
  *    its seed, skill and the saved best, then the keys and steps by this file's own copy of the key
- *    spec: 31 left, 33 right, 26 and 18 jump on the press, steps clamped to 100 ms), and every tick
+ *    spec: 31 or 0 left and 33 or 5 right, a side down with its first key and up with its last; 26, 18,
+ *    27, 34 and 46 jump on the press; steps clamped to 100 ms), and every tick
  *    of it printed here as oracle/out.c prints it, under a "game N" line, for oracle/app_check.sh.
  * 2. The app's own rules, against the spec below (exit 5): at the title a soft key k starts skill k,
  *    ENTER and 8 start the shown skill, 4 and 6 step it, every other key and every release does
@@ -46,7 +47,9 @@ void ref_render(ls027_frame *f, const bb_level *lvl, const bb_player *p, const b
 int ref_text(ls027_frame *f, int x, int y, int scale, const char *s);
 
 /* ---- the spec, written here and not taken from the app ---- */
-enum { K_LEFT = 31, K_RIGHT = 33, K_JUMP = 26, K_ENTER = 18 };
+enum { K_LEFT = 31, K_RIGHT = 33, K_JUMP = 26, K_ENTER = 18, K_LEFT2 = 0, K_RIGHT2 = 5, K_JUMP2 = 27, K_JUMP3 = 34,
+       K_JUMP4 = 46 };
+static int held_l, held_r; /* the spec's own count of each side's keys down in this game */
 #define STEP_MAX 100
 #define DONE_HOLD 600
 static const struct {
@@ -235,8 +238,9 @@ static void expected_frame(void)
             ref_text(&want, centred((int)strlen(text), 2), 150, 2, text);
         }
         ref_text(&want, centred((int)strlen("gitlab.com/liberecofr/babal"), 2), 172, 2, "gitlab.com/liberecofr/babal");
-        ref_text(&want, centred(24, 2), 196, 2, "4 6 SKILL   8 ENTER JUMP");
-        ref_text(&want, centred(20, 2), 218, 2, "ENTER PLAYS   C ENDS");
+        ref_text(&want, centred(23, 2), 196, 2, "4 6 SKILL   ENTER PLAYS");
+        ref_text(&want, centred(50, 1), 218, 1, "PLAY: STEER 4 6 OR SOFT 1 6, JUMP 8 9 \xd7 + OR ENTER");
+        ref_text(&want, centred(6, 1), 228, 1, "C ENDS");
         return;
     }
     const bb_player *p = &ctx.player;
@@ -308,6 +312,7 @@ static void game_started(int key, int skill_before)
         fail(5, "soft key %d started skill %d", key, ctx.skill);
     if ((key == K_ENTER || key == K_JUMP) && ctx.skill != (bb_skill)skill_before)
         fail(5, "ENTER or 8 changed the skill");
+    held_l = held_r = 0; /* keys down on the title do not steer the new game */
     if (seed_calls != games + 1)
         fail(5, "game %d took %d seeds from app_seed in this session, not %d", games + 1, seed_calls, games + 1);
     for (int g = 0; g < games && g < 256; g++) /* this session's games */
@@ -383,12 +388,16 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
                          ctx.state == BABAL_TITLE ? "left" : "stayed");
             }
             if (was == BABAL_PLAY) {
-                if (k == K_LEFT)
-                    fprintf(oracle, "at %" PRIu64 "\nL %d\n", (uint64_t)ms * 1000000, d);
-                else if (k == K_RIGHT)
-                    fprintf(oracle, "at %" PRIu64 "\nR %d\n", (uint64_t)ms * 1000000, d);
-                else if ((k == K_JUMP || k == K_ENTER) && d)
+                int *side = k == K_LEFT || k == K_LEFT2 ? &held_l : k == K_RIGHT || k == K_RIGHT2 ? &held_r : NULL;
+                if (side) {
+                    int bit = k == K_LEFT || k == K_RIGHT ? 1 : 2, before = *side != 0;
+                    *side = d ? *side | bit : *side & ~bit;
+                    if ((*side != 0) != before)
+                        fprintf(oracle, "at %" PRIu64 "\n%c %d\n", (uint64_t)ms * 1000000, side == &held_l ? 'L' : 'R',
+                                *side != 0);
+                } else if ((k == K_JUMP || k == K_ENTER || k == K_JUMP2 || k == K_JUMP3 || k == K_JUMP4) && d) {
                     fprintf(oracle, "at %" PRIu64 "\nJ\n", (uint64_t)ms * 1000000);
+                }
             }
         } else if (sscanf(line, "tick %u", &ms) == 1) {
             int was = ctx.state;

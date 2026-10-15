@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: MIT
 """Write app scripts for tools/apphost.c: a session at the title (skill keys), a start, then play:
 ticks of uneven length (some 0, some long enough to be clamped) with key presses, releases and jumps
-at their own times between the ticks, until the time runs out or MAX ticks.
+at their own times between the ticks (both keys of a side, so a side is often held by two), until the
+time runs out or MAX ticks.
 Also app-far: a noob game played as the original is, weaving (4 and 6 held in turn) and jumping, to
 go far down the track: the random sessions stop near row 85 at the finish, short of where rows must be
 made ahead of the ball (row 100), which only luck in the seeds had reached (oracle/app_check.sh
@@ -13,6 +14,7 @@ import random
 import sys
 
 LEFT, RIGHT, JUMP, ENTER = 31, 33, 26, 18
+SOFT1, SOFT6, NINE, TIMES, PLUS = 0, 5, 27, 34, 46   # in play: SOFT1 left, SOFT6 right, the rest jump
 
 
 def session(rng, ticks, start=None):
@@ -37,12 +39,12 @@ def session(rng, ticks, start=None):
     a = clock + rng.randrange(0, ms)
     out += [f"key {start} 1 {a}", f"key {start} 0 {a}"]
     tick(ms)
-    held = {LEFT: False, RIGHT: False}
+    held = {LEFT: False, RIGHT: False, SOFT1: False, SOFT6: False}
     for _ in range(ticks):
         r = rng.random()
         ms = 0 if r < 0.01 else rng.randrange(150, 400) if r < 0.03 else rng.randrange(20, 80)
         for at in sorted(clock + rng.randrange(0, ms + 1) for _ in range(rng.choice([0, 0, 0, 1, 1, 2]))):
-            k = rng.choice([LEFT, RIGHT, LEFT, RIGHT, JUMP, ENTER])
+            k = rng.choice([LEFT, RIGHT, LEFT, RIGHT, SOFT1, SOFT6, JUMP, ENTER, NINE, TIMES, PLUS])
             if k in held:
                 held[k] = not held[k]
                 out.append(f"key {k} {int(held[k])} {at}")

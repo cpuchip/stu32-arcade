@@ -135,6 +135,20 @@ static void generate_ahead(babal_ctx *c)
         bb_level_generate(&c->level, 1);
 }
 
+/* a side's keys held together steer as one: babalcore sees the side go down with the first and up with the last */
+static void steer(babal_ctx *c, uint8_t *held, uint8_t bit, bool down, bool right, bb_instant t)
+{
+    bool was = *held != 0;
+    *held = (uint8_t)(down ? *held | bit : *held & ~bit);
+    bool now = *held != 0;
+    if (now == was)
+        return;
+    if (right)
+        bb_input_steer_right_key(&c->steer, 2, 1.0, now, t);
+    else
+        bb_input_steer_left_key(&c->steer, 1, 1.0, now, t);
+}
+
 static void start_game(babal_ctx *c, uint32_t ms)
 {
     c->games++;
@@ -147,6 +161,7 @@ static void start_game(babal_ctx *c, uint32_t ms)
     bb_player_set_best_score(&c->player, best_score(c));
     bb_input_steer_init(&c->steer);
     bb_input_jump_init(&c->jump);
+    c->left_held = c->right_held = 0;
     c->last_events.n = 0;
     c->new_record = false;
     c->score_saved = false;
@@ -230,11 +245,12 @@ static bool babal_key(void *ctx, int key, bool down, uint32_t ms)
             start_game(c, ms);
         return true;
     case BABAL_PLAY:
-        if (key == BABAL_KEY_LEFT)
-            bb_input_steer_left_key(&c->steer, 1, 1.0, down, t);
-        else if (key == BABAL_KEY_RIGHT)
-            bb_input_steer_right_key(&c->steer, 2, 1.0, down, t);
-        else if ((key == BABAL_KEY_JUMP || key == BABAL_KEY_ENTER) && down)
+        if (key == BABAL_KEY_LEFT || key == BABAL_KEY_LEFT2)
+            steer(c, &c->left_held, key == BABAL_KEY_LEFT ? 1 : 2, down, false, t);
+        else if (key == BABAL_KEY_RIGHT || key == BABAL_KEY_RIGHT2)
+            steer(c, &c->right_held, key == BABAL_KEY_RIGHT ? 1 : 2, down, true, t);
+        else if ((key == BABAL_KEY_JUMP || key == BABAL_KEY_ENTER || key == BABAL_KEY_JUMP2 || key == BABAL_KEY_JUMP3
+                  || key == BABAL_KEY_JUMP4) && down)
             bb_input_jump_push_jump(&c->jump, t);
         return false; /* the picture changes on the tick */
     default:
@@ -315,9 +331,11 @@ static void babal_draw(void *ctx, ls027_frame *f)
             babal_text(f, centred((int)strlen(text), 2), 150, 2, text);
         }
         babal_text(f, centred(27, 2), 172, 2, "gitlab.com/liberecofr/babal");
-        static const char *const help[] = {"4 6 SKILL   8 ENTER JUMP", "ENTER PLAYS   C ENDS"};
+        static const char *const help[] = {"4 6 SKILL   ENTER PLAYS",
+                                           "PLAY: STEER 4 6 OR SOFT 1 6, JUMP 8 9 \xd7 + OR ENTER", "C ENDS"};
         babal_text(f, centred((int)strlen(help[0]), 2), 196, 2, help[0]);
-        babal_text(f, centred((int)strlen(help[1]), 2), 218, 2, help[1]);
+        babal_text(f, centred((int)strlen(help[1]), 1), 218, 1, help[1]);
+        babal_text(f, centred((int)strlen(help[2]), 1), 228, 1, help[2]);
         return;
     }
     /* babalgame shows the score and the progress while playing, no best */

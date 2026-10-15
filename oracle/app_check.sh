@@ -76,10 +76,13 @@ else
 fi
 
 PLANTS=(
-    "babal_app.c|s/bb_input_steer_left_key(\&c->steer, 1, 1.0, down, t);/bb_input_steer_right_key(\&c->steer, 1, 1.0, down, t);/|4 steers right"
+    "babal_app.c|s/bb_input_steer_left_key(\&c->steer, 1, 1.0, now, t);/bb_input_steer_right_key(\&c->steer, 1, 1.0, now, t);/|4 steers right"
+    "babal_app.c|s/key == BABAL_KEY_LEFT2)/key == 999)/|SOFT1 not steering"
+    "babal_app.c|s/ : \*held \& ~bit);/ : 0);/|either key's release ending a side held by two"
+    "babal_app.c|s/key == BABAL_KEY_JUMP2 /key == 999 /|9 not jumping"
     "babal_app.h|s/#define BABAL_STEP_MAX_MS 100/#define BABAL_STEP_MAX_MS 50/|the step clamped at 50 ms"
     "babal_app.c|s/bb_instant t = (bb_instant)ms \* 1000000;/bb_instant t = (bb_instant)ms * 1000;/|key times in microseconds"
-    "babal_app.c|s/BABAL_KEY_ENTER) \&\& down)/BABAL_KEY_ENTER) \&\& !down)/|a jump on the release"
+    "babal_app.c|s/key == BABAL_KEY_JUMP4) \&\& down)/key == BABAL_KEY_JUMP4) \&\& !down)/|a jump on the release"
     "babal_app.c|s/adapter a = {c, (bb_instant)c->now_ms \* 1000000};/adapter a = {c, (bb_instant)(c->now_ms + 1) * 1000000};/|the tick's clock a millisecond late"
     "babal_app.c|/^static void generate_ahead/,/^}/s/bb_level_generate(\&c->level, 1);/(void)0;/|no rows made ahead"
     # From the stage-2 review (2026-10-07): the two defects put back, and the seven plants that survived
