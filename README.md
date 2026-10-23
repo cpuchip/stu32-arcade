@@ -43,6 +43,10 @@ with a control that must fail.
 ## Building
 
 You need a C11 compiler, `make`, `git` and `python3`; `cargo` for `make oracle`; Docker for the device benches.
+The game checks also use `xxd`. On a kernel with `vm.mmap_rnd_bits` at 32, gcc 14.4 runs their sanitized legs
+(AddressSanitizer) clean and gcc 12.2 doesn't: its sanitizer runtime dies at random with "AddressSanitizer:DEADLYSIGNAL"
+(measured on 2026-10-23: 3 of 5 runs of one script with gcc 12.2, 0 of 5 with gcc 14.4). With gcc 12.2, turn off
+address-space randomization (`setarch -R`): on 2026-10-23 every check run that way passed.
 
 The checks read nine files of the calculator's firmware (github.com/cpuchip/stu32-firmware): the 5 × 7 font, the
 screen, key and app headers, and the drawing library with its test. The Makefile exports them at the commit named in
