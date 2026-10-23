@@ -27,6 +27,7 @@ typedef struct {
     bool low_beeped;
     uint32_t now, end_at, acc, steps;
     uint32_t started;                 /* when this round began, on the game's clock */
+    uint16_t keys_down;               /* SHIP_KEYS down, a bit each */
     land_terrain t;
     land_ship s;
 } land_ctx;
@@ -105,20 +106,47 @@ static void low_fuel(land_ctx *c)
     }
 }
 
+/* Michael's layout (2026-10-23, the same in BABAL and SALVO): each hand can turn or fire, so two keys turn each way and
+ * seven fire the engine. Each key's down reaches the ship (a press counts), and its ship key is let go with the last. */
+static const struct {
+    int key;
+    uint8_t ship;
+} SHIP_KEYS[] = {
+    {APP_KEY_4, LAND_KEY_LEFT},      {APP_KEY_SOFT1, LAND_KEY_LEFT},   {APP_KEY_6, LAND_KEY_RIGHT},
+    {APP_KEY_SOFT6, LAND_KEY_RIGHT}, {APP_KEY_8, LAND_KEY_THRUST},     {APP_KEY_7, LAND_KEY_THRUST},
+    {APP_KEY_9, LAND_KEY_THRUST},    {APP_KEY_TIMES, LAND_KEY_THRUST}, {APP_KEY_GOLD, LAND_KEY_THRUST},
+    {APP_KEY_SOFT2, LAND_KEY_THRUST}, {APP_KEY_SOFT5, LAND_KEY_THRUST},
+};
+#define N_SHIP_KEYS (int)(sizeof SHIP_KEYS / sizeof SHIP_KEYS[0])
+
 static int ship_key(int key)
 {
-    return key == APP_KEY_4 ? LAND_KEY_LEFT : key == APP_KEY_6 ? LAND_KEY_RIGHT : key == APP_KEY_8 ? LAND_KEY_THRUST : 0;
+    for (int i = 0; i < N_SHIP_KEYS; i++)
+        if (SHIP_KEYS[i].key == key)
+            return i;
+    return -1;
+}
+
+/* whether any key of `ship` is down */
+static bool ship_held(const land_ctx *c, uint8_t ship)
+{
+    for (int i = 0; i < N_SHIP_KEYS; i++)
+        if (SHIP_KEYS[i].ship == ship && c->keys_down & (1u << i))
+            return true;
+    return false;
 }
 
 static bool app_key_cb(void *ctx, int key, bool down, uint32_t ms)
 {
     land_ctx *c = ctx;
-    int k = ship_key(key);
-    if (k && (c->state != TITLE || !down)) { /* held through a round's end, a key stays held into the next */
-        land_key(&c->s, k, down);
+    int i = ship_key(key);
+    if (i >= 0 && (c->state != TITLE || !down)) { /* held through a round's end, a key stays held into the next */
+        c->keys_down = (uint16_t)(down ? c->keys_down | 1u << i : c->keys_down & ~(1u << i));
+        if (down || !ship_held(c, SHIP_KEYS[i].ship))
+            land_key(&c->s, SHIP_KEYS[i].ship, down);
         return false;
     }
-    if (down && key == APP_KEY_ENTER && (c->state == TITLE || (c->state == OVER && c->now - c->end_at >= AGAIN_MS))) {
+    if (down && key == APP_KEY_ENTER && (c->state == TITLE || (c->state == OVER && ms - c->end_at >= AGAIN_MS))) {
         new_game(c, ms);
         return true;
     }
@@ -299,8 +327,9 @@ static void app_draw_cb(void *ctx, ls027_frame *f)
     draw_clear(f);
     if (c->state == TITLE) {
         centred(f, 40, 5, "LAND");
-        centred(f, 110, 2, "4 6 TURN   8 THRUST");
-        centred(f, 136, 1, "SET IT DOWN ON A PAD, UPRIGHT AND SLOW");
+        centred(f, 100, 2, "4 6 OR SOFT 1 6 TURN");
+        centred(f, 120, 2, "7 8 9 \xd7 GOLD SOFT 2 5 THRUST");
+        centred(f, 144, 1, "SET IT DOWN ON A PAD, UPRIGHT AND SLOW");
         centred(f, 168, 2, "ENTER PLAYS");
         if (c->best > 0) {
             label(t, "BEST ", (int32_t)c->best);

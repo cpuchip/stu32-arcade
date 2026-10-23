@@ -58,190 +58,190 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 31 1 1040
+key 0 1 1040
 key 33 0 1040
-key 26 1 1040
+key 25 1 1040
 tick 20
-key 31 0 1060
-key 33 1 1060
-key 26 0 1060
+key 0 0 1060
+key 5 1 1060
+key 25 0 1060
 tick 20
-key 33 0 1080
-key 26 1 1080
+key 5 0 1080
+key 27 1 1080
 tick 20
 key 33 1 1100
-key 26 0 1100
+key 27 0 1100
 tick 20
 tick 20
-key 26 1 1140
+key 34 1 1140
 tick 20
-key 26 0 1160
+key 34 0 1160
 tick 20
-key 26 1 1180
+key 30 1 1180
 tick 20
-key 26 0 1200
+key 30 0 1200
 tick 20
 key 33 0 1220
-key 26 1 1220
+key 1 1 1220
 tick 20
-key 33 1 1240
-key 26 0 1240
+key 5 1 1240
+key 1 0 1240
 tick 20
-key 26 1 1260
+key 4 1 1260
 tick 20
-key 33 0 1280
-key 26 0 1280
+key 5 0 1280
+key 4 0 1280
 tick 20
 tick 20
 key 26 1 1320
 tick 20
 key 26 0 1340
 tick 20
-key 26 1 1360
+key 25 1 1360
 tick 20
-key 26 0 1380
+key 25 0 1380
 tick 20
-key 26 1 1400
+key 27 1 1400
 tick 20
-key 26 0 1420
+key 27 0 1420
 tick 20
 tick 20
-key 26 1 1460
+key 34 1 1460
 tick 20
-key 26 0 1480
+key 34 0 1480
 tick 20
-key 26 1 1500
+key 30 1 1500
 tick 20
-key 26 0 1520
+key 30 0 1520
 tick 20
-key 26 1 1540
+key 1 1 1540
 tick 20
-key 26 0 1560
+key 1 0 1560
 tick 20
-key 26 1 1580
+key 4 1 1580
 tick 20
-key 26 0 1600
+key 4 0 1600
 tick 20
 tick 20
 key 26 1 1640
 tick 20
 key 26 0 1660
 tick 20
-key 26 1 1680
+key 25 1 1680
 tick 20
-key 26 0 1700
+key 25 0 1700
 tick 20
-key 26 1 1720
+key 27 1 1720
 tick 20
-key 26 0 1740
+key 27 0 1740
 tick 20
 tick 20
-key 26 1 1780
+key 34 1 1780
 tick 20
-key 26 0 1800
+key 34 0 1800
 tick 20
-key 26 1 1820
+key 30 1 1820
 tick 20
-key 26 0 1840
+key 30 0 1840
 tick 20
-key 26 1 1860
+key 1 1 1860
 tick 20
-key 26 0 1880
+key 1 0 1880
 tick 20
-key 26 1 1900
+key 4 1 1900
 tick 20
-key 26 0 1920
+key 4 0 1920
 tick 20
 tick 20
 key 26 1 1960
 tick 20
 key 26 0 1980
 tick 20
-key 26 1 2000
+key 25 1 2000
 tick 20
-key 26 0 2020
+key 25 0 2020
 tick 20
-key 26 1 2040
+key 27 1 2040
 tick 20
-key 26 0 2060
+key 27 0 2060
 tick 20
 tick 20
-key 26 1 2100
+key 34 1 2100
 tick 20
-key 26 0 2120
+key 34 0 2120
 tick 20
-key 26 1 2140
+key 30 1 2140
 tick 20
-key 26 0 2160
+key 30 0 2160
 tick 20
-key 26 1 2180
+key 1 1 2180
 tick 20
-key 26 0 2200
+key 1 0 2200
 tick 20
-key 26 1 2220
+key 4 1 2220
 tick 20
-key 26 0 2240
+key 4 0 2240
 tick 20
 tick 20
 key 26 1 2280
 tick 20
 key 26 0 2300
 tick 20
-key 26 1 2320
+key 25 1 2320
 tick 20
-key 26 0 2340
+key 25 0 2340
 tick 20
-key 26 1 2360
+key 27 1 2360
 tick 20
-key 26 0 2380
-tick 20
-tick 20
-key 26 1 2420
-tick 20
-key 26 0 2440
-tick 20
-key 26 1 2460
-tick 20
-key 26 0 2480
-tick 20
-key 26 1 2500
-tick 20
-key 26 0 2520
+key 27 0 2380
 tick 20
 tick 20
-key 26 1 2560
+key 34 1 2420
 tick 20
-key 26 0 2580
+key 34 0 2440
+tick 20
+key 30 1 2460
+tick 20
+key 30 0 2480
+tick 20
+key 1 1 2500
+tick 20
+key 1 0 2520
+tick 20
+tick 20
+key 4 1 2560
+tick 20
+key 4 0 2580
 tick 20
 key 26 1 2600
 tick 20
 key 26 0 2620
 tick 20
-key 26 1 2640
+key 25 1 2640
 tick 20
-key 26 0 2660
+key 25 0 2660
 tick 20
-key 26 1 2680
+key 27 1 2680
 tick 20
-key 26 0 2700
-tick 20
-tick 20
-key 26 1 2740
-tick 20
-key 26 0 2760
-tick 20
-key 26 1 2780
-tick 20
-key 26 0 2800
-tick 20
-key 26 1 2820
-tick 20
-key 26 0 2840
+key 27 0 2700
 tick 20
 tick 20
-key 26 1 2880
+key 34 1 2740
 tick 20
-key 26 0 2900
+key 34 0 2760
+tick 20
+key 30 1 2780
+tick 20
+key 30 0 2800
+tick 20
+key 1 1 2820
+tick 20
+key 1 0 2840
+tick 20
+tick 20
+key 4 1 2880
+tick 20
+key 4 0 2900
 tick 20
 key 26 1 2920
 tick 20
@@ -249,19 +249,19 @@ key 26 0 2940
 tick 20
 key 33 1 2960
 tick 20
-key 26 1 2980
+key 25 1 2980
 tick 20
-key 26 0 3000
-tick 20
-tick 20
-tick 20
-key 26 1 3060
+key 25 0 3000
 tick 20
 tick 20
-key 26 0 3100
+tick 20
+key 27 1 3060
 tick 20
 tick 20
-key 26 1 3140
+key 27 0 3100
+tick 20
+tick 20
+key 34 1 3140
 tick 20
 tick 20
 tick 20
@@ -275,9 +275,9 @@ tick 20
 tick 20
 tick 20
 key 31 1 3360
-key 26 0 3360
+key 34 0 3360
 tick 20
-key 26 1 3380
+key 30 1 3380
 tick 20
 tick 20
 tick 20
@@ -311,60 +311,60 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 31 1 4020
-key 26 0 4020
+key 0 1 4020
+key 30 0 4020
 tick 20
-key 31 0 4040
-key 33 1 4040
-key 26 1 4040
+key 0 0 4040
+key 5 1 4040
+key 1 1 4040
 tick 20
 key 31 1 4060
-key 33 0 4060
-key 26 0 4060
+key 5 0 4060
+key 1 0 4060
 tick 20
 key 31 0 4080
 key 33 1 4080
-key 26 1 4080
+key 4 1 4080
 tick 20
-key 31 1 4100
+key 0 1 4100
 key 33 0 4100
-key 26 0 4100
+key 4 0 4100
 tick 20
-key 31 0 4120
-key 33 1 4120
+key 0 0 4120
+key 5 1 4120
 key 26 1 4120
 tick 20
 key 31 1 4140
-key 33 0 4140
+key 5 0 4140
 key 26 0 4140
 tick 20
 key 31 0 4160
-key 26 1 4160
+key 25 1 4160
 tick 20
-key 31 1 4180
-key 26 0 4180
+key 0 1 4180
+key 25 0 4180
 tick 20
-key 31 0 4200
-key 26 1 4200
+key 0 0 4200
+key 27 1 4200
 tick 20
 key 31 1 4220
-key 26 0 4220
+key 27 0 4220
 tick 20
 key 31 0 4240
 key 33 1 4240
-key 26 1 4240
+key 34 1 4240
 tick 20
-key 31 1 4260
+key 0 1 4260
 key 33 0 4260
-key 26 0 4260
+key 34 0 4260
 tick 20
-key 31 0 4280
-key 33 1 4280
-key 26 1 4280
+key 0 0 4280
+key 5 1 4280
+key 30 1 4280
 tick 20
 key 31 1 4300
-key 33 0 4300
-key 26 0 4300
+key 5 0 4300
+key 30 0 4300
 tick 20
 key 31 0 4320
 key 33 1 4320
@@ -372,7 +372,7 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 26 1 4400
+key 1 1 4400
 tick 20
 tick 20
 tick 20
@@ -380,186 +380,186 @@ tick 20
 key 33 0 4480
 tick 20
 tick 20
-key 31 1 4520
-key 26 0 4520
+key 0 1 4520
+key 1 0 4520
 tick 20
-key 31 0 4540
-key 26 1 4540
+key 0 0 4540
+key 4 1 4540
 tick 20
 key 31 1 4560
-key 26 0 4560
+key 4 0 4560
 tick 20
 key 31 0 4580
-key 33 1 4580
+key 5 1 4580
 key 26 1 4580
 tick 20
-key 31 1 4600
-key 33 0 4600
+key 0 1 4600
+key 5 0 4600
 key 26 0 4600
 tick 20
-key 31 0 4620
+key 0 0 4620
 key 33 1 4620
-key 26 1 4620
+key 25 1 4620
 tick 20
 key 31 1 4640
 key 33 0 4640
-key 26 0 4640
+key 25 0 4640
 tick 20
 key 31 0 4660
-key 33 1 4660
+key 5 1 4660
 tick 20
 tick 20
 tick 20
 tick 20
-key 26 1 4740
+key 27 1 4740
 tick 20
 tick 20
 tick 20
 tick 20
-key 33 0 4820
+key 5 0 4820
 tick 20
-key 31 1 4840
-key 26 0 4840
+key 0 1 4840
+key 27 0 4840
 tick 20
-key 31 0 4860
-key 26 1 4860
+key 0 0 4860
+key 34 1 4860
 tick 20
 key 31 1 4880
-key 26 0 4880
+key 34 0 4880
 tick 20
 key 31 0 4900
 key 33 1 4900
-key 26 1 4900
+key 30 1 4900
 tick 20
-key 31 1 4920
+key 0 1 4920
 key 33 0 4920
-key 26 0 4920
+key 30 0 4920
 tick 20
-key 31 0 4940
-key 33 1 4940
-key 26 1 4940
+key 0 0 4940
+key 5 1 4940
+key 1 1 4940
 tick 20
 key 31 1 4960
-key 33 0 4960
-key 26 0 4960
+key 5 0 4960
+key 1 0 4960
 tick 20
 key 31 0 4980
 key 33 1 4980
-key 26 1 4980
+key 4 1 4980
 tick 20
-key 31 1 5000
+key 0 1 5000
 key 33 0 5000
-key 26 0 5000
+key 4 0 5000
 tick 20
-key 31 0 5020
+key 0 0 5020
 key 26 1 5020
 tick 20
 key 31 1 5040
 key 26 0 5040
 tick 20
 key 31 0 5060
-key 26 1 5060
+key 25 1 5060
 tick 20
-key 31 1 5080
-key 26 0 5080
+key 0 1 5080
+key 25 0 5080
 tick 20
 tick 20
-key 31 0 5120
-key 33 1 5120
-key 26 1 5120
+key 0 0 5120
+key 5 1 5120
+key 27 1 5120
 tick 20
 key 31 1 5140
-key 33 0 5140
-key 26 0 5140
+key 5 0 5140
+key 27 0 5140
 tick 20
 key 31 0 5160
 key 33 1 5160
-key 26 1 5160
+key 34 1 5160
 tick 20
-key 31 1 5180
+key 0 1 5180
 key 33 0 5180
-key 26 0 5180
+key 34 0 5180
 tick 20
-key 31 0 5200
-key 26 1 5200
+key 0 0 5200
+key 30 1 5200
 tick 20
 key 31 1 5220
-key 26 0 5220
+key 30 0 5220
 tick 20
 key 31 0 5240
-key 26 1 5240
+key 1 1 5240
 tick 20
-key 31 1 5260
-key 26 0 5260
+key 0 1 5260
+key 1 0 5260
 tick 20
-key 31 0 5280
-key 33 1 5280
-key 26 1 5280
+key 0 0 5280
+key 5 1 5280
+key 4 1 5280
 tick 20
 key 31 1 5300
-key 33 0 5300
-key 26 0 5300
+key 5 0 5300
+key 4 0 5300
 tick 20
 key 31 0 5320
 key 33 1 5320
 key 26 1 5320
 tick 20
-key 31 1 5340
+key 0 1 5340
 key 33 0 5340
 key 26 0 5340
 tick 20
-key 31 0 5360
-key 33 1 5360
+key 0 0 5360
+key 5 1 5360
 tick 20
 tick 20
 tick 20
 tick 20
-key 26 1 5440
+key 25 1 5440
 tick 20
 tick 20
 tick 20
 tick 20
 key 31 1 5520
-key 33 0 5520
-key 26 0 5520
+key 5 0 5520
+key 25 0 5520
 tick 20
 key 31 0 5540
-key 26 1 5540
+key 27 1 5540
 tick 20
-key 31 1 5560
-key 26 0 5560
+key 0 1 5560
+key 27 0 5560
 tick 20
-key 31 0 5580
-key 26 1 5580
+key 0 0 5580
+key 34 1 5580
 tick 20
 key 31 1 5600
-key 26 0 5600
+key 34 0 5600
 tick 20
 tick 20
 key 31 0 5640
 key 33 1 5640
-key 26 1 5640
+key 30 1 5640
 tick 20
-key 31 1 5660
+key 0 1 5660
 key 33 0 5660
-key 26 0 5660
+key 30 0 5660
 tick 20
-key 31 0 5680
-key 33 1 5680
-key 26 1 5680
+key 0 0 5680
+key 5 1 5680
+key 1 1 5680
 tick 20
 key 31 1 5700
-key 33 0 5700
-key 26 0 5700
+key 5 0 5700
+key 1 0 5700
 tick 20
 key 31 0 5720
-key 26 1 5720
+key 4 1 5720
 tick 20
-key 31 1 5740
-key 26 0 5740
+key 0 1 5740
+key 4 0 5740
 tick 20
 tick 20
-key 31 0 5780
+key 0 0 5780
 key 33 1 5780
 key 26 1 5780
 tick 20
@@ -568,250 +568,250 @@ key 33 0 5800
 key 26 0 5800
 tick 20
 key 31 0 5820
-key 33 1 5820
-key 26 1 5820
+key 5 1 5820
+key 25 1 5820
 tick 20
-key 31 1 5840
-key 33 0 5840
-key 26 0 5840
+key 0 1 5840
+key 5 0 5840
+key 25 0 5840
 tick 20
-key 31 0 5860
+key 0 0 5860
 key 33 1 5860
-key 26 1 5860
+key 27 1 5860
 tick 20
 key 31 1 5880
 key 33 0 5880
-key 26 0 5880
+key 27 0 5880
 tick 20
 key 31 0 5900
-key 26 1 5900
+key 34 1 5900
 tick 20
-key 31 1 5920
-key 26 0 5920
+key 0 1 5920
+key 34 0 5920
 tick 20
 tick 20
-key 31 0 5960
-key 33 1 5960
-key 26 1 5960
+key 0 0 5960
+key 5 1 5960
+key 30 1 5960
 tick 20
 key 31 1 5980
-key 33 0 5980
-key 26 0 5980
+key 5 0 5980
+key 30 0 5980
 tick 20
 key 31 0 6000
 key 33 1 6000
-key 26 1 6000
+key 1 1 6000
 tick 20
-key 31 1 6020
+key 0 1 6020
 key 33 0 6020
-key 26 0 6020
+key 1 0 6020
 tick 20
 tick 20
-key 31 0 6060
-key 33 1 6060
+key 0 0 6060
+key 5 1 6060
 tick 20
 tick 20
 tick 20
 tick 20
-key 26 1 6140
+key 4 1 6140
 tick 20
 tick 20
 tick 20
 tick 20
 key 31 1 6220
-key 33 0 6220
-key 26 0 6220
+key 5 0 6220
+key 4 0 6220
 tick 20
 key 31 0 6240
 key 26 1 6240
 tick 20
-key 31 1 6260
+key 0 1 6260
 key 26 0 6260
 tick 20
 tick 20
-key 31 0 6300
+key 0 0 6300
 key 33 1 6300
-key 26 1 6300
+key 25 1 6300
 tick 20
 key 31 1 6320
 key 33 0 6320
-key 26 0 6320
+key 25 0 6320
 tick 20
 key 31 0 6340
-key 33 1 6340
-key 26 1 6340
+key 5 1 6340
+key 27 1 6340
 tick 20
-key 31 1 6360
-key 33 0 6360
-key 26 0 6360
+key 0 1 6360
+key 5 0 6360
+key 27 0 6360
 tick 20
-key 31 0 6380
+key 0 0 6380
 key 33 1 6380
-key 26 1 6380
+key 34 1 6380
 tick 20
 key 31 1 6400
 key 33 0 6400
-key 26 0 6400
+key 34 0 6400
 tick 20
 tick 20
 key 31 0 6440
-key 26 1 6440
+key 30 1 6440
 tick 20
-key 31 1 6460
-key 26 0 6460
+key 0 1 6460
+key 30 0 6460
 tick 20
-key 31 0 6480
-key 33 1 6480
-key 26 1 6480
+key 0 0 6480
+key 5 1 6480
+key 1 1 6480
 tick 20
 key 31 1 6500
-key 33 0 6500
-key 26 0 6500
+key 5 0 6500
+key 1 0 6500
 tick 20
 tick 20
 key 31 0 6540
 key 33 1 6540
-key 26 1 6540
+key 4 1 6540
 tick 20
-key 31 1 6560
+key 0 1 6560
 key 33 0 6560
-key 26 0 6560
+key 4 0 6560
 tick 20
-key 31 0 6580
-key 33 1 6580
+key 0 0 6580
+key 5 1 6580
 tick 20
 tick 20
 key 26 1 6620
 tick 20
 key 26 0 6640
 tick 20
-key 33 0 6660
-key 26 1 6660
+key 5 0 6660
+key 25 1 6660
 tick 20
 tick 20
 key 31 1 6700
-key 26 0 6700
+key 25 0 6700
 tick 20
 tick 20
 key 31 0 6740
-key 26 1 6740
+key 27 1 6740
 tick 20
-key 26 0 6760
+key 27 0 6760
 tick 20
-key 26 1 6780
+key 34 1 6780
 tick 20
-key 26 0 6800
+key 34 0 6800
 tick 20
-key 26 1 6820
+key 30 1 6820
 tick 20
-key 26 0 6840
+key 30 0 6840
 tick 20
 tick 20
-key 31 1 6880
-key 26 1 6880
+key 0 1 6880
+key 1 1 6880
 tick 20
-key 31 0 6900
+key 0 0 6900
 key 33 1 6900
-key 26 0 6900
+key 1 0 6900
 tick 20
 key 33 0 6920
-key 26 1 6920
+key 4 1 6920
 tick 20
-key 33 1 6940
-key 26 0 6940
+key 5 1 6940
+key 4 0 6940
 tick 20
-key 33 0 6960
+key 5 0 6960
 key 26 1 6960
 tick 20
 key 26 0 6980
 tick 20
 key 31 1 7000
-key 26 1 7000
+key 25 1 7000
 tick 20
 key 31 0 7020
-key 26 0 7020
+key 25 0 7020
 tick 20
 tick 20
-key 26 1 7060
+key 27 1 7060
 tick 20
 key 33 1 7080
-key 26 0 7080
+key 27 0 7080
 tick 20
 key 33 0 7100
-key 26 1 7100
+key 34 1 7100
 tick 20
-key 33 1 7120
-key 26 0 7120
+key 5 1 7120
+key 34 0 7120
 tick 20
-key 31 1 7140
-key 33 0 7140
-key 26 1 7140
+key 0 1 7140
+key 5 0 7140
+key 30 1 7140
 tick 20
-key 31 0 7160
-key 26 0 7160
+key 0 0 7160
+key 30 0 7160
 tick 20
 key 31 1 7180
-key 26 1 7180
+key 1 1 7180
 tick 20
 key 31 0 7200
-key 26 0 7200
+key 1 0 7200
 tick 20
-key 31 1 7220
-key 26 1 7220
+key 0 1 7220
+key 4 1 7220
 tick 20
-key 31 0 7240
+key 0 0 7240
 key 33 1 7240
-key 26 0 7240
+key 4 0 7240
 tick 20
 tick 20
 key 33 0 7280
 key 26 1 7280
 tick 20
-key 33 1 7300
+key 5 1 7300
 key 26 0 7300
 tick 20
 key 31 1 7320
-key 33 0 7320
-key 26 1 7320
+key 5 0 7320
+key 25 1 7320
 tick 20
 key 31 0 7340
-key 26 0 7340
+key 25 0 7340
 tick 20
-key 31 1 7360
-key 26 1 7360
+key 0 1 7360
+key 27 1 7360
 tick 20
-key 31 0 7380
-key 26 0 7380
+key 0 0 7380
+key 27 0 7380
 tick 20
 key 31 1 7400
-key 26 1 7400
+key 34 1 7400
 tick 20
 key 31 0 7420
 key 33 1 7420
-key 26 0 7420
+key 34 0 7420
 tick 20
 tick 20
 key 33 0 7460
-key 26 1 7460
+key 30 1 7460
 tick 20
-key 33 1 7480
-key 26 0 7480
+key 5 1 7480
+key 30 0 7480
 tick 20
-key 31 1 7500
-key 33 0 7500
-key 26 1 7500
+key 0 1 7500
+key 5 0 7500
+key 1 1 7500
 tick 20
-key 31 0 7520
-key 26 0 7520
+key 0 0 7520
+key 1 0 7520
 tick 20
 key 31 1 7540
 tick 20
-key 26 1 7560
+key 4 1 7560
 tick 20
 tick 20
 key 31 0 7600
 key 33 1 7600
-key 26 0 7600
+key 4 0 7600
 tick 20
 tick 20
 key 33 0 7640
@@ -819,87 +819,87 @@ key 26 1 7640
 tick 20
 key 26 0 7660
 tick 20
-key 31 1 7680
-key 26 1 7680
+key 0 1 7680
+key 25 1 7680
 tick 20
-key 31 0 7700
-key 26 0 7700
+key 0 0 7700
+key 25 0 7700
 tick 20
 key 31 1 7720
 tick 20
 key 31 0 7740
-key 26 1 7740
+key 27 1 7740
 tick 20
 tick 20
-key 33 1 7780
-key 26 0 7780
+key 5 1 7780
+key 27 0 7780
 tick 20
 tick 20
-key 31 1 7820
-key 33 0 7820
-key 26 1 7820
+key 0 1 7820
+key 5 0 7820
+key 34 1 7820
 tick 20
-key 31 0 7840
-key 26 0 7840
+key 0 0 7840
+key 34 0 7840
 tick 20
 key 31 1 7860
-key 26 1 7860
+key 30 1 7860
 tick 20
 key 31 0 7880
-key 26 0 7880
+key 30 0 7880
 tick 20
-key 26 1 7900
+key 1 1 7900
 tick 20
 key 33 1 7920
-key 26 0 7920
+key 1 0 7920
 tick 20
 key 33 0 7940
-key 26 1 7940
+key 4 1 7940
 tick 20
-key 33 1 7960
-key 26 0 7960
+key 5 1 7960
+key 4 0 7960
 tick 20
-key 33 0 7980
+key 5 0 7980
 tick 20
-key 31 1 8000
+key 0 1 8000
 key 26 1 8000
 tick 20
-key 31 0 8020
+key 0 0 8020
 key 26 0 8020
 tick 20
 key 31 1 8040
-key 26 1 8040
+key 25 1 8040
 tick 20
 key 31 0 8060
 key 33 1 8060
-key 26 0 8060
+key 25 0 8060
 tick 20
 key 33 0 8080
-key 26 1 8080
+key 27 1 8080
 tick 20
-key 33 1 8100
-key 26 0 8100
+key 5 1 8100
+key 27 0 8100
 tick 20
-key 33 0 8120
-key 26 1 8120
+key 5 0 8120
+key 34 1 8120
 tick 20
-key 26 0 8140
+key 34 0 8140
 tick 20
 tick 20
-key 31 1 8180
-key 26 1 8180
+key 0 1 8180
+key 30 1 8180
 tick 20
-key 31 0 8200
-key 26 0 8200
+key 0 0 8200
+key 30 0 8200
 tick 20
-key 26 1 8220
+key 1 1 8220
 tick 20
 key 33 1 8240
-key 26 0 8240
+key 1 0 8240
 tick 20
-key 26 1 8260
+key 4 1 8260
 tick 20
-key 26 0 8280
+key 4 0 8280
 tick 20
 key 33 0 8300
 tick 20
@@ -907,246 +907,246 @@ key 26 1 8320
 tick 20
 key 26 0 8340
 tick 20
-key 26 1 8360
+key 25 1 8360
 tick 20
-key 26 0 8380
+key 25 0 8380
 tick 20
-key 26 1 8400
+key 27 1 8400
 tick 20
-key 26 0 8420
+key 27 0 8420
 tick 20
-key 26 1 8440
+key 34 1 8440
 tick 20
-key 26 0 8460
+key 34 0 8460
 tick 20
 tick 20
-key 26 1 8500
+key 30 1 8500
 tick 20
-key 26 0 8520
+key 30 0 8520
 tick 20
-key 26 1 8540
+key 1 1 8540
 tick 20
-key 26 0 8560
+key 1 0 8560
 tick 20
-key 26 1 8580
+key 4 1 8580
 tick 20
-key 26 0 8600
+key 4 0 8600
 tick 20
 tick 20
 key 26 1 8640
 tick 20
 key 26 0 8660
 tick 20
-key 26 1 8680
+key 25 1 8680
 tick 20
-key 26 0 8700
+key 25 0 8700
 tick 20
-key 26 1 8720
+key 27 1 8720
 tick 20
-key 26 0 8740
+key 27 0 8740
 tick 20
-key 26 1 8760
+key 34 1 8760
 tick 20
-key 26 0 8780
+key 34 0 8780
 tick 20
 tick 20
-key 26 1 8820
+key 30 1 8820
 tick 20
-key 26 0 8840
+key 30 0 8840
 tick 20
-key 26 1 8860
+key 1 1 8860
 tick 20
-key 26 0 8880
+key 1 0 8880
 tick 20
-key 26 1 8900
+key 4 1 8900
 tick 20
-key 26 0 8920
+key 4 0 8920
 tick 20
 tick 20
 key 26 1 8960
 tick 20
 key 26 0 8980
 tick 20
-key 26 1 9000
+key 25 1 9000
 tick 20
-key 26 0 9020
+key 25 0 9020
 tick 20
-key 26 1 9040
+key 27 1 9040
 tick 20
-key 26 0 9060
+key 27 0 9060
 tick 20
-key 26 1 9080
+key 34 1 9080
 tick 20
-key 26 0 9100
+key 34 0 9100
 tick 20
 tick 20
-key 26 1 9140
+key 30 1 9140
 tick 20
-key 26 0 9160
+key 30 0 9160
 tick 20
-key 26 1 9180
+key 1 1 9180
 tick 20
-key 26 0 9200
+key 1 0 9200
 tick 20
-key 26 1 9220
+key 4 1 9220
 tick 20
-key 26 0 9240
+key 4 0 9240
 tick 20
 tick 20
 key 26 1 9280
 tick 20
 key 26 0 9300
 tick 20
-key 26 1 9320
+key 25 1 9320
 tick 20
-key 26 0 9340
+key 25 0 9340
 tick 20
-key 26 1 9360
+key 27 1 9360
 tick 20
-key 26 0 9380
+key 27 0 9380
 tick 20
-key 26 1 9400
+key 34 1 9400
 tick 20
-key 26 0 9420
+key 34 0 9420
 tick 20
 tick 20
-key 26 1 9460
+key 30 1 9460
 tick 20
-key 26 0 9480
+key 30 0 9480
 tick 20
-key 26 1 9500
+key 1 1 9500
 tick 20
-key 26 0 9520
+key 1 0 9520
 tick 20
-key 26 1 9540
+key 4 1 9540
 tick 20
-key 26 0 9560
+key 4 0 9560
 tick 20
 tick 20
 key 26 1 9600
 tick 20
 key 26 0 9620
 tick 20
-key 26 1 9640
+key 25 1 9640
 tick 20
-key 26 0 9660
+key 25 0 9660
 tick 20
-key 26 1 9680
+key 27 1 9680
 tick 20
-key 26 0 9700
+key 27 0 9700
 tick 20
 tick 20
-key 26 1 9740
+key 34 1 9740
 tick 20
-key 26 0 9760
+key 34 0 9760
 tick 20
-key 26 1 9780
+key 30 1 9780
 tick 20
-key 26 0 9800
+key 30 0 9800
 tick 20
-key 26 1 9820
+key 1 1 9820
 tick 20
-key 26 0 9840
+key 1 0 9840
 tick 20
-key 26 1 9860
+key 4 1 9860
 tick 20
-key 26 0 9880
+key 4 0 9880
 tick 20
 tick 20
 key 26 1 9920
 tick 20
 key 26 0 9940
 tick 20
-key 26 1 9960
+key 25 1 9960
 tick 20
-key 26 0 9980
+key 25 0 9980
 tick 20
-key 26 1 10000
+key 27 1 10000
 tick 20
-key 26 0 10020
+key 27 0 10020
 tick 20
 tick 20
-key 26 1 10060
+key 34 1 10060
 tick 20
-key 26 0 10080
+key 34 0 10080
 tick 20
-key 26 1 10100
+key 30 1 10100
 tick 20
-key 26 0 10120
+key 30 0 10120
 tick 20
-key 26 1 10140
+key 1 1 10140
 tick 20
-key 26 0 10160
+key 1 0 10160
 tick 20
-key 26 1 10180
+key 4 1 10180
 tick 20
-key 26 0 10200
+key 4 0 10200
 tick 20
 tick 20
 key 26 1 10240
 tick 20
 key 26 0 10260
 tick 20
-key 26 1 10280
+key 25 1 10280
 tick 20
-key 26 0 10300
+key 25 0 10300
 tick 20
-key 26 1 10320
+key 27 1 10320
 tick 20
-key 26 0 10340
+key 27 0 10340
 tick 20
 tick 20
-key 26 1 10380
+key 34 1 10380
 tick 20
-key 26 0 10400
+key 34 0 10400
 tick 20
-key 26 1 10420
+key 30 1 10420
 tick 20
-key 26 0 10440
+key 30 0 10440
 tick 20
-key 26 1 10460
+key 1 1 10460
 tick 20
-key 26 0 10480
+key 1 0 10480
 tick 20
-key 26 1 10500
+key 4 1 10500
 tick 20
-key 26 0 10520
+key 4 0 10520
 tick 20
 tick 20
 key 26 1 10560
 tick 20
 key 26 0 10580
 tick 20
-key 26 1 10600
+key 25 1 10600
 tick 20
-key 26 0 10620
+key 25 0 10620
 tick 20
-key 26 1 10640
+key 27 1 10640
 tick 20
-key 26 0 10660
+key 27 0 10660
 tick 20
-key 26 1 10680
-tick 20
-tick 20
-tick 20
-key 26 0 10740
-tick 20
-key 26 1 10760
-tick 20
-tick 20
-key 26 0 10800
-tick 20
-key 26 1 10820
+key 34 1 10680
 tick 20
 tick 20
 tick 20
-key 26 0 10880
+key 34 0 10740
 tick 20
-key 26 1 10900
+key 30 1 10760
+tick 20
+tick 20
+key 30 0 10800
+tick 20
+key 1 1 10820
 tick 20
 tick 20
 tick 20
-key 26 0 10960
+key 1 0 10880
+tick 20
+key 4 1 10900
+tick 20
+tick 20
+tick 20
+key 4 0 10960
 tick 20
 key 26 1 10980
 tick 20
@@ -1154,26 +1154,26 @@ tick 20
 tick 20
 key 26 0 11040
 tick 20
-key 26 1 11060
+key 25 1 11060
 tick 20
 tick 20
-key 26 0 11100
+key 25 0 11100
 tick 20
-key 26 1 11120
-tick 20
-tick 20
-tick 20
-key 26 0 11180
-tick 20
-key 26 1 11200
+key 27 1 11120
 tick 20
 tick 20
 tick 20
-key 26 0 11260
+key 27 0 11180
 tick 20
-key 26 1 11280
+key 34 1 11200
 tick 20
-key 26 0 11300
+tick 20
+tick 20
+key 34 0 11260
+tick 20
+key 30 1 11280
+tick 20
+key 30 0 11300
 # round 0: land 5, fuel 1716, score 250
 tick 20
 tick 20
@@ -2713,7 +2713,7 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 26 1 26160
+key 34 1 26160
 tick 20
 tick 20
 tick 20
@@ -2964,6 +2964,8 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 27 1 31160
+key 34 0 31160
 tick 20
 tick 20
 tick 20
@@ -3164,7 +3166,11 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 4 1 35160
+key 4 0 35160
+key 27 0 35160
 tick 20
+key 27 1 35180
 tick 20
 tick 20
 tick 20
@@ -3215,6 +3221,10 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 30 1 36180
+key 27 0 36180
+key 26 1 36180
+key 26 0 36180
 tick 20
 tick 20
 tick 20
@@ -3265,6 +3275,10 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 1 1 37180
+key 30 0 37180
+key 25 1 37180
+key 25 0 37180
 tick 20
 tick 20
 tick 20
@@ -3315,6 +3329,10 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 4 1 38180
+key 1 0 38180
+key 34 1 38180
+key 34 0 38180
 tick 20
 tick 20
 tick 20
@@ -3365,6 +3383,9 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 31 1 39180
+key 0 1 39180
+key 31 0 39180
 tick 20
 tick 20
 tick 20
@@ -3377,6 +3398,10 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 0 0 39420
+key 33 1 39420
+key 5 1 39420
+key 33 0 39420
 tick 20
 tick 20
 tick 20
@@ -3389,11 +3414,16 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 5 0 39660
+key 4 0 39660
+key 46 1 39660
 tick 20
 tick 20
 tick 20
 tick 20
 tick 20
+key 46 0 39760
+key 27 1 39760
 tick 20
 tick 20
 tick 20
@@ -4387,13 +4417,7 @@ tick 20
 tick 20
 tick 20
 tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-key 26 0 59740
+key 27 0 59620
 # round 2: crash 0, fuel 0, score 350
 tick 20
 tick 20

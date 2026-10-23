@@ -9,7 +9,7 @@ screen are ours. This is Land's design and the checks that will judge it, writte
 ## A round
 
 The ship starts near the top of one screen of terrain with some sideways speed. The player turns it with 4 and 6
-and fires its engine with 8 to set it down on one of three flat pads, upright and slowly. A landing scores 50 times
+(or SOFT1 and SOFT6) and fires its engine with 8 (or 7, 9, ×, GOLD, SOFT2 or SOFT5) to set it down on one of three flat pads, upright and slowly. A landing scores 50 times
 the pad's multiplier: the narrowest pad is ×5, the middle ×3, the widest ×2. Then a new terrain is drawn and the
 ship starts again from the top.
 
@@ -18,9 +18,9 @@ more (to no less than 0). The game ends when a round ends with the tank empty. A
 
 | key | does |
 |---|---|
-| 4 | turns the nose 15° to the left, and again every 80 ms while held |
-| 6 | the same to the right |
-| 8 | fires the engine while held |
+| 4 or SOFT1 | turns the nose 15° to the left, and again every 80 ms while held |
+| 6 or SOFT6 | the same to the right |
+| 8, 7, 9, ×, GOLD, SOFT2 or SOFT5 | fires the engine while held |
 | ENTER | starts a game from the title, or a new one after the end |
 | C | the framework's: saves and ends the game |
 
@@ -37,7 +37,9 @@ default fp-contract lets the Xtensa build fuse a multiply and an add, and a valu
 - **Angle.** `a` is 0-23 in 15° steps: 0 is upright, and it increases clockwise on the screen. `SIN[a]` and `COS[a]`
   are round(16,384 × sin(a × 15°)) and the same for cos.
 - **Input per step.** A key's down is kept as a press until a step uses it, so a tap shorter than a step still
-  counts. 8 fires the engine on a step if it is held or pressed, and the step clears its press. For turning, the
+  counts. The keys reach the ship as three: 4 (4 or SOFT1), 6 (6 or SOFT6) and 8 (the engine's seven). Each key's
+  down is a down of its ship key; the ship key's up comes when the last of its keys is let go. A key already down
+  on the title counts for nothing until it is pressed again. 8 fires the engine on a step if it is held or pressed, and the step clears its press. For turning, the
   turn timer first counts down by 1 if it is above 0; then, if it is 0, left = 4 held or pressed, right = the same for
   6, and when right − left is not 0 the ship turns by it (`a` mod 24, 4 turning toward 23), the timer becomes 4,
   and both turn presses clear. Held, a turn repeats every 4 steps (80 ms). Both keys together cancel and clear.
@@ -109,15 +111,22 @@ crashes of every game played and is kept in the save, so each round differs and 
 - The ship as its outline, with a flame behind the engine on every other step that it fires. Near an edge it is
   drawn twice, wrapped. While it is above the top line, a mark under the line shows where it is.
 - At the end of a round: LANDED with the points, or CRASHED, for 1.5 s, then the next round. After the last
-  round: GAME OVER, the score and the best; ENTER (after 0.5 s) plays again.
+  round: GAME OVER, the score and the best; ENTER plays again, from 0.5 s after GAME OVER by the key's own time
+  (before 2026-10-23 it was the last tick's time, up to a tick late).
 - The title: LAND, the keys, and the best score once there is one.
 - Sound: a short tune on landing, a falling one on a crash, and one beep a game when the fuel first drops under
   200, by the engine or by a crash's cost.
 
 **The clock and the keys.** A round starts on a key (ENTER) or a tick (the end of LANDED or CRASHED); its first step
-comes on the next tick, which counts only the time since the round started. 4, 6 and 8 go to the ship in every state
-but the title, so a key pressed during LANDED or CRASHED and held is held when the next round starts. The best score
-is updated at each landing, so leaving with C keeps it.
+comes on the next tick, which counts only the time since the round started. Every ship key goes to the ship
+in every state but the title, so a key pressed during LANDED or CRASHED and held is held when the next round starts.
+The best score is updated at each landing, so leaving with C keeps it.
+
+**The keys** (Michael, 2026-10-23, the same layout in BABAL and SALVO, via basecamp #9900, #9906, #9907). 8 was hard
+to hit quickly, more so on the phone, so the engine also fires on 7, 9, ×, GOLD, SOFT2 and SOFT5, and SOFT1 and SOFT6
+turn beside 4 and 6. Either hand can do either job: turn on the soft keys at the screen's corners and fire on the
+number row, or turn on 4 and 6 and fire on SOFT2 and SOFT5. GOLD reaches a running app as key 30 like any other key.
+The title says "4 6 OR SOFT 1 6 TURN" and "7 8 9 × GOLD SOFT 2 5 THRUST", as SALVO's does.
 
 ## What it saves
 
@@ -146,13 +155,18 @@ LAND, folder GAMES, MIT. `tests/land_trace.c` prints what the oracle prints.
    rounding the ground down instead of toward 0 would touch. In both the C and the model. The fuzz in check 1 adds
    dives that reach the speed clamp.
 4. **The app on the SDK runner**: scripted games (the autopilot's keys on the app's clock, a key held into the
-   next round, ENTER partway through a title tick, a crash at exactly 200 fuel) with frame hashes committed, and the
+   next round, ENTER partway through a title tick, a crash at exactly 200 fuel; since 2026-10-23 every key of the
+   layout, a move key and a fire key held together in both pairings, two engine keys overlapping, a tap while another
+   engine key is held, GOLD, SOFT2 and SOFT5 each holding the engine through another key's tap, both turn pairs
+   overlapping, + pressed for nothing, and ENTER refused at 0.499 s and taken at 0.5 s between ticks) with frame hashes committed, and the
    save, tunes and tones that the rules above give; and the same scripts through the .wasm and the bridge. The
    hashes were blessed from the C and checked by eye, so they catch a change, not a first mistake; the save, tunes
    and tones come from the oracle's own reading of the rules.
 5. **Plants**, each of which must go red: gravity left out, the judge ignoring the angle, the vertex test left out,
    a pad that is not flat, no wrap at the edges, the speed clamp left out, the ground rounded down, the upward speed
-   limit left out, and pads drawn thin. A plant that does not build is red too. The ceiling test written with ≤ has
+   limit left out, and pads drawn thin; since 2026-10-23 each of the eleven keys left out, a release letting go a
+   ship key another key still holds, a ship key's down sent only with the first of its keys, and ENTER judged by the
+   last tick's time, an 8-bit key mask, a turn let go with either of its keys, and + firing the engine. A plant that does not build is red too. The ceiling test written with ≤ has
    no plant and no check would catch it: it differs only when a step's motion ends exactly on −200 px, which no
    script reaches.
 

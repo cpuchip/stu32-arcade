@@ -8,7 +8,7 @@
 #   4 the app on the SDK runner: two scripted games (oracle/land/appscript.py) with their frame hashes against
 #     oracle/land/frames/, and the save, tunes and tones the script's rules give; with WASI_SDK, WAMRC and WAMR_TREE
 #     set (as for oracle/wasm_check.sh), the same scripts through the .wasm and the bridge, which must give the same;
-#   5 planted faults, each of which must turn its check red (nine, and a plant that does not build is red too).
+#   5 planted faults, each of which must turn its check red (26, and a plant that does not build is red too).
 # The logic and the app build under ASan and UBSan and the frame guard. --bless rewrites the frame hashes.
 set -u
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -168,5 +168,28 @@ if plant thin land_app.c 's/p->x1 - p->x0 \+ 1, 3, DRAW_DARK\)/p->x1 - p->x0 + 1
     app_run "$B/p6" play p6
     cmp -s "$B/play.p6.hashes" "$O/frames/play.hashes" && red "5 plant: thin pads pass check 4" || echo "  5 plant: pads drawn 1 px thick: check 4 red"
 fi
+# the keys (docs/land.md, "The keys") and ENTER by the key's time: each against the app scripts' frames
+app_plant() { # app_plant NAME PERL SCRIPT WHAT
+    if plant "$1" land_app.c "$2" && build_app x "$B/plant-$1" "$B/p-$1"; then
+        app_run "$B/p-$1" "$3" "p-$1"
+        cmp -s "$B/$3.p-$1.hashes" "$O/frames/$3.hashes" && red "5 plant: $4 passes check 4" || echo "  5 plant: $4: check 4 red"
+    fi
+}
+for k in 4:LEFT SOFT1:LEFT 6:RIGHT SOFT6:RIGHT 8:THRUST 7:THRUST 9:THRUST TIMES:THRUST GOLD:THRUST SOFT2:THRUST \
+         SOFT5:THRUST; do
+    app_plant "no${k%:*}" "s/\\{APP_KEY_${k%:*}, +LAND_KEY_${k#*:}\\},//" play "${k%:*} not reaching the ship"
+done
+app_plant release 's/if \(down \|\| !ship_held\(c, SHIP_KEYS\[i\].ship\)\)/if (down || !ship_held(c, 0))/' play \
+    "either key's release letting go a ship key held by two"
+app_plant firstdown 's/c->keys_down = \(uint16_t\)/bool was = ship_held(c, SHIP_KEYS[i].ship);\n        c->keys_down = (uint16_t)/; s/if \(down \|\| !ship_held\(c, SHIP_KEYS\[i\].ship\)\)/if (was != ship_held(c, SHIP_KEYS[i].ship))/' \
+    play "a ship key's down only with the first of its keys"
+app_plant mask8 's/uint16_t keys_down;/uint8_t keys_down; /; s/c->keys_down = \(uint16_t\)/c->keys_down = (uint8_t)/' play \
+    "a key mask of 8 bits (GOLD, SOFT2 and SOFT5 lost)"
+app_plant turnrelease 's/if \(down \|\| !ship_held\(c, SHIP_KEYS\[i\].ship\)\)/if (down || !ship_held(c, SHIP_KEYS[i].ship) || SHIP_KEYS[i].ship != LAND_KEY_THRUST)/' \
+    play "either turn key's release letting go a turn held by two"
+app_plant plus 's/\{APP_KEY_SOFT5, LAND_KEY_THRUST\},/{APP_KEY_SOFT5, LAND_KEY_THRUST}, {APP_KEY_PLUS, LAND_KEY_THRUST},/' play \
+    "+ firing the engine"
+app_plant tickenter 's/c->state == OVER \&\& ms - c->end_at/c->state == OVER \&\& c->now - c->end_at/' refuse \
+    "ENTER judged by the last tick's time"
 
 [ "$ok" = 1 ] && echo "landcheck: GREEN" || { echo "landcheck: RED"; exit 1; }

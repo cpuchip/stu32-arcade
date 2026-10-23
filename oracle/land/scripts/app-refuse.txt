@@ -6,6 +6,14 @@ key 31 1 100
 key 31 0 100
 key 37 1 100
 key 37 0 100
+key 30 1 100
+key 30 0 100
+key 34 1 100
+key 34 0 100
+key 1 1 100
+key 1 0 100
+key 0 1 100
+key 0 0 100
 tick 100
 key 18 1 230
 key 18 0 230
@@ -2372,8 +2380,6 @@ tick 20
 tick 20
 tick 20
 tick 20
-key 18 1 47480
-key 18 0 47480
 tick 20
 tick 20
 tick 20
@@ -2388,14 +2394,11 @@ tick 20
 tick 20
 tick 20
 tick 20
+key 18 1 47779
+key 18 0 47779
+key 18 1 47780
+key 18 0 47780
 tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-tick 20
-key 18 1 47880
-key 18 0 47880
 tick 20
 tick 20
 tick 20
