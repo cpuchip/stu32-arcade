@@ -26,9 +26,10 @@
 #define SALVO_HIT_W 11
 #define SALVO_HIT_H 6
 
-/* the keys, as the trace names them: 4, SOFT1, 6, SOFT6, then the five that fire: 8, ENTER, 9, ×, + */
-enum salvo_key { SALVO_K4, SALVO_KS1, SALVO_K6, SALVO_KS6, SALVO_K8, SALVO_KE, SALVO_K9, SALVO_KX, SALVO_KP,
-                 SALVO_KEYS };
+/* the keys, as the trace names them: 4, SOFT1, 6, SOFT6, then the eight that fire: 8, ENTER, 9, ×, 7, GOLD, SOFT2,
+   SOFT5 */
+enum salvo_key { SALVO_K4, SALVO_KS1, SALVO_K6, SALVO_KS6, SALVO_K8, SALVO_KE, SALVO_K9, SALVO_KX, SALVO_K7, SALVO_KG,
+                 SALVO_KS2, SALVO_KS5, SALVO_KEYS };
 enum salvo_alien { SALVO_SLOT, SALVO_DIVING, SALVO_RETURNING, SALVO_DEAD };
 
 typedef struct {

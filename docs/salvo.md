@@ -18,13 +18,15 @@ wave dives sooner and in larger numbers. The ship has three lives; the score is 
 |---|---|
 | 4 or SOFT1 | move left while held |
 | 6 or SOFT6 | move right while held |
-| 8, ENTER, 9, × or + | fire while held (a shot as often as the rules allow) |
+| 7, 8, 9, ×, GOLD, SOFT2, SOFT5 or ENTER | fire while held (a shot as often as the rules allow) |
 | ENTER | starts a game from the title, or a new one after the end |
 | C | the framework's: saves and ends the game |
 
-The keys come from Michael's asks for Babal and Snake (abacus #8558): the soft keys at the top corners for the thumbs,
-and for the trigger 8, 9, × and + by the right hand and ENTER, all free in play. Moving and firing at once needs two
-keys held together, which Rev A's diode matrix allows; the rollover log on board 0001 is the measurement.
+The keys are Michael's layout for the three action games (2026-10-23, via basecamp #9900, #9906, #9907; before it,
+8, ENTER, 9, × and + fired). Either hand can move or fire: a thumb on SOFT1 and SOFT6 at the screen's corners with a
+finger on the number row (7, 8, 9, ×, GOLD), or 4 and 6 with the thumbs on SOFT2 and SOFT5. + does nothing. Moving and
+firing at once needs two keys held together, which Rev A's diode matrix allows; the rollover log on board 0005 is the
+measurement (#8604; this line said board 0001 until 2026-10-23, which was wrong).
 
 ## The rules (all integers)
 
@@ -135,7 +137,7 @@ unless lives are already 5 (that ship is not kept for later).
   4 steps where an alien dies, and the ship's own burst, blinking (on for 2 steps, off for 2) through its 40 steps.
 - Game over: GAME OVER with the score and the best. ENTER at least 0.5 s after the end (by the key's own time) plays
   again.
-- The title: SALVO, the keys ("4 6 OR SOFT 1 6 MOVE", "8 9 × + ENTER FIRE"), ENTER PLAYS, and the best once there
+- The title: SALVO, the keys ("4 6 OR SOFT 1 6 MOVE", "7 8 9 × GOLD SOFT 2 5 ENTER FIRE"), ENTER PLAYS, and the best once there
   is one.
 - Sound: a click for a shot (1,200 Hz, 10 ms), a beep for a kill (880 Hz, 20 ms), a falling tune for a lost ship
   (392, 330, 262 Hz, 620 ms in all), a rising one for a cleared wave (523, 659, 784 Hz, 400 ms). In one tick the
@@ -187,9 +189,11 @@ Budget: at most 10 KB of flash and no internal RAM, as for each game so far; the
    returning alien, an enemy shot by the ship box's corner.
 4. **The app on the SDK runner**: scripted games with frame hashes and the ticks' asks (`-keyframes`, `-nexts`),
    the save, and every tone and tune; ENTER partway through a title tick; ticks of 100 and 250 ms; damaged saves
-   that must be refused. The same through the .wasm and the bridge.
+   that must be refused. Since 2026-10-23 every fire key of the layout held with a move key in both pairings, and +
+   held and firing nothing. The same through the .wasm and the bridge.
 5. **Plants**, each of which must go red: among them the latch dropped, the ship's clamp off by one, a third shot,
    the sway's turn late, the dive's column order, vx rounded the wrong way, the diver's fire limit, a lost ship
-   leaving divers out, the extra-ship cap, the save's zero bytes ignored.
+   leaving divers out, the extra-ship cap, the save's zero bytes ignored; since 2026-10-23 each new fire key left out
+   of the app, + firing, and the logic's fire keys past × not counted.
 6. **On the S3**: the scripts' frames against the host's on the stand-in bench, with a control that must fail, and
    on Rev A the frame time, the changed rows and the time between frames for a scripted busy wave.

@@ -4,7 +4,7 @@ runs of steps, long enough for waves to change and many games to end."""
 import random
 import sys
 
-KEYS = ('4', 'S1', '6', 'S6', '8', 'E', '9', 'X', 'P')
+KEYS = ('4', 'S1', '6', 'S6', '8', 'E', '9', 'X', '7', 'G', 'S2', 'S5')
 MOVE, FIRE = KEYS[:4], KEYS[4:]
 
 

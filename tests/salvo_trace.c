@@ -47,7 +47,7 @@ static void state(const salvo_game *g, void *arg)
 
 static int key_of(const char *k)
 {
-    static const char *const names[SALVO_KEYS] = {"4", "S1", "6", "S6", "8", "E", "9", "X", "P"};
+    static const char *const names[SALVO_KEYS] = {"4", "S1", "6", "S6", "8", "E", "9", "X", "7", "G", "S2", "S5"};
     for (int i = 0; i < SALVO_KEYS; i++)
         if (!strcmp(k, names[i]))
             return i;

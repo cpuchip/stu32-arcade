@@ -153,7 +153,7 @@ void salvo_step(salvo_game *g)
     bool left = g->held[SALVO_K4] || g->held[SALVO_KS1] || g->latch_l;
     bool right = g->held[SALVO_K6] || g->held[SALVO_KS6] || g->latch_r;
     bool fire = g->latch_f;
-    for (int k = SALVO_K8; k <= SALVO_KP; k++)
+    for (int k = SALVO_K8; k < SALVO_KEYS; k++)
         fire = fire || g->held[k];
 
     /* 1. the ship */

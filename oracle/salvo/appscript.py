@@ -3,7 +3,9 @@ tones, and each tick's ask for the next, from docs/salvo.md's rules and the mode
 
   appscript.py play      seed 5, no save: ENTER 30 ms into a title tick; the autopilot (pilot.py) with fire held for
                          1,200 steps in ticks of 50 ms, then of 60, 99, 100 and 250 ms (the catch-up, its two steps
-                         and the cap), both soft keys and a fire key besides 8, ENTER held as a fire key; then hands
+                         and the cap), both soft keys and a fire key besides 8, ENTER held as a fire key, each of
+                         the other fire keys held with a move key (a soft key with the number row, 4 or 6 with SOFT2
+                         or SOFT5), + held and firing nothing; then hands
                          off until the game ends; ENTER refused 0.2 s and 0.499 s into GAME OVER and taken at 0.51 s,
                          inside a tick; a second game left to end
   appscript.py refuse    seed 9, a save (best 4321, 7 games): keys the title refuses, then a game left to end with
@@ -21,7 +23,8 @@ import sys
 import model as M
 import pilot
 
-KEY = {'4': 31, 'S1': 0, '6': 33, 'S6': 5, '8': 26, 'E': 18, '9': 27, 'X': 34, 'P': 46}
+KEY = {'4': 31, 'S1': 0, '6': 33, 'S6': 5, '8': 26, 'E': 18, '9': 27, 'X': 34, '7': 25, 'G': 30, 'S2': 1, 'S5': 4,
+       'P': 46}
 AGAIN_MS = 500
 FALL = '392/120 0/40 330/120 0/40 262/300'
 RISE = '523/100 659/100 784/200'
@@ -157,6 +160,17 @@ def play():
     g.key('E', True)
     g.tick(50, 15)
     g.key('E', False)
+    g.out.append("# Michael's layout: each fire key held with a move key, in both pairings")
+    for move, fire in (('S1', '7'), ('S6', 'G'), ('4', 'S2'), ('6', 'S5'), ('S1', '9'), ('6', 'G')):
+        g.key(move, True)
+        g.key(fire, True)
+        g.tick(50, 10)
+        g.key(fire, False)
+        g.key(move, False)
+    g.out.append('# + fires nothing')
+    g.key('P', True)
+    g.tick(50, 10)
+    g.key('P', False)
     g.out.append('# hands off until the game ends')
     while g.state == 'play':
         g.tick(100)
@@ -179,7 +193,7 @@ def refuse():
     g = Game(9, *REFUSE_SAVE)
     g.out.append('# appscript.py refuse: seed 9, loads the save from appscript.py loadfile')
     g.tick(100)
-    for k in ('4', '8', 'S1', 'P'):         # the title takes only ENTER
+    for k in ('4', '8', 'S1', 'P', 'G', 'S2', '7'):  # the title takes only ENTER
         g.press(k)
     g.tick(100)
     g.press('E')

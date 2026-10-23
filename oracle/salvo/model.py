@@ -5,7 +5,8 @@ Nothing here reads the C. tests/salvo_trace.c prints the same lines; the format 
 Script lines (blank lines and lines starting with # are skipped):
   game SEED GAME        a new game: SEED app_seed(), GAME the games started before it; the draw state is
                         mix64(SEED ^ mix64(GAME)), then the wave's start
-  down K / up K         a key's down or up, K one of 4 S1 6 S6 8 E 9 X P (4, SOFT1, 6, SOFT6, 8, ENTER, 9, x, +)
+  down K / up K         a key's down or up, K one of 4 S1 6 S6 8 E 9 X 7 G S2 S5 (4, SOFT1, 6, SOFT6, 8, ENTER, 9, x,
+                        7, GOLD, SOFT2, SOFT5)
   tick MS               MS ms (at most 100) into the accumulator; a step runs while it holds 50
   steps N               N steps straight away, the accumulator untouched
   set NAME VALUE        a scalar by its trace name (sx lives score wave over ship wavet fx fy fdir sway dive cool
@@ -54,7 +55,7 @@ WAVE_TIMER = 30
 
 LEFT_KEYS = ('4', 'S1')
 RIGHT_KEYS = ('6', 'S6')
-FIRE_KEYS = ('8', 'E', '9', 'X', 'P')
+FIRE_KEYS = ('8', 'E', '9', 'X', '7', 'G', 'S2', 'S5')
 KEYS = LEFT_KEYS + RIGHT_KEYS + FIRE_KEYS
 
 SCALARS = ('sx', 'lives', 'score', 'wave', 'over', 'ship', 'wavet', 'fx', 'fy', 'fdir', 'sway', 'dive', 'cool',

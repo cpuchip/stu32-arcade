@@ -209,7 +209,10 @@ static int key_of(int key)
     case APP_KEY_ENTER: return SALVO_KE;
     case APP_KEY_9: return SALVO_K9;
     case APP_KEY_TIMES: return SALVO_KX;
-    case APP_KEY_PLUS: return SALVO_KP;
+    case APP_KEY_7: return SALVO_K7;
+    case APP_KEY_GOLD: return SALVO_KG;
+    case APP_KEY_SOFT2: return SALVO_KS2;
+    case APP_KEY_SOFT5: return SALVO_KS5;
     default: return -1;
     }
 }
@@ -373,7 +376,7 @@ static void app_draw_cb(void *ctx, ls027_frame *f)
     if (c->state == TITLE) {
         centred(f, 30, 5, "SALVO");
         centred(f, 96, 2, "4 6 OR SOFT 1 6 MOVE");
-        centred(f, 122, 2, "8 9 \xd7 + ENTER FIRE");
+        centred(f, 122, 2, "7 8 9 \xd7 GOLD SOFT 2 5 ENTER FIRE");
         centred(f, 156, 2, "ENTER PLAYS   C ENDS");
         if (c->best > 0) {
             label(t, "BEST ", c->best);

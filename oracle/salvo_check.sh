@@ -199,6 +199,7 @@ logic_plant refire salvo_logic.c 's/if \(a->k == a->fire_at &&/if (a->fire_at >=
 logic_plant xclamp salvo_logic.c 's/x > 387 \? 387 : x/x > 380 ? 380 : x/' check3 "a diver's x clamped at 380"
 logic_plant slotfirst salvo_logic.c 's/&& \(hit < 0 \|\| ay > hit_y\)\) \{/\&\& (hit < 0 || ay > hit_y + 1000)) {/' check3 "a shot over two aliens taking the first in slot order"
 logic_plant topearly salvo_logic.c 's/        g->shot\[s\].y = \(int16_t\)\(g->shot\[s\].y - 12\);/        if ((g->shot[s].y -= 12) + 6 <= SALVO_TOP) g->shot[s].x = -100;/' check3 "a shot leaving at the top gone before the hits"
+logic_plant firefew salvo_logic.c 's/k < SALVO_KEYS; k\+\+\)/k < SALVO_K7; k++)/' check1 "7, GOLD, SOFT2 and SOFT5 held not firing"
 logic_plant drawskip salvo_logic.c 's/int c = \(int\)salvo_draw\(g, SALVO_COLS\);/int c = any_alien(g) ? (int)salvo_draw(g, SALVO_COLS) : 0;/' check2 "the column drawn only while an alien is left"
 app_plant() { # app_plant NAME PERL RUN WHAT: a plant in salvo_app.c, judged by check 4's run RUN
     if plant "$1" salvo_app.c "$2" && build_app x "$B/plant-$1" "$B/pa-$1"; then
@@ -219,6 +220,11 @@ app_plant ask50 's/return SALVO_STEP_MS - c->g.acc;/return SALVO_STEP_MS;/' play
 app_plant early 's/uint32_t dt = c->now - c->started < ms \? c->now - c->started : ms;/uint32_t dt = ms;/' play "the first tick counting time before ENTER"
 app_plant bestlate 's/    if \(g->score > c->best\)\n        c->best = g->score;\n//' midsave "the best not kept at each kill"
 app_plant softkey 's/    case APP_KEY_SOFT6: return SALVO_KS6;\n//' play "SOFT6 not steering"
+# Michael's layout (2026-10-23): each new fire key, and + left out
+for k in 7:K7 GOLD:KG SOFT2:KS2 SOFT5:KS5; do
+    app_plant "no${k%:*}" "s/    case APP_KEY_${k%:*}: return SALVO_${k#*:};\\n//" play "${k%:*} not firing"
+done
+app_plant plusfires 's/    default: return -1;/    case APP_KEY_PLUS: return SALVO_K8;\n    default: return -1;/' play "+ firing"
 app_plant killtone 's/app_beep\(880, 20\);/app_beep(880, 30);/' play "the kill's beep 30 ms"
 app_plant nostars 's/    stars\(f\);/    (void)stars;/' play "the stars not drawn"
 app_plant tunecut 's/\} else if \(c->now >= c->tune_until\) \{/} else if (c->tune_until \|\| 1) {/' play "a click cutting a tune short"
