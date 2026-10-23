@@ -14,7 +14,8 @@ import random
 import sys
 
 LEFT, RIGHT, JUMP, ENTER = 31, 33, 26, 18
-SOFT1, SOFT6, NINE, TIMES, PLUS = 0, 5, 27, 34, 46   # in play: SOFT1 left, SOFT6 right, the rest jump
+SOFT1, SOFT6, NINE, TIMES, SEVEN, GOLD, SOFT2, SOFT5, PLUS = 0, 5, 27, 34, 25, 30, 1, 4, 46
+# in play: SOFT1 left, SOFT6 right, PLUS nothing (dropped 2026-10-23), the rest jump
 
 
 def session(rng, ticks, start=None):
@@ -44,7 +45,7 @@ def session(rng, ticks, start=None):
         r = rng.random()
         ms = 0 if r < 0.01 else rng.randrange(150, 400) if r < 0.03 else rng.randrange(20, 80)
         for at in sorted(clock + rng.randrange(0, ms + 1) for _ in range(rng.choice([0, 0, 0, 1, 1, 2]))):
-            k = rng.choice([LEFT, RIGHT, LEFT, RIGHT, SOFT1, SOFT6, JUMP, ENTER, NINE, TIMES, PLUS])
+            k = rng.choice([LEFT, RIGHT, LEFT, RIGHT, SOFT1, SOFT6, JUMP, ENTER, NINE, TIMES, SEVEN, GOLD, SOFT2, SOFT5, PLUS])
             if k in held:
                 held[k] = not held[k]
                 out.append(f"key {k} {int(held[k])} {at}")

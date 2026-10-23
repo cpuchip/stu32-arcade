@@ -220,6 +220,11 @@ control red; draw 1.5 ms average, 4.3 ms worst; tick 170 us average, 501 us wors
   the screen's top corners), and 9, × and + also jump. A side held by two keys at once steers as one: the app tells
   babalcore the side went down with its first key and up with its last (babalcore would add the two). On the title
   the soft keys still pick a skill. Rev A's matrix takes two keys at once (the rollover log on board 0005, #8604).
+- Michael's layout for the three action games (2026-10-23, via basecamp #9900, #9906, #9907): steer on 4 and 6 or SOFT1
+  and SOFT6; jump on 7, 8, 9, ×, GOLD, SOFT2 or SOFT5, and ENTER as before. + no longer jumps ("the + one is useless").
+  Either hand can steer or jump, so a thumb on the soft keys and a finger on the number row play together, or 4 and 6
+  with SOFT2 and SOFT5. GOLD reaches a running app as key 30 like any other key. On the title SOFT2 and SOFT5 pick a
+  skill like the other soft keys; the new jump keys work in play only.
 - The registry patch is with soroban (patches/firmware/0001-*.patch, #4593), abacus reviewing.
 - Changed-line updates: measured on the host (consecutive frames compared line by line, 63,068
   frames of three oracle games): Babal changes about half the lines a frame, median 131-167 of

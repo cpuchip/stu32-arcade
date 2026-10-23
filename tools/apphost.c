@@ -6,7 +6,7 @@
  * 1. The rules, against babalcore: every game is written as an oracle/ref script (PREFIX.gN.oracle:
  *    its seed, skill and the saved best, then the keys and steps by this file's own copy of the key
  *    spec: 31 or 0 left and 33 or 5 right, a side down with its first key and up with its last; 26, 18,
- *    27, 34 and 46 jump on the press; steps clamped to 100 ms), and every tick
+ *    27, 34, 25, 30, 1 and 4 jump on the press; steps clamped to 100 ms), and every tick
  *    of it printed here as oracle/out.c prints it, under a "game N" line, for oracle/app_check.sh.
  * 2. The app's own rules, against the spec below (exit 5): at the title a soft key k starts skill k,
  *    ENTER and 8 start the shown skill, 4 and 6 step it, every other key and every release does
@@ -48,7 +48,7 @@ int ref_text(ls027_frame *f, int x, int y, int scale, const char *s);
 
 /* ---- the spec, written here and not taken from the app ---- */
 enum { K_LEFT = 31, K_RIGHT = 33, K_JUMP = 26, K_ENTER = 18, K_LEFT2 = 0, K_RIGHT2 = 5, K_JUMP2 = 27, K_JUMP3 = 34,
-       K_JUMP4 = 46 };
+       K_JUMP4 = 25, K_JUMP5 = 30, K_JUMP6 = 1, K_JUMP7 = 4 };
 static int held_l, held_r; /* the spec's own count of each side's keys down in this game */
 #define STEP_MAX 100
 #define DONE_HOLD 600
@@ -239,7 +239,7 @@ static void expected_frame(void)
         }
         ref_text(&want, centred((int)strlen("gitlab.com/liberecofr/babal"), 2), 172, 2, "gitlab.com/liberecofr/babal");
         ref_text(&want, centred(23, 2), 196, 2, "4 6 SKILL   ENTER PLAYS");
-        ref_text(&want, centred(50, 1), 218, 1, "PLAY: STEER 4 6 OR SOFT 1 6, JUMP 8 9 \xd7 + OR ENTER");
+        ref_text(&want, centred(64, 1), 218, 1, "PLAY: STEER 4 6 OR SOFT 1 6, JUMP 7 8 9 \xd7 GOLD SOFT 2 5 OR ENTER");
         ref_text(&want, centred(6, 1), 228, 1, "C ENDS");
         return;
     }
@@ -395,7 +395,8 @@ static void replay(FILE *in, const uint8_t *save, uint32_t n, bool record)
                     if ((*side != 0) != before)
                         fprintf(oracle, "at %" PRIu64 "\n%c %d\n", (uint64_t)ms * 1000000, side == &held_l ? 'L' : 'R',
                                 *side != 0);
-                } else if ((k == K_JUMP || k == K_ENTER || k == K_JUMP2 || k == K_JUMP3 || k == K_JUMP4) && d) {
+                } else if ((k == K_JUMP || k == K_ENTER || k == K_JUMP2 || k == K_JUMP3 || k == K_JUMP4 || k == K_JUMP5
+                            || k == K_JUMP6 || k == K_JUMP7) && d) {
                     fprintf(oracle, "at %" PRIu64 "\nJ\n", (uint64_t)ms * 1000000);
                 }
             }

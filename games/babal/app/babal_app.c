@@ -250,7 +250,8 @@ static bool babal_key(void *ctx, int key, bool down, uint32_t ms)
         else if (key == BABAL_KEY_RIGHT || key == BABAL_KEY_RIGHT2)
             steer(c, &c->right_held, key == BABAL_KEY_RIGHT ? 1 : 2, down, true, t);
         else if ((key == BABAL_KEY_JUMP || key == BABAL_KEY_ENTER || key == BABAL_KEY_JUMP2 || key == BABAL_KEY_JUMP3
-                  || key == BABAL_KEY_JUMP4) && down)
+                  || key == BABAL_KEY_JUMP4 || key == BABAL_KEY_JUMP5 || key == BABAL_KEY_JUMP6
+                  || key == BABAL_KEY_JUMP7) && down)
             bb_input_jump_push_jump(&c->jump, t);
         return false; /* the picture changes on the tick */
     default:
@@ -332,7 +333,7 @@ static void babal_draw(void *ctx, ls027_frame *f)
         }
         babal_text(f, centred(27, 2), 172, 2, "gitlab.com/liberecofr/babal");
         static const char *const help[] = {"4 6 SKILL   ENTER PLAYS",
-                                           "PLAY: STEER 4 6 OR SOFT 1 6, JUMP 8 9 \xd7 + OR ENTER", "C ENDS"};
+                                           "PLAY: STEER 4 6 OR SOFT 1 6, JUMP 7 8 9 \xd7 GOLD SOFT 2 5 OR ENTER", "C ENDS"};
         babal_text(f, centred((int)strlen(help[0]), 2), 196, 2, help[0]);
         babal_text(f, centred((int)strlen(help[1]), 1), 218, 1, help[1]);
         babal_text(f, centred((int)strlen(help[2]), 1), 228, 1, help[2]);
