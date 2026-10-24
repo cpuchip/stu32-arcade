@@ -112,7 +112,7 @@ expect() { # expect NAME SUFFIX: the script's last line, '# expect save HEX tune
         || { red "4 app $1: the sound differs from the script's"; return; }
     cmp -s "$B/$1.$sfx.nexts" "$B/app-${1%%-*}.nexts" || { red "4 app $1: a tick's ask differs from the rules'"; return; }
     case "$1" in $MID*)
-        echo "  4 app $1: left running, the save as the rules give it (the best kept at each catch), every tick's ask"; return ;;
+        echo "  4 app $1: left running, the save as the rules give it (the best kept at each step), every tick's ask"; return ;;
     esac
     if [ "${BLESS:-0}" = 1 ]; then mkdir -p "$O/frames" && cp "$B/$1.$sfx.hashes" "$O/frames/$1.hashes"; fi
     cmp -s "$B/$1.$sfx.hashes" "$O/frames/$1.hashes" || { red "4 app $1: frame hashes differ from oracle/$GAME/frames"; return; }
