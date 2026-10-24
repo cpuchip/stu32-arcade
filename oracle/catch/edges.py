@@ -11,6 +11,13 @@ import kids_edges  # noqa: E402
 
 G = ['game g 1 0', 'set count 1000']
 F = ['game f 1 0', 'set count 1000']
+M = ['game m 1 0', 'set count 1000']
+
+
+def span(lo, hi):
+    """a pattern for the whole numbers lo to hi"""
+    return '(' + '|'.join(str(n) for n in range(lo, hi + 1)) + ')'
+
 ANY_X = r'([0-9]|[1-9][0-9]|[1-3][0-9][0-9])'
 
 CASES = [
@@ -66,6 +73,24 @@ CASES = [
      {1: {'score': '10', 'fall': '32', 'gap': '30', 'max': '3'}}),
     ('the game over line, and nothing after', F + ['set lives 1', 'star 10 3640', 'steps 3'], 1,
      {1: {'over': '1'}}),
+    ('middle: five lives, a miss costs one', M + ['star 10 3640', 'steps 1'], 1, {1: {'lives': '4', 'over': '0'}}),
+    ('middle moves 8', M + ['down 6', 'steps 1'], 1, {1: {'bx': '184'}}),
+    ("middle's 10th catch: a smaller pace", M + ['set score 9', 'star 200 3024', 'steps 1'], 1,
+     {1: {'score': '10', 'fall': '36', 'gap': '28', 'max': '4'}}),
+    ("middle's limits", M + ['set score 59', 'set fall 44', 'set gap 20', 'set max 4', 'star 200 3024', 'steps 1'], 1,
+     {1: {'score': '60', 'fall': '48', 'gap': '18', 'max': '4'}}),
+    ('the first star sets last', ['game g 1 0', 'steps 1'], 1, {1: {'last': re.compile(ANY_X)}}),
+    ('the reach at the right wall: from 389, r 135 (gentle)', G + ['set last 389', 'set count 1', 'steps 1'], 1,
+     {1: {'stars': re.compile(span(254, 389) + ',-176'), 'last': re.compile(span(254, 389))}}),
+    ('the reach at the left wall: from 0, r 135', G + ['set last 0', 'set count 1', 'steps 1'], 1,
+     {1: {'stars': re.compile(span(0, 135) + ',-176')}}),
+    ("middle's reach at the start: r 180 from 200", M + ['set last 200', 'set count 1', 'steps 1'], 1,
+     {1: {'stars': re.compile(span(20, 380) + ',-176')}}),
+    ("full's reach at its limit: r 54 from 200", F + ['set gap 9', 'set last 200', 'set count 1', 'steps 1'], 1,
+     {1: {'stars': re.compile(span(146, 254) + ',-176')}}),
+    ('a missed star leaves last', G + ['set last 50', 'star 300 3640', 'steps 1'], 1,
+     {1: {'last': '50', 'stars': '-'}}),
+    ('a caught star leaves last', G + ['set last 7', 'star 200 3024', 'steps 1'], 1, {1: {'last': '7', 'score': '1'}}),
 ]
 
 if __name__ == '__main__':

@@ -4,12 +4,15 @@ tones, and each tick's ask for the next, from docs/moles.md's rules and the mode
   appscript.py gentle    seed 5, no save: 0 turns the digits on, ENTER 30 ms into a title tick; the autopilot for
                          1,200 steps in ticks of 50 ms, then of 60, 99, 100 and 250 ms; wrong keys, a key held and
                          pressed again, 0, ENTER and + bonking nothing; the script ends with the game running
-  appscript.py full      seed 5: 6 picks full, 4 gentle, SOFT6 full again, 0 twice; the autopilot through the stay's
-                         floor and two moles at once; the stun (a wrong key, then the right one inside and after it);
-                         then hands off to the end; ENTER refused 0.2 s and 0.499 s after it, taken at 0.51 s inside a
-                         tick; a second full game left to end
-  appscript.py refuse    seed 9, a save (bests 4321 and 99, 7 games, the digits on): keys the title refuses, full
-                         picked, a game left to end with nothing pressed, so the bests and the digits stay
+  appscript.py middle    seed 5: 6 picks middle; the autopilot through the stay's floor (40); a wrong key then the right
+                         one in one step (both count, no stun); then hands off to the end (five getaways); ENTER after
+                         the end starts middle again, left to end
+  appscript.py full      seed 5: 4 at gentle stays, 6 6 to full, 6 at full stays, 4 to middle, SOFT6 full again, 0
+                         twice; the autopilot through the stay's floor and two moles at once; the stun (a wrong key,
+                         then the right one inside and after it); then hands off to the end; ENTER refused 0.2 s and
+                         0.499 s after it, taken at 0.51 s inside a tick; a second full game left to end
+  appscript.py refuse    seed 9, a save (bests 4321, 55 and 99, 7 games, the digits on): keys the title refuses,
+                         middle picked, a game left to end with nothing pressed, so the bests and the digits stay
   appscript.py midsave   seed 9, full: the autopilot until 12 bonks, then the script ends with the game running
   appscript.py nexts NAME, appscript.py loadfile: as SALVO's
 Each script ends with '# sound LINE' for each tone and tune, then '# expect save HEX tunes N tones N'.
@@ -30,12 +33,12 @@ POP = '660/30 880/30'
 
 
 class Game:
-    def __init__(self, seed, best=(0, 0), games=0, digits=0):
+    def __init__(self, seed, best=(0, 0, 0), games=0, digits=0):
         self.seed, self.best, self.games, self.digits = seed, list(best), games, digits
         self.out, self.nexts, self.sound = [], [], []
         self.clock = self.tunes = self.tones = 0
         self.g = None
-        self.full = False
+        self.level = 0                      # gentle, middle, full: the title opens on gentle
         self.state = 'title'
         self.started = self.end_at = self.tune_until = 0
 
@@ -47,11 +50,11 @@ class Game:
         elif not down:
             pass
         elif self.state == 'title' and k in ('4', 'S1', '6', 'S6'):
-            self.full = k in ('6', 'S6')
+            self.level = max(0, self.level - 1) if k in ('4', 'S1') else min(2, self.level + 1)   # no wrap
         elif self.state == 'title' and k == '0':
             self.digits ^= 1
         elif k == 'E' and (self.state == 'title' or at - self.end_at >= AGAIN_MS):
-            self.g = M.Game('f' if self.full else 'g', self.seed, self.games)
+            self.g = M.Game('gmf'[self.level], self.seed, self.games)
             self.games += 1
             self.started = at
             self.tune_until = 0
@@ -80,7 +83,8 @@ class Game:
                 sound |= (1 if ('R', 0) in g.holes else 0) | (2 if g.bonks > bonks else 0) | (4 if wrong else 0) \
                     | (8 if g.score // 10 > score // 10 else 0) | (16 if g.lives < lives else 0) \
                     | (32 if g.over else 0)
-                self.best[g.full] = max(self.best[g.full], g.score)
+                lv = 2 if g.full else 1 if g.middle else 0
+                self.best[lv] = max(self.best[lv], g.score)
             # docs/moles.md's sound: the end's tune, a getaway's, the ten's, the bonk's, the pop's; a wrong key's
             # thunk only while no tune plays
             for bit, notes, length in ((32, END, 620), (16, GONE, 260), (8, TEN, 400), (2, BONK, 45), (1, POP, 60)):
@@ -115,12 +119,12 @@ class Game:
             self.tick(ms)
 
     def save(self):
-        b = bytearray(16)
+        b = bytearray(20)
         b[0], b[1] = ord('M'), 1
-        b[2:6] = self.best[0].to_bytes(4, 'little')
-        b[6:10] = self.best[1].to_bytes(4, 'little')
-        b[10:14] = self.games.to_bytes(4, 'little')
-        b[14] = self.digits
+        for i in range(3):
+            b[2 + 4 * i:6 + 4 * i] = self.best[i].to_bytes(4, 'little')
+        b[14:18] = self.games.to_bytes(4, 'little')
+        b[18] = self.digits
         return b.hex()
 
     def expect(self):
@@ -155,11 +159,47 @@ def gentle():
     return g
 
 
+def middle():
+    g = Game(5)
+    g.out.append('# appscript.py middle: seed 5, no save')
+    g.tick(100)
+    g.press('6')
+    g.tick(100)
+    g.press('E')
+    g.tick(50)
+    while g.g.stay > 40:
+        g.fly(20, 3)
+    g.fly(200, 3)
+    g.out.append('# a wrong key, then the right one, in one step: both count, no stun')
+    for _ in range(60):
+        up = [i for i, (st, _) in enumerate(g.g.holes) if st in 'RU']
+        if up:
+            break
+        g.tick(50)
+    right = pilot.DIGIT[up[0]]
+    wrong = next(k for k in '123456789' if k != right and g.g.holes[M.KEY_HOLE[k]][0] not in 'RU')
+    bonks = g.g.bonks
+    g.press(wrong)
+    g.press(right)
+    g.tick(50)
+    assert g.g.bonks == bonks + 1 and g.g.stun == 0
+    g.out.append('# hands off to the end')
+    while g.state == 'play':
+        g.tick(100)
+    g.tick(100, 6)
+    g.press('E')
+    while g.state == 'play':
+        g.tick(100)
+    g.tick(100, 3)
+    assert g.g.middle and g.best[1] >= 40 and g.best[0] == g.best[2] == 0
+    return g
+
+
 def full():
     g = Game(5)
     g.out.append('# appscript.py full: seed 5, no save')
     g.tick(100)
-    for k in ('6', '4', 'S6', '0', '0'):
+    for k in ('4', '6', '6', '6', '4', 'S6', '0', '0'):
         g.press(k)
         g.tick(100)
     g.press('E')
@@ -195,7 +235,7 @@ def full():
     return g
 
 
-REFUSE_SAVE = ((4321, 99), 7, 1)
+REFUSE_SAVE = ((4321, 55, 99), 7, 1)
 
 
 def refuse():
@@ -219,14 +259,15 @@ def midsave():
     g.out.append('# appscript.py midsave: seed 9, full; the script ends with the game running')
     g.tick(100)
     g.press('6')
+    g.press('6')
     g.press('E')
     while g.g.score < 12:
         g.fly(20)
-    assert g.state == 'play' and g.best[1] == g.g.score
+    assert g.state == 'play' and g.best[2] == g.g.score
     return g
 
 
-SCRIPTS = {'gentle': gentle, 'full': full, 'refuse': refuse, 'midsave': midsave}
+SCRIPTS = {'gentle': gentle, 'middle': middle, 'full': full, 'refuse': refuse, 'midsave': midsave}
 
 
 def main():

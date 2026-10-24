@@ -28,15 +28,24 @@ int moles_hole_of(int digit)
     return -1;
 }
 
-void moles_init(moles_game *g, bool full, uint32_t seed, uint32_t game)
+/* middle and full: the lives, the stay at the start and its floor, the gap before and from 20 bonks, the most moles
+   up from 20 bonks, the stun */
+static const struct {
+    uint8_t lives, stay, floor, gap, gap20, two, stun;
+} timed[2] = {{5, 80, 40, 30, 30, 1, 0}, {3, 50, 16, 20, 14, 2, MOLES_STUN}};
+
+void moles_init(moles_game *g, int level, uint32_t seed, uint32_t game)
 {
     memset(g, 0, sizeof *g);
     g->rng = mix64((uint64_t)seed ^ mix64(game));
-    g->full = full;
-    g->lives = full ? 3 : 0;
-    g->wait = full ? 0 : 30;
-    g->stay = full ? 50 : 0;
-    g->gap = full ? 20 : 0;
+    g->level = (uint8_t)(level == MOLES_MIDDLE || level == MOLES_FULL ? level : MOLES_GENTLE);
+    if (g->level == MOLES_GENTLE) {
+        g->wait = 30;
+    } else {
+        g->lives = timed[g->level - 1].lives;
+        g->stay = timed[g->level - 1].stay;
+        g->gap = timed[g->level - 1].gap;
+    }
     g->due = 20;
     g->last = -1;
 }
@@ -84,6 +93,8 @@ static bool rise(moles_game *g)
 
 void moles_step(moles_game *g)
 {
+    bool timing = g->level != MOLES_GENTLE;
+    int t = timing ? g->level - 1 : 0;
     g->step++;
     g->ev_bonks = g->ev_wrong = g->ev_rises = g->ev_gone = g->ev_ten = 0;
     g->ev_wrong_at = 0;
@@ -102,17 +113,17 @@ void moles_step(moles_game *g)
             g->ev_bonks++;
             if (g->score % 10 == 0)
                 g->ev_ten = 1;
-            if (g->full) {
-                if (g->stay > 16)
+            if (timing) {
+                if (g->stay > timed[t].floor)
                     g->stay--;
                 if (g->bonks >= 20)
-                    g->gap = 14;
+                    g->gap = timed[t].gap20;
             }
         } else {
             g->ev_wrong++;
             g->ev_wrong_at |= (uint16_t)(1u << i);
-            if (g->full)
-                g->stun = MOLES_STUN, stunned = started = true;
+            if (timing && timed[t].stun)
+                g->stun = timed[t].stun, stunned = started = true;
         }
     }
     g->nq = 0;
@@ -127,7 +138,7 @@ void moles_step(moles_game *g)
         h->n++;
         if (h->state == MOLES_RISE && h->n >= MOLES_RISING) {
             *h = (moles_hole){MOLES_UP, 0};
-        } else if (h->state == MOLES_UP && g->full && h->n >= g->stay) {
+        } else if (h->state == MOLES_UP && timing && h->n >= g->stay) {
             *h = (moles_hole){MOLES_SINK, 0};
             g->ev_gone++;
             if (g->lives > 0 && --g->lives == 0)
@@ -137,7 +148,7 @@ void moles_step(moles_game *g)
         } else if (h->state == MOLES_SINK && h->n >= MOLES_SINKING) {
             *h = (moles_hole){MOLES_EMPTY, 0};
             g->last = (int8_t)i;
-            if (!g->full)
+            if (!timing)
                 g->due = g->wait;
         }
     }
@@ -153,8 +164,8 @@ void moles_step(moles_game *g)
     /* a new mole, if one is due */
     if (g->due != 0)
         return;
-    if (g->full) {
-        if (active(g) < (g->bonks >= 20 ? 2 : 1) && rise(g))
+    if (timing) {
+        if (active(g) < (g->bonks >= 20 ? timed[t].two : 1) && rise(g))
             g->due = g->gap;
     } else if (!any(g)) {
         bool waited = g->last >= 0;

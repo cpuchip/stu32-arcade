@@ -33,7 +33,7 @@ def main():
             g.up(k)
         g.run_step()
         print('steps 1')
-    print(f'steps {100000 if mode == "f" else steps}')
+    print(f'steps {100000 if mode in "mf" else steps}')
 
 
 if __name__ == '__main__':

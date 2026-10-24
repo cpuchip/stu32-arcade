@@ -5,7 +5,7 @@ after every step. The rules are docs/moles.md.
 
 ## Commands
 
-- `game MODE SEED GAME` a new game: MODE `g` or `f`; the draw state is `mix64(SEED ^ mix64(GAME))`; every hole empty,
+- `game MODE SEED GAME` a new game: MODE `g` (gentle), `m` (middle) or `f` (full); the draw state is `mix64(SEED ^ mix64(GAME))`; every hole empty,
   the accumulator 0, no keys latched.
 - `down K`, `up K`: K is one of `1`-`9`, `0`, `E` (ENTER) or `P` (+). Only 1-9 bonk in play.
 - `tick MS`, `steps N`, `draw?` as in oracle/salvo/TRACE.md.

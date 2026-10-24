@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 /* The pictures 3720, MOLES and CATCH share so a player who doesn't read can play (docs/3720.md, "The screen"): a score
- * as tally marks folding into stars, a key drawn as a keycap with its own legend, and a framed picture to choose a mode.
+ * as tally marks folding into stars, a key drawn as a keycap with its own legend, a framed picture to choose a mode or a
+ * level, and stars to count a level by.
  * Header-only and static, so each game builds its own copy and no symbol is shared between games. */
 #ifndef KIDS_DRAW_H
 #define KIDS_DRAW_H
@@ -51,6 +52,13 @@ static inline void kids_tally(ls027_frame *f, int x, int y, uint32_t n)
         draw_line(f, x + 1, y, x + 1, y + 7, 1);
 }
 
+/* n with no more stars than fit in w px, for a tally in a tight place (a row of stars reads as a lot) */
+static inline uint32_t kids_tally_fit(uint32_t n, int w)
+{
+    uint32_t rest = n % 25, fit = (uint32_t)(w - kids_tally_width(rest)) / KIDS_STAR_PITCH;
+    return n / 25 > fit ? fit * 25 + rest : n;
+}
+
 /* a key as the calculator prints it, framed, with x its left edge; returns the width */
 static inline int kids_keycap(ls027_frame *f, int x, int y, const char *legend, int dark)
 {
@@ -71,6 +79,13 @@ static inline void kids_choice(ls027_frame *f, int x, int y, int w, int h, int c
         draw_frame_rect(f, x - 1, y - 1, w + 2, h + 2, 1);
         draw_frame_rect(f, x - 2, y - 2, w + 4, h + 4, 1);
     }
+}
+
+/* n small stars centred on cx from row y, under a level's picture, so the level can be counted */
+static inline void kids_marks(ls027_frame *f, int cx, int y, int n)
+{
+    for (int i = 0, x = cx - (n * KIDS_STAR_PITCH - 2) / 2; i < n; i++, x += KIDS_STAR_PITCH)
+        draw_blit(f, x, y, KIDS_STAR, 7, 7, DRAW_OR);
 }
 
 /* small arrows for a turn or a move */

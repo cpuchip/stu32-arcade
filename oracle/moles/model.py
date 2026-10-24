@@ -22,6 +22,9 @@ STUN_STEPS = 6
 G_WAIT0, G_WAIT_MIN, FIRST_DUE = 30, 10, 20
 F_STAY0, F_STAY_MIN = 50, 16
 F_GAP0, F_GAP2, F_LIVES0, F_TWO_AT = 20, 14, 3, 20
+# middle (docs/moles.md, "Middle" and fine print 5): full's rules with these numbers; the gap never changes, at most
+# one mole at every score, and no stun
+M_STAY0, M_STAY_MIN, M_GAP, M_LIVES0 = 80, 40, 30, 5
 
 MAX_DOWNS = 16          # fine print 13: at most 16 downs kept for one step
 
@@ -38,17 +41,23 @@ def mix64(z):
 class Game:
     def __init__(self, mode, seed, game):
         self.full = (mode == 'f')
+        self.middle = (mode == 'm')
+        # timed: middle and full, the levels where a mole gets away (fine print 5: middle follows full's rules)
+        self.timed = self.full or self.middle
         self.x = mix64((seed ^ mix64(game & M64)) & M64)
         self.step = 0
         self.acc = 0
         self.score = 0
         self.bonks = 0
-        self.lives = F_LIVES0 if self.full else 0
-        # CHOICE: the other mode's parameters print as 0 (gentle has no stay or gap, full no wait).
-        self.wait = 0 if self.full else G_WAIT0
-        self.stay = F_STAY0 if self.full else 0
-        self.gap = F_GAP0 if self.full else 0
-        # CHOICE: the first mole is due 20 steps after the start in both modes (rises in step 20).
+        self.stay_min = F_STAY_MIN if self.full else M_STAY_MIN
+        # fine print 5: the fields a level does not use read 0 (gentle's stay and gap, middle's and full's wait).
+        if self.full:
+            self.lives, self.wait, self.stay, self.gap = F_LIVES0, 0, F_STAY0, F_GAP0
+        elif self.middle:
+            self.lives, self.wait, self.stay, self.gap = M_LIVES0, 0, M_STAY0, M_GAP
+        else:
+            self.lives, self.wait, self.stay, self.gap = 0, G_WAIT0, 0, 0
+        # fine print 3: the first mole is due 20 steps after the start in every level (rises in step 20).
         self.due = FIRST_DUE
         self.stun = 0
         self.last = -1
@@ -97,11 +106,13 @@ class Game:
                 fresh.add(h)
                 self.score += 1
                 self.bonks += 1
-                if self.full:
-                    self.stay = max(F_STAY_MIN, self.stay - 1)
-                    if self.bonks >= F_TWO_AT:
+                if self.timed:
+                    self.stay = max(self.stay_min, self.stay - 1)
+                    # fine print 7: the gap's change at 20 bonks is full's only; middle's gap is 30 at every score
+                    if self.full and self.bonks >= F_TWO_AT:
                         self.gap = F_GAP2
             elif self.full:
+                # the stun is full's only; in gentle and middle a wrong key is dust and changes nothing here
                 self.stun = STUN_STEPS
                 stun_fresh = True
 
@@ -119,7 +130,7 @@ class Game:
             if s == 'R':
                 self.holes[i] = ('U', 0) if n >= RISE_STEPS else ('R', n)
             elif s == 'U':
-                if self.full and n >= self.stay:
+                if self.timed and n >= self.stay:
                     self.holes[i] = ('D', 0)
                     if self.lives > 0:
                         self.lives -= 1
@@ -134,13 +145,13 @@ class Game:
                 if n >= SINK_STEPS:
                     self.holes[i] = ('E', 0)
                     self.last = i
-                    if not self.full:
+                    if not self.timed:
                         self.due = self.wait
                 else:
                     self.holes[i] = ('D', n)
         if self.stun > 0 and not stun_fresh:
             self.stun -= 1
-        if self.full and got_away and self.lives == 0:
+        if self.timed and got_away and self.lives == 0:
             for i in range(9):
                 if self.holes[i][0] in 'RUB':
                     self.holes[i] = ('D', 0)
@@ -150,9 +161,11 @@ class Game:
         # 3. a new mole if one is due
         if self.due != 0:
             return
-        if self.full:
-            if self.active() >= (2 if self.bonks >= F_TWO_AT else 1):
-                return         # CHOICE: due stays 0 and the mole rises on the first step it may
+        if self.timed:
+            # the two-mole stage is full's only; middle allows one at every score, whatever the bonks
+            limit = 2 if (self.full and self.bonks >= F_TWO_AT) else 1
+            if self.active() >= limit:
+                return         # fine print 8: due stays 0 and the mole rises on the first step it may
         else:
             if any(s != 'E' for s, _ in self.holes):
                 return
@@ -161,7 +174,7 @@ class Game:
             return             # CHOICE: no draw, nothing rises, due stays 0
         h = cands[self.draw(len(cands))]
         self.holes[h] = ('R', 0)
-        if self.full:
+        if self.timed:
             self.due = self.gap
         elif self.last != -1:
             # CHOICE: W drops at each rise that ended a wait, i.e. every mole after the first
@@ -192,8 +205,8 @@ def run(lines, out):
         cmd = w[0]
         try:
             if cmd == 'game':
-                if w[1] not in ('g', 'f'):
-                    raise ValueError('mode must be g or f')
+                if w[1] not in ('g', 'm', 'f'):
+                    raise ValueError('mode must be g, m or f')
                 g = Game(w[1], int(w[2]), int(w[3]))
                 continue
             if g is None:

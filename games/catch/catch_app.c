@@ -12,15 +12,15 @@
 enum { TITLE, PLAY, OVER };
 #define SAVE_MAGIC 'K'
 #define SAVE_VERSION 1
-#define SAVE_BYTES 16    /* magic, version, best gentle (4), best full (4), games (4), 2 zeros */
+#define SAVE_BYTES 20    /* magic, version, best gentle, middle, full (4 each), games (4), 2 zeros */
 #define AGAIN_MS 500     /* the end takes ENTER after this */
 #define FLASH_STEPS 4
 
 typedef struct {
     int state;
-    bool full;           /* the mode picked on the title; it opens on gentle */
+    uint8_t level;       /* picked on the title; it opens on gentle */
     uint32_t seed;
-    uint32_t best[2], games; /* kept */
+    uint32_t best[CATCH_LEVELS], games; /* kept */
     uint32_t now, started, end_at;
     catch_game g;
     int16_t flash_x;     /* a catch's ring of dots, over the basket */
@@ -59,11 +59,11 @@ static uint32_t get32(const uint8_t *b)
 static void app_load_cb(void *ctx, const uint8_t *save, uint32_t n)
 {
     catch_ctx *c = ctx;
-    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || save[14] || save[15])
+    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || save[18] || save[19])
         return;          /* taken whole or not at all */
-    c->best[0] = get32(save + 2);
-    c->best[1] = get32(save + 6);
-    c->games = get32(save + 10);
+    for (int i = 0; i < CATCH_LEVELS; i++)
+        c->best[i] = get32(save + 2 + 4 * i);
+    c->games = get32(save + 14);
 }
 
 static void app_save_cb(void *ctx, uint8_t *save, uint32_t cap)
@@ -74,9 +74,9 @@ static void app_save_cb(void *ctx, uint8_t *save, uint32_t cap)
     memset(save, 0, SAVE_BYTES);
     save[0] = SAVE_MAGIC;
     save[1] = SAVE_VERSION;
-    put32(save + 2, c->best[0]);
-    put32(save + 6, c->best[1]);
-    put32(save + 10, c->games);
+    for (int i = 0; i < CATCH_LEVELS; i++)
+        put32(save + 2 + 4 * i, c->best[i]);
+    put32(save + 14, c->games);
 }
 
 static void app_start_cb(void *ctx)
@@ -84,7 +84,7 @@ static void app_start_cb(void *ctx)
     catch_ctx *c = ctx;
     c->seed = app_seed();
     c->state = TITLE;
-    c->full = false;
+    c->level = CATCH_GENTLE;
 }
 
 static void app_stop_cb(void *ctx)
@@ -94,7 +94,7 @@ static void app_stop_cb(void *ctx)
 
 static void new_game(catch_ctx *c, uint32_t at)
 {
-    catch_init(&c->g, c->full, c->seed, c->games++);
+    catch_init(&c->g, c->level, c->seed, c->games++);
     c->flash = c->fade = 0;
     c->tune_until = 0;
     c->started = at;
@@ -121,8 +121,16 @@ static bool app_key_cb(void *ctx, int key, bool down, uint32_t ms)
     }
     if (!down)
         return false;
-    if (c->state == TITLE && (key == APP_KEY_4 || key == APP_KEY_SOFT1 || key == APP_KEY_6 || key == APP_KEY_SOFT6)) {
-        c->full = key == APP_KEY_6 || key == APP_KEY_SOFT6;
+    if (c->state == TITLE && (key == APP_KEY_4 || key == APP_KEY_SOFT1)) {
+        if (c->level == CATCH_GENTLE)
+            return false;  /* the choice stops at the ends */
+        c->level--;
+        return true;
+    }
+    if (c->state == TITLE && (key == APP_KEY_6 || key == APP_KEY_SOFT6)) {
+        if (c->level == CATCH_FULL)
+            return false;
+        c->level++;
         return true;
     }
     if (key == APP_KEY_ENTER && (c->state == TITLE || ms - c->end_at >= AGAIN_MS)) {
@@ -144,12 +152,12 @@ static void each_step(const catch_game *g, void *arg)
         c->flash = FLASH_STEPS;
         c->flash_x = g->bx;
     }
-    if (g->ev_misses && !g->full) {
+    if (g->ev_misses && g->level == CATCH_GENTLE) {
         c->fade = FLASH_STEPS;
         c->fade_x = g->ev_miss_x;
     }
-    if (g->score > c->best[g->full])
-        c->best[g->full] = g->score;
+    if (g->score > c->best[g->level])
+        c->best[g->level] = g->score;
     c->sound |= (uint8_t)((g->ev_catches ? 1 : 0) | (g->ev_misses ? 2 : 0) | (g->ev_lost ? 4 : 0) | (g->ev_ten ? 8 : 0)
                           | (g->bump ? 16 : 0) | (g->over ? 32 : 0));
 }
@@ -234,28 +242,30 @@ static void draw_play(ls027_frame *f, const catch_ctx *c)
     draw_fill(f, 0, 0, LS027_W, CATCH_TOP, DRAW_LIGHT);
     for (int i = 0; i < g->lives; i++)
         basket(f, 4 + 16 * i, 2, 13, 7);
-    kids_tally(f, LS027_W - 4 - kids_tally_width(g->score), 2, g->score);
+    uint32_t score = kids_tally_fit(g->score, LS027_W - 12 - 16 * g->lives);   /* clear of the lives */
+    kids_tally(f, LS027_W - 4 - kids_tally_width(score), 2, score);
     draw_line(f, 0, CATCH_TOP - 1, LS027_W - 1, CATCH_TOP - 1, 1);
 }
 
 static void draw_title(ls027_frame *f, const catch_ctx *c)
 {
+    /* each level's picture: its stars and its lives */
+    static const int8_t at[CATCH_LEVELS][4][2] = {
+        {{55, 24}}, {{30, 20}, {80, 34}}, {{16, 18}, {50, 40}, {80, 10}, {98, 56}}};
+    static const uint8_t stars[CATCH_LEVELS] = {1, 2, 4};
     centred(f, 14, 5, "CATCH");
-    for (int m = 0; m < 2; m++) {
-        int x = m ? 214 : 36;
-        kids_choice(f, x, 66, 150, 80, c->full == m);
-        basket(f, x + 51, 124, 48, 14);
-        if (m) {
-            static const int8_t at[4][2] = {{20, 18}, {62, 40}, {100, 10}, {120, 60}};
-            for (int i = 0; i < 4; i++)
-                draw_blit(f, x + at[i][0], 66 + at[i][1], STAR, CATCH_STAR, CATCH_STAR, DRAW_OR);
-            for (int i = 0; i < 3; i++)
-                basket(f, x + 6 + 16 * i, 70, 13, 7);
-        } else {
-            draw_blit(f, x + 70, 90, STAR, CATCH_STAR, CATCH_STAR, DRAW_OR);
-        }
-        if (c->best[m])
-            kids_tally(f, x + 75 - kids_tally_width(c->best[m]) / 2, 152, c->best[m]);
+    for (int m = 0; m < CATCH_LEVELS; m++) {
+        int x = 14 + 126 * m;
+        kids_choice(f, x, 66, 120, 80, c->level == m);
+        basket(f, x + 36, 124, 48, 14);
+        for (int i = 0; i < stars[m]; i++)
+            draw_blit(f, x + at[m][i][0], 66 + at[m][i][1], STAR, CATCH_STAR, CATCH_STAR, DRAW_OR);
+        for (int i = 0; i < (m == CATCH_MIDDLE ? 5 : m == CATCH_FULL ? 3 : 0); i++)
+            basket(f, x + 6 + 16 * i, 70, 13, 7);
+        kids_marks(f, x + 60, 150, m + 1);
+        uint32_t best = kids_tally_fit(c->best[m], 116);
+        if (best)
+            kids_tally(f, x + 60 - kids_tally_width(best) / 2, 162, best);
     }
     int x = 150;
     x += kids_keycap(f, x, 176, "4", 1) + 10;
@@ -278,7 +288,7 @@ static void app_draw_cb(void *ctx, ls027_frame *f)
     }
     draw_play(f, c);
     if (c->state == OVER) {
-        uint32_t best = c->best[c->g.full];
+        uint32_t best = c->best[c->g.level];
         draw_fill(f, 80, 56, 240, 112, DRAW_LIGHT);
         draw_frame_rect(f, 80, 56, 240, 112, 1);
         basket(f, 176, 66, 48, 14);

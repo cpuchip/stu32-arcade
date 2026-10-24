@@ -20,13 +20,19 @@ BASKET_MAX = 352       # 400 - 48
 BX_START = 176
 STAR_W = 11
 STAR_SPAWN_Y = -11 * 16
-STAR_X_DRAW = 390
+STAR_X_DRAW = 390      # the first star of a game: x = draw(390), so x is 0-389
+STAR_X_MAX = 389       # the reach clamps to 0-389 (hi = min(389, last + r))
 
-FALL_START, FALL_STEP, FALL_LIMIT = 32, 8, 96
-GAP_START, GAP_STEP, GAP_LIMIT = 30, 3, 9
-MAX_START, MAX_STEP, MAX_LIMIT = 3, 1, 6
-LIVES_FULL = 3
-MOVE = {'g': 6, 'f': 8}
+# the table in docs/catch.md "Stars": (start, each 10 catches, limit) for the levels that pace; gentle never paces
+FALL_START = 32
+GAP_START = 30
+MAX_START = 3
+PACE = {
+    'm': {'fall': (32, 4, 48), 'gap': (30, -2, 18), 'max': (3, 1, 4)},
+    'f': {'fall': (32, 8, 96), 'gap': (30, -3, 9), 'max': (3, 1, 6)},
+}
+LIVES = {'g': 0, 'm': 5, 'f': 3}
+MOVE = {'g': 6, 'm': 8, 'f': 8}
 
 LEFT_KEYS = ('4', 'S1')
 RIGHT_KEYS = ('6', 'S6')
@@ -42,21 +48,22 @@ def mix64(z):
 
 class Catch:
     def __init__(self, mode, seed, game):
-        if mode not in ('g', 'f'):
-            raise ValueError('mode must be g or f: %r' % mode)
+        if mode not in ('g', 'm', 'f'):
+            raise ValueError('mode must be g, m or f: %r' % mode)
         self.mode = mode
         self.x = mix64((seed ^ mix64(game & M64)) & M64)
         self.step_n = 0
         self.acc = 0
         self.bx = BX_START
         self.score = 0
-        self.lives = LIVES_FULL if mode == 'f' else 0
+        self.lives = LIVES[mode]
         self.fall = FALL_START
         self.gap = GAP_START
         self.max = MAX_START
-        # CHOICE: the gap counter starts at 0, so the first star comes on the game's first step (the counter is
-        # "reached" already); the doc never gives its starting value.
+        # the gap counter starts at 0, so the first star comes on the game's first step (fine print 2)
         self.count = 0
+        # the reach's last: the x of the last star that came, -1 while unset (fine print 11, TRACE.md)
+        self.last = -1
         self.bump = 0
         self.over = 0
         self.stars = []            # [x px, y 1/16 px], oldest first
@@ -65,6 +72,9 @@ class Catch:
         self.latch_right = False
 
     def draw(self, n):
+        if n <= 0:
+            # only reachable through a `set` that makes no sense (a negative gap, last out of range)
+            raise ValueError('draw of %d' % n)
         self.x = mix64(self.x)
         return self.x % n
 
@@ -134,7 +144,7 @@ class Catch:
                     self.score += 1          # caught: gone
                     continue
             if ny >= FIELD_H * 16:            # a miss: gone
-                if self.mode == 'f':
+                if self.mode != 'g':
                     self.lives -= 1
                     if self.lives <= 0:
                         # every star is gone and the game is over; nothing else in this step runs
@@ -149,24 +159,45 @@ class Catch:
         if self.count > 0:
             self.count -= 1
         if self.count <= 0 and len(self.stars) < self.max:
-            self.stars.append([self.draw(STAR_X_DRAW), STAR_SPAWN_Y])
+            sx = self.reach_x()
+            self.stars.append([sx, STAR_SPAWN_Y])
+            self.last = sx
             self.count = self.gap
 
-        # 4. the pace (full): once for each multiple of 10 the score reached in this step
-        if self.mode == 'f':
+        # 4. the pace (middle and full): once for each multiple of 10 the score reached in this step, each number
+        # to its own limit
+        if self.mode in PACE:
+            pace = PACE[self.mode]
             for _ in range(self.score // 10 - score_before // 10):
-                self.fall = min(self.fall + FALL_STEP, FALL_LIMIT)
-                self.gap = max(self.gap - GAP_STEP, GAP_LIMIT)
-                self.max = min(self.max + MAX_STEP, MAX_LIMIT)
+                self.fall = self.paced(self.fall, pace['fall'])
+                self.gap = self.paced(self.gap, pace['gap'])
+                self.max = self.paced(self.max, pace['max'])
+
+    @staticmethod
+    def paced(v, rule):
+        _, d, lim = rule
+        return min(v + d, lim) if d > 0 else max(v + d, lim)
+
+    def reach_x(self):
+        """The reach (docs/catch.md "The reach", fine print 11): one draw a star. With last unset, draw(390);
+        else within r = 3 * move * gap / 4 of last, clamped to 0-389. gap is the current gap, before this step's
+        pace (step 3 runs before step 4)."""
+        if self.last < 0:
+            return self.draw(STAR_X_DRAW)
+        r = 3 * MOVE[self.mode] * self.gap // 4
+        lo = max(0, self.last - r)
+        hi = min(STAR_X_MAX, self.last + r)
+        return lo + self.draw(hi - lo + 1)
 
     def line(self):
         stars = ';'.join('%d,%d' % (sx, sy) for sx, sy in self.stars) or '-'
-        return ('S step=%d acc=%d bx=%d score=%d lives=%d fall=%d gap=%d max=%d count=%d bump=%d over=%d stars=%s'
+        return ('S step=%d acc=%d bx=%d score=%d lives=%d fall=%d gap=%d max=%d count=%d last=%d bump=%d over=%d '
+                'stars=%s'
                 % (self.step_n, self.acc, self.bx, self.score, self.lives, self.fall, self.gap, self.max,
-                   self.count, self.bump, self.over, stars))
+                   self.count, self.last, self.bump, self.over, stars))
 
 
-SETTABLE = ('bx', 'score', 'lives', 'fall', 'gap', 'max', 'count', 'acc')
+SETTABLE = ('bx', 'score', 'lives', 'fall', 'gap', 'max', 'count', 'last', 'acc')
 
 
 def run(lines, out):
@@ -196,11 +227,16 @@ def run(lines, out):
             elif cmd == 'set':
                 if w[1] not in SETTABLE:
                     raise ValueError('cannot set %r' % w[1])
-                setattr(g, w[1], int(w[2]))
+                v = int(w[2])
+                # CHOICE: last takes -1 (unset: the next star is draw(390)) or a star's x 0-389; anything else is
+                # a script error rather than a draw the doc never defines
+                if w[1] == 'last' and not -1 <= v <= STAR_X_MAX:
+                    raise ValueError('last must be -1 or 0-%d' % STAR_X_MAX)
+                setattr(g, w[1], v)
             elif cmd == 'star':
-                g.stars.append([int(w[1]), int(w[2])])
+                g.stars.append([int(w[1]), int(w[2])])     # last is not changed (TRACE.md)
             elif cmd == 'clear' and w[1:] == ['stars']:
-                g.stars = []
+                g.stars = []                               # CHOICE: last is not changed either
             else:
                 raise ValueError('unknown command')
         except (ValueError, IndexError) as e:

@@ -4,9 +4,10 @@
 comparison.
 
     device_kids.py pack OUTDIR      appscripts.{c,h} and expected.txt from each game's oracle/<game>/appscript.py
-                                   gentle, full and refuse scripts and the runner's committed frame hashes
-                                   (oracle/<game>/frames; gentle and full at -seed 5, refuse at -seed 9 with -load
-                                   from appscript.py loadfile, as oracle/<game>_check.sh runs them)
+                                   gentle, middle (MOLES and CATCH), full and refuse scripts and the runner's
+                                   committed frame hashes (oracle/<game>/frames; gentle, middle and full at -seed 5,
+                                   refuse at -seed 9 with -load from appscript.py loadfile, as
+                                   oracle/<game>_check.sh runs them)
     device_kids.py compare OUTDIR   the bench's report (OUTDIR/s3.log.report) against expected.txt
 
 The expected value is the FNV-1a 64 hash of the runner's hashes file (a frame hash, 16 hex digits and a newline, a
@@ -17,8 +18,9 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 GAMES = (("rocks", "rocks_app", "30"), ("moles", "moles_app", None), ("catch", "catch_app", "31"))
-NAMES = ("gentle", "full", "refuse")
-SEEDS = {"gentle": 5, "full": 5, "refuse": 9}
+NAMES = {"rocks": ("gentle", "full", "refuse"), "moles": ("gentle", "middle", "full", "refuse"),
+         "catch": ("gentle", "middle", "full", "refuse")}
+SEEDS = {"gentle": 5, "middle": 5, "full": 5, "refuse": 9}
 DIGITS = {"37", "38", "39", "31", "32", "33", "25", "26", "27"}
 
 
@@ -52,7 +54,7 @@ def pack(outdir):
                                         text=True).stdout
         save = bytes.fromhex(gen("loadfile").strip())
         texts = {}
-        for name in NAMES:
+        for name in NAMES[game]:
             texts[name] = gen(name)
             h = fnv1a64(open(os.path.join(o, "frames", f"{name}.hashes"), "rb").read())
             jobs.append((f"{game}-{name}", app, texts[name], h, SEEDS[name], save if name == "refuse" else b""))

@@ -11,6 +11,7 @@ import kids_edges  # noqa: E402
 
 G = ['game g 1 0', 'set due 100']
 F = ['game f 1 0', 'set due 100']
+M = ['game m 1 0', 'set due 100']
 ONE_R0 = re.compile(r'(E/)*R0(/E)*')
 
 CASES = [
@@ -68,6 +69,25 @@ CASES = [
      + [l for k in '789456123' for l in (f'down {k}', f'up {k}', 'steps 1')], 9,
      {1: {'h0': 'B0', 'h1': 'U1'}, 9: {'holes': 'D0/B7/B6/B5/B4/B3/B2/B1/B0', 'score': '9'}}),
     ('two steps a tick at most', G + ['set acc 150', 'tick 100'], 2, {2: {'acc': '150'}}),
+    ("middle's start: five lives, the stay 80, the gap 30, no wait", ['game m 1 0', 'steps 1'], 1,
+     {1: {'lives': '5', 'stay': '80', 'gap': '30', 'wait': '0', 'due': '19'}}),
+    ('middle: up 79 steps stays, up 80 is a getaway', M + ['hole 4 U78', 'hole 0 U79', 'steps 1'], 1,
+     {1: {'h4': 'U79', 'h0': 'D0', 'lives': '4'}}),
+    ('middle: a bonk lowers the stay by one', M + ['hole 4 U10', 'down 5', 'steps 1'], 1,
+     {1: {'h4': 'B0', 'score': '1', 'stay': '79'}}),
+    ("middle: the stay's floor is 40", M + ['set stay 40', 'hole 4 U10', 'down 5', 'steps 1'], 1,
+     {1: {'score': '1', 'stay': '40'}}),
+    ('middle: the stay 41 drops to 40', M + ['set stay 41', 'hole 4 U10', 'down 5', 'steps 1'], 1,
+     {1: {'stay': '40'}}),
+    ('middle: a wrong key then a right one, both count, no stun', M + ['hole 4 U0', 'down 1', 'down 5', 'steps 1'], 1,
+     {1: {'score': '1', 'stun': '0', 'h4': 'B0'}}),
+    ('middle: a rise sets the gap, 30', ['game m 1 0', 'set due 1', 'steps 1'], 1, {1: {'holes': ONE_R0, 'due': '30'}}),
+    ('middle: one mole at a time past 20 bonks', ['game m 1 0', 'set due 1', 'set bonks 25', 'hole 0 U0', 'steps 1'],
+     1, {1: {'holes': 'U1/E/E/E/E/E/E/E/E', 'due': '0', 'gap': '30'}}),
+    ('middle: the gap stays 30 at the 20th bonk', M + ['set bonks 19', 'hole 4 U0', 'down 5', 'steps 1'], 1,
+     {1: {'bonks': '20', 'gap': '30'}}),
+    ('middle: the fifth getaway ends the game', M + ['set lives 1', 'hole 4 U79', 'hole 0 U3', 'steps 1'], 1,
+     {1: {'lives': '0', 'over': '1', 'h4': 'D0', 'h0': 'D0'}}),
 ]
 
 if __name__ == '__main__':

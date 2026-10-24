@@ -12,7 +12,7 @@
 enum { TITLE, PLAY, OVER };
 #define SAVE_MAGIC 'M'
 #define SAVE_VERSION 1
-#define SAVE_BYTES 16    /* magic, version, best gentle (4), best full (4), games (4), the digits option, 1 zero */
+#define SAVE_BYTES 20    /* magic, version, best gentle, middle, full (4 each), games (4), the digits option, 1 zero */
 #define AGAIN_MS 500     /* the end takes ENTER after this */
 #define PUFF_STEPS 4
 #define CELL_W 133
@@ -23,10 +23,10 @@ enum { TITLE, PLAY, OVER };
 
 typedef struct {
     int state;
-    bool full;           /* the mode picked on the title; it opens on gentle */
+    uint8_t level;       /* picked on the title; it opens on gentle */
     bool digits;         /* kept: the digit on a mole that is up */
     uint32_t seed;
-    uint32_t best[2], games; /* kept */
+    uint32_t best[MOLES_LEVELS], games; /* kept */
     uint32_t now, started, end_at;
     moles_game g;
     uint8_t puff[MOLES_HOLES];  /* a wrong key's dust, steps left */
@@ -101,12 +101,12 @@ static uint32_t get32(const uint8_t *b)
 static void app_load_cb(void *ctx, const uint8_t *save, uint32_t n)
 {
     moles_ctx *c = ctx;
-    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || save[14] > 1 || save[15])
+    if (n < SAVE_BYTES || save[0] != SAVE_MAGIC || save[1] != SAVE_VERSION || save[18] > 1 || save[19])
         return;          /* taken whole or not at all */
-    c->best[0] = get32(save + 2);
-    c->best[1] = get32(save + 6);
-    c->games = get32(save + 10);
-    c->digits = save[14];
+    for (int i = 0; i < MOLES_LEVELS; i++)
+        c->best[i] = get32(save + 2 + 4 * i);
+    c->games = get32(save + 14);
+    c->digits = save[18];
 }
 
 static void app_save_cb(void *ctx, uint8_t *save, uint32_t cap)
@@ -117,10 +117,10 @@ static void app_save_cb(void *ctx, uint8_t *save, uint32_t cap)
     memset(save, 0, SAVE_BYTES);
     save[0] = SAVE_MAGIC;
     save[1] = SAVE_VERSION;
-    put32(save + 2, c->best[0]);
-    put32(save + 6, c->best[1]);
-    put32(save + 10, c->games);
-    save[14] = c->digits;
+    for (int i = 0; i < MOLES_LEVELS; i++)
+        put32(save + 2 + 4 * i, c->best[i]);
+    put32(save + 14, c->games);
+    save[18] = c->digits;
 }
 
 static void app_start_cb(void *ctx)
@@ -128,7 +128,7 @@ static void app_start_cb(void *ctx)
     moles_ctx *c = ctx;
     c->seed = app_seed();
     c->state = TITLE;
-    c->full = false;
+    c->level = MOLES_GENTLE;
 }
 
 static void app_stop_cb(void *ctx)
@@ -138,7 +138,7 @@ static void app_stop_cb(void *ctx)
 
 static void new_game(moles_ctx *c, uint32_t at)
 {
-    moles_init(&c->g, c->full, c->seed, c->games++);
+    moles_init(&c->g, c->level, c->seed, c->games++);
     memset(c->puff, 0, sizeof c->puff);
     c->tune_until = 0;
     c->started = at;
@@ -170,8 +170,16 @@ static bool app_key_cb(void *ctx, int key, bool down, uint32_t ms)
     }
     if (!down)
         return false;
-    if (c->state == TITLE && (key == APP_KEY_4 || key == APP_KEY_SOFT1 || key == APP_KEY_6 || key == APP_KEY_SOFT6)) {
-        c->full = key == APP_KEY_6 || key == APP_KEY_SOFT6;
+    if (c->state == TITLE && (key == APP_KEY_4 || key == APP_KEY_SOFT1)) {
+        if (c->level == MOLES_GENTLE)
+            return false;  /* the choice stops at the ends */
+        c->level--;
+        return true;
+    }
+    if (c->state == TITLE && (key == APP_KEY_6 || key == APP_KEY_SOFT6)) {
+        if (c->level == MOLES_FULL)
+            return false;
+        c->level++;
         return true;
     }
     if (c->state == TITLE && key == APP_KEY_0) {
@@ -193,10 +201,10 @@ static void each_step(const moles_game *g, void *arg)
         if (c->puff[i])
             c->puff[i]--;
         if (g->ev_wrong_at & 1u << i)
-            c->puff[i] = g->full ? MOLES_STUN : PUFF_STEPS;   /* full: as long as the stun */
+            c->puff[i] = g->level == MOLES_FULL ? MOLES_STUN : PUFF_STEPS;   /* full: as long as the stun */
     }
-    if (g->score > c->best[g->full])
-        c->best[g->full] = g->score;
+    if (g->score > c->best[g->level])
+        c->best[g->level] = g->score;
     c->sound |= (uint8_t)((g->ev_rises ? 1 : 0) | (g->ev_bonks ? 2 : 0) | (g->ev_wrong ? 4 : 0) | (g->ev_ten ? 8 : 0)
                           | (g->ev_gone ? 16 : 0) | (g->over ? 32 : 0));
 }
@@ -312,25 +320,27 @@ static void top_line(ls027_frame *f, const moles_game *g)
 static void draw_title(ls027_frame *f, const moles_ctx *c)
 {
     centred(f, 10, 5, "MOLES");
-    for (int m = 0; m < 2; m++) {
-        int x = m ? 214 : 36;
-        kids_choice(f, x, 60, 150, 84, c->full == m);
-        if (m) {
-            hole(f, x + 40, 132, 0);
-            mole(f, x + 40, 132, MOLE_H);
-            hole(f, x + 40, 132, 1);
-            hole(f, x + 110, 132, 0);
-            mole(f, x + 110, 132, MOLE_H / 2);
-            hole(f, x + 110, 132, 1);
-            for (int i = 0; i < 3; i++)
-                draw_blit(f, x + 6 + 12 * i, 64, LIFE, 9, 7, DRAW_OR);
+    for (int m = 0; m < MOLES_LEVELS; m++) {
+        int x = 14 + 126 * m;
+        kids_choice(f, x, 60, 120, 84, c->level == m);
+        if (m == MOLES_FULL) {
+            hole(f, x + 31, 132, 0);
+            mole(f, x + 31, 132, MOLE_H);
+            hole(f, x + 31, 132, 1);
+            hole(f, x + 89, 132, 0);
+            mole(f, x + 89, 132, MOLE_H / 2);
+            hole(f, x + 89, 132, 1);
         } else {
-            hole(f, x + 75, 132, 0);
-            mole(f, x + 75, 132, MOLE_H);
-            hole(f, x + 75, 132, 1);
+            hole(f, x + 60, 132, 0);
+            mole(f, x + 60, 132, MOLE_H);
+            hole(f, x + 60, 132, 1);
         }
-        if (c->best[m])
-            kids_tally(f, x + 75 - kids_tally_width(c->best[m]) / 2, 152, c->best[m]);
+        for (int i = 0; i < (m == MOLES_MIDDLE ? 5 : m == MOLES_FULL ? 3 : 0); i++)
+            draw_blit(f, x + 6 + 12 * i, 64, LIFE, 9, 7, DRAW_OR);
+        kids_marks(f, x + 60, 148, m + 1);
+        uint32_t best = kids_tally_fit(c->best[m], 116);
+        if (best)
+            kids_tally(f, x + 60 - kids_tally_width(best) / 2, 160, best);
     }
     int x = 150;                                          /* 4 and 6 pick a picture */
     x += kids_keycap(f, x, 176, "4", 1) + 10;
@@ -358,7 +368,7 @@ static void app_draw_cb(void *ctx, ls027_frame *f)
     draw_holes(f, c);
     top_line(f, &c->g);
     if (c->state == OVER) {
-        uint32_t best = c->best[c->g.full];
+        uint32_t best = c->best[c->g.level];
         draw_fill(f, 80, 56, 240, 112, DRAW_LIGHT);
         draw_frame_rect(f, 80, 56, 240, 112, 1);
         draw_blit(f, 196, 68, LIFE, 9, 7, DRAW_OR);

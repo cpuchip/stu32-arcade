@@ -1,6 +1,6 @@
 """Fuzzed trace scripts: fuzz.py SEEDS GAMES prints, for each seed and game, random downs and ups of the four move keys
 (both directions at once, taps shorter than a step, a key held long) between ticks of 0-250 ms and runs of steps, in
-both modes, long enough for full games to end."""
+all three levels, long enough for middle and full games to end."""
 import random
 import sys
 
@@ -12,7 +12,7 @@ def main():
     r = random.Random(3)
     for seed in range(seeds):
         for game in range(games):
-            print(f'game {"gf"[game % 2]} {r.getrandbits(32)} {game}')
+            print(f'game {"gmf"[game % 3]} {r.getrandbits(32)} {game}')
             held = set()
             for _ in range(r.randrange(300, 1200)):
                 for _ in range(r.choice((0, 0, 1, 1, 2))):

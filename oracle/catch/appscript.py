@@ -5,11 +5,14 @@ tones, and each tick's ask for the next, from docs/catch.md's rules and the mode
                          autopilot for 1,200 steps in ticks of 50 ms, then of 60, 99, 100 and 250 ms; each move key,
                          both at once, a tap against a held key, + and ENTER moving nothing; the walls' bumps; the
                          script ends with the game running (gentle never ends)
-  appscript.py full      seed 5: 6 picks full, 4 picks gentle, SOFT6 full again; the autopilot to the end; ENTER
-                         refused 0.2 s and 0.499 s after the end and taken at 0.51 s inside a tick; a second full game
-                         left to end
-  appscript.py refuse    seed 9, a save (bests 4321 and 99, 7 games): keys the title refuses, full picked, a game
-                         left to end with nothing pressed, so both bests stay
+  appscript.py middle    seed 5: 6 picks middle; the autopilot for 3,000 steps, then hands off to the end (five lives);
+                         ENTER after the end starts middle again, left to end
+  appscript.py full      seed 5: 4 at gentle stays, 6 6 to full, 6 at full stays, 4 to middle, SOFT6 full again,
+                         SOFT1 SOFT1 SOFT1 to gentle and past it, 6 6 to full; the autopilot for 3,000 steps, then
+                         hands off to the end; ENTER refused 0.2 s and 0.499 s after the end and taken at 0.51 s
+                         inside a tick; a second full game left to end
+  appscript.py refuse    seed 9, a save (bests 4321, 55 and 99, 7 games): keys the title refuses, middle picked, a
+                         game left to end with nothing pressed, so the three bests stay
   appscript.py midsave   seed 9, full: the autopilot until 12 catches, then the script ends with the game running (the
                          app saves on leaving, so the best must already be the score); catch_check.sh runs it with no
                          save and with damaged ones, which must all be refused and give the same save
@@ -32,12 +35,12 @@ TEN = '523/100 659/100 784/200'
 
 
 class Game:
-    def __init__(self, seed, best=(0, 0), games=0):
+    def __init__(self, seed, best=(0, 0, 0), games=0):
         self.seed, self.best, self.games = seed, list(best), games
         self.out, self.nexts, self.sound = [], [], []
         self.clock = self.tunes = self.tones = 0
         self.g = None
-        self.full = False
+        self.level = 0                      # gentle, middle, full: the title opens on gentle
         self.state = 'title'
         self.started = self.end_at = self.tune_until = 0
 
@@ -48,9 +51,9 @@ class Game:
             if k in M.ALL_KEYS:
                 (self.g.down if down else self.g.up)(k)
         elif down and self.state == 'title' and k in ('4', 'S1', '6', 'S6'):
-            self.full = k in ('6', 'S6')
+            self.level = max(0, self.level - 1) if k in ('4', 'S1') else min(2, self.level + 1)   # no wrap
         elif down and k == 'E' and (self.state == 'title' or at - self.end_at >= AGAIN_MS):
-            self.g = M.Catch('f' if self.full else 'g', self.seed, self.games)
+            self.g = M.Catch('gmf'[self.level], self.seed, self.games)
             self.games += 1
             self.started = at
             self.tune_until = 0
@@ -79,8 +82,8 @@ class Game:
                 misses = n0 - catches - (len(g.stars) - spawned) if not g.over else 1
                 sound |= (1 if catches else 0) | (2 if misses else 0) | (4 if g.lives < lives else 0) \
                     | (8 if g.score // 10 > score // 10 else 0) | (16 if g.bump else 0) | (32 if g.over else 0)
-                full = g.mode == 'f'
-                self.best[full] = max(self.best[full], g.score)
+                lv = 'gmf'.index(g.mode)
+                self.best[lv] = max(self.best[lv], g.score)
             # docs/catch.md's sound: the end's tune, a lost life's, the ten's; else a catch's chime, the wall's bump,
             # a miss's note; no beep while a tune plays
             if sound & 32:
@@ -149,11 +152,11 @@ class Game:
         raise SystemExit('no step with a bump and a miss')
 
     def save(self):
-        b = bytearray(16)
+        b = bytearray(20)
         b[0], b[1] = ord('K'), 1
-        b[2:6] = self.best[0].to_bytes(4, 'little')
-        b[6:10] = self.best[1].to_bytes(4, 'little')
-        b[10:14] = self.games.to_bytes(4, 'little')
+        for i in range(3):
+            b[2 + 4 * i:6 + 4 * i] = self.best[i].to_bytes(4, 'little')
+        b[14:18] = self.games.to_bytes(4, 'little')
         return b.hex()
 
     def expect(self):
@@ -197,16 +200,40 @@ def gentle():
     return g
 
 
+def middle():
+    g = Game(5)
+    g.out.append('# appscript.py middle: seed 5, no save')
+    g.tick(100)
+    g.press('6')
+    g.tick(100)
+    g.press('E')
+    g.tick(50)
+    g.fly(3000)
+    g.out.append('# hands off to the end')
+    while g.state == 'play':
+        g.tick(100)
+    g.tick(100, 6)
+    g.press('E')
+    while g.state == 'play':
+        g.tick(100)
+    g.tick(100, 3)
+    assert g.g.mode == 'm' and g.best[1] > 0 and g.best[0] == g.best[2] == 0
+    return g
+
+
 def full():
     g = Game(5)
     g.out.append('# appscript.py full: seed 5, no save')
     g.tick(100)
-    for k in ('6', '4', 'S6'):
+    for k in ('4', '6', '6', '6', '4', 'S6', 'S1', 'S1', 'S1', '6', '6'):
         g.press(k)
         g.tick(100)
     g.press('E')
     g.tick(50)
-    g.fly(100000)
+    g.fly(3000)                             # the reach lets the autopilot catch nearly all, so it lets go
+    g.out.append('# hands off to the end')
+    while g.state == 'play':
+        g.tick(100)
     g.tick(20, 10)                          # 0.2 s after the end: ENTER refused
     g.press('E')
     g.tick(20, 14)
@@ -219,14 +246,14 @@ def full():
     return g
 
 
-REFUSE_SAVE = ((4321, 99), 7)
+REFUSE_SAVE = ((4321, 55, 99), 7)
 
 
 def refuse():
     g = Game(9, *REFUSE_SAVE)
     g.out.append('# appscript.py refuse: seed 9, loads the save from appscript.py loadfile')
     g.tick(100)
-    for k in ('8', 'P', 'G', '0'):          # the title takes only the mode keys and ENTER
+    for k in ('8', 'P', 'G', '0'):          # the title takes only the level keys and ENTER
         g.press(k)
     g.press('S6')
     g.tick(100)
@@ -243,14 +270,15 @@ def midsave():
     g.out.append('# appscript.py midsave: seed 9, full; the script ends with the game running')
     g.tick(100)
     g.press('6')
+    g.press('6')
     g.press('E')
     while g.g.score < 12:
         g.fly(20)
-    assert g.state == 'play' and g.best[1] == g.g.score
+    assert g.state == 'play' and g.best[2] == g.g.score
     return g
 
 
-SCRIPTS = {'gentle': gentle, 'full': full, 'refuse': refuse, 'midsave': midsave}
+SCRIPTS = {'gentle': gentle, 'middle': middle, 'full': full, 'refuse': refuse, 'midsave': midsave}
 
 
 def main():

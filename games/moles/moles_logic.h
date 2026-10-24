@@ -16,6 +16,7 @@
 #define MOLES_STUN 6
 
 enum moles_hole { MOLES_EMPTY, MOLES_RISE, MOLES_UP, MOLES_BONK, MOLES_SINK };
+enum moles_level { MOLES_GENTLE, MOLES_MIDDLE, MOLES_FULL, MOLES_LEVELS };
 
 typedef struct {
     uint8_t state;                /* enum moles_hole */
@@ -25,7 +26,7 @@ typedef struct {
 typedef struct {
     uint64_t rng;
     uint32_t step, acc;
-    bool full;
+    uint8_t level;                /* enum moles_level */
     uint32_t score, bonks;
     uint8_t lives;                /* 0 in gentle */
     uint8_t wait, stay, gap, due, stun;
@@ -42,7 +43,7 @@ typedef struct {
 
 /* the hole of a digit key 1-9, -1 for anything else */
 int moles_hole_of(int digit);
-void moles_init(moles_game *g, bool full, uint32_t seed, uint32_t game);
+void moles_init(moles_game *g, int level, uint32_t seed, uint32_t game);
 /* a hole's key (0-8; anything else is ignored) down or up */
 void moles_key(moles_game *g, int hole, bool down);
 int moles_tick(moles_game *g, uint32_t ms, void (*each_step)(const moles_game *g, void *arg), void *arg);

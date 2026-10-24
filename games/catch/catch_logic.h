@@ -10,7 +10,7 @@
 #define CATCH_STEP_MS 50
 #define CATCH_TOP 12              /* the field's top row, under the top line */
 #define CATCH_H 228               /* the field's height */
-#define CATCH_STARS 6             /* the most at once in either mode */
+#define CATCH_STARS 6             /* the most at once at any level */
 #define CATCH_STAR 11             /* a star's side, px */
 #define CATCH_BASKET_W 48
 #define CATCH_BASKET_H 14
@@ -20,6 +20,7 @@
 
 /* the keys, as the trace names them: 4, SOFT1, 6, SOFT6 */
 enum catch_key { CATCH_K4, CATCH_KS1, CATCH_K6, CATCH_KS6, CATCH_KEYS };
+enum catch_level { CATCH_GENTLE, CATCH_MIDDLE, CATCH_FULL, CATCH_LEVELS };
 
 typedef struct {
     int16_t x, y;                 /* y in 1/16 px */
@@ -28,12 +29,13 @@ typedef struct {
 typedef struct {
     uint64_t rng;
     uint32_t step, acc;
-    bool full;
+    uint8_t level;                /* enum catch_level */
     int16_t bx;
     uint32_t score;
     uint8_t lives;                /* 0 in gentle */
     uint8_t fall, max;
     uint16_t gap, count;
+    int16_t last;                 /* the x of the last star that came, -1 before any (the reach's) */
     bool bump, over;
     catch_star star[CATCH_STARS];
     uint8_t n;                    /* oldest first */
@@ -44,7 +46,7 @@ typedef struct {
     int16_t ev_catch_x, ev_miss_x;  /* where the last catch and miss were */
 } catch_game;
 
-void catch_init(catch_game *g, bool full, uint32_t seed, uint32_t game);
+void catch_init(catch_game *g, int level, uint32_t seed, uint32_t game);
 void catch_key(catch_game *g, int key, bool down);
 /* a tick of ms (capped at 100): runs the steps it holds, at most 2; each_step, when given, is called after each */
 int catch_tick(catch_game *g, uint32_t ms, void (*each_step)(const catch_game *g, void *arg), void *arg);
