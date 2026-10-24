@@ -1,0 +1,101 @@
+# smoke: a gentle game and a full game, held keys, taps shorter than a step, ticks of odd sizes
+
+# gentle, seed 12345, first game
+game g 12345 0
+draw?
+tick 50
+tick 60
+down 6
+tick 40
+tick 50
+tick 50
+up 6
+tick 50
+# a tap of 4 shorter than a step: turns once
+down 4
+up 4
+tick 50
+tick 50
+# thrust and fire held together, with a turn held
+down 8
+down G
+tick 100
+tick 100
+down 6
+tick 100
+tick 100
+up 6
+up 8
+tick 100
+tick 250
+up G
+# both turns at once cancel
+down S1
+down S6
+tick 50
+tick 50
+up S1
+up S6
+steps 6
+# fire tapped on the soft row
+down S5
+up S5
+steps 2
+
+# full, seed 0xdeadbeef, second game
+game f 3735928559 1
+steps 2
+down 9
+down X
+down S1
+tick 99
+tick 100
+tick 100
+up S1
+tick 100
+up 9
+tick 100
+tick 100
+up X
+down S2
+tick 50
+up S2
+down 5
+tick 100
+tick 100
+up 5
+# a hand-set rock on the ship, shield cleared: lose a ship
+set shield 0
+rock 0 L,13107200,7471104,0,0,2
+steps 3
+steps 20
+tick 60
+tick 60
+
+# turn presses (LAND's): kept until a turn step uses them
+game g 99 2
+# hold 6 for one turn, let go; the timer is 2
+down 6
+steps 1
+up 6
+# a tap of 4 while the timer counts: no turn on the timer's 1, the press turns left when it reaches 0
+down 4
+up 4
+steps 1
+steps 1
+steps 2
+# both turn keys together: cancel, timer stays 0, presses cleared (no turn the step after)
+down 4
+down 6
+up 4
+up 6
+steps 1
+steps 1
+# a tap while the ship is lost: cleared, no turn on return
+set shield 0
+rock 0 M,13107200,7471104,0,0,0
+steps 1
+down 6
+up 6
+steps 1
+steps 20

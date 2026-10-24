@@ -1,0 +1,303 @@
+# smoke: a gentle and a full game end to end (docs/catch.md, oracle/catch/TRACE.md). Moves held and tapped, both
+# directions at once, both walls, the clock's catch-up and cap, catches, misses, full's pace and its end.
+
+# ---- gentle: the clock and the keys ----
+game g 41 0
+draw?
+draw?
+game g 41 0
+# 50, 60, 99 (two steps), 100 (two), 250 (capped at 100: two)
+tick 50
+tick 60
+tick 99
+tick 100
+tick 250
+# a tap shorter than a step: down and up inside one tick moves the basket once (6 px left)
+tick 20
+down 4
+up 4
+tick 30
+# SOFT6 tapped the same way: once right
+down S6
+up S6
+tick 50
+# 4 held to the left wall: 176 -> 0 in 30 steps, the bump once on arrival, none while pressing on
+down 4
+steps 32
+# both directions at once cancel: 6 joins 4, nothing moves
+down 6
+steps 2
+up 4
+# 6 alone: across to the right wall in 59 steps, one bump
+steps 60
+up 6
+# a tap of each in one step: they cancel
+down S1
+down S6
+up S1
+up S6
+steps 1
+# SOFT1 held while 6 is tapped: the latch of 6 cancels SOFT1's move for one step only
+down S1
+down 6
+up 6
+steps 2
+up S1
+# let the field run: stars fall from y -176 (1/16 px) at 32 a step and miss at y >= 3648, at no cost
+steps 150
+
+# ---- gentle: catches by hand at the mouth (bx 176: mouth 180-219) ----
+game g 41 0
+set count 1000
+# bottom 201 px -> 203 px: crosses, x 200 inside: caught
+star 200 3040
+# bottom lands exactly on 202 (y 3024 -> 3056): caught
+star 190 3024
+# x 219 (= bx + 43): its left px on the mouth's last px: caught
+star 219 3040
+steps 1
+# x 220 (= bx + 44): misses by one, falls on, a miss at y >= 3648
+star 220 3040
+# x 170 (= bx - 6): its right px 180 on the mouth's first: caught
+star 170 3040
+# x 169 (= bx - 7): right px 179, misses by one
+star 169 3040
+steps 20
+
+# ---- gentle: a long stretch played by an autopilot on SOFT1/SOFT6 ----
+game g 41 0
+steps 1
+down S6
+steps 28
+up S6
+steps 73
+down S1
+steps 23
+up S1
+steps 7
+down S6
+steps 3
+up S6
+steps 27
+down S1
+steps 28
+up S1
+steps 13
+down S6
+steps 37
+up S6
+steps 23
+down S6
+steps 2
+up S6
+steps 39
+down S6
+steps 6
+up S6
+steps 43
+down S1
+steps 3
+up S1
+steps 27
+down S1
+steps 8
+up S1
+steps 22
+down S1
+steps 33
+up S1
+steps 8
+down S1
+steps 6
+up S1
+steps 54
+down S6
+steps 36
+up S6
+steps 5
+down S1
+steps 11
+up S1
+steps 34
+
+# ---- full: the pace by hand ----
+game f 7 1
+set count 1000
+set score 9
+star 200 3040
+steps 1
+# score 10: fall 40, gap 27, max 4. Now two catches in one step from 18: 18 -> 20 crosses one ten
+set score 18
+star 190 3040
+star 200 3040
+steps 1
+# from 79 to 80 with fall 88: to the limits (fall 96, gap 9, max 6) and they hold there
+set fall 88
+set gap 12
+set max 5
+set score 79
+star 200 3000
+steps 1
+set score 89
+star 200 2980
+steps 1
+# full's gap counter and limit: count 0 with 6 already falling waits at 0
+clear stars
+set count 0
+star 10 0
+star 30 0
+star 50 0
+star 70 0
+star 90 0
+star 110 0
+steps 2
+
+# ---- full: two misses on one step with one life left: the first ends the game, nothing more prints ----
+game f 7 1
+set count 1000
+set lives 1
+star 10 3640
+star 300 3640
+steps 3
+tick 100
+
+# ---- full: an autopilot game on 4/6, catching, missing, pacing up, to its end ----
+game f 2026 2
+steps 102
+down 6
+steps 17
+up 6
+steps 13
+down 4
+steps 5
+up 4
+steps 25
+down 6
+steps 1
+up 6
+steps 40
+down 4
+steps 20
+up 4
+steps 10
+down 6
+steps 23
+up 6
+steps 7
+down 4
+steps 26
+up 4
+steps 15
+down 4
+steps 9
+up 4
+steps 21
+down 6
+steps 19
+up 6
+steps 11
+down 6
+steps 19
+up 6
+steps 22
+down 6
+steps 2
+up 6
+steps 22
+down 4
+steps 2
+up 4
+steps 22
+down 4
+steps 2
+up 4
+steps 31
+down 4
+steps 6
+up 4
+steps 24
+down 4
+steps 25
+up 4
+steps 2
+down 6
+steps 17
+up 6
+steps 37
+down 4
+steps 25
+up 4
+steps 2
+down 6
+steps 2
+up 6
+steps 25
+down 4
+steps 2
+up 4
+steps 25
+down 6
+steps 27
+up 6
+steps 18
+down 4
+steps 23
+up 4
+down 6
+steps 27
+up 6
+down 4
+steps 2
+up 4
+steps 22
+down 4
+steps 5
+up 4
+steps 19
+down 4
+steps 10
+up 4
+steps 14
+down 4
+steps 13
+up 4
+steps 11
+down 6
+steps 8
+up 6
+steps 16
+down 6
+steps 24
+up 6
+down 4
+steps 2
+up 4
+steps 22
+down 6
+steps 13
+up 6
+steps 7
+down 4
+steps 9
+up 4
+steps 12
+down 4
+steps 8
+up 4
+steps 13
+down 4
+steps 7
+up 4
+steps 14
+down 4
+steps 20
+up 4
+steps 22
+down 6
+steps 32
+up 6
+tick 100
+
+# ---- full: never moves, to the end ----
+game f 1 3
+steps 2000

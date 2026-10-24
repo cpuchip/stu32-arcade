@@ -1,0 +1,194 @@
+# smoke: a gentle game and a full game (docs/moles.md), right keys, wrong keys, several in one step, held keys
+# gentle, seed 1 game 0. Odd ticks first: 50 (1 step), 60 (1 step, 10 left), 99 (2 steps, 9 left), 100 (2, 9 left), 250 (capped at 100: 2)
+game g 1 0
+tick 50
+tick 60
+tick 99
+tick 100
+tick 250
+# a wrong key before any mole: dust only, nothing changes
+down 5
+up 5
+steps 1
+# hold 1 across the first rise: a held key never bonks again
+down 1
+steps 11
+# the first mole rose at step 20 in hole 8 (key 3): bonk it on its first rising step, with a wrong key before it in the same step
+down 1
+down 7
+up 7
+down 3
+up 3
+steps 1
+up 1
+# watch it be bonked 8 steps, sink 4, then the wait W=30
+steps 42
+# mole 2 in hole 7 (key 2): wait 0 steps into its life, then tap it twice in one step (the second is a wrong key: dust in gentle)
+down 2
+up 2
+down 2
+up 2
+steps 42
+# mole 3 in hole 6 (key 1): wait 1 steps into its life, then tap it twice in one step (the second is a wrong key: dust in gentle)
+steps 1
+down 1
+up 1
+down 1
+up 1
+steps 41
+# mole 4 in hole 0 (key 7): wait 2 steps into its life, then tap it twice in one step (the second is a wrong key: dust in gentle)
+steps 2
+down 7
+up 7
+down 7
+up 7
+steps 40
+# mole 5 in hole 6 (key 1): wait 3 steps into its life, then tap it twice in one step (the second is a wrong key: dust in gentle)
+steps 3
+down 1
+up 1
+down 1
+up 1
+steps 39
+# mole 6 in hole 8 (key 3): wait 4 steps into its life, then tap it twice in one step (the second is a wrong key: dust in gentle)
+steps 4
+down 3
+up 3
+down 3
+up 3
+steps 38
+# mole 7 in hole 4 (key 5): wait 5 steps into its life, then tap it twice in one step (the second is a wrong key: dust in gentle)
+steps 5
+down 5
+up 5
+down 5
+up 5
+steps 37
+# leave a gentle mole up a long while: it waits
+steps 60
+down 4
+up 4
+tick 50
+
+# full, seed 7 game 3
+game f 7 3
+steps 20
+# first mole in hole 6 (key 1): right key then a wrong one in one step -> the bonk counts, then a 6-step stun
+down 1
+up 1
+down 7
+up 7
+steps 1
+# keys during the stun are ignored and do not extend it: a wrong key on each of the next 6 steps
+down 7
+up 7
+steps 1
+down 7
+up 7
+steps 1
+down 7
+up 7
+steps 1
+down 7
+up 7
+steps 1
+down 7
+up 7
+steps 1
+down 7
+up 7
+steps 1
+# the stun is over: a wrong key now starts a new one
+down 7
+up 7
+steps 1
+# wait the stun out, then a held wrong key: its first down stuns, a second down while still held is a repeat (no new stun)
+steps 6
+down 7
+steps 7
+down 7
+steps 1
+up 7
+# let the next mole get away (a life lost)
+steps 51
+# (the getaway step is the one where U reaches the stay)
+# now bonk every mole 3 steps after it rises, up to 20 bonks and beyond (gap 14, two moles)
+steps 3
+down 9
+up 9
+steps 20
+down 5
+up 5
+steps 20
+down 2
+up 2
+steps 20
+down 1
+up 1
+steps 20
+down 8
+up 8
+steps 20
+down 3
+up 3
+steps 20
+down 9
+up 9
+steps 20
+down 1
+up 1
+steps 20
+down 2
+up 2
+steps 20
+down 7
+up 7
+steps 20
+down 5
+up 5
+steps 20
+down 4
+up 4
+steps 20
+down 8
+up 8
+steps 20
+down 5
+up 5
+steps 20
+down 6
+up 6
+steps 20
+down 4
+up 4
+steps 20
+down 5
+up 5
+steps 20
+down 7
+up 7
+steps 20
+down 8
+up 8
+steps 20
+down 3
+up 3
+steps 14
+down 9
+up 9
+steps 14
+down 5
+up 5
+steps 14
+down 1
+up 1
+steps 14
+down 8
+up 8
+steps 14
+down 7
+up 7
+steps 1
+# then miss on purpose until the lives are gone; the game ends and later steps print nothing
+steps 57
+tick 100
