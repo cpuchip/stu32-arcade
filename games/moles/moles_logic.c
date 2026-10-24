@@ -29,19 +29,19 @@ int moles_hole_of(int digit)
 }
 
 /* middle and full: the lives, the stay at the start and its floor, the gap before and from 20 bonks, the most moles
-   up from 20 bonks, the stun */
+   up from 20 bonks, the stun (middle paces its moles by gentle's wait, so it has no gap) */
 static const struct {
     uint8_t lives, stay, floor, gap, gap20, two, stun;
-} timed[2] = {{5, 80, 40, 30, 30, 1, 0}, {3, 50, 16, 20, 14, 2, MOLES_STUN}};
+} timed[2] = {{5, 80, 40, 0, 0, 1, 0}, {3, 50, 16, 20, 14, 2, MOLES_STUN}};
 
 void moles_init(moles_game *g, int level, uint32_t seed, uint32_t game)
 {
     memset(g, 0, sizeof *g);
     g->rng = mix64((uint64_t)seed ^ mix64(game));
     g->level = (uint8_t)(level == MOLES_MIDDLE || level == MOLES_FULL ? level : MOLES_GENTLE);
-    if (g->level == MOLES_GENTLE) {
+    if (g->level != MOLES_FULL)
         g->wait = 30;
-    } else {
+    if (g->level != MOLES_GENTLE) {
         g->lives = timed[g->level - 1].lives;
         g->stay = timed[g->level - 1].stay;
         g->gap = timed[g->level - 1].gap;
@@ -148,7 +148,7 @@ void moles_step(moles_game *g)
         } else if (h->state == MOLES_SINK && h->n >= MOLES_SINKING) {
             *h = (moles_hole){MOLES_EMPTY, 0};
             g->last = (int8_t)i;
-            if (!timing)
+            if (g->level != MOLES_FULL)
                 g->due = g->wait;
         }
     }
@@ -164,12 +164,12 @@ void moles_step(moles_game *g)
     /* a new mole, if one is due */
     if (g->due != 0)
         return;
-    if (timing) {
+    if (g->level == MOLES_FULL) {
         if (active(g) < (g->bonks >= 20 ? timed[t].two : 1) && rise(g))
             g->due = g->gap;
     } else if (!any(g)) {
         bool waited = g->last >= 0;
-        if (rise(g) && waited && g->wait > 10)
+        if (rise(g) && waited && g->level == MOLES_GENTLE && g->wait > 10)
             g->wait--;
     }
 }

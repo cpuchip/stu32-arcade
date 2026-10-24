@@ -63,7 +63,7 @@ check2() {
     tail -1 "$B/pilot-0.py.txt" | grep -q ' wait=10 .* over=0 ' && tail -1 "$B/pilot-1.py.txt" | grep -q ' stay=16 gap=14 .* over=1 ' \
         && grep -qE 'holes=.*[RUB][0-9]+.*[RUB][0-9]+' "$B/pilot-1.py.txt" && tail -1 "$B/pilot-2.py.txt" | grep -q ' score=0 .* over=1 ' \
         && tail -1 "$B/pilot-3.py.txt" | grep -q ' over=1 ' && grep -q ' stay=40 ' "$B/pilot-4.py.txt" \
-        && tail -1 "$B/pilot-4.py.txt" | grep -q ' stay=40 gap=30 .* over=1 ' \
+        && tail -1 "$B/pilot-4.py.txt" | grep -q ' wait=30 stay=40 gap=0 .* over=1 ' \
         && ! grep -qE 'holes=.*[RUB][0-9]+.*[RUB][0-9]+' "$B/pilot-4.py.txt" \
         && tail -1 "$B/pilot-5.py.txt" | grep -q ' score=0 bonks=0 lives=0 .* over=1 ' || return 1
 }
@@ -180,12 +180,13 @@ logic_plant waitfloor $L 's/g->wait > 10\)/g->wait > 9)/' check3 "the wait's flo
 logic_plant stayfloor $L 's/\{3, 50, 16, 20, 14, 2, MOLES_STUN\}/{3, 50, 15, 20, 14, 2, MOLES_STUN}/' check3 "the stay's floor at 15"
 logic_plant gentlewait $L 's/        g->wait = 30;/        g->wait = 31;/' check1b "gentle's first wait changed"
 logic_plant fullstay $L 's/\{3, 50, 16, 20, 14, 2, MOLES_STUN\}/{3, 51, 16, 20, 14, 2, MOLES_STUN}/' check1b "full's first stay changed"
-logic_plant midfloor $L 's/\{5, 80, 40, 30, 30, 1, 0\}/{5, 80, 39, 30, 30, 1, 0}/' check3 "middle's stay floor at 39"
-logic_plant midstay $L 's/\{5, 80, 40, 30, 30, 1, 0\}/{5, 81, 40, 30, 30, 1, 0}/' check3 "middle's stay starting at 81"
-logic_plant midlives $L 's/\{5, 80, 40, 30, 30, 1, 0\}/{4, 80, 40, 30, 30, 1, 0}/' check3 "middle with 4 lives"
-logic_plant midgap $L 's/\{5, 80, 40, 30, 30, 1, 0\}/{5, 80, 40, 30, 14, 1, 0}/' check3 "middle's gap cut to 14 at 20 bonks"
-logic_plant midtwo $L 's/\{5, 80, 40, 30, 30, 1, 0\}/{5, 80, 40, 30, 30, 2, 0}/' check3 "two middle moles from 20 bonks"
-logic_plant midstun $L 's/\{5, 80, 40, 30, 30, 1, 0\}/{5, 80, 40, 30, 30, 1, MOLES_STUN}/' check3 "the stun in middle"
+logic_plant midfloor $L 's/\{5, 80, 40, 0, 0, 1, 0\}/{5, 80, 39, 0, 0, 1, 0}/' check3 "middle's stay floor at 39"
+logic_plant midstay $L 's/\{5, 80, 40, 0, 0, 1, 0\}/{5, 81, 40, 0, 0, 1, 0}/' check3 "middle's stay starting at 81"
+logic_plant midlives $L 's/\{5, 80, 40, 0, 0, 1, 0\}/{4, 80, 40, 0, 0, 1, 0}/' check3 "middle with 4 lives"
+logic_plant midstun $L 's/\{5, 80, 40, 0, 0, 1, 0\}/{5, 80, 40, 0, 0, 1, MOLES_STUN}/' check3 "the stun in middle"
+logic_plant midwait $L 's/waited && g->level == MOLES_GENTLE && g->wait > 10/waited \&\& g->wait > 10/' check3 "middle's wait dropping as gentle's does"
+logic_plant midtwo $L 's/    \} else if \(!any\(g\)\) \{/    } else if (!any(g) || active(g) < 2) {/' check3 "a second mole while one is out (gentle and middle)"
+logic_plant riserise $L 's/\{5, 80, 40, 0, 0, 1, 0\}/{5, 80, 40, 30, 30, 1, 0}/; s/    if \(g->level == MOLES_FULL\) \{\n        if \(active/    if (timing) {\n        if (active/; s/            if \(g->level != MOLES_FULL\)\n                g->due = g->wait;/            if (!timing)\n                g->due = g->wait;/' check3 "middle back on rise to rise"
 logic_plant sinkhit $L 's/h->state == MOLES_RISE \|\| h->state == MOLES_UP\) \{\n            \*h = \(moles_hole\)\{MOLES_BONK/h->state == MOLES_RISE || h->state == MOLES_UP || h->state == MOLES_SINK) {\n            *h = (moles_hole){MOLES_BONK/' check3 "a sinking mole counted as a hit"
 logic_plant nostun $L 's/                g->stun = timed\[t\].stun, stunned = started = true;/                (void)started;/' check3 "the stun removed"
 logic_plant gentlestun $L 's/            if \(timing && timed\[t\].stun\)\n                g->stun = timed\[t\].stun/            if (1)\n                g->stun = MOLES_STUN/' check3 "the stun in gentle"

@@ -27,9 +27,9 @@ in gentle and middle that costs nothing.
 - **Gentle (the default):** one mole at a time, and it waits until it's bonked. After each bonk the next mole comes a
   little sooner, from 1.5 s down to 0.5 s. Nothing is lost, and the game goes on until C.
 - **Middle:** a mole goes back down if it isn't bonked in time, and that costs one of five lives. A mole stays up 4 s
-  at first (after 0.2 s rising), a little less after each bonk, down to 2 s; one mole at a time, rising at least
-  1.5 s apart (the next can rise as the last one sinks). A wrong key puffs dust and
-  costs nothing. The game ends when the lives are gone.
+  at first (after 0.2 s rising), a little less after each bonk, down to 2 s; one mole at a time, and the next comes
+  1.5 s after the last one has gone, however long that one took. A wrong key puffs dust and costs nothing. The game
+  ends when the lives are gone.
 - **Full:** a mole goes back down if it isn't bonked in time, and that costs one of three lives (drawn as small
   moles). Each bonk shortens the time a mole stays up, and from 20 bonks two moles can be up at once. A wrong key
   stuns the player for 0.3 s (abacus's proposal #10278, Michael's yes #10280), so pressing every key fast doesn't win. The game
@@ -68,16 +68,18 @@ moles never share a hole.
 a chosen hole; W then drops by 1, to no less than 10 (0.5 s). A mole stays up until bonked. The first mole rises 20
 steps after the game starts.
 
-**Middle.** Full's rules below with other numbers: the stay S starts at 80 steps (4 s) and drops by 1 a bonk to no
-less than 40 (2 s); the gap is 30 steps at every score; at most 1 mole is up at every score; the lives are 5; and
-there is no stun (a wrong key puffs dust and thunks, as in gentle).
+**Middle.** Gentle's pacing with full's stay: one mole at a time, rising W steps after the last one's hole empties,
+with W fixed at 30 (1.5 s), as gentle's wait before it drops. (Abacus #10416 chose this over full's gap, which counts
+from one rise to the next and so gives a slower player a shorter pause.) A mole that isn't bonked within the
+stay S gets away and costs a life, as in full: S starts at 80 steps (4 s) and drops by 1 a bonk to no less than 40
+(2 s); the lives are 5. There is no stun (a wrong key puffs dust and thunks, as in gentle).
 
 | | gentle | middle | full |
 |---|---|---|---|
 | lives | none | 5 | 3 |
 | the stay S | none (until bonked) | 80, −1 a bonk, to 40 | 50, −1 a bonk, to 16 |
-| the gap | none (the wait W) | 30 | 20, 14 from 20 bonks |
-| moles up at once | 1 | 1 | 1, 2 from 20 bonks |
+| the next mole | the wait W after a hole empties, 30 to 10 | the wait W after a hole empties, 30 always | the gap after a rise, 20, 14 from 20 bonks |
+| moles up at once | 1 (a sinking one counts) | 1 (a sinking one counts) | 1, 2 from 20 bonks (a sinking one doesn't count) |
 | a wrong key | dust | dust | the stun |
 
 **Full.** The stay S starts at 50 steps (2.5 s) and drops by 1 a bonk to no less than 16 (0.8 s). The gap between
@@ -107,21 +109,21 @@ below is a rule, and the C and the model both follow it.
    7 8 9 4 5 6 1 2 3; then the stun. So a wait set by a mole sinking this step is not counted this step, and setting
    `due` to N in step s brings a mole in step s + N.
 3. **The first mole** comes 20 steps in, in every level.
-4. **Gentle.** A mole rises only when `due` is 0 and all nine holes are empty; while one is out, `due` stays 0. Every
+4. **Gentle (and middle, item 5).** A mole rises only when `due` is 0 and all nine holes are empty; while one is out, `due` stays 0. Every
    hole that empties sets `due` to W. W drops by 1 (to no less than 10) at a rise that ends a wait, not at the first
    mole's: the wait uses W before the drop.
-5. **The fields a level does not use** read 0: gentle's stay and gap, middle's and full's wait. Middle follows every
-   rule written for full (here and in **Full** above), with middle's numbers, except the stun and the two-mole stage
-   (with the gap's change at 20 bonks): middle's gap is 30 and its limit 1 at every bonk count. The stay's floor is
-   reached by bonks (`if S > floor, S − 1`); a stay, a stun or lives set by a trace script outside the rules' range
+5. **The fields a level does not use** read 0: gentle's stay and gap, middle's gap, full's wait. Middle follows
+   item 4's rule for when a mole rises, with W 30 that never drops, and full's rules for the stay, the getaway, the
+   lives and the end (item 6, 10, 11), with middle's numbers; it has no stun and no gap. The stay's floor is reached
+   by bonks (`if S > floor, S − 1`); a stay, a wait, a stun or lives set by a trace script outside the rules' range
    is outside the rules, and no check uses one.
 6. **The stay** counts only up steps: a mole is bonkable up from U0 to U(S − 1) and gets away when U reaches S (`n ≥
    S`). One stay for all moles, read as it changes, so a bonk that lowers it can let another up mole get away the same
    step.
 7. **From 20 bonks (full only)** the gap becomes 14 at the bonk that brings bonks to 20 (a count already running is
    not cut), and the two-mole limit is read from the bonks each time.
-8. **The gap** counts from one rise to the next: `due` is set to it at a rise. When `due` is 0 and the limit is
-   reached, it stays 0 and nothing is drawn; the mole comes on the first step it may, which can be the step the
+8. **The gap (full only)** counts from one rise to the next: `due` is set to it at a rise. When `due` is 0 and the
+   limit is reached, it stays 0 and nothing is drawn; the mole comes on the first step it may, which can be the step the
    blocking mole starts sinking (sinking moles don't count toward the limit, bonked ones do).
 9. **Candidates** are the empty holes only. `last` is set when a hole empties. With no candidate nothing rises, no
    draw is made and `due` stays 0. One draw a rise, and none for a rise that doesn't happen.
@@ -180,7 +182,7 @@ A new tune can start over one still playing.
   are reasoned from the layout, not modelled; Rev A's bench measures them.
 - **State:** the ctx is 192 B on the host (x86-64, the SDK runner's count; the blueprint estimated about 64, before
   the held keys, the queue of presses and the dust marks), the same with the levels (the third best fits in what was
-  padding): nine holes' states and step counts, the wait or stay, the
+  padding): nine holes' states and step counts, the wait, the stay, the
   lives, the draws, the bests.
 - **Flash:** about 3-4 KB (the mole's frames, the hole, the title pictures, the tally). Internal RAM +0.
 
@@ -212,13 +214,15 @@ MIT), `tests/moles_trace.c`.
    sinking (not a hit); the same hole twice running refused; the candidates while two moles are up; the wait and the
    stay at their floors; a bonk and a getaway on the same step with one life left; in full, a right key then a wrong
    one in one step (the bonk counts, then the stun), the stun's last ignored step and its first free one; in middle,
-   a wrong key then a right one in one step (both count: dust, then the bonk), and the stay at 80 and at 40.
+   a wrong key then a right one in one step (both count: dust, then the bonk), the stay at 80 and at 40, and the
+   next mole 30 steps after a hole empties, after a bonk or a getaway.
 4. **The app on the runner:** frames, tones, the title's choices (the frame stopping at both ends), each level's best
    kept apart, the digits option, the save, odd ticks, damaged saves (a 16-byte one among them), and the .wasm.
 5. **Plants:** each key mapped to its hole (a plant swapping 1 and 7, the rows upside down), the latch dropped, the
    repeat-hole rule off, the floors off by one, a sinking mole counted as a hit, the digits option not saved, the
    stun removed, the stun in gentle, a stun extended by the keys during it; the stun in middle, middle's numbers off
-   by one, the title's frame wrapping, a best kept for the wrong level, the 16-byte save taken.
+   by one, middle back on full's rise-to-rise gap, middle's wait dropping, the title's frame wrapping, a best kept
+   for the wrong level, the 16-byte save taken.
 
 ## On the board
 
