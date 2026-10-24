@@ -18,6 +18,7 @@ tones, and each tick's ask for the next, from docs/catch.md's rules and the mode
 Each script ends with its sound, '# sound LINE' as the runner's -v prints each tone and tune, then
 '# expect save HEX tunes N tones N'.
 """
+import copy
 import sys
 
 import model as M
@@ -80,8 +81,8 @@ class Game:
                     | (8 if g.score // 10 > score // 10 else 0) | (16 if g.bump else 0) | (32 if g.over else 0)
                 full = g.mode == 'f'
                 self.best[full] = max(self.best[full], g.score)
-            # docs/catch.md's sound: the end's tune, a lost life's, the ten's; else a catch's chime, a miss's note,
-            # the wall's bump; no beep while a tune plays
+            # docs/catch.md's sound: the end's tune, a lost life's, the ten's; else a catch's chime, the wall's bump,
+            # a miss's note; no beep while a tune plays
             if sound & 32:
                 self.tune(END, 620)
             elif sound & 4:
@@ -91,10 +92,10 @@ class Game:
             elif self.clock >= self.tune_until:
                 if sound & 1:
                     self.tone(1047, 30)
-                elif sound & 2:
-                    self.tone(196, 30)
                 elif sound & 16:
                     self.tone(100, 10)
+                elif sound & 2:
+                    self.tone(196, 30)
             if g.over:
                 self.state = 'over'
                 self.end_at = self.clock
@@ -126,6 +127,26 @@ class Game:
             self.tick(ms)
         for k in sorted(held):
             self.key(k, False)
+
+    def bump_on_miss(self):
+        """wait, a step at a time, until holding 6 from here brings the basket to the right wall on the very step a
+        star falls past the bottom (found on copies of the model), then do it"""
+        for _ in range(2000):
+            h = copy.deepcopy(self.g)
+            h.down('6')
+            for t in range(80):
+                n0, score = len(h.stars), h.score
+                h.step()
+                if h.bump:
+                    missed = n0 - (h.score - score) - len(h.stars) + (1 if h.count == h.gap else 0)
+                    if missed > 0:
+                        self.key('6', True)
+                        self.tick(50, t + 1)
+                        self.key('6', False)
+                        return
+                    break
+            self.tick(50)
+        raise SystemExit('no step with a bump and a miss')
 
     def save(self):
         b = bytearray(16)
@@ -170,6 +191,9 @@ def gentle():
         g.tick(50, 10)
         g.key(k, False)
     g.tick(50, 40)
+    g.out.append("# the wall's bump on the step a star is missed: the bump is heard")
+    g.bump_on_miss()
+    g.tick(50, 20)
     return g
 
 

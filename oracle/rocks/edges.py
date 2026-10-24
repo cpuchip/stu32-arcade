@@ -97,6 +97,12 @@ CASES = [
     ('full wave 4: six large', ['game f 1 0', 'clear rocks', 'set wave 3', 'set pause 1', 'steps 1'], 1,
      {1: {'wave': '4', 'r5': re.compile(f'L,{N},0,.*'), 'r6': '-'}}),
     ('gentle wave 1: three', ['game g 1 0', 'steps 1'], 1, {1: {'r2': re.compile('L,.*'), 'r3': '-'}}),
+    ('full: a fifth shot refused', DF + [f'shot {300 * Q} {50 * Q} 0 0 10'] * 4 + ['down G', 'steps 1'], 1,
+     {1: {'shots': ';'.join([f'{300 * Q},{50 * Q},0,0,9'] * 4), 'cool': '0'}}),
+    ('an extra ship scored during the burst saves the game', DF + ['set lost 1', 'set ships 0', 'set score 4990',
+                                                                   f'rock 0 L,{100 * Q},{100 * Q},0,0,0',
+                                                                   f'shot {100 * Q} {100 * Q} 0 0 5', 'steps 1'], 1,
+     {1: {'score': '5000', 'ships': '1', 'next': '10000', 'over': '0', 'lost': '0', 'shield': '40'}}),
     ('a shot at the end of its life', D + [f'shot {300 * Q} {50 * Q} 0 0 1', 'steps 1'], 1, {1: {'shots': '-'}}),
 ]
 

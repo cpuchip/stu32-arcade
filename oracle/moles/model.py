@@ -23,6 +23,8 @@ G_WAIT0, G_WAIT_MIN, FIRST_DUE = 30, 10, 20
 F_STAY0, F_STAY_MIN = 50, 16
 F_GAP0, F_GAP2, F_LIVES0, F_TWO_AT = 20, 14, 3, 20
 
+MAX_DOWNS = 16          # fine print 13: at most 16 downs kept for one step
+
 SCALARS = ('wait', 'stay', 'gap', 'due', 'bonks', 'score', 'lives', 'stun', 'last', 'acc')
 
 
@@ -66,7 +68,10 @@ class Game:
             if k in self.held:
                 return
             self.held.add(k)
-            self.queue.append(KEY_HOLE[k])
+            # fine print 13: downs after the 16th in one step are dropped. CHOICE: a dropped down still marks the
+            # key held, so a second down before its up is a repeat; a repeat is not kept, so it doesn't count.
+            if len(self.queue) < MAX_DOWNS:
+                self.queue.append(KEY_HOLE[k])
         # 0, E, P do nothing in play
 
     def up(self, k):
@@ -116,8 +121,11 @@ class Game:
             elif s == 'U':
                 if self.full and n >= self.stay:
                     self.holes[i] = ('D', 0)
-                    self.lives = max(0, self.lives - 1)
-                    got_away = True
+                    if self.lives > 0:
+                        self.lives -= 1
+                        # fine print 11: only a getaway that brings the lives to 0 ends a game
+                        if self.lives == 0:
+                            got_away = True
                 else:
                     self.holes[i] = ('U', n)
             elif s == 'B':

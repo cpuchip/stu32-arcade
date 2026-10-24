@@ -144,6 +144,28 @@ class Game:
         for k in sorted(held):
             self.key(k, False)
 
+    def park(self):
+        """turn the ship to point right and nudge it with short burns until it rests past x 345 px, so its last
+        burst is drawn clear of the end's box; a ship lost on the way comes back to the middle and goes again"""
+        held = set()
+        for _ in range(6000):
+            g = self.g
+            if g.lost == 0 and g.x >= 345 * M.Q and abs(g.vx) < 2000 and abs(g.vy) < 2000:
+                break
+            want = set()
+            if g.lost == 0 and g.turn == 0 and g.a != 6:
+                want.add('6' if (6 - g.a) % 24 <= 12 else '4')
+            elif g.lost == 0 and g.a == 6 and g.x < 345 * M.Q and g.vx < 26000:
+                want.add('8')
+            for k in sorted(held - want):
+                self.key(k, False)
+            for k in sorted(want - held):
+                self.key(k, True)
+            held = want
+            self.tick(50)
+        for k in sorted(held):
+            self.key(k, False)
+
     def save(self):
         b = bytearray(16)
         b[0], b[1] = ord('7'), 1
@@ -206,9 +228,14 @@ def full():
     g.tick(50)
     g.fly(4000)
     assert g.g.next > 5000                  # an extra ship's chime on the way
-    g.out.append('# hands off until the game ends')
+    g.out.append('# the ship flown to the right edge, clear of the end box, and again after each return, until the')
+    g.out.append('# game ends')
     while g.state == 'play':
-        g.tick(100)
+        g.park()
+        while g.state == 'play' and g.g.lost == 0:
+            g.tick(50)
+        while g.state == 'play' and g.g.lost:
+            g.tick(50)
     g.tick(100, 3)
     return g
 

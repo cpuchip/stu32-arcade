@@ -153,7 +153,8 @@ logic_plant bonkedfree $L 's/g->h\[i\].state == MOLES_UP \|\| g->h\[i\].state ==
 logic_plant twolate $L 's/g->bonks >= 20 \? 2 : 1/g->bonks >= 21 ? 2 : 1/' check3 "two moles from the 21st bonk"
 logic_plant repeatbonk $L 's/    if \(down && !was && g->nq < MOLES_QUEUE\)/    if (down \&\& (was || !was) \&\& g->nq < MOLES_QUEUE)/' check3 "a held key's repeat bonking"
 logic_plant firstdrop $L 's/        bool waited = g->last >= 0;/        bool waited = true;/' check3 "the wait dropped at the first mole"
-logic_plant threesteps $L 's/!g->over && n < 2\) \{/!g->over \&\& n < 3) {/' check3 "three steps in a tick"
+logic_plant threesteps $L 's/!g->over && n < 2\) \{/!g->over \&\& n < 3) {/' check3 "three steps in a tick (reached only by a hand-set accumulator)"
+logic_plant endall $L 's/            if \(g->h\[i\].state == MOLES_RISE \|\| g->h\[i\].state == MOLES_UP \|\| g->h\[i\].state == MOLES_BONK\)\n                g->h\[i\] = \(moles_hole\)\{MOLES_SINK, 0\};/            if (g->h[i].state != MOLES_EMPTY)\n                g->h[i] = (moles_hole){MOLES_SINK, 0};/' check3 "a sinking mole's count reset at the end"
 app_plant() { # app_plant NAME PERL RUN WHAT: a plant in the app, judged by check 4's run RUN
     if plant "$1" ${GAME}_app.c "$2" && build_app x "$B/plant-$1" "$B/pa-$1"; then
         local ok_before=$ok caught=0 BLESS=0
@@ -186,5 +187,7 @@ app_plant again300 's/#define AGAIN_MS 500/#define AGAIN_MS 300/' full "the end 
 app_plant enterplay 's/    if \(c->state == PLAY\) \{\n        moles_key/    if (c->state == PLAY \&\& down \&\& key == APP_KEY_ENTER) {\n        new_game(c, ms);\n        return true;\n    }\n    if (c->state == PLAY) {\n        moles_key/' gentle "ENTER restarting a game in play"
 app_plant nodigit 's/        if \(h->state == MOLES_UP && c->digits\) \{/        if (h->state == MOLES_UP \&\& c->digits \&\& 0) {/' gentle "the digit not drawn"
 app_plant nomole 's/        mole\(f, cx, cy, rows\);/        (void)rows;/' gentle "the moles not drawn"
+app_plant endmoles 's/c->state == OVER         \? 0 /c->state == -1           ? 0 /' full "moles left out of their holes at the end"
+app_plant shortdust 's/c->puff\[i\] = g->full \? MOLES_STUN : PUFF_STEPS;/c->puff[i] = PUFF_STEPS;/' full "the dust gone before the stun"
 
 [ "$ok" = 1 ] && echo "${GAME}check: GREEN" || { echo "${GAME}check: RED"; exit 1; }

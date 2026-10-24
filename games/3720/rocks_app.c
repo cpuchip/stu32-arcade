@@ -293,13 +293,13 @@ static void draw_play(ls027_frame *f, const rocks_ctx *c)
             int sx = px(g->x) + ox, sy = px(g->y) + oy;
             if (sx + 14 < 0 || sx - 14 >= ROCKS_W || sy + 14 < 0 || sy - 14 >= ROCKS_H)
                 continue;
-            if (g->lost == 0) {
+            if (g->lost == 0 && !g->over) {
                 ship_at(f, g->x + ox * ROCKS_Q, g->y + oy * ROCKS_Q, g->a, ROCKS_TOP, g->thrusting && g->step % 2);
                 if (g->shield > 20 || (g->shield && g->shield / 2 % 2 == 0))
                     for (int d = 0; d < 16; d++)
                         draw_pixel(f, sx + RING[d][0], ROCKS_TOP + sy + RING[d][1], 1);
             } else {
-                int out = (20 - g->lost) * 3 / 2;   /* the burst's dots fly out */
+                int out = g->over ? 30 : (20 - g->lost) * 3 / 2;   /* the burst's dots fly out, and stay out at the end */
                 for (int d = 0; d < 8; d++)
                     draw_fill(f, sx + SPARK[d][0] * out / 2 - 1, ROCKS_TOP + sy + SPARK[d][1] * out / 2 - 1, 2, 2,
                               DRAW_DARK);

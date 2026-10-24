@@ -160,6 +160,8 @@ logic_plant gentle4 $L 's/\(g->wave == 1 \? 3 : 4\)/(4)/' check3 "gentle's first
 logic_plant returnclock $L 's/    if \(g->lost == 0\)\n        g->clock\+\+;/    if (in_play \&\& g->lost == 0)\n        g->clock++;/' check3 "the play clock not counting the return's step"
 logic_plant sameway $L 's/\(h1 \+ 12\) % 24/h1/' check1 "a split's pieces flying the same way"
 logic_plant nocap $L 's/g->acc \+= ms > 100 \? 100 : ms;/g->acc += ms;/' check1 "no 100 ms cap on a tick"
+logic_plant burstextra $L 's/        if \(g->ships < 5\) \{/        if (g->ships < 5 \&\& g->lost == 0) {/' check3 "no extra ship during the burst"
+logic_plant fullshots $L 's/    int limit = g->full \? 4 : 3;/    int limit = g->full ? 5 : 3;/' check3 "five shots at once in full"
 logic_plant ramscore $L 's/                split\(g, i\);\n                g->lost = 20;/                split(g, i);\n                score(g, g->r[i].size ? g->r[i].size : ROCKS_S);\n                g->lost = 20;/' check3 "a rock that hits the ship scoring"
 app_plant() { # app_plant NAME PERL RUN WHAT: a plant in the app, judged by check 4's run RUN
     if plant "$1" ${GAME}_app.c "$2" && build_app x "$B/plant-$1" "$B/pa-$1"; then
@@ -193,6 +195,7 @@ app_plant nochime 's/        app_tune\(extra, 2\);/        (void)extra;/' full "
 app_plant tunecut 's/\} else if \(c->now >= c->tune_until\) \{/} else if (c->tune_until || 1) {/' gentle "a beep cutting a tune short"
 app_plant again300 's/#define AGAIN_MS 500/#define AGAIN_MS 300/' gentle "the end taking ENTER at 0.3 s"
 app_plant enterplay 's/    if \(c->state == PLAY\) \{\n        rocks_key/    if (c->state == PLAY \&\& down \&\& key == APP_KEY_ENTER) {\n        new_game(c, ms);\n        return true;\n    }\n    if (c->state == PLAY) {\n        rocks_key/' gentle "ENTER restarting a game in play"
+app_plant wholeend 's/            if \(g->lost == 0 && !g->over\) \{/            if (g->lost == 0) {/' full "the ship whole again at the end"
 app_plant noship 's/                ship_at\(f, g->x \+ ox \* ROCKS_Q/                if (0) ship_at(f, g->x + ox * ROCKS_Q/' gentle "the ship not drawn"
 app_plant nowrap 's/    for \(int ox = -ROCKS_W; ox <= ROCKS_W; ox \+= ROCKS_W\)/    for (int ox = 0; ox <= 0; ox += ROCKS_W)/' gentle "nothing drawn again across the x seam"
 

@@ -90,8 +90,9 @@ below is a rule, and the C and the model both follow it.
 
 **No words are needed to play.**
 - **The top line:** in full, a small basket for each life, at the left; the catches at the right as 3720's tally.
-- **The field:** the basket's outline with a weave of two lines, and 5-point stars; a caught star flashes a ring of
-  dots over the basket for 4 steps; a missed star in gentle fades through a dotted frame at the bottom.
+- **The field:** the basket's outline with a weave of two lines, drawn over its mouth only (bx + 4 to bx + 43, its
+  sides slanting in), so the basket a player sees is the part that catches; 5-point stars; a caught star flashes a
+  ring of dots over the basket for 4 steps; a missed star in gentle blinks at the bottom of the screen for 4 steps.
 - **The title:** the name, a basket and stars, and two framed pictures: gentle (one slow star) on the left and full
   (several stars and three small baskets) on the right, the chosen one in a thick frame; the 4 and 6 keycaps with
   arrows; the ENTER keycap blinking; each mode's best as a tally. The title opens on gentle.
@@ -99,17 +100,24 @@ below is a rule, and the C and the model both follow it.
 
 **What still carries words or digits:** the name on the title and the keycap legends (4, 6, SOFT1, SOFT6, ENTER).
 
-**Sound:** a chime on a catch (1,047 Hz, 30 ms); in gentle a soft low note for a miss (196 Hz, 30 ms); in full a
-falling two-note for a lost life and a falling tune at the end; a rising tune every 10 catches; a soft bump (100 Hz,
-10 ms) when the basket reaches a wall, once each time it arrives, so a player hears where the edge is. SALVO's order and its
-rule for tunes apply.
+**Sound.** Notes are Hz/ms, 0 a rest. Each tick, the steps it ran are taken together, and one plays:
+1. the end: 392/120 0/40 330/120 0/40 262/300, a tune of 620 ms;
+2. else a lost life (full): 330/100 262/160, 260 ms;
+3. else a tenth catch: 523/100 659/100 784/200, 400 ms;
+4. else, when no tune is playing, one beep: a catch's chime (1,047 Hz, 30 ms); else a soft bump (100 Hz, 10 ms) when
+   the basket reaches a wall, once each time it arrives, so a player hears where the edge is; else a miss's soft low
+   note (196 Hz, 30 ms).
+
+A new tune can start over one still playing. The bump outranks the miss so the stand-in's wall check can't lose it
+to a star missed on the same tick.
 
 ## Frame, state, flash
 
 - **Rows:** the basket's 14 rows when it moves, and about 12 rows for each falling star that moved a whole pixel: in
   gentle about 50 rows at most (21 ms); in full with 6 stars about 90 (38 ms). All under the 50 ms step. Reasoned from
   the layout, not modelled; Rev A's bench measures them.
-- **State:** about 80 B (6 star slots, the basket, the counters, the draws, the save's fields).
+- **State:** the ctx is 136 B on the host (x86-64, the SDK runner's count; the blueprint estimated about 80): 6 star
+  slots, the basket, the counters, the draws, the bests, the flashes.
 - **Flash:** about 3 KB. Internal RAM +0.
 
 ## The WebAssembly gate

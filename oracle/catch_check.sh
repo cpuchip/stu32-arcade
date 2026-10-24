@@ -180,9 +180,11 @@ app_plant fullfirst 's/    c->state = TITLE;\n    c->full = false;/    c->state 
 app_plant onemode 's/c->best\[g->full\] = g->score;/c->best[0] = g->score;/' full "full's best kept as gentle's"
 app_plant chime 's/app_beep\(1047, 30\);/app_beep(1047, 40);/' gentle "the catch's chime 40 ms"
 app_plant nobump 's/        else if \(c->sound & 16\)\n            app_beep\(100, 10\);\n//' gentle "the wall's bump silent"
+app_plant missfirst 's/        else if \(c->sound & 16\)\n            app_beep\(100, 10\);\n        else if \(c->sound & 2\)\n            app_beep\(196, 30\);/        else if (c->sound \& 2)\n            app_beep(196, 30);\n        else if (c->sound \& 16)\n            app_beep(100, 10);/' gentle "a miss's note over the wall's bump"
 app_plant tunecut 's/\} else if \(c->now >= c->tune_until\) \{/} else if (c->tune_until || 1) {/' full "a beep cutting a tune short"
 app_plant again300 's/#define AGAIN_MS 500/#define AGAIN_MS 300/' full "the end taking ENTER at 0.3 s"
 app_plant enterplay 's/    if \(c->state == PLAY\) \{\n        catch_key/    if (c->state == PLAY \&\& down \&\& key == APP_KEY_ENTER) {\n        new_game(c, ms);\n        return true;\n    }\n    if (c->state == PLAY) {\n        catch_key/' gentle "ENTER restarting a game in play"
-app_plant nobasket 's/    basket\(f, g->bx, CATCH_TOP/    (void)basket; if (0) basket(f, g->bx, CATCH_TOP/' gentle "the basket not drawn"
+app_plant nobasket 's/    basket\(f, g->bx \+ 4, CATCH_TOP/    (void)basket; if (0) basket(f, g->bx + 4, CATCH_TOP/' gentle "the basket not drawn"
+app_plant widebasket 's/    basket\(f, g->bx \+ 4, CATCH_TOP \+ CATCH_BASKET_Y, CATCH_BASKET_W - 8,/    basket(f, g->bx, CATCH_TOP + CATCH_BASKET_Y, CATCH_BASKET_W,/' gentle "the basket drawn wider than it catches"
 
 [ "$ok" = 1 ] && echo "${GAME}check: GREEN" || { echo "${GAME}check: RED"; exit 1; }

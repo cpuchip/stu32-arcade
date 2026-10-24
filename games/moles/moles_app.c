@@ -193,7 +193,7 @@ static void each_step(const moles_game *g, void *arg)
         if (c->puff[i])
             c->puff[i]--;
         if (g->ev_wrong_at & 1u << i)
-            c->puff[i] = PUFF_STEPS;
+            c->puff[i] = g->full ? MOLES_STUN : PUFF_STEPS;   /* full: as long as the stun */
     }
     if (g->score > c->best[g->full])
         c->best[g->full] = g->score;
@@ -274,7 +274,8 @@ static void draw_holes(ls027_frame *f, const moles_ctx *c)
     for (int i = 0; i < MOLES_HOLES; i++) {
         int cx = (i % 3) * CELL_W + CELL_W / 2, cy = TOP + (i / 3) * CELL_H + 68;
         const moles_hole *h = &g->h[i];
-        int rows = h->state == MOLES_RISE   ? 10 * ((int)h->n + 1)
+        int rows = c->state == OVER         ? 0                     /* the end: every mole down */
+                   : h->state == MOLES_RISE ? 10 * ((int)h->n + 1)
                    : h->state == MOLES_SINK ? MOLE_H - 10 * ((int)h->n + 1)
                    : h->state == MOLES_EMPTY ? 0
                                              : MOLE_H;
@@ -295,7 +296,7 @@ static void draw_holes(ls027_frame *f, const moles_ctx *c)
             }
         if (c->puff[i])
             for (int d = 0; d < 5; d++)
-                draw_fill(f, cx - 16 + 8 * d, cy - 8 - (PUFF_STEPS - c->puff[i]) * 3 - (d & 1) * 3, 2, 2, DRAW_DARK);
+                draw_fill(f, cx - 16 + 8 * d, cy - 8 - (c->puff[i] % PUFF_STEPS) * 3 - (d & 1) * 3, 2, 2, DRAW_DARK);
     }
 }
 
@@ -331,7 +332,14 @@ static void draw_title(ls027_frame *f, const moles_ctx *c)
         if (c->best[m])
             kids_tally(f, x + 75 - kids_tally_width(c->best[m]) / 2, 152, c->best[m]);
     }
-    int x = 36 + kids_keycap(f, 36, 176, "0", 1) + 8;     /* the digits option */
+    int x = 150;                                          /* 4 and 6 pick a picture */
+    x += kids_keycap(f, x, 176, "4", 1) + 10;
+    kids_arrow(f, x, 182, 0);
+    x += 14;
+    kids_arrow(f, x, 182, 1);
+    x += 10;
+    kids_keycap(f, x, 176, "6", 1);
+    x = 36 + kids_keycap(f, 36, 176, "0", 1) + 8;         /* the digits option */
     draw_blit(f, x, 179, LIFE, 9, 7, DRAW_OR);
     if (c->digits)
         draw_text(f, x + 13, 177, 1, "7", 1);

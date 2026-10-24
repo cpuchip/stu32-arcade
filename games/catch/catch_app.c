@@ -178,10 +178,10 @@ static uint32_t app_tick_cb(void *ctx, uint32_t ms)
     } else if (c->now >= c->tune_until) {
         if (c->sound & 1)
             app_beep(1047, 30);
-        else if (c->sound & 2)
-            app_beep(196, 30);
         else if (c->sound & 16)
             app_beep(100, 10);
+        else if (c->sound & 2)
+            app_beep(196, 30);
     }
     if (c->g.over) {
         c->state = OVER;
@@ -224,12 +224,11 @@ static void draw_play(ls027_frame *f, const catch_ctx *c)
         int y = g->star[i].y >= 0 ? g->star[i].y / CATCH_SUB : -((-g->star[i].y + CATCH_SUB - 1) / CATCH_SUB);
         draw_blit(f, g->star[i].x, CATCH_TOP + y, STAR, CATCH_STAR, CATCH_STAR, DRAW_OR);
     }
-    basket(f, g->bx, CATCH_TOP + CATCH_BASKET_Y, CATCH_BASKET_W, CATCH_BASKET_H);
+    basket(f, g->bx + 4, CATCH_TOP + CATCH_BASKET_Y, CATCH_BASKET_W - 8, CATCH_BASKET_H);   /* drawn as wide as it catches */
     if (c->flash)
         ring(f, c->flash_x + CATCH_BASKET_W / 2, CATCH_TOP + CATCH_BASKET_Y - 4);
-    if (c->fade)
-        for (int x = 0; x < CATCH_STAR; x += 2)
-            draw_pixel(f, c->fade_x + x, LS027_H - 1 - (c->fade & 1), 1);
+    if (c->fade & 1)                                    /* a gentle miss blinks at the bottom as it goes */
+        draw_blit(f, c->fade_x, LS027_H - CATCH_STAR, STAR, CATCH_STAR, CATCH_STAR, DRAW_OR);
 
     /* the top line, over anything that fell into it */
     draw_fill(f, 0, 0, LS027_W, CATCH_TOP, DRAW_LIGHT);

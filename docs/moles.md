@@ -38,7 +38,7 @@ in gentle that costs nothing.
 | ENTER | starts a game from the title, or a new one after the end |
 | C | the framework's: saves and ends the game |
 
-**The digits (the option abacus proposed).** With it on, a mole that is up shows its key's digit on its front, so the
+**The digits (the option abacus proposed).** With it on, a mole that is all the way up (not rising, bonked or sinking) shows its key's digit on its front, so the
 game teaches where each digit sits. Off by default; it is a grown-up's setting on the title (0 toggles it, shown as a
 mole picture with and without a digit) and the save keeps it.
 
@@ -112,6 +112,7 @@ below is a rule, and the C and the model both follow it.
     step are ignored. A wrong key is one whose hole is empty, bonked or sinking, so a second press of a mole bonked
     earlier in the same step stuns. Gentle never starts a stun.
 13. **Held keys.** A down of a key already held is a repeat and is ignored; down, up, down in one step is two bonks.
+    At most 16 downs are kept for a step; any after the 16th in the same step are dropped.
     Keys reach only the first step after them, so the second step of a two-step tick sees none.
 14. **The clock.** A tick adds at most 100 ms and runs at most two steps, whatever the accumulator holds. After the
     end a tick adds nothing.
@@ -124,21 +125,27 @@ below is a rule, and the C and the model both follow it.
   strokes in groups of five, five groups folding into a star; at most 30 stars.
 - **The field:** nine cells of 133 × 76 px under the top line, each with a hole drawn as a flat oval near its bottom.
   The mole is a 44 × 40 sprite in 1 bit that rises out of the hole over its 4 rising steps, shows dizzy stars over
-  its head while bonked, and sinks back. A wrong key puffs 5 dots of dust over its hole for 4 steps. With the digits
-  on, the up mole carries its digit at scale 2.
-- **The title:** the name, a large mole picture, and two framed pictures: gentle (one mole, sleeping) on the left and
-  full (two moles and three small lives) on the right, the chosen one in a thick frame. The 0 keycap with the digit
-  picture, the ENTER keycap blinking, and each mode's best as a tally once there is one. The title opens on gentle.
-- **The end (full):** every mole down, this game's tally and the best, and after 0.5 s (by the key's time) the ENTER
+  its head while bonked, and sinks back. A wrong key puffs 5 dots of dust over its hole for 4 steps, and in full for the
+  6 steps of the stun it starts. With the digits on, a mole all the way up carries its digit at scale 2.
+- **The title:** the name, and two framed pictures: gentle (one mole up) on the left and full (two moles, one half
+  out, and three small lives) on the right, the chosen one in a thick frame; the 4 and 6 keycaps with arrows (they
+  pick); the 0 keycap with a small mole and, when the digits are on, a 7 beside it; the ENTER keycap blinking, and each mode's best as a tally once there is one. The title opens on gentle.
+- **The end (full):** every mole drawn down in its hole (the rules leave some sinking; the screen shows them gone), this game's tally and the best, and after 0.5 s (by the key's time) the ENTER
   keycap blinking.
 
 **What still carries words or digits:** the name on the title, the keycap legends (0, ENTER, matched by shape), and
 the digits on the moles when that option is on, which is the point of it.
 
-**Sound:** a pop as a mole rises (a two-note tune, 660 then 880 Hz, 30 ms each); a bonk on a hit (220 Hz then 1,320
-Hz, 30 and 15 ms); a soft thunk for a wrong key (150 Hz, 20 ms); a chime every 10 bonks (523, 659, 784 Hz); in full a
-falling two-note for a mole that got away and a falling tune at the end. SALVO's order and its no-beep-over-a-tune
-rule apply.
+**Sound.** Notes are Hz/ms, 0 a rest. Each tick, the steps it ran are taken together, and one plays:
+1. the end: 392/120 0/40 330/120 0/40 262/300, a tune of 620 ms;
+2. else a mole that got away: 330/100 262/160, 260 ms;
+3. else a tenth bonk: 523/100 659/100 784/200, 400 ms;
+4. else a bonk: 220/30 1320/15, 45 ms;
+5. else a mole rising: 660/30 880/30, 60 ms;
+6. else a wrong key's thunk, 150 Hz for 20 ms, only when no tune is playing. Keys ignored in a stun make no sound and
+   no dust.
+
+A new tune can start over one still playing.
 
 ## Frame, state, flash
 
@@ -146,7 +153,9 @@ rule apply.
   dizzy stars), plus 12 for the top line on a bonk. One mole: about 57 rows, 24 ms; two moles in different rows:
   about 102, 43 ms; all under the 50 ms step. These
   are reasoned from the layout, not modelled; Rev A's bench measures them.
-- **State:** about 64 B (nine holes' states and timers, the wait or stay, the lives, the draws, the save's fields).
+- **State:** the ctx is 192 B on the host (x86-64, the SDK runner's count; the blueprint estimated about 64, before
+  the held keys, the queue of presses and the dust marks): nine holes' states and step counts, the wait or stay, the
+  lives, the draws, the bests.
 - **Flash:** about 3-4 KB (the mole's frames, the hole, the title pictures, the tally). Internal RAM +0.
 
 ## The WebAssembly gate
