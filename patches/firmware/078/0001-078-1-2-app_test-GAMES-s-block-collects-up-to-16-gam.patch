@@ -1,0 +1,33 @@
+From b1354070c81df75c2241bf66c5cc1d1859c16fa2 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Sat, 24 Oct 2026 15:18:41 +0000
+Subject: [PATCH 1/2] 078 (1/2): app_test: GAMES's block collects up to 16
+ games, not 8
+
+072's check gathered the GAMES folder's names into eight slots, so a ninth game would fall off the list it checks
+and its page could not be judged. Sixteen holds the registry this unit makes (nine) with room.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ tests/app_test.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/app_test.c b/tests/app_test.c
+index 37653c5..1177c04 100644
+--- a/tests/app_test.c
++++ b/tests/app_test.c
+@@ -3290,9 +3290,9 @@ int main(void)
+     /* unit 072 (abacus #8570, #8600, #8679): APPS lists KEYS, then GAMES; GAMES pages the folder's games five at a time
+        with more, in the registry's order; C or back-arrow returns to APPS; a game starts from GAMES */
+     {
+-        const char *g[8];
++        const char *g[16];
+         int ng = 0;
+-        for (int r = 0; r < app_registry_n && ng < 8; r++)
++        for (int r = 0; r < app_registry_n && ng < 16; r++)
+             if (app_registry_folder[r] == APP_FOLDER_GAMES) g[ng++] = app_registry[r]->name;
+         static uint8_t gctx[APP_CTX_MAX];         /* (a game's state: the device's buffer) */
+         ab_init(&c);
+-- 
+2.53.0
+

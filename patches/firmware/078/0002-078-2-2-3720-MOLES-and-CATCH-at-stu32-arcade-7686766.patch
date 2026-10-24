@@ -1,0 +1,533 @@
+From 4314ea2d7d20c7b3827b5f3e51b2b1a2030abdd0 Mon Sep 17 00:00:00 2001
+From: Michael Stufflebeam <cpuchip@gmail.com>
+Date: Sat, 24 Oct 2026 15:18:41 +0000
+Subject: [PATCH 2/2] 078 (2/2): 3720, MOLES and CATCH at stu32-arcade 7686766
+
+Three games for a young player who doesn't read yet (Michael's asks; work/078-kids-games.md): 3720 flies through the
+rocks, MOLES bonks moles in the number pad's layout, CATCH catches falling stars; MOLES and CATCH have gentle, middle
+and full. games.list appends them, so GAMES's second page is SALVO, 3720, MOLES, CATCH; app_test checks that page;
+the stand-in scripts reach each game through GAMES and tell its live keys from a dead one by the tones. Flash +21,760
+(stand-in) and +21,392 (Rev A), internal RAM +0. Version 0.78.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+---
+ device/standin/catch.txt |  77 +++++++++++++++
+ device/standin/moles.txt | 201 +++++++++++++++++++++++++++++++++++++++
+ device/standin/rocks.txt | 111 +++++++++++++++++++++
+ firmware/version.h       |   2 +-
+ games.list               |   7 ++
+ tests/app_test.c         |   3 +-
+ work/078-kids-games.md   |  49 ++++++++++
+ 7 files changed, 448 insertions(+), 2 deletions(-)
+ create mode 100644 device/standin/catch.txt
+ create mode 100644 device/standin/moles.txt
+ create mode 100644 device/standin/rocks.txt
+ create mode 100644 work/078-kids-games.md
+
+diff --git a/device/standin/catch.txt b/device/standin/catch.txt
+new file mode 100644
+index 0000000..63ff8c1
+--- /dev/null
++++ b/device/standin/catch.txt
+@@ -0,0 +1,77 @@
++# CATCH under APPS on the board (arcade's unit 078, soroban's gate; stu32-arcade docs/catch.md): GAMES's second
++# page (K5, more) lists SALVO, 3720, MOLES and CATCH, so CATCH is K3 there. ENTER plays gentle. Catches depend on the
++# seed, so the walls tell a live key from a dead one: from the middle, 4 held reaches the left wall in 1.5 s and
++# bumps once (100 Hz, 10 ms); 6 held crosses to the right wall in about 3 s and bumps; SOFT1 and SOFT6 the same; +
++# held moves nothing and bumps nothing. The rules are the host's check (make catchcheck). C ends CATCH, and
++# 2 ENTER 3 + must give 5.
++send RESTART
++wait STANDIN READY 30
++# C twice first, then X = 4, so the closing 2 ENTER 3 + = 5 can fail (soroban's shape, 6388bc4)
++send K42
++send U42
++send K42
++send U42
++send K38
++send U38
++send K18
++send U18
++send K38
++send U38
++send K46
++send U46
++send X
++expect X=4
++send X
++expect stack-free
++send K36
++send U36
++send K43
++send U43
++sleep 1
++send K1
++send U1
++sleep 1
++send K5
++send U5
++sleep 1
++send K3
++send U3
++sleep 1
++send X
++expect app: CATCH
++send K18
++send U18
++sleep 1
++send K31
++expect tone: app 100 Hz 10 ms 3
++send U31
++send K33
++expect tone: app 100 Hz 10 ms 5
++send U33
++send K0
++expect tone: app 100 Hz 10 ms 5
++send U0
++send K5
++expect tone: app 100 Hz 10 ms 5
++send U5
++send K46
++expect-none tone: app 100 Hz 4
++send U46
++send X
++expect-min stack-free 2048
++expect app: CATCH
++send K42
++send U42
++sleep 1
++send X
++expect app: -
++send K38
++send U38
++send K18
++send U18
++send K39
++send U39
++send K46
++send U46
++send X
++expect X=5
+diff --git a/device/standin/moles.txt b/device/standin/moles.txt
+new file mode 100644
+index 0000000..10edb31
+--- /dev/null
++++ b/device/standin/moles.txt
+@@ -0,0 +1,201 @@
++# MOLES under APPS on the board (arcade's unit 078, soroban's gate; stu32-arcade docs/moles.md): GAMES's second
++# page (K5, more) lists SALVO, 3720, MOLES and CATCH, so MOLES is K2 there. ENTER plays gentle, where a mole waits
++# until it is bonked. A sweep presses 7 8 9 4 5 6 1 2 3 in turn, quicker than 1.1 s, so it bonks exactly once
++# whatever the seed: the first 1.2 s after ENTER (the first mole rises at 1.0 s), each next one 2.5 s after the last
++# (abacus #10278). A bonk sounds 220 Hz then 1,320 Hz. Five sweeps, five bonks, and none until the next sweep; five
++# sweeps of + (no job), none. Which hole each key reaches is the host's check (make molescheck). C ends MOLES, and
++# 2 ENTER 3 + must give 5.
++send RESTART
++wait STANDIN READY 30
++# C twice first, then X = 4, so the closing 2 ENTER 3 + = 5 can fail (soroban's shape, 6388bc4)
++send K42
++send U42
++send K42
++send U42
++send K38
++send U38
++send K18
++send U18
++send K38
++send U38
++send K46
++send U46
++send X
++expect X=4
++send X
++expect stack-free
++send K36
++send U36
++send K43
++send U43
++sleep 1
++send K1
++send U1
++sleep 1
++send K5
++send U5
++sleep 1
++send K2
++send U2
++sleep 1
++send X
++expect app: MOLES
++send K18
++send U18
++sleep 1.2
++send K25
++send U25
++send K26
++send U26
++send K27
++send U27
++send K31
++send U31
++send K32
++send U32
++send K33
++send U33
++send K37
++send U37
++send K38
++send U38
++send K39
++send U39
++expect tone: app 220 Hz 30 ms 2
++expect-none tone: app 220 Hz 2.5
++send K25
++send U25
++send K26
++send U26
++send K27
++send U27
++send K31
++send U31
++send K32
++send U32
++send K33
++send U33
++send K37
++send U37
++send K38
++send U38
++send K39
++send U39
++expect tone: app 220 Hz 30 ms 2
++expect-none tone: app 220 Hz 2.5
++send K25
++send U25
++send K26
++send U26
++send K27
++send U27
++send K31
++send U31
++send K32
++send U32
++send K33
++send U33
++send K37
++send U37
++send K38
++send U38
++send K39
++send U39
++expect tone: app 220 Hz 30 ms 2
++expect-none tone: app 220 Hz 2.5
++send K25
++send U25
++send K26
++send U26
++send K27
++send U27
++send K31
++send U31
++send K32
++send U32
++send K33
++send U33
++send K37
++send U37
++send K38
++send U38
++send K39
++send U39
++expect tone: app 220 Hz 30 ms 2
++expect-none tone: app 220 Hz 2.5
++send K25
++send U25
++send K26
++send U26
++send K27
++send U27
++send K31
++send U31
++send K32
++send U32
++send K33
++send U33
++send K37
++send U37
++send K38
++send U38
++send K39
++send U39
++expect tone: app 220 Hz 30 ms 2
++expect-none tone: app 220 Hz 2.5
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++expect-none tone: app 220 Hz 2.5
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++send K46
++send U46
++expect-none tone: app 220 Hz 2.5
++send X
++expect-min stack-free 2048
++expect app: MOLES
++send K42
++send U42
++sleep 1
++send X
++expect app: -
++send K38
++send U38
++send K18
++send U18
++send K39
++send U39
++send K46
++send U46
++send X
++expect X=5
+diff --git a/device/standin/rocks.txt b/device/standin/rocks.txt
+new file mode 100644
+index 0000000..d504426
+--- /dev/null
++++ b/device/standin/rocks.txt
+@@ -0,0 +1,111 @@
++# 3720 under APPS on the board (arcade's unit 078, soroban's gate; stu32-arcade docs/3720.md): GAMES's second page
++# (K5, more) lists SALVO, 3720, MOLES and CATCH, so 3720 is K1 there. ENTER plays gentle. Each job's keys are told
++# from a dead key by the console's tones (077's way): GOLD, 5, x and SOFT5 held give the shot's click (1,500 Hz),
++# 7, 8, 9 and SOFT2 held the engine's tick (110 Hz), + held neither. Turn, thrust and fire held together give the
++# click, and the tick once fire is let go (a click and a tick on one tick sound as the click alone).
++# The frame rate while the rocks drift. The rules are the host's check (stu32-arcade make rockscheck). X prints
++# stack-free before app:, so expect-min comes first. C ends 3720, and 2 ENTER 3 + must give 5.
++send RESTART
++wait STANDIN READY 30
++# C twice first, then X = 4, so the closing 2 ENTER 3 + = 5 can fail (soroban's shape, 6388bc4)
++send K42
++send U42
++send K42
++send U42
++send K38
++send U38
++send K18
++send U18
++send K38
++send U38
++send K46
++send U46
++send X
++expect X=4
++send X
++expect stack-free
++send K36
++send U36
++send K43
++send U43
++sleep 1
++send K1
++send U1
++sleep 1
++send K5
++send U5
++sleep 1
++send K1
++send U1
++sleep 1
++send X
++expect app: 3720 10
++send K18
++send U18
++sleep 1
++send FRAMEBENCH
++expect framebench: 3720 30
++sleep 4
++send K30
++expect tone: app 1500 Hz 8 ms 3
++send U30
++sleep 1
++send K32
++expect tone: app 1500 Hz 8 ms 3
++send U32
++sleep 1
++send K34
++expect tone: app 1500 Hz 8 ms 3
++send U34
++sleep 1
++send K4
++expect tone: app 1500 Hz 8 ms 3
++send U4
++sleep 1
++send K25
++expect tone: app 110 Hz 15 ms 3
++send U25
++sleep 1
++send K26
++expect tone: app 110 Hz 15 ms 3
++send U26
++sleep 1
++send K27
++expect tone: app 110 Hz 15 ms 3
++send U27
++sleep 1
++send K1
++expect tone: app 110 Hz 15 ms 3
++send U1
++sleep 1
++send K46
++expect-none tone: app 1500 Hz 3
++expect-none tone: app 110 Hz 2
++send U46
++send K31
++send K26
++send K30
++expect tone: app 1500 Hz 8 ms 3
++send U30
++expect tone: app 110 Hz 15 ms 3
++send U26
++send U31
++sleep 1
++send X
++expect-min stack-free 2048
++expect app: 3720 10
++send K42
++send U42
++sleep 1
++send X
++expect app: -
++send K38
++send U38
++send K18
++send U18
++send K39
++send U39
++send K46
++send U46
++send X
++expect X=5
+diff --git a/firmware/version.h b/firmware/version.h
+index a892e28..708c38f 100644
+--- a/firmware/version.h
++++ b/firmware/version.h
+@@ -5,7 +5,7 @@
+ #ifndef VERSION_H
+ #define VERSION_H
+ 
+-#define AB_FW_VERSION "0.77"        /* "0.<the last work unit>" until 1.0; each unit bumps it
++#define AB_FW_VERSION "0.78"        /* "0.<the last work unit>" until 1.0; each unit bumps it
+                                        (abacus #6810; scripts/check-version.sh) */
+ #ifdef AB_HAVE_COMMIT_H
+ #include "ab_commit.h"              /* generated at every build (scripts/gen_commit.cmake) */
+diff --git a/games.list b/games.list
+index 998dd7c..30bd9bf 100644
+--- a/games.list
++++ b/games.list
+@@ -15,3 +15,10 @@ snake  stu32-arcade  5947c16d6b96928b5511129a6024c2ea570d152e  MIT
+ mines  stu32-arcade  7344045c918f2818963ab5946aca3f3d3fad644f  MIT                        games/mines/stu32-game.txt
+ # SALVO: arcade's, hold off the swarm (Michael's ruling on the games plan, abacus #8569; stu32-arcade docs/salvo.md)
+ salvo  stu32-arcade  bca20f0ef5161e63d287921f7cfed26a72dfd4e9  MIT                        games/salvo/stu32-game.txt
++# 3720: arcade's, fly through the rocks, for a young player who doesn't read yet (Michael, abacus #10254, #10280;
++# stu32-arcade docs/3720.md); the menu's name is 3720, the id rocks (an id starts with a letter)
++rocks  stu32-arcade  7686766a1e99a7c4555071d28b6189fb144a9bfd  MIT                        games/3720/stu32-game.txt
++# MOLES: arcade's, nine holes in the number pad's layout (Michael, abacus #10256, #10280; stu32-arcade docs/moles.md)
++moles  stu32-arcade  7686766a1e99a7c4555071d28b6189fb144a9bfd  MIT                        games/moles/stu32-game.txt
++# CATCH: arcade's, catch the falling stars (Michael, abacus #10256, #10280; stu32-arcade docs/catch.md)
++catch  stu32-arcade  7686766a1e99a7c4555071d28b6189fb144a9bfd  MIT                        games/catch/stu32-game.txt
+diff --git a/tests/app_test.c b/tests/app_test.c
+index 1177c04..0a7e923 100644
+--- a/tests/app_test.c
++++ b/tests/app_test.c
+@@ -3313,7 +3313,8 @@ int main(void)
+         bool p2 = true;
+         for (int i = 0; i < 5; i++)
+             p2 = p2 && (5 + i < ng ? ui.soft[i] && !strcmp(ui.soft[i], g[5 + i]) : !ui.soft[i] || !*ui.soft[i]);
+-        expect(p2 && !strcmp(g[ng - 1], "SALVO"), "072: GAMES's second page: SALVO, last in the registry");
++        expect(p2 && ng == 9 && !strcmp(g[5], "SALVO") && !strcmp(g[ng - 1], "CATCH"),
++               "078: GAMES's second page: SALVO, 3720, MOLES, CATCH, last in the registry");
+         press(&a, "k:5");
+         app_ui(&a, &ui);
+         expect(ui.soft[0] && !strcmp(ui.soft[0], g[0]), "072: more on the last page wraps to the first");
+diff --git a/work/078-kids-games.md b/work/078-kids-games.md
+new file mode 100644
+index 0000000..8091995
+--- /dev/null
++++ b/work/078-kids-games.md
+@@ -0,0 +1,49 @@
++# Work unit 078: 3720, MOLES and CATCH, three games for a young player who doesn't read yet
++
++**From:** arcade (stu32-arcade ff2725c..7686766) · **Asked and ruled by:** Michael (abacus #10254: 3720; #10256: the
++mole game and CATCH; #10265: 3720's fire keys; #10280: MOLES, appended to GAMES, 3720's soft row, the full-mode stun;
++basecamp #10367: CATCH's stars within reach, and difficulty levels for CATCH and MOLES) · **Read:** abacus
++(blueprints #10278, #10280; the levels #10387; MOLES middle's pacing #10416; replays #10373, #10449) · **Gate:**
++soroban · **Status:** ready for the gate, the figures below.
++
++## What changes
++
++1. **games.list:** three rows at the end, pinned at stu32-arcade 7686766: rocks (the menu's 3720; an id starts with a
++   letter), moles, catch. GAMES pages five games and more (072), so its second page is now SALVO, 3720, MOLES, CATCH.
++2. **tests/app_test.c:** 072's GAMES block collected at most 8 games, so a ninth would drop off the list it checks;
++   it now collects up to 16, and its second-page row names SALVO and CATCH, last.
++3. **device/standin:** rocks.txt, moles.txt and catch.txt reach each game through GAMES and tell a live key from a
++   dead one by the console's tones (077's way), with + as the dead key. Each plays gentle, the level the title opens
++   on.
++4. **version.h:** 0.78.
++
++The games themselves (stu32-arcade docs/3720.md, docs/moles.md, docs/catch.md): 3720 has gentle and full; MOLES and
++CATCH have gentle, middle and full, picked on the title from three pictures, and every CATCH star falls within reach
++of the one before it.
++
++## Decision 68
++
++`scripts/resources.py static b83431f <this unit>` (2026-10-24; the measured commit was this unit's tree as one
++scratch commit, fb3bf6b):
++
++| | flash (the app's .bin) | internal RAM static (DIRAM) | IRAM code | calc_task's frame |
++|---|---|---|---|---|
++| stand-in | 3,593,552 -> 3,615,312 (+21,760) | 211,847 (+0) | 59,022 (+0) | 144 B (+0) |
++| Rev A | 3,533,904 -> 3,555,296 (+21,392) | 219,798 (+0) | 78,086 (+0) | 128 B (+0) |
++
++The flash is libmain.a's (+21,115 on the stand-in, +21,071 on Rev A: the three games' code, sprites and tables); the
++other libraries move by 164 B or less (by inference the version and commit strings and alignment, as at earlier
++units; not traced symbol by symbol). No internal-RAM
++symbol moved (nm, 0x3FC88000-0x3FD00000): each game's state lives in the app ctx the framework already holds (3720 744
++B, MOLES 192 B, CATCH 136 B on the host, under APP_CTX_MAX), so internal RAM is +0.
++
++## The checks
++
++- **stu32-arcade at 7686766:** rockscheck, molescheck and catchcheck GREEN with the .wasm legs, the whole suite 14 of
++  14; replayed by abacus from a bundle (#10449), and the history scrub that followed checked by abacus as one doc
++  line and the check scripts' re-pointed commit (#10456). S3 bench (the three apps on the chip, frame for frame
++  against the host): DEVICE PASS, 11 of 11 scripts, 3 controls red.
++- **make test:** rc 0 at the unit's head: app_test 779/779 (the second page's row included), standin_test 349/349,
++  the games-list generator GREEN. The row's falsifier, CATCH dropped from games.list: app_test 778/779 (run on the
++  unit's first draft, the same row).
++- **The stand-in runs at the gate:** soroban's.
+-- 
+2.53.0
+
