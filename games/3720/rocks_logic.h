@@ -51,7 +51,8 @@ typedef struct {
     uint16_t held;                /* a bit for each enum rocks_key */
     bool latch_l, latch_r, latch_t, latch_f;
     /* what the last step did, for the app's sound and bursts (not part of the rules) */
-    uint8_t ev_shots, ev_breaks, ev_lost, ev_wave, ev_extra, ev_break_size;
+    uint8_t ev_shots, ev_breaks, ev_lost, ev_wave, ev_extra;
+    uint8_t ev_sizes;             /* a bit for each size broken, 1 << enum rocks_size */
     bool thrusting;
     int32_t ev_break_x, ev_break_y;
 } rocks_game;

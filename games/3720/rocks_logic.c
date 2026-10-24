@@ -159,7 +159,7 @@ static void split(rocks_game *g, int i)
 {
     rocks_rock *r = &g->r[i];
     g->ev_breaks++;
-    g->ev_break_size = r->size;
+    g->ev_sizes |= (uint8_t)(1u << r->size);
     g->ev_break_x = r->x;
     g->ev_break_y = r->y;
     int next = r->size + 1;
@@ -208,7 +208,7 @@ static bool any_rock(const rocks_game *g)
 void rocks_step(rocks_game *g)
 {
     g->step++;
-    g->ev_shots = g->ev_breaks = g->ev_lost = g->ev_wave = g->ev_extra = 0;
+    g->ev_shots = g->ev_breaks = g->ev_lost = g->ev_wave = g->ev_extra = g->ev_sizes = 0;
     bool in_play = g->lost == 0;
     bool left = held(g, ROCKS_K4, ROCKS_KS1) || g->latch_l, right = held(g, ROCKS_K6, ROCKS_KS6) || g->latch_r;
     bool thrust = held(g, ROCKS_K7, ROCKS_KS2) || g->latch_t, fire = held(g, ROCKS_KG, ROCKS_KS5) || g->latch_f;

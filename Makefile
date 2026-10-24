@@ -10,7 +10,7 @@ BABAL_SRC := $(wildcard games/babal/core/*.c)
 BABAL_OBJ := $(BABAL_SRC:%.c=$(BUILD)/%.o)
 CARGO ?= $(shell command -v cargo || echo $(HOME)/.cargo/bin/cargo)
 
-.PHONY: all test oracle ref clean frames apphost appcheck driftcheck sdkcheck aimcheck landcheck snakecheck minescheck salvocheck
+.PHONY: all test oracle ref clean frames apphost appcheck driftcheck sdkcheck aimcheck landcheck snakecheck minescheck salvocheck rockscheck molescheck catchcheck
 
 # The firmware's font and frame/app headers, read-only at FIRMWARE_PIN, exported with git archive
 # from a local clone (FIRMWARE_REPO), never built in it.
@@ -68,6 +68,16 @@ minescheck: $(FW)/.pin
 # the edges, the app's frames, asks, save and sound (and the .wasm), plants
 salvocheck: $(FW)/.pin
 	oracle/salvo_check.sh
+
+# 3720's, MOLES's and CATCH's checks (docs/3720.md, docs/moles.md, docs/catch.md): the logic against a model written
+# from each doc alone, long autopilot games, the rules at their edges, the app's frames, asks, save and sound (and the
+# .wasm), plants
+rockscheck: $(FW)/.pin
+	oracle/rocks_check.sh
+molescheck: $(FW)/.pin
+	oracle/moles_check.sh
+catchcheck: $(FW)/.pin
+	oracle/catch_check.sh
 
 # Babal as a WebAssembly game against Babal native (needs WASI_SDK, WAMRC and WAMR_TREE; oracle/wasm_check.sh)
 wasmcheck: $(FW)/.pin

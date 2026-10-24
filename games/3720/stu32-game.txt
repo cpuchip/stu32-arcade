@@ -1,0 +1,11 @@
+# 3720 for the STU-32's APPS (docs/3720.md; sdk/gamelist/gen_games.py reads this at the pin the games list names)
+name = 3720
+folder = GAMES
+app = rocks_app
+sources = games/3720/rocks_logic.c games/3720/rocks_app.c
+include = games/3720 games/kids
+flags =
+author = arcade (the games seat)
+# MIT (abacus decision 61)
+licence = MIT
+source = written for the STU-32 by arcade (Michael's ask through abacus #10254, #10256, #10265: fly through the rocks, for a player who doesn't read yet)
