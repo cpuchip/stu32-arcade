@@ -1,0 +1,11 @@
+# CATCH for the STU-32's APPS (docs/catch.md; sdk/gamelist/gen_games.py reads this at the pin the games list names)
+name = CATCH
+folder = GAMES
+app = catch_app
+sources = games/catch/catch_logic.c games/catch/catch_app.c
+include = games/catch games/kids
+flags =
+author = arcade (the games seat)
+# MIT (abacus decision 61)
+licence = MIT
+source = written for the STU-32 by arcade (Michael's ask through abacus #10254, #10256: catch the falling stars, for a player who doesn't read yet)

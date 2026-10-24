@@ -123,7 +123,7 @@ below is a rule, and the C and the model both follow it.
 - **The top line, 12 px:** in full, a small mole for each life, at the left. The score at the right as 3720's tally:
   strokes in groups of five, five groups folding into a star; at most 30 stars.
 - **The field:** nine cells of 133 × 76 px under the top line, each with a hole drawn as a flat oval near its bottom.
-  The mole is a 36 × 32 sprite in 1 bit that rises out of the hole over its 4 rising steps, shows dizzy stars over
+  The mole is a 44 × 40 sprite in 1 bit that rises out of the hole over its 4 rising steps, shows dizzy stars over
   its head while bonked, and sinks back. A wrong key puffs 5 dots of dust over its hole for 4 steps. With the digits
   on, the up mole carries its digit at scale 2.
 - **The title:** the name, a large mole picture, and two framed pictures: gentle (one mole, sleeping) on the left and
@@ -142,8 +142,9 @@ rule apply.
 
 ## Frame, state, flash
 
-- **Rows:** a step changes the cells with a mole moving in them, about 36 rows each, plus 12 for the top line on a
-  bonk. One mole: about 50 rows, 21 ms; two moles in different rows: about 90, 38 ms; all under the 50 ms step. These
+- **Rows:** a step changes the cells with a mole moving in them, about 45 rows each (the mole and its
+  dizzy stars), plus 12 for the top line on a bonk. One mole: about 57 rows, 24 ms; two moles in different rows:
+  about 102, 43 ms; all under the 50 ms step. These
   are reasoned from the layout, not modelled; Rev A's bench measures them.
 - **State:** about 64 B (nine holes' states and timers, the wait or stay, the lives, the draws, the save's fields).
 - **Flash:** about 3-4 KB (the mole's frames, the hole, the title pictures, the tally). Internal RAM +0.

@@ -41,7 +41,7 @@ typedef struct {
     bool latch_l, latch_r;
     /* what the last step did, for the app's sound and flashes (not part of the rules) */
     uint8_t ev_catches, ev_misses, ev_lost, ev_ten;
-    int16_t ev_catch_x;           /* where the last catch was */
+    int16_t ev_catch_x, ev_miss_x;  /* where the last catch and miss were */
 } catch_game;
 
 void catch_init(catch_game *g, bool full, uint32_t seed, uint32_t game);

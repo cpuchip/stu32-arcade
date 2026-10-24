@@ -84,6 +84,7 @@ void catch_step(catch_game *g)
         }
         if (s.y >= CATCH_H * CATCH_SUB) {
             g->ev_misses++;
+            g->ev_miss_x = s.x;
             if (g->full && g->lives > 0) {
                 g->ev_lost++;
                 if (--g->lives == 0) {
